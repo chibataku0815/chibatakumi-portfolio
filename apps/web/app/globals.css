@@ -60,11 +60,14 @@
   transition: all 0.3s ease-in-out;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+:root.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
 }
 
 html,
@@ -76,6 +79,7 @@ body {
 body {
   color: var(--foreground);
   background: var(--background);
+  transition: color 0.3s ease-in-out, background 0.3s ease-in-out;
 }
 
 * {
@@ -89,19 +93,15 @@ a {
   text-decoration: none;
 }
 
+/* ダークモード時の画像切り替え */
 .imgDark {
   display: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
+.dark .imgLight {
+  display: none;
+}
 
-  .imgLight {
-    display: none;
-  }
-  .imgDark {
-    display: unset;
-  }
+.dark .imgDark {
+  display: unset;
 }

@@ -23,8 +23,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ja" className="scroll-smooth">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html lang="ja" className="scroll-smooth" suppressHydrationWarning>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen transition-colors duration-300`}>
         <div className="fixed top-4 right-4 z-50">
           <ThemeToggle />
         </div>

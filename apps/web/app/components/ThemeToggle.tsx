@@ -2,7 +2,7 @@
  * テーマトグルコンポーネント
  * 
  * ライト/ダークモードを切り替えるためのボタンコンポーネント
- * Tailwind CSS v4の新機能を活用
+ * Tailwind CSS v4の新機能を活用し、ハイドレーション対策済み
  */
 
 'use client';
@@ -15,44 +15,47 @@ export interface ThemeToggleProps {
 }
 
 export const ThemeToggle: FC<ThemeToggleProps> = ({ className = '' }) => {
-  // テーマの状態（初期値はメディアクエリに基づく）
-  const [isDarkMode, setIsDarkMode] = useState<boolean | null>(null);
-
-  // コンポーネントマウント時にシステム設定を取得
-  useEffect(() => {
-    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    // ローカルストレージから保存された設定を読み込む
-    const savedTheme = localStorage.getItem('theme');
-    
-    if (savedTheme === 'dark') {
-      setIsDarkMode(true);
-      document.documentElement.classList.add('dark');
-    } else if (savedTheme === 'light') {
-      setIsDarkMode(false);
-      document.documentElement.classList.remove('dark');
-    } else {
-      setIsDarkMode(isDark);
-      if (isDark) {
-        document.documentElement.classList.add('dark');
-      }
+  // システムのデフォルト設定を初期値として使用
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    // クライアントサイドでのみ実行
+    if (typeof window !== 'undefined') {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'dark') return true;
+      if (savedTheme === 'light') return false;
+      return window.matchMedia('(prefers-color-scheme: dark)').matches;
     }
+    return false; // サーバーサイドでのデフォルト値
+  });
+
+  useEffect(() => {
+    // テーマの初期設定
+    const root = document.documentElement;
+    if (isDarkMode) {
+      root.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      root.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [isDarkMode]);
+
+  // メディアクエリの変更を監視
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = (e: MediaQueryListEvent) => {
+      if (!localStorage.getItem('theme')) {
+        setIsDarkMode(e.matches);
+      }
+    };
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
   // テーマを切り替える関数
   const toggleTheme = () => {
-    if (isDarkMode) {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-      setIsDarkMode(false);
-    } else {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-      setIsDarkMode(true);
-    }
+    setIsDarkMode(!isDarkMode);
   };
-
-  // ローディング中は何も表示しない
-  if (isDarkMode === null) return null;
 
   return (
     <button
