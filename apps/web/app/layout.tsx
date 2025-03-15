@@ -1,33 +1,37 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+import Link from "next/link";
 import "./globals.css";
-import ThemeToggle from "./components/ThemeToggle";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-});
-
+/**
+ * メタデータの設定
+ * @type {Metadata}
+ */
 export const metadata: Metadata = {
-  title: "Tailwind CSS v4 Demo",
-  description: "Next.js と Tailwind CSS v4 のデモアプリケーション",
+  title: "Portfolio",
+  description: "Portfolio website",
 };
 
+/**
+ * ルートレイアウトコンポーネント
+ * @param {Object} props - プロパティオブジェクト
+ * @param {React.ReactNode} props.children - 子要素
+ */
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: {
+  children: React.ReactNode
+}) {
   return (
-    <html lang="ja" className="scroll-smooth" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased min-h-screen bg-background text-foreground transition-colors duration-300`}>
-        <div className="fixed top-4 right-4 z-50">
-          <ThemeToggle />
-        </div>
+    <html lang="ja">
+      <body className="font-display bg-black text-copy">
+        <nav className="fixed top-0 left-0 w-screen p-7 flex justify-between items-center">
+          <div className="logo">LOGO</div>
+          <div className="links flex gap-8">
+            <Link href="#home" className="no-underline uppercase text-copy font-mono text-xs font-semibold p-2">Home</Link>
+            <Link href="#projects" className="no-underline uppercase text-copy font-mono text-xs font-semibold p-2">Projects</Link>
+            <Link href="#info" className="no-underline uppercase text-copy font-mono text-xs font-semibold p-2">Info</Link>
+          </div>
+        </nav>
         {children}
       </body>
     </html>
