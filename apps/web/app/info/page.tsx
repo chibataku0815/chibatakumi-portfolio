@@ -1,10 +1,9 @@
 'use client';
 
-import { useGSAP } from '@gsap/react';
-import gsap from 'gsap';
-import SplitType from 'split-type';
-import { ReactLenis } from '@studio-freight/react-lenis';
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
+import Image from "next/image";
+import { useLenis } from '../hooks/useLenis';
+import { useTextAnimation } from '../hooks/useTextAnimation';
 
 /**
  * 情報ページコンポーネント
@@ -13,44 +12,39 @@ import { useEffect, useRef } from 'react';
 export default function Info() {
   const textRef = useRef<HTMLParagraphElement>(null);
 
-  useEffect(() => {
-    if (textRef.current) {
-      // テキストを行単位に分割
-      new SplitType(textRef.current, { types: 'lines' });
-    }
-  }, []);
+  // スムーススクロールの初期化
+  useLenis();
 
-  useGSAP(() => {
-    // テキストのアニメーション
-    const lines = gsap.utils.toArray('.line');
-    gsap.fromTo(
-      lines,
-      {
-        opacity: 0,
-        y: 50,
-      },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 1,
-        stagger: 0.1,
-        ease: 'power3.out',
-      }
-    );
-  }, []);
+  // テキストアニメーションの設定
+  useTextAnimation(textRef, {
+    duration: 1,
+    stagger: 0.1,
+    ease: 'power3.out',
+    startY: 50,
+  });
 
   return (
-    <ReactLenis root>
-      <div className="info">
-        <img src="/about.jpg" alt="About" />
-        <p ref={textRef}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
-          tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-          veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-          commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
-          velit esse cillum dolore eu fugiat nulla pariatur.
-        </p>
-      </div>
-    </ReactLenis>
+    <main className="info">
+      <section className="w-screen h-full min-h-screen bg-bg flex">
+        <div className="col flex-1 relative">
+          <Image 
+            src="/images/about.jpg" 
+            alt="About" 
+            fill 
+            className="object-cover"
+          />
+        </div>
+        <div className="col flex-1 p-8 flex justify-center items-center">
+          <p ref={textRef} className="font-medium text-4xl text-copy">
+            <span className="line clip-polygon block">
+              <span className="line-span-relative">Welcome to my portfolio.</span>
+            </span>
+            <span className="line clip-polygon block">
+              <span className="line-span-relative">I am a web developer.</span>
+            </span>
+          </p>
+        </div>
+      </section>
+    </main>
   );
 } 
