@@ -1,6 +1,63 @@
+@import "tailwindcss";
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  
+  /* Tailwind CSS v4のカラースキーム変数 */
+  --color-primary: #3b82f6;
+  --color-secondary: #6b7280;
+  --color-accent: #f59e0b;
+}
+
+/* カスタムユーティリティクラスの定義 */
+@layer utilities {
+  /* ガラスモーフィズムエフェクト */
+  .glassmorphism {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+  }
+  
+  /* テキストグラデーション */
+  .text-gradient {
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    background-image: linear-gradient(to right, var(--color-primary), var(--color-accent));
+  }
+  
+  /* アンダーラインアニメーション */
+  .animated-underline {
+    position: relative;
+  }
+  
+  .animated-underline::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: currentColor;
+    transition: width 0.3s;
+  }
+  
+  .animated-underline:hover::after {
+    width: 100%;
+  }
+}
+
+/* @starting-styleを使用した要素のトランジション効果 */
+.fade-in {
+  @starting-style {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 0.3s ease-in-out;
 }
 
 @media (prefers-color-scheme: dark) {
