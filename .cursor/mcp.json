@@ -1,0 +1,84 @@
+{
+    "mcpServers": {
+      "time": {
+        "command": "uvx",
+        "args": [
+          "mcp-server-time",
+          "--local-timezone=Asia/Tokyo"
+        ],
+        "disabled": false,
+        "autoApprove": [
+          "get_current_time"
+        ]
+      },
+      "puppeteer": {
+        "command": "~/.volta/bin/npx",
+        "args": [
+          "-y",
+          "@modelcontextprotocol/server-puppeteer"
+        ],
+        "disabled": false,
+        "autoApprove": []
+      },
+      "memory": {
+        "command": "~/.volta/bin/npx",
+        "args": [
+          "-y",
+          "@modelcontextprotocol/server-memory"
+        ],
+        "disabled": false,
+        "autoApprove": [
+          "read_graph",
+          "create_entities",
+          "create_relations",
+          "add_observations",
+          "search_nodes",
+          "open_nodes"
+        ]
+      },
+      "filesystem": {
+        "command": "~/.volta/bin/npx",
+        "args": [
+          "-y",
+          "@modelcontextprotocol/server-filesystem",
+          "~/Desktop"
+        ],
+        "disabled": false,
+        "autoApprove": []
+      },
+      "github": {
+        "command": "~/.volta/bin/npx",
+        "args": [
+          "-y",
+          "@modelcontextprotocol/server-github"
+        ],
+        "env": {
+          "GITHUB_PERSONAL_ACCESS_TOKEN": "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"
+        },
+        "disabled": false,
+        "autoApprove": [
+          "search_repositories"
+        ]
+      },
+      "git": {
+        "command": "uvx",
+        "args": [
+          "mcp-server-git",
+          "--repository",
+          "/Users/chibatakumi/Documents/forestone/ailab"
+        ],
+        "disabled": false,
+        "autoApprove": [
+          "git_status"
+        ]
+      },
+      "sequential-thinking": {
+        "command": "~/.volta/bin/npx",
+        "args": [
+          "-y",
+          "@modelcontextprotocol/server-sequential-thinking"
+        ]
+      }
+    }
+  }
+  
