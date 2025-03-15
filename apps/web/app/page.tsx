@@ -1,5 +1,10 @@
-import Button from './components/Button';
-import Card, { CardHeader, CardBody, CardFooter, CardMedia } from './components/Card';
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
 
 export default function Home() {
   return (
@@ -13,10 +18,10 @@ export default function Home() {
             最新のTailwind CSSで構築された最新のコンポーネントライブラリなのだ！
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
-            <Button intent="primary">プライマリボタン</Button>
-            <Button intent="secondary">セカンダリボタン</Button>
-            <Button intent="accent" rounded>アクセントボタン</Button>
-            <Button intent="outline">アウトラインボタン</Button>
+            <Button variant="default">プライマリボタン</Button>
+            <Button variant="secondary">セカンダリボタン</Button>
+            <Button variant="destructive">アクセントボタン</Button>
+            <Button variant="outline">アウトラインボタン</Button>
           </div>
         </header>
 
@@ -33,39 +38,37 @@ export default function Home() {
               <CardHeader>
                 <h3 className="text-xl font-semibold">デフォルトカード</h3>
               </CardHeader>
-              <CardBody>
+              <CardContent>
                 <p>シンプルなデザインのカードコンポーネント。基本的なコンテンツ表示に最適なのだ！</p>
-              </CardBody>
+              </CardContent>
               <CardFooter>
-                <Button size="sm" fullWidth>詳細を見る</Button>
+                <Button className="w-full">詳細を見る</Button>
               </CardFooter>
             </Card>
 
             {/* エレベーテッドカード */}
-            <Card variant="elevated" padding="none">
-              <div className="h-48 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] flex items-center justify-center text-white">
+            <Card className="overflow-hidden">
+              <div className="h-48 bg-gradient-to-r from-primary to-destructive flex items-center justify-center text-white">
                 <span className="text-xl font-bold">サンプル画像エリア</span>
               </div>
-              <div className="p-4">
+              <CardContent className="p-4">
                 <h3 className="text-xl font-semibold mb-2">エレベーテッドカード</h3>
                 <p className="mb-4">影付きの浮き上がったデザインのカード。注目コンテンツに最適なのだ！</p>
-                <Button intent="accent" size="sm">詳細</Button>
-              </div>
+                <Button variant="destructive">詳細</Button>
+              </CardContent>
             </Card>
 
             {/* アウトラインカード */}
-            <Card variant="outline" clickable>
+            <Card className="border-2">
               <CardHeader>
                 <h3 className="text-xl font-semibold">アウトラインカード</h3>
               </CardHeader>
-              <CardBody>
+              <CardContent>
                 <p>境界線のみのシンプルなデザイン。軽量で控えめな表示が必要な場合に使用するのだ！</p>
-              </CardBody>
-              <CardFooter>
-                <div className="flex justify-between">
-                  <Button intent="ghost" size="sm">キャンセル</Button>
-                  <Button intent="primary" size="sm">確認</Button>
-                </div>
+              </CardContent>
+              <CardFooter className="flex justify-between">
+                <Button variant="ghost">キャンセル</Button>
+                <Button variant="default">確認</Button>
               </CardFooter>
             </Card>
           </div>
@@ -80,19 +83,21 @@ export default function Home() {
 
           <div className="resize-x overflow-auto border p-4 max-w-full mb-8">
             <div className="@container min-w-[200px] w-full">
-              <div className="bg-zinc-100 dark:bg-zinc-800 rounded-lg p-6
+              <div className="bg-muted rounded-lg p-6
                           @xs:grid @xs:grid-cols-1 
                           @sm:grid-cols-2 
                           @md:grid-cols-3 
                           @lg:grid-cols-4 gap-4">
                 {[1, 2, 3, 4].map((num) => (
-                  <div key={`card-${num}`} className="bg-white dark:bg-zinc-700 rounded p-4 mb-4 @sm:mb-0">
-                    <h4 className="text-lg font-semibold mb-2">カード {num}</h4>
-                    <p>コンテナサイズに応じてレイアウトが変化するのだ！</p>
-                  </div>
+                  <Card key={`card-${num}`} className="mb-4 @sm:mb-0">
+                    <CardContent className="p-4">
+                      <h4 className="text-lg font-semibold mb-2">カード {num}</h4>
+                      <p>コンテナサイズに応じてレイアウトが変化するのだ！</p>
+                    </CardContent>
+                  </Card>
                 ))}
               </div>
-              <div className="text-center mt-4 text-sm text-zinc-500">
+              <div className="text-center mt-4 text-sm text-muted-foreground">
                 ↑ 横にリサイズしてコンテナクエリの効果を確認するのだ！ ↑
               </div>
             </div>
@@ -107,22 +112,26 @@ export default function Home() {
           <p className="mb-6">@starting-styleを使ったトランジション効果なのだ</p>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="fade-in p-6 bg-white dark:bg-zinc-800 rounded-lg shadow-md">
-              <h4 className="text-lg font-medium mb-2">フェードイン効果</h4>
-              <p>ページ読み込み時にフェードインするエレメントなのだ</p>
-            </div>
+            <Card className="fade-in">
+              <CardContent className="p-6">
+                <h4 className="text-lg font-medium mb-2">フェードイン効果</h4>
+                <p>ページ読み込み時にフェードインするエレメントなのだ</p>
+              </CardContent>
+            </Card>
             
             <Button 
               className="h-full transition-all fade-in" 
-              intent="outline"
+              variant="outline"
             >
               ホバーでスタイル変化するのだ
             </Button>
             
-            <div className="animated-underline fade-in p-6 bg-white dark:bg-zinc-800 rounded-lg shadow-md">
-              <h4 className="text-lg font-medium mb-2">アンダーラインアニメーション</h4>
-              <p>ホバー時にアンダーラインが表示されるのだ</p>
-            </div>
+            <Card className="animated-underline fade-in">
+              <CardContent className="p-6">
+                <h4 className="text-lg font-medium mb-2">アンダーラインアニメーション</h4>
+                <p>ホバー時にアンダーラインが表示されるのだ</p>
+              </CardContent>
+            </Card>
           </div>
         </section>
 
@@ -135,24 +144,24 @@ export default function Home() {
           
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <div className="flex flex-col items-center">
-              <div className="h-20 w-full rounded-lg" style={{ background: "var(--color-primary)" }} />
+              <div className="h-20 w-full rounded-lg bg-primary" />
               <span className="mt-2">Primary</span>
             </div>
             <div className="flex flex-col items-center">
-              <div className="h-20 w-full rounded-lg" style={{ background: "color-mix(in srgb, var(--color-primary) 75%, var(--color-accent) 25%)" }} />
+              <div className="h-20 w-full rounded-lg" style={{ background: "color-mix(in srgb, hsl(var(--primary)) 75%, hsl(var(--destructive)) 25%)" }} />
               <span className="mt-2">Mix 75/25</span>
             </div>
             <div className="flex flex-col items-center">
-              <div className="h-20 w-full rounded-lg" style={{ background: "color-mix(in srgb, var(--color-primary) 50%, var(--color-accent) 50%)" }} />
+              <div className="h-20 w-full rounded-lg" style={{ background: "color-mix(in srgb, hsl(var(--primary)) 50%, hsl(var(--destructive)) 50%)" }} />
               <span className="mt-2">Mix 50/50</span>
             </div>
             <div className="flex flex-col items-center">
-              <div className="h-20 w-full rounded-lg" style={{ background: "color-mix(in srgb, var(--color-primary) 25%, var(--color-accent) 75%)" }} />
+              <div className="h-20 w-full rounded-lg" style={{ background: "color-mix(in srgb, hsl(var(--primary)) 25%, hsl(var(--destructive)) 75%)" }} />
               <span className="mt-2">Mix 25/75</span>
             </div>
             <div className="flex flex-col items-center">
-              <div className="h-20 w-full rounded-lg" style={{ background: "var(--color-accent)" }} />
-              <span className="mt-2">Accent</span>
+              <div className="h-20 w-full rounded-lg bg-destructive" />
+              <span className="mt-2">Destructive</span>
             </div>
           </div>
         </section>
@@ -165,57 +174,61 @@ export default function Home() {
           <p className="mb-6">field-sizing プロパティを使用したフォーム要素の一貫したサイジングなのだ</p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <div className="flex gap-4">
-                <div>
-                  <label htmlFor="normal-input" className="block mb-2">通常の入力</label>
-                  <input
-                    id="normal-input"
-                    type="text"
-                    placeholder="入力してください"
-                    className="p-2 border rounded"
-                  />
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex gap-4">
+                  <div>
+                    <label htmlFor="normal-input" className="block mb-2">通常の入力</label>
+                    <input
+                      id="normal-input"
+                      type="text"
+                      placeholder="入力してください"
+                      className="p-2 border rounded"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="normal-select" className="block mb-2">通常の選択</label>
+                    <select
+                      id="normal-select"
+                      className="p-2 border rounded"
+                      aria-label="通常のセレクト要素"
+                    >
+                      <option>選択してください</option>
+                      <option>オプション 1</option>
+                      <option>オプション 2</option>
+                    </select>
+                  </div>
                 </div>
-                <div>
-                  <label htmlFor="normal-select" className="block mb-2">通常の選択</label>
-                  <select
-                    id="normal-select"
-                    className="p-2 border rounded"
-                    aria-label="通常のセレクト要素"
-                  >
-                    <option>選択してください</option>
-                    <option>オプション 1</option>
-                    <option>オプション 2</option>
-                  </select>
-                </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
             
-            <div>
-              <div className="flex gap-4">
-                <div>
-                  <label htmlFor="sizing-input" className="block mb-2">field-sizing入力</label>
-                  <input
-                    id="sizing-input"
-                    type="text"
-                    placeholder="入力してください"
-                    className="field-sizing:content p-2 border rounded"
-                  />
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex gap-4">
+                  <div>
+                    <label htmlFor="sizing-input" className="block mb-2">field-sizing入力</label>
+                    <input
+                      id="sizing-input"
+                      type="text"
+                      placeholder="入力してください"
+                      className="field-sizing:content p-2 border rounded"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="sizing-select" className="block mb-2">field-sizing選択</label>
+                    <select
+                      id="sizing-select"
+                      className="field-sizing:content p-2 border rounded"
+                      aria-label="field-sizingを適用したセレクト要素"
+                    >
+                      <option>選択してください</option>
+                      <option>オプション 1</option>
+                      <option>オプション 2</option>
+                    </select>
+                  </div>
                 </div>
-                <div>
-                  <label htmlFor="sizing-select" className="block mb-2">field-sizing選択</label>
-                  <select
-                    id="sizing-select"
-                    className="field-sizing:content p-2 border rounded"
-                    aria-label="field-sizingを適用したセレクト要素"
-                  >
-                    <option>選択してください</option>
-                    <option>オプション 1</option>
-                    <option>オプション 2</option>
-                  </select>
-                </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </div>
         </section>
       </div>

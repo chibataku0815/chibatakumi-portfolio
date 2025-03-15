@@ -2,42 +2,38 @@
  * テーマトグルコンポーネント
  * 
  * ライト/ダークモードを切り替えるためのボタンコンポーネント
- * Tailwind CSS v4の新機能を活用し、ハイドレーション対策済み
+ * shadcn/UIのスタイリングシステムを使用し、ハイドレーション対策済み
  */
 
 'use client';
 
 import { useEffect, useState } from 'react';
 import type { FC } from 'react';
+import { Button } from "@/components/ui/button";
 
 export interface ThemeToggleProps {
   className?: string;
 }
 
 export const ThemeToggle: FC<ThemeToggleProps> = ({ className = '' }) => {
-  // システムのデフォルト設定を初期値として使用
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    // クライアントサイドでのみ実行
-    if (typeof window !== 'undefined') {
-      const savedTheme = localStorage.getItem('theme');
-      if (savedTheme === 'dark') return true;
-      if (savedTheme === 'light') return false;
-      return window.matchMedia('(prefers-color-scheme: dark)').matches;
-    }
-    return false; // サーバーサイドでのデフォルト値
-  });
+  // 初期状態はfalse（ライトモード）に設定
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
+  // マウント後に初期テーマを設定
   useEffect(() => {
-    // テーマの初期設定
-    const root = document.documentElement;
-    if (isDarkMode) {
-      root.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
+    setIsMounted(true);
+    const savedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+      setIsDarkMode(true);
+      document.documentElement.classList.add('dark');
     } else {
-      root.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
+      setIsDarkMode(false);
+      document.documentElement.classList.remove('dark');
     }
-  }, [isDarkMode]);
+  }, []);
 
   // メディアクエリの変更を監視
   useEffect(() => {
@@ -45,6 +41,11 @@ export const ThemeToggle: FC<ThemeToggleProps> = ({ className = '' }) => {
     const handleChange = (e: MediaQueryListEvent) => {
       if (!localStorage.getItem('theme')) {
         setIsDarkMode(e.matches);
+        if (e.matches) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
       }
     };
 
@@ -54,13 +55,29 @@ export const ThemeToggle: FC<ThemeToggleProps> = ({ className = '' }) => {
 
   // テーマを切り替える関数
   const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode);
+    setIsDarkMode((prev) => {
+      const newValue = !prev;
+      if (newValue) {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('theme', 'light');
+      }
+      return newValue;
+    });
   };
 
+  // マウントされていない場合は何も表示しない
+  if (!isMounted) {
+    return null;
+  }
+
   return (
-    <button
-      type="button"
-      className={`relative inline-flex h-10 w-16 items-center rounded-full bg-zinc-200 dark:bg-zinc-700 transition-colors duration-300 ${className}`}
+    <Button
+      variant="outline"
+      size="icon"
+      className={`relative h-10 w-16 rounded-full ${className}`}
       onClick={toggleTheme}
       aria-label={isDarkMode ? 'ライトモードに切り替え' : 'ダークモードに切り替え'}
     >
@@ -72,7 +89,7 @@ export const ThemeToggle: FC<ThemeToggleProps> = ({ className = '' }) => {
       <span
         className={`
           ${isDarkMode ? 'translate-x-7 bg-zinc-800' : 'translate-x-1 bg-white'}
-          inline-block h-8 w-8 rounded-full shadow transition-transform duration-300
+          absolute inline-block h-8 w-8 rounded-full shadow transition-transform duration-300
           flex items-center justify-center
         `}
       >
@@ -114,7 +131,7 @@ export const ThemeToggle: FC<ThemeToggleProps> = ({ className = '' }) => {
           />
         </svg>
       </span>
-    </button>
+    </Button>
   );
 };
 
