@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { Inter } from "next/font/google";
 import "./globals.css";
+import { ViewTransitions } from "next-view-transitions";
+import Nav from "./components/Nav";
+
+const inter = Inter({ subsets: ["latin"] });
 
 /**
  * メタデータの設定
@@ -8,13 +12,12 @@ import "./globals.css";
  */
 export const metadata: Metadata = {
   title: "Portfolio",
-  description: "Portfolio website",
+  description: "Portfolio with smooth page transitions",
 };
 
 /**
  * ルートレイアウトコンポーネント
- * @param {Object} props - プロパティオブジェクト
- * @param {React.ReactNode} props.children - 子要素
+ * アプリケーション全体のレイアウトを定義します
  */
 export default function RootLayout({
   children,
@@ -22,17 +25,12 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="ja">
-      <body className="font-display bg-black text-copy">
-        <nav className="fixed top-0 left-0 w-screen p-7 flex justify-between items-center">
-          <div className="logo">LOGO</div>
-          <div className="links flex gap-8">
-            <Link href="#home" className="no-underline uppercase text-copy font-mono text-xs font-semibold p-2">Home</Link>
-            <Link href="#projects" className="no-underline uppercase text-copy font-mono text-xs font-semibold p-2">Projects</Link>
-            <Link href="#info" className="no-underline uppercase text-copy font-mono text-xs font-semibold p-2">Info</Link>
-          </div>
-        </nav>
-        {children}
+    <html lang="en">
+      <body className={inter.className}>
+        <ViewTransitions>
+          <Nav />
+          {children}
+        </ViewTransitions>
       </body>
     </html>
   );

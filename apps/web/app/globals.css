@@ -38,8 +38,8 @@
  */
 :root {
   /* システムカラー */
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  --background: #000000;
+  --text: #ffffff;
   
   /* コンポーネントカラー */
   --card: oklch(1 0 0);
@@ -203,4 +203,120 @@
 ::view-transition-old(root) {
   z-index: 1;
   animation: none !important;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--background);
+  color: var(--text);
+}
+
+img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ナビゲーションスタイル */
+.nav {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  padding: 2rem;
+  display: flex;
+  justify-content: space-between;
+  z-index: 100;
+}
+
+.nav a {
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--text);
+  font-weight: 500;
+  letter-spacing: 1px;
+  margin-left: 2rem;
+}
+
+/* ページトランジション用スタイル */
+::view-transition-group(*) {
+  animation: none;
+  z-index: auto;
+}
+
+::view-transition-image-pair(*) {
+  isolation: isolate;
+  z-index: 1;
+}
+
+::view-transition-new(*) {
+  z-index: 9999;
+}
+
+::view-transition-old(*) {
+  z-index: 1;
+}
+
+/* ホームページスタイル */
+.home {
+  min-height: 100vh;
+  padding: 6rem 2rem;
+}
+
+.home h1 {
+  font-size: 4rem;
+  margin-bottom: 2rem;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
+}
+
+.home h1 .char {
+  display: inline-block;
+  transform-origin: bottom;
+}
+
+/* プロジェクトページスタイル */
+.projects {
+  width: 100%;
+  background: var(--background);
+  padding: 6rem 2rem;
+}
+
+.projects-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
+}
+
+.projects-container img {
+  width: 100%;
+  height: 60vh;
+}
+
+/* 情報ページスタイル */
+.info {
+  width: 100%;
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  padding: 6rem 2rem;
+  gap: 4rem;
+}
+
+.info img {
+  width: 100%;
+  height: 70vh;
+}
+
+.info p {
+  font-size: 1.2rem;
+  line-height: 1.8;
+}
+
+.info p .line {
+  display: block;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
+}
+
+.info p .line span {
+  display: inline-block;
+  transform-origin: bottom;
 }
