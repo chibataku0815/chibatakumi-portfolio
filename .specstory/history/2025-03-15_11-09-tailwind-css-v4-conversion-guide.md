@@ -424,13 +424,13 @@ _**Assistant**_
 +       <section className="projects w-screen h-full min-h-screen bg-bg py-80 px-4">
 +         <div className="images w-[30%] mx-auto flex flex-col gap-8">
 +           <div className="image">
-+             <img src="/images/project1.jpg" alt="Project 1" className="w-full h-full object-cover" />
++             <img src="/project1.jpg" alt="Project 1" className="w-full h-full object-cover" />
 +           </div>
 +           <div className="image">
-+             <img src="/images/project2.jpg" alt="Project 2" className="w-full h-full object-cover" />
++             <img src="/project2.jpg" alt="Project 2" className="w-full h-full object-cover" />
 +           </div>
 +           <div className="image">
-+             <img src="/images/project3.jpg" alt="Project 3" className="w-full h-full object-cover" />
++             <img src="/project3.jpg" alt="Project 3" className="w-full h-full object-cover" />
 +           </div>
 +         </div>
 +       </section>

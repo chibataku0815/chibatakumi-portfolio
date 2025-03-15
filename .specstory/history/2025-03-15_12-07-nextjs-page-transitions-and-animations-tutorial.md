@@ -653,26 +653,26 @@ installed next-view-transitions@0.3.4
 -       <section id="projects" className="projects w-screen h-full min-h-screen bg-bg py-80 px-4">
 -         <div className="images w-[30%] mx-auto flex flex-col gap-8">
 -           <div className="image relative aspect-video">
--             <Image src="/images/project1.jpg" alt="Project 1" fill className="object-cover" />
+-             <Image src="/project1.jpg" alt="Project 1" fill className="object-cover" />
 -           </div>
 -           <div className="image relative aspect-video">
--             <Image src="/images/project2.jpg" alt="Project 2" fill className="object-cover" />
+-             <Image src="/project2.jpg" alt="Project 2" fill className="object-cover" />
 -           </div>
 -           <div className="image relative aspect-video">
--             <Image src="/images/project3.jpg" alt="Project 3" fill className="object-cover" />
+-             <Image src="/project3.jpg" alt="Project 3" fill className="object-cover" />
 -           </div>
 -         </div>
 -       </section>
 +         <section id="projects" className="projects w-screen h-full min-h-screen bg-bg py-80 px-4">
 +           <div className="images w-[30%] mx-auto flex flex-col gap-8">
 +             <div className="image relative aspect-video">
-+               <Image src="/images/project1.jpg" alt="Project 1" fill className="object-cover" />
++               <Image src="/project1.jpg" alt="Project 1" fill className="object-cover" />
 +             </div>
 +             <div className="image relative aspect-video">
-+               <Image src="/images/project2.jpg" alt="Project 2" fill className="object-cover" />
++               <Image src="/project2.jpg" alt="Project 2" fill className="object-cover" />
 +             </div>
 +             <div className="image relative aspect-video">
-+               <Image src="/images/project3.jpg" alt="Project 3" fill className="object-cover" />
++               <Image src="/project3.jpg" alt="Project 3" fill className="object-cover" />
 +             </div>
 +           </div>
 +         </section>
@@ -1477,7 +1477,7 @@ _**User**_
 @project1.jpg 
 
 ```
-<Image src="/images/project1.jpg" alt="Project 1" fill className="object-cover" />
+<Image src="/project1.jpg" alt="Project 1" fill className="object-cover" />
 ```
 
 画像の置き場所あっていますか？
@@ -1560,7 +1560,7 @@ apps/web/
 
 コードでの参照方法も正しいです：
 ```tsx
-<Image src="/images/project1.jpg" alt="Project 1" fill className="object-cover" />
+<Image src="/project1.jpg" alt="Project 1" fill className="object-cover" />
 ```
 
 `/images/project1.jpg`というパスは、`public`ディレクトリをルートとして参照されます。また、Next.jsの`Image`コンポーネントを使用して、以下の最適化機能を活用できています：
@@ -1632,13 +1632,13 @@ Read file: /Volumes/WD1TB/documents/forestone/chibatakumi-portfolio/apps/web/app
 ---
 
 ```diff
-              <Image src="/images/project1.jpg" alt="Project 1" fill className="object-cover" />
+              <Image src="/project1.jpg" alt="Project 1" fill className="object-cover" />
             </div>
 -           <div className="image relative aspect-video">
--             <Image src="/images/project2.jpg" alt="Project 2" fill className="object-cover" />
+-             <Image src="/project2.jpg" alt="Project 2" fill className="object-cover" />
 -           </div>
 -           <div className="image relative aspect-video">
--             <Image src="/images/project3.jpg" alt="Project 3" fill className="object-cover" />
+-             <Image src="/project3.jpg" alt="Project 3" fill className="object-cover" />
 -           </div>
           </div>
         </section>

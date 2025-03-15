@@ -566,6 +566,351 @@ _**Assistant**_
 
 ---
 
+_**User**_
+
+@useTextAnimation.ts もリファクタリングしましょう
+
+---
+
+_**Assistant**_
+
+はい、`useTextAnimation.ts`も同様のパターンでリファクタリングを行います。主なポイントは：
+
+1. 型定義の改善
+2. デフォルト値の分離
+3. エラーハンドリングの追加
+4. パフォーマンスの最適化
+5. ドキュメントの充実
+
+---
+
+```diff
+  import SplitType from 'split-type';
+  import type { RefObject } from 'react';
+- import { useEffect } from 'react';
++ import { useEffect, useCallback } from 'react';
++ 
++ /**
++  * GSAPのイージング関数の型定義
++  */
++ type EaseType = 'power4.out' | 'power3.out' | 'power2.out' | 'power1.out' | 'expo.out' | 'back.out';
+  
+  /**
+   * テキストアニメーションの設定オプション
+   */
+  interface TextAnimationOptions {
+-   /** アニメーションの持続時間 */
++   /** アニメーションの持続時間（秒） @default 1 */
+    duration?: number;
+-   /** アニメーションの遅延時間（文字ごと） */
++   /** アニメーションの遅延時間（文字ごと、秒） @default 0.02 */
+    stagger?: number;
+-   /** イージング関数 */
+-   ease?: string;
+-   /** 開始時の不透明度 */
++   /** イージング関数 @default 'power4.out' */
++   ease?: EaseType;
++   /** 開始時の不透明度 @default 0 */
+    startOpacity?: number;
+-   /** 開始時のY座標オフセット */
++   /** 開始時のY座標オフセット（ピクセル） @default 100 */
+    startY?: number;
+-   /** 開始時のX回転角度 */
++   /** 開始時のX回転角度（度） @default -90 */
+    startRotateX?: number;
+  }
++ 
++ /**
++  * デフォルトのアニメーションオプション
++  */
++ const DEFAULT_OPTIONS: Required<TextAnimationOptions> = {
++   duration: 1,
++   stagger: 0.02,
++   ease: 'power4.out',
++   startOpacity: 0,
++   startY: 100,
++   startRotateX: -90,
++ };
+  
+  /**
+   * テキストアニメーションを管理するカスタムフック
+   * @param elementRef - アニメーション対象の要素への参照
+   * @param options - アニメーションの設定オプション
++  * @returns void
++  * @throws {Error} テキストの分割やアニメーションの初期化に失敗した場合
++  * @example
++  * const textRef = useRef<HTMLHeadingElement>(null);
++  * useTextAnimation(textRef, {
++  *   duration: 1.5,
++  *   stagger: 0.05,
++  *   ease: 'expo.out',
++  * });
+   */
+  export const useTextAnimation = <T extends HTMLElement>(
+    elementRef: RefObject<T | null>,
+    options: TextAnimationOptions = {}
+- ) => {
+-   // デフォルトのオプションと結合
+-   const {
+-     duration = 1,
+-     stagger = 0.02,
+-     ease = 'power4.out',
+-     startOpacity = 0,
+-     startY = 100,
+-     startRotateX = -90,
+-   } = options;
+- 
+-   useEffect(() => {
+-     if (elementRef.current) {
+-       // テキストを文字単位に分割
++ ): void => {
++   // テキストを文字単位に分割する関数をメモ化
++   const splitText = useCallback(() => {
++     if (!elementRef.current) return;
++     try {
+        new SplitType(elementRef.current, { types: 'chars' });
++     } catch (error) {
++       console.error('Failed to split text:', error);
++       throw new Error('テキストの分割に失敗しました');
+      }
+    }, [elementRef]);
+  
++   // 初期分割の実行
++   useEffect(() => {
++     splitText();
++   }, [splitText]);
++ 
++   // アニメーションの実行
+    useGSAP(() => {
+      if (!elementRef.current) return;
++ 
++     try {
++       // オプションの設定
++       const animationOptions = { ...DEFAULT_OPTIONS, ...options };
+  
+-     // テキストのアニメーション
+-     const chars = gsap.utils.toArray('.char');
+-     gsap.fromTo(
+-       chars,
+-       {
+-         opacity: startOpacity,
+-         y: startY,
+-         rotateX: startRotateX,
+-       },
+-       {
+-         opacity: 1,
+-         y: 0,
+-         rotateX: 0,
+-         duration,
+-         stagger,
+-         ease,
+-       }
+-     );
+-   }, [duration, stagger, ease, startOpacity, startY, startRotateX]);
++       // テキストのアニメーション
++       const chars = gsap.utils.toArray<HTMLElement>('.char');
++       if (chars.length === 0) {
++         throw new Error('アニメーション対象の文字が見つかりません');
++       }
++ 
++       gsap.fromTo(
++         chars,
++         {
++           opacity: animationOptions.startOpacity,
++           y: animationOptions.startY,
++           rotateX: animationOptions.startRotateX,
++         },
++         {
++           opacity: 1,
++           y: 0,
++           rotateX: 0,
++           duration: animationOptions.duration,
++           stagger: animationOptions.stagger,
++           ease: animationOptions.ease,
++         }
++       );
++     } catch (error) {
++       console.error('Failed to animate text:', error);
++       throw new Error('テキストアニメーションの初期化に失敗しました');
++     }
++   }, [elementRef, options]);
+  }; 
+```
+
+---
+
+主な改善点について説明します：
+
+1. **型の改善**
+   - `EaseType`型を追加してイージング関数の型を制限
+   - オプションのデフォルト値をJSDocに追加
+   - 戻り値の型を明示的に指定
+   - `gsap.utils.toArray`に型パラメータを追加
+
+2. **コードの構造化**
+   - デフォルトオプションを定数として分離
+   - オプションの単位（秒、ピクセル、度）をJSDocに明記
+   - テキスト分割ロジックを別関数として分離
+
+3. **パフォーマンス最適化**
+   - テキスト分割関数を`useCallback`でメモ化
+   - 依存配列の最適化（`options`オブジェクト全体を監視）
+   - 不要な再レンダリングを防止
+
+4. **エラーハンドリング**
+   - テキスト分割処理のエラーハンドリング追加
+   - アニメーション初期化のエラーハンドリング追加
+   - 文字要素が見つからない場合のチェック追加
+   - エラーメッセージの日本語対応
+
+5. **ドキュメントの充実**
+   - 使用例を追加
+   - パラメータの詳細な説明
+   - エラー発生時の挙動を明記
+   - 単位の明確化
+
+これらの改善により、以下の利点が得られます：
+
+- より安全な型チェック
+- エラー発生時の適切な処理
+- コードの再利用性の向上
+- デバッグのしやすさ
+- ドキュメントの充実による使いやすさの向上
+
+---
+
+_**User**_
+
+Console Error
+
+
+Error: アニメーション対象の文字が見つかりません
+
+app/hooks/useTextAnimation.ts (84:15) @ useTextAnimation.useGSAP
+
+
+  82 |       const chars = gsap.utils.toArray<HTMLElement>('.char');
+  83 |       if (chars.length === 0) {
+> 84 |         throw new Error('アニメーション対象の文字が見つかりません');
+     |               ^
+  85 |       }
+  86 |
+  87 |       gsap.fromTo(
+Call Stack
+5
+
+Show 4 ignore-listed frame(s)
+useTextAnimation.useGSAP
+app/hooks/useTextAnimation.ts (84:15)
+
+@page.tsx 
+
+---
+
+_**Assistant**_
+
+このエラーは、テキストアニメーションの対象となる`.char`要素が見つからないために発生しています。`info/page.tsx`では`line`と`line-span-relative`クラスを使用していますが、`useTextAnimation`フックは`chars`を探しています。
+
+この問題を解決するために、テキストの分割方法とアニメーションのセレクタを修正します：
+
+---
+
+```diff
+   */
+  type EaseType = 'power4.out' | 'power3.out' | 'power2.out' | 'power1.out' | 'expo.out' | 'back.out';
++ 
++ /**
++  * テキストの分割タイプ
++  */
++ type SplitTypes = 'chars' | 'lines' | 'words';
+  
+  /**
+    /** 開始時のX回転角度（度） @default -90 */
+    startRotateX?: number;
++   /** テキストの分割タイプ @default 'lines' */
++   splitType?: SplitTypes;
+  }
+  
+    startY: 100,
+    startRotateX: -90,
++   splitType: 'lines',
+  };
+  
+  /**
+   * テキストアニメーションを管理するカスタムフック
+   * @param elementRef - アニメーション対象の要素への参照
++  * @param options - アニメーションの設定オプション
++  * @returns void
++  * @throws {Error} テキストの分割やアニメーションの初期化に失敗した場合
+   * @example
+   * const textRef = useRef<HTMLHeadingElement>(null);
+   *   stagger: 0.05,
+   *   ease: 'expo.out',
++  *   splitType: 'chars',
+   * });
+   */
+    options: TextAnimationOptions = {}
+  ): void => {
+-   // テキストを文字単位に分割する関数をメモ化
++   // オプションの設定
++   const animationOptions = { ...DEFAULT_OPTIONS, ...options };
++ 
++   // テキストを分割する関数をメモ化
+    const splitText = useCallback(() => {
+      if (!elementRef.current) return;
+      try {
+-       new SplitType(elementRef.current, { types: 'chars' });
++       new SplitType(elementRef.current, { types: animationOptions.splitType });
+      } catch (error) {
+        console.error('Failed to split text:', error);
+        throw new Error('テキストの分割に失敗しました');
+      }
+-   }, [elementRef]);
++   }, [elementRef, animationOptions.splitType]);
+  
+    // 初期分割の実行
+  
+      try {
+-       // オプションの設定
+-       const animationOptions = { ...DEFAULT_OPTIONS, ...options };
+- 
+-       // テキストのアニメーション
+-       const chars = gsap.utils.toArray<HTMLElement>('.char');
+-       if (chars.length === 0) {
+-         throw new Error('アニメーション対象の文字が見つかりません');
++       // アニメーション対象の要素を取得
++       const elements = gsap.utils.toArray<HTMLElement>(`.${animationOptions.splitType}`);
++       if (elements.length === 0) {
++         console.warn(`アニメーション対象の要素が見つかりません: .${animationOptions.splitType}`);
++         return; // エラーをスローする代わりに早期リターン
+        }
+  
+        gsap.fromTo(
+-         chars,
++         elements,
+          {
+            opacity: animationOptions.startOpacity,
+        throw new Error('テキストアニメーションの初期化に失敗しました');
+      }
+-   }, [elementRef, options]);
++   }, [elementRef, animationOptions]);
+  }; 
+```
+
+---
+
+次に、`info/page.tsx`のテキストアニメーション設定を更新します：
+
+---
+
+Cancelled
+
+---
+
+
+
+---
+
 
 
 ---

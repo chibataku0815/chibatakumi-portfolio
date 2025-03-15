@@ -14,7 +14,7 @@ export default function Projects() {
   return (
     <main className="projects">
       <section className="w-screen h-full min-h-screen bg-bg py-80 px-4">
-        <div className="images w-[30%] mx-auto flex flex-col gap-8">
+        <div className="images mx-auto flex flex-col gap-8">
           <div className="image relative aspect-video">
             <Image src="/images/project1.jpg" alt="Project 1" fill className="object-cover" />
           </div>

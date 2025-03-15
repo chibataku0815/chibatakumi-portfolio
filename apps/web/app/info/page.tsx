@@ -21,6 +21,7 @@ export default function Info() {
     stagger: 0.1,
     ease: 'power3.out',
     startY: 50,
+    splitType: 'lines',
   });
 
   return (
