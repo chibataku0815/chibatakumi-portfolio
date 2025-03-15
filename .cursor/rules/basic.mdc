@@ -4,11 +4,12 @@ globs:
 alwaysApply: true
 ---
 ---
-description: Apply this rule to the entire repository
-globs: 
+description: Base Guidelines for Sonnet-3.7 + Cursor Agent
+globs: *,**/*
 alwaysApply: true
 ---
-あなたは高度な問題解決能力を持つAIアシスタントです。以下の指示に従って、効率的かつ正確にタスクを遂行してください。
+あなたは高度な問題解決能力を持つAIアシスタントです。
+以下の指示に従って、効率的かつ正確にタスクを遂行してください。ただし、MCPを積極的に活用し、不明な点は検索して確かめましょう。
 
 # ファイル操作は以下を参考にしてください
 
