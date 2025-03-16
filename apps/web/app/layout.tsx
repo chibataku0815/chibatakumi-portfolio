@@ -1,10 +1,28 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Space_Grotesk, Familjen_Grotesk } from "next/font/google";
 import "./globals.css";
 import { ViewTransitions } from "next-view-transitions";
 import Nav from "./components/Nav";
 
-const inter = Inter({ subsets: ["latin"] });
+/**
+ * 見出し用フォント
+ * Space Groteskは幾何学的でモダンな太字フォント
+ */
+const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-space-grotesk',
+});
+
+/**
+ * 本文用フォント
+ * Familjen Groteskは読みやすさとブルータリズムの特徴を兼ね備えたフォント
+ */
+const familjenGrotesk = Familjen_Grotesk({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-familjen-grotesk',
+});
 
 /**
  * メタデータの設定
@@ -25,8 +43,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
+    <html lang="ja" className={`${spaceGrotesk.variable} ${familjenGrotesk.variable}`}>
+      <body className={familjenGrotesk.className}>
         <ViewTransitions>
           <Nav />
           {children}

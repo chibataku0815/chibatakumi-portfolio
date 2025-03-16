@@ -132,6 +132,10 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  
+  /* フォントファミリー */
+  --font-family-display: var(--font-space-grotesk), sans-serif;
+  --font-family-body: var(--font-familjen-grotesk), sans-serif;
 }
 
 /**
@@ -215,6 +219,15 @@
   }
 }
 
+/* フォント設定のための明示的なCSS */
+.font-display {
+  font-family: var(--font-space-grotesk) !important;
+}
+
+.font-body {
+  font-family: var(--font-familjen-grotesk) !important;
+}
+
 /* View Transition API */
 ::view-transition-old(root),
 ::view-transition-new(root) {
@@ -242,7 +255,6 @@
 }
 
 body {
-  font-family: 'Inter', sans-serif;
   background-color: var(--background);
   color: var(--text);
 }
