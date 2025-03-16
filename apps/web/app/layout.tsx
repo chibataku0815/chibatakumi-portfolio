@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Space_Grotesk, Familjen_Grotesk } from "next/font/google";
 import "./globals.css";
 import { ViewTransitions } from "next-view-transitions";
-import Nav from "./components/Nav";
+import Header from "./components/Header";
 
 /**
  * 見出し用フォント
@@ -46,7 +46,7 @@ export default function RootLayout({
     <html lang="ja" className={`${spaceGrotesk.variable} ${familjenGrotesk.variable}`}>
       <body className={familjenGrotesk.className}>
         <ViewTransitions>
-          <Nav />
+          <Header />
           {children}
         </ViewTransitions>
       </body>
