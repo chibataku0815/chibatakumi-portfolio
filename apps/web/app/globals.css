@@ -40,7 +40,7 @@
   /* システムカラー */
   --background: #000000;
   --text: #ffffff;
-  
+
   /* コンポーネントカラー */
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
@@ -75,7 +75,7 @@
 .dark {
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
-  
+
   /* コンポーネントカラー */
   --card: oklch(0.205 0 0);
   --card-foreground: oklch(0.985 0 0);
@@ -147,6 +147,42 @@
   transition: all 0.3s ease-in-out;
 }
 
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.animate-blink {
+  animation: blink 0.8s step-end infinite;
+}
+
+.cursor-follow {
+  pointer-events: none;
+  mix-blend-mode: difference;
+  transition: opacity 0.3s ease;
+}
+
+.cursor-follow:hover {
+  opacity: 1 !important;
+}
+
+/* ノイズエフェクト */
+.noise-filter {
+  position: relative;
+}
+
+.noise-filter::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
 /**
  * ダークモード画像切り替え
  */
@@ -167,7 +203,7 @@
   .clip-polygon {
     clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
   }
-  
+
   .char-relative {
     position: relative;
     will-change: transform;

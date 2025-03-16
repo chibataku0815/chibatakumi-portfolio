@@ -1,8 +1,7 @@
-import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
-import SplitType from 'split-type';
 import type { RefObject } from 'react';
-import { useEffect, useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
+import SplitType from 'split-type';
 
 /**
  * GSAPのイージング関数の型定義
@@ -86,18 +85,44 @@ export const useTextAnimation = <T extends HTMLElement>(
   }, [splitText]);
 
   // アニメーションの実行
-  useGSAP(() => {
+  useEffect(() => {
     if (!elementRef.current) return;
 
     try {
       // アニメーション対象の要素を取得
-      const elements = gsap.utils.toArray<HTMLElement>(`.${animationOptions.splitType}`);
+      // SplitTypeは直接要素を参照する形に変更
+      if (!elementRef.current) return;
+
+      // SplitTypeはsplit-typeクラスを生成するが、直接要素自体をアニメーションすることにする
+      const splitElements = elementRef.current.querySelectorAll(`.${animationOptions.splitType}`) ||
+                           elementRef.current.querySelectorAll('.char'); // バックアップとしてcharクラスも探す
+
+      // 要素が見つからない場合は、直接子要素をアニメーション対象とする
+      const elements = splitElements.length > 0 ?
+                       splitElements :
+                       Array.from(elementRef.current.children);
+
       if (elements.length === 0) {
-        console.warn(`アニメーション対象の要素が見つかりません: .${animationOptions.splitType}`);
-        return; // エラーをスローする代わりに早期リターン
+        // もし要素内の文字を直接アニメーションするなら
+        gsap.fromTo(
+          elementRef.current,
+          {
+            opacity: animationOptions.startOpacity,
+            y: animationOptions.startY,
+            rotateX: animationOptions.startRotateX,
+          },
+          {
+            opacity: 1,
+            y: 0,
+            rotateX: 0,
+            duration: animationOptions.duration,
+            ease: animationOptions.ease,
+          }
+        );
+        return;
       }
 
-      gsap.fromTo(
+      const animation = gsap.fromTo(
         elements,
         {
           opacity: animationOptions.startOpacity,
@@ -113,9 +138,14 @@ export const useTextAnimation = <T extends HTMLElement>(
           ease: animationOptions.ease,
         }
       );
+
+      // クリーンアップ関数
+      return () => {
+        animation.kill();
+      };
     } catch (error) {
       console.error('Failed to animate text:', error);
-      throw new Error('テキストアニメーションの初期化に失敗しました');
+      console.warn('テキストアニメーションの初期化に失敗しました');
     }
   }, [elementRef, animationOptions]);
-}; 
+};
