@@ -1,6 +1,6 @@
 'use client';
 
-import { GitBranch, GithubLogo } from '@phosphor-icons/react';
+import { GitBranch } from '@phosphor-icons/react';
 
 /**
  * ヘッダーコンポーネント

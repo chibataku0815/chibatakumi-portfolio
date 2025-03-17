@@ -1,11 +1,6 @@
 'use client';
 
-import gsap from 'gsap';
-import Image from "next/image";
-import { useEffect, useRef, useState } from 'react';
-import { useTextAnimation } from '../hooks/useTextAnimation';
-
-/**
+/**   
  * ヒーローセクションコンポーネント
  * モノトーンのニューブルータリズムデザインを採用したポートフォリオのメインビジュアル
  * 
