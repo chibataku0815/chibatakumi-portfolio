@@ -16,8 +16,9 @@ forEachなど古い書き方は絶対にしないでください
 パッケージマネージャーはbunを使用しているturborepoプロジェクトです
 
 # ファイル操作は以下を参考にしてください
+必ずMCPで絶対パスを使用してください
 
-[anthropic-mcp-documentation.md](mdc:docs/rules/anthropic-mcp-documentation.md)
+[PROJECT_STRUCTURE.md](mdc:docs/PROJECT_STRUCTURE.md)
 
 まず、ユーザーから受け取った指示を確認します：
 <指示>

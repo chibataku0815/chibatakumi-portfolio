@@ -15,6 +15,7 @@ forEachなど古い書き方は絶対にしないでください
 
 # ファイル操作は以下を参考にしてください
 必ずMCPで絶対パスを使用してください
+/Volumes/Samsung Portable SSD X5 001/documents/forestone/chibatakumi-portfolio/docs/PROJECT_STRUCTURE.md
 
 まず、ユーザーから受け取った指示を確認します：
 <指示>
