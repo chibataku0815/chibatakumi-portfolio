@@ -1,0 +1,1 @@
+export { HeroShaderBackground } from "./HeroShaderBackground";

@@ -1,0 +1,34 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bun install:*)",
+      "Bash(TZ=Asia/Tokyo date +\"%Y-%m-%dT%H:%M:%S%z\")",
+      "Bash(mkdir:*)",
+      "Bash(npm run tsc:*)",
+      "Bash(npx tsc:*)",
+      "Bash(./node_modules/.bin/tsc:*)",
+      "Bash(cat:*)",
+      "Bash(npm ls:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(npx expo install:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(npx:*)",
+      "Bash(npm run ios:*)",
+      "Bash(export LANG=en_US.UTF-8)",
+      "Bash(pod install:*)",
+      "Bash(tee:*)",
+      "Read(//private/tmp/**)",
+      "Bash(lsof:*)",
+      "Bash(xargs kill:*)",
+      "Bash(killall:*)",
+      "Read(//Users/chibatakumi/**)",
+      "Bash(volta install:*)",
+      "Bash(codex:*)",
+      "Bash(psql:*)",
+      "Bash([ -f .env.local ])"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
