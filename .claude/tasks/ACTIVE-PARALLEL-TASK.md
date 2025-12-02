@@ -1,5 +1,20 @@
 # Active Parallel Task
 
+## ✅ Next.js/WebGL 保守性ハンドオフプロンプト作成 (2025-12-03T00:31:31+09:00 ～ 2025-12-03T00:31:31+09:00)
+- Updated: 2025-12-03T00:31:31+09:00 (Asia/Tokyo)
+- Status: ✅ 完了（haiku4.5向け指示テンプレを作成）
+- Progress: 100%
+
+### Checklist
+- [x] 現状のHero背景実装と課題を整理
+- [x] haiku4.5向けの実装プロンプトを作成し `.claude/tasks/2025-12-03-next-webgl-handoff-prompt.md` に追加
+- [x] プロンプトでコミット禁止/ビルド不要/最小差分を明示
+
+### Notes / Plan Snapshot (Asia/Tokyo: 2025-12-03T00:31:31+09:00)
+- Hero背景は `HeroShaderBackground.tsx` で画像contain + 平均暗部+端ブラー補完 + FBM/ノイズ（Amberリークなし）。ノイズ振幅は写真分散から算出。
+- 次ステップ: Three/GLコードを `components/canvas` へ集約し、fbm/noise/色抽出を `lib/shaders` に分離、パラメータは config 一元化。Tailwind拡張は最小限。
+- 実装指示は `.claude/tasks/2025-12-03-next-webgl-handoff-prompt.md` に記載。出力時は変更ファイル一覧とパラメータ調整箇所を必ず明記する。
+
 ## ✅ グローバルルール刷新（ポートフォリオ対応）
 - Created: 2025-12-02T21:44:27+09:00
 - Updated: 2025-12-02T21:44:27+09:00 (Asia/Tokyo)
