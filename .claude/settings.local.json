@@ -26,7 +26,17 @@
       "Bash(volta install:*)",
       "Bash(codex:*)",
       "Bash(psql:*)",
-      "Bash([ -f .env.local ])"
+      "Bash([ -f .env.local ])",
+      "Bash(grep:*)",
+      "Bash(tree:*)",
+      "Bash(find:*)",
+      "WebFetch(domain:www.apple.com)",
+      "WebFetch(domain:linear.app)",
+      "WebSearch",
+      "WebFetch(domain:frontend.horse)",
+      "WebFetch(domain:tympanus.net)",
+      "WebFetch(domain:gsap.com)",
+      "WebFetch(domain:gsapify.com)"
     ],
     "deny": [],
     "ask": []

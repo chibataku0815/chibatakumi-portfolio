@@ -1,35 +1,41 @@
+import { HeroText } from "@/features/hero/components";
+
 export default function Home() {
   return (
-    <div className="relative">
-      <section className="relative flex h-[78vh] min-h-[600px] w-full flex-col items-center justify-end overflow-hidden">
-        <div className="pointer-events-none z-10 mb-24 flex flex-col items-center text-center">
-          <h1 className="text-4xl font-bold tracking-tight text-text-base sm:text-5xl md:text-6xl">
-            Takumi Chiba
-          </h1>
-          <p className="mt-2 text-lg font-normal text-text-muted sm:text-xl">
-            Creative Developer
-          </p>
-        </div>
-
-        <div className="pointer-events-none absolute bottom-8 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2">
-          <span className="text-xs uppercase tracking-[0.2em] text-text-muted">
-            Scroll
-          </span>
-          <div className="h-8 w-px bg-gradient-to-b from-text-muted to-transparent" />
-        </div>
+    <main>
+      {/* Hero Section */}
+      <section className="relative">
+        <HeroText />
       </section>
 
-      <section className="section-content">
-        <div className="section-content__inner">
-          <h2 className="mb-8 text-2xl font-semibold text-text-base">
+      {/* Content Section */}
+      <section className="min-h-screen bg-[#0a0a0a] px-6 py-24">
+        <div className="mx-auto max-w-4xl">
+          <h2 className="mb-8 text-3xl font-semibold tracking-[-0.02em] text-white">
             Selected Works
           </h2>
-          <p className="text-text-muted">
+          <p className="text-lg leading-relaxed text-white/50">
             Projects and experiments in creative development, interactive design,
             and visual experiences.
           </p>
+
+          {/* Placeholder cards for scroll testing */}
+          <div className="mt-16 grid gap-8">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="aspect-video w-full rounded-2xl bg-white/5 p-8"
+              >
+                <div className="h-4 w-32 rounded bg-white/10" />
+                <div className="mt-4 h-3 w-48 rounded bg-white/5" />
+              </div>
+            ))}
+          </div>
         </div>
       </section>
-    </div>
+
+      {/* Footer spacer */}
+      <section className="h-[50vh] bg-[#050505]" />
+    </main>
   );
 }

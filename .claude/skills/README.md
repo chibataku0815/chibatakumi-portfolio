@@ -9,7 +9,7 @@
 | [project-coordinator](./project-coordinator/SKILL.md) | 進捗管理・チーム調整 | タスク分解、依存関係、ハンドオフ |
 | [frontend-dev](./frontend-dev/SKILL.md) | フロントエンド実装 | React, Next.js, Tailwind, shadcn/ui |
 | [frontend-design](./frontend-design/SKILL.md) | デザイン指針 | UI/UX, 配色, レイアウト構成 |
-| [typography](./typography/SKILL.md) | タイポグラフィ | フォント, 階層, 行間, 日英対応 |
+| [typography](./typography/SKILL.md) | タイポグラフィデザイン | 書体の性格, 視覚的階層, 感情設計, 和欧混植 |
 | [webgl-shader](./webgl-shader/SKILL.md) | WebGL/シェーダー | Three.js, R3F, GLSL, ノイズ |
 | [backend-dev](./backend-dev/SKILL.md) | バックエンド実装 | API Routes, Server Actions, DB |
 
@@ -29,11 +29,13 @@
 └────────┘  └────────┘   └────────┘    └────────┘
     │             │             │             │
     └─────────────┴──────┬──────┴─────────────┘
-                         ▼
-              ┌─────────────────┐
-              │   typography    │
-              │  (横断サポート)  │
-              └─────────────────┘
+                         │
+              ┌──────────┴──────────┐
+              ▼                     ▼
+    ┌─────────────────┐   ┌─────────────────┐
+    │   typography    │   │   (future)      │
+    │ (デザイン専門家) │   │                 │
+    └─────────────────┘   └─────────────────┘
 ```
 
 ## 各スキルの責務
@@ -57,10 +59,12 @@
 - ジェネリックAI美学の回避
 
 ### typography
-- フォント選定・ペアリング
-- 階層システム設計
-- レスポンシブタイポグラフィ
-- 日英バイリンガル対応
+- 書体の「声」と性格の定義
+- 視覚的階層の設計理論
+- フォントペアリングの美学
+- 感情設計（書体×色×余白）
+- 和欧混植・縦組みの考慮
+- 歴史的ムーブメントの参照
 
 ### webgl-shader
 - GLSL シェーダー実装

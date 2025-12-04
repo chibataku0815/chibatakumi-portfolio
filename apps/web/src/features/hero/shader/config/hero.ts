@@ -67,6 +67,32 @@ export const heroShaderConfig = {
   // === フォールバック ===
   // fallbackColor: WebGL非対応時の背景色
   fallbackColor: "#0a0a0a",
+
+  // === アニメーション設定 (Bold版) ===
+  // breathIntensity: 全画面明滅の強さ
+  breathIntensity: 0.15,
+  // breathFrequency: 呼吸のスピード (低いほどゆっくり)
+  breathFrequency: 0.25,
+  // cursorDistortionRadius: カーソル影響範囲 (低いほど広い)
+  cursorDistortionRadius: 1.2,
+  // cursorFbmPhaseShift: カーソルによるFBM位相シフト量
+  cursorFbmPhaseShift: 0.4,
+  // cursorWarpStrength: カーソルUVワープの強さ
+  cursorWarpStrength: 0.05,
+  // cursorHighlight: カーソル周辺ハイライトの強さ
+  cursorHighlight: 0.08,
+  // noiseFlowSpeed: ノイズ流動速度
+  noiseFlowSpeed: 0.3,
+  // scrollGrainScaleMin: スクロール時grain最小スケール
+  scrollGrainScaleMin: 0.5,
+  // scrollGrainScaleMax: スクロール時grain最大スケール
+  scrollGrainScaleMax: 2.0,
+
+  // === Chromatic Aberration設定 (カーソル近接時のみ) ===
+  // chromaticStrength: RGB分離の最大強度 (UV単位)
+  chromaticStrength: 0.035,
+  // chromaticFalloff: カーソルからの減衰率 (高いほど局所的)
+  chromaticFalloff: 1.5,
 } as const;
 
 export type HeroShaderConfig = typeof heroShaderConfig;

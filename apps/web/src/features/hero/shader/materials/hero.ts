@@ -29,6 +29,10 @@ varying vec2 vUv;
 uniform sampler2D uTexture;
 uniform vec2 uResolution;
 uniform vec2 uTextureSize;
+// Animation uniforms
+uniform float uTime;
+uniform vec2 uPointer;
+uniform float uScroll;
 
 ${noiseGlsl}
 
@@ -88,7 +92,29 @@ float sampleGrainVariance(sampler2D tex, vec2 center, float radius) {
 void main() {
   vec2 uv = vUv;
 
-  // object-contain計算
+  // === アニメーション計算 ===
+  // 呼吸する光
+  float breathe = sin(uTime * ${cfg.breathFrequency.toFixed(2)}) * 0.5 + 0.5;
+
+  // カーソル影響 (radial falloff)
+  vec2 pointerDist = uv - uPointer;
+  float dist = length(pointerDist);
+  float cursorInfluence = exp(-dist * ${cfg.cursorDistortionRadius.toFixed(2)});
+
+  // カーソルUVワープ (写真にも影響するレンズ歪み効果)
+  vec2 warpDir = normalize(pointerDist + vec2(0.001));
+  float warpAmount = cursorInfluence * ${cfg.cursorWarpStrength.toFixed(3)};
+  vec2 warpedUv = uv - warpDir * warpAmount;
+
+  // スクロールによる粒度変調
+  float scrollNorm = clamp(uScroll, 0.0, 1.0);
+  float scrollEased = smoothstep(0.0, 1.0, scrollNorm);
+  float grainScaleMod = mix(${cfg.scrollGrainScaleMin.toFixed(2)}, ${cfg.scrollGrainScaleMax.toFixed(2)}, scrollEased);
+
+  // ノイズ流動用オフセット
+  vec2 noiseOffset = vec2(uTime * ${cfg.noiseFlowSpeed.toFixed(2)}, uTime * ${cfg.noiseFlowSpeed.toFixed(2)} * 0.7);
+
+  // object-contain計算 (ワープ済みUV使用)
   float screenAspect = uResolution.x / uResolution.y;
   float imageAspect = uTextureSize.x / uTextureSize.y;
   vec2 photoScale;
@@ -98,11 +124,23 @@ void main() {
     photoScale = vec2(1.0, screenAspect / imageAspect);
   }
   vec2 photoOffset = (vec2(1.0) - photoScale) * 0.5;
-  vec2 photoUv = (uv - photoOffset) / photoScale;
+  vec2 photoUv = (warpedUv - photoOffset) / photoScale;
   vec2 clampedUv = clamp(photoUv, vec2(0.0), vec2(1.0));
 
-  // 写真色
-  vec3 photoColor = texture2D(uTexture, clampedUv).rgb;
+  // === Chromatic Aberration (カーソル近接時) ===
+  vec2 chromaticDir = normalize(pointerDist + vec2(0.001));
+  float chromaticAmount = cursorInfluence * ${cfg.chromaticStrength.toFixed(4)};
+
+  // RGB各チャンネルを異なるUVでサンプリング
+  vec2 uvR = clampedUv + chromaticDir * chromaticAmount;
+  vec2 uvB = clampedUv - chromaticDir * chromaticAmount;
+
+  // 写真色 (Chromatic Aberration適用)
+  vec3 photoColor = vec3(
+    texture2D(uTexture, clamp(uvR, vec2(0.0), vec2(1.0))).r,
+    texture2D(uTexture, clampedUv).g,
+    texture2D(uTexture, clamp(uvB, vec2(0.0), vec2(1.0))).b
+  );
 
   // 背景基調色
   vec3 baseColor = sampleAverageColor(uTexture);
@@ -127,8 +165,10 @@ void main() {
   float blendToBase = smoothstep(0.0, ${cfg.blendToBaseDistance.toFixed(2)}, outsideDist);
   vec3 bgColor = mix(edgeColor, baseColor, blendToBase);
 
-  // FBMによる色変調
-  float fbmValue = fbm(uv * ${cfg.fbmScale.toFixed(2)});
+  // FBMによる色変調 (カーソル位置で位相シフト)
+  vec2 fbmUv = uv * ${cfg.fbmScale.toFixed(2)};
+  fbmUv += cursorInfluence * ${cfg.cursorFbmPhaseShift.toFixed(3)};
+  float fbmValue = fbm(fbmUv);
   bgColor += bgColor * (fbmValue - 0.5) * ${cfg.fbmIntensity.toFixed(2)};
 
   // ノイズ振幅を写真粒度から算出
@@ -139,9 +179,9 @@ void main() {
     ${cfg.grainMax.toFixed(3)}
   );
 
-  // 粗い＋細かいノイズ
-  float coarse = noise(uv * uResolution * ${cfg.coarseScale.toFixed(2)}) * grainAmp * ${cfg.coarseAmplitude.toFixed(2)};
-  float fine = noise(uv * uResolution * ${cfg.fineScale.toFixed(2)}) * (grainAmp * ${cfg.fineAmplitude.toFixed(2)});
+  // 粗い＋細かいノイズ (スクロールで粒度変化 + 時間で流動)
+  float coarse = noise(uv * uResolution * ${cfg.coarseScale.toFixed(2)} * grainScaleMod + noiseOffset) * grainAmp * ${cfg.coarseAmplitude.toFixed(2)};
+  float fine = noise(uv * uResolution * ${cfg.fineScale.toFixed(2)} * grainScaleMod + noiseOffset * 2.0) * (grainAmp * ${cfg.fineAmplitude.toFixed(2)});
   bgColor += coarse + fine;
   bgColor = max(bgColor, vec3(${cfg.minBrightness.toFixed(2)}));
 
@@ -155,6 +195,12 @@ void main() {
 
   // 最終合成（ノイズは背景側で一度だけ加算済み）
   vec3 color = mix(bgColor, photoColor, edgeMask);
+
+  // 全画面breathing (写真含む)
+  color *= mix(1.0 - ${cfg.breathIntensity.toFixed(3)}, 1.0 + ${cfg.breathIntensity.toFixed(3)}, breathe);
+
+  // カーソル周辺ハイライト
+  color += vec3(cursorInfluence * ${cfg.cursorHighlight.toFixed(3)});
 
   gl_FragColor = vec4(color, 1.0);
 }

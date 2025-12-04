@@ -48,7 +48,46 @@ export function HeroShaderBackground() {
 
     let material: THREE.ShaderMaterial | null = null;
     let texture: THREE.Texture | null = null;
-    let handleResize: (() => void) | null = null;
+    let animationFrameId: number | null = null;
+    const startTime = performance.now();
+    const targetPointer = { x: 0.5, y: 0.5 };
+    const currentPointer = { x: 0.5, y: 0.5 };
+
+    // Animation loop
+    const animate = (now: number) => {
+      if (material) {
+        material.uniforms.uTime.value = (now - startTime) / 1000;
+        // Lerp pointer for smooth following
+        currentPointer.x += (targetPointer.x - currentPointer.x) * 0.08;
+        currentPointer.y += (targetPointer.y - currentPointer.y) * 0.08;
+        material.uniforms.uPointer.value.set(currentPointer.x, currentPointer.y);
+      }
+      renderer.render(scene, camera);
+      animationFrameId = requestAnimationFrame(animate);
+    };
+
+    // Pointer handler
+    const handlePointer = (e: PointerEvent) => {
+      targetPointer.x = e.clientX / window.innerWidth;
+      targetPointer.y = 1 - e.clientY / window.innerHeight;
+    };
+
+    // Scroll handler
+    const handleScroll = () => {
+      if (!material) return;
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      material.uniforms.uScroll.value = maxScroll > 0 ? window.scrollY / maxScroll : 0;
+    };
+
+    // Resize handler
+    const handleResize = () => {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      renderer.setSize(w, h);
+      if (material) {
+        material.uniforms.uResolution.value.set(w, h);
+      }
+    };
 
     loadTexture("/hero.jpg")
       .then(({ texture: loadedTexture, width: texWidth, height: texHeight }) => {
@@ -58,36 +97,35 @@ export function HeroShaderBackground() {
           uTexture: { value: texture },
           uResolution: { value: new THREE.Vector2(width, height) },
           uTextureSize: { value: new THREE.Vector2(texWidth, texHeight) },
+          uTime: { value: 0 },
+          uPointer: { value: new THREE.Vector2(0.5, 0.5) },
+          uScroll: { value: 0 },
         };
 
         material = new THREE.ShaderMaterial({
-          uniforms,
+          uniforms: uniforms as unknown as Record<string, THREE.IUniform>,
           vertexShader: heroVertexShader,
           fragmentShader: createHeroFragmentShader(),
         });
 
         const mesh = new THREE.Mesh(geometry, material);
         scene.add(mesh);
-        renderer.render(scene, camera);
 
-        handleResize = () => {
-          const w = window.innerWidth;
-          const h = window.innerHeight;
-          renderer.setSize(w, h);
-          if (material) {
-            material.uniforms.uResolution.value.set(w, h);
-          }
-          renderer.render(scene, camera);
-        };
+        // Start animation loop
+        animationFrameId = requestAnimationFrame(animate);
 
+        // Add event listeners
+        window.addEventListener("pointermove", handlePointer, { passive: true });
+        window.addEventListener("scroll", handleScroll, { passive: true });
         window.addEventListener("resize", handleResize);
       })
       .catch((err) => console.error("Failed to load hero texture", err));
 
     return () => {
-      if (handleResize) {
-        window.removeEventListener("resize", handleResize);
-      }
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      window.removeEventListener("pointermove", handlePointer);
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleResize);
       geometry.dispose();
       if (material) {
         material.dispose();

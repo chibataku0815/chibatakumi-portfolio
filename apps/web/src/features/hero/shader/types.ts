@@ -11,6 +11,10 @@ export interface HeroShaderUniforms {
   uTexture: { value: Texture | null };
   uResolution: { value: Vector2 };
   uTextureSize: { value: Vector2 };
+  // Animation uniforms
+  uTime: { value: number };
+  uPointer: { value: Vector2 };
+  uScroll: { value: number };
 }
 
 /**
