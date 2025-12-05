@@ -1,0 +1,85 @@
+---
+description: "Coding standards for TypeScript/JavaScript files"
+globs: ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"]
+---
+
+# Coding Standards
+
+## 言語
+
+- **コメント・コミュニケーション:** 日本語 (Japanese)
+
+## JSDoc規約 (MANDATORY)
+
+### カバレッジ
+- **必須:** 全てのファイル、クラス、メソッド、プロパティ
+
+### レベル
+- **基準:** 小学生でもわかるように (Simple enough for an elementary school student)
+
+### 内容
+- 概要 (Summary)
+- 主な仕様 (Main specs)
+- 制限事項 (Limitations)
+- 処理の流れ (Flow - 複雑なロジックの場合)
+
+### 禁止事項
+- `@returns {JSX.Element}` は使用しない
+
+### 例
+```typescript
+/**
+ * ユーザーの名前を表示するコンポーネント
+ *
+ * 概要:
+ * - 名前がない場合は「ゲスト」と表示
+ * - 名前が長すぎる場合は省略記号で切り詰め
+ *
+ * 制限事項:
+ * - 名前は100文字まで
+ *
+ * @param name - 表示する名前
+ */
+function UserName({ name }: { name?: string }) {
+  // ...
+}
+```
+
+## 命名規則
+
+| 対象 | 規則 | 例 |
+|------|------|-----|
+| 変数 | lowerCamelCase | `userName`, `isActive` |
+| 関数 | lowerCamelCase | `getUserName`, `handleClick` |
+| プロパティ | lowerCamelCase | `firstName`, `lastName` |
+| メソッド | lowerCamelCase | `calculateTotal`, `validateInput` |
+| 定数 | UPPER_SNAKE_CASE | `MAX_RETRY_COUNT`, `API_BASE_URL` |
+| 型/インターフェース | PascalCase | `UserProfile`, `ApiResponse` |
+| コンポーネント | PascalCase | `UserCard`, `HeroSection` |
+
+## 可読性
+
+- **優先順位:** 可読性 > 効率性
+- 意図が明確になるなら冗長でも良い
+- マジックナンバーは定数化
+
+## エラーハンドリング
+
+例外には詳細メッセージを含める:
+- 関数名
+- 引数
+- パラメータ値
+
+```typescript
+throw new Error(
+  `getUserById failed: userId=${userId}, reason: User not found in database`
+);
+```
+
+## インポート順序
+
+1. React / Next.js
+2. 外部ライブラリ
+3. 内部モジュール (@/...)
+4. 相対パス
+5. 型定義 (type imports)

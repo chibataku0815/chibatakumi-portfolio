@@ -1,0 +1,62 @@
+---
+description: "Global rules for all files in the portfolio project"
+globs: ["**/*"]
+---
+
+# Cursor AI Global Rules
+
+グローバルルールは `.ai/GLOBAL.md` を参照してください。
+
+## プロジェクト概要
+
+- **Framework:** Next.js 16 (App Router) + React 19
+- **Styling:** Tailwind CSS v4 + shadcn/ui
+- **Animation/WebGL:** Three.js, GSAP, Framer Motion
+- **Runtime:** Bun
+
+## デザイン原則: Pitch Black & Fire
+
+- **背景:** 漆黒 (#050505–#0a0a0a)
+- **テキスト:** オフホワイト (~#ededed)
+- **アクセント:** Amber/Orange（限定使用、インタラクションの熱源）
+
+## エンジニアリング原則
+
+- KISS / DRY / YAGNI
+- 既存パターンを尊重
+- 最小差分での変更
+- Tailwind: カスタムトークン優先、arbitrary values を避ける
+
+## 並行作業
+
+`.ai/parallel-work.md` の協調プロトコルを遵守。
+
+作業開始時:
+1. `.claude/tasks/ACTIVE-PARALLEL-TASK.md` に作業宣言
+2. 変更予定ファイルを明記
+3. 完了時にステータス更新
+
+## サンプル実装 (Sample-First Workflow)
+
+アニメーション/シェーダー実装時は `apps/exampleXX/` を**必ず参照**:
+
+1. `transcript.md` で概念を理解
+2. `src/` でコードを分析
+3. 実装前に確認を得る
+
+**禁止:** サンプルを見ずに手探りで実装しない
+
+## 参照ドキュメント
+
+| ファイル | 内容 |
+|---------|------|
+| `.ai/GLOBAL.md` | 共通グローバルルール |
+| `.ai/parallel-work.md` | 並行作業プロトコル |
+| `.ai/tool-mapping.md` | ツール機能マッピング |
+| `.claude/tasks/ACTIVE-PARALLEL-TASK.md` | タスク進捗 |
+| `apps/exampleXX/` | サンプル実装 |
+
+## 制約
+
+- `AGENTS.md`, `CLAUDE.md` は明示的な指示がない限り変更しない
+- `apps/exampleXX/` は読み取り専用（更新タスク以外）
