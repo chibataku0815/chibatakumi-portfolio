@@ -2,11 +2,35 @@
 
 ## 現在アクティブなタスクなし
 
-最終更新: 2025-12-05T22:03:41+09:00 (Asia/Tokyo)
+最終更新: 2025-12-05T22:32:00+09:00 (Asia/Tokyo)
 
 ---
 
 ## 直近の完了タスク
+
+### ✅ apps/web Page Transition & Multipage 計画 (2025-12-05)
+- **完了:** 2025-12-05T22:32:00+09:00 (Asia/Tokyo)
+- **内容:** apps/web 向けのマルチページ/トランジション設計計画およびClaude Code実装プロンプト作成
+- **成果物:**
+  - `.claude/tasks/2025-12-05-web-page-transition-plan.md`
+  - `.claude/prompts/2025-12-05-claude-code-web-transition.md`
+  - `.claude/tasks/ACTIVE-PARALLEL-TASK.md`（更新）
+- **備考:** 実装は未着手。後続でClaude Code (Haiku 4.5) に委譲予定。
+
+### ✅ Codegrid Page Transition Multipage 設計 (2025-12-05)
+- **完了:** 2025-12-05T22:25:00+09:00 (Asia/Tokyo)
+- **内容:** マルチページ化の計画策定とClaude Code向け実装プロンプト作成
+- **成果物:**
+  - `.claude/tasks/2025-12-05-codegrid-transition-plan.md`
+  - `.claude/prompts/2025-12-05-claude-code-codegrid-transition.md`
+  - `.claude/tasks/ACTIVE-PARALLEL-TASK.md`（更新）
+- **備考:** 実装は未着手。後続でClaude Code (Haiku 4.5) に委譲予定。
+
+### ✅ apps/web Page Transition & Multipage 実装 (2025-12-05)
+- **完了:** 2025-12-05T22:40:00+09:00 (Asia/Tokyo)
+- **内容:** PageTransition（20ブロック＋ロゴストローク）導入、Nav/AnimatedHeading追加、マルチページ構成（Motion/Interactive/Installation/Archive/Contact）とトップのジャンルカードを実装
+- **成果物:** `src/shared/transitions/*`, `src/shared/components/*`, `src/app/*`（各ページ追加・レイアウト更新）
+- **備考:** コミット未実施。トランジションは`data-transition="true"`リンクのみをインターセプト。
 
 ### ✅ Reference Files Integration Plan (2025-12-05)
 - **完了:** 2025-12-05T22:03:41+09:00 (Asia/Tokyo)

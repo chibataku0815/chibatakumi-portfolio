@@ -18,6 +18,33 @@
 | ファイル作成 | 新規ファイル作成 | `write` | `Write` | (組み込み) |
 | コマンド実行 | シェルコマンド | (組み込み) | `Bash` | (組み込み) |
 | サブタスク | 並列タスク実行 | (なし) | `Task` | (なし) |
+| スキル呼び出し | 専門領域の知見取得 | (なし) | `Skill` | (なし) |
+| 探索エージェント | コードベース調査 | (なし) | `Task(Explore)` | (なし) |
+| 計画エージェント | 実装設計 | (なし) | `Task(Plan)` | (なし) |
+
+---
+
+## Claude Code: サブエージェント・スキル詳細
+
+### 利用可能なスキル
+
+| スキル名 | 用途 |
+|---------|------|
+| `frontend-dev` | React/Next.js/Tailwind/shadcn/ui/Framer Motion実装 |
+| `frontend-design` | 高品質UI/デザインシステム構築 |
+| `backend-dev` | API/Server Actions/DB操作 |
+| `webgl-shader` | Three.js/GLSL/React Three Fiber |
+| `typography` | タイポグラフィ設計・フォント選定 |
+| `project-coordinator` | 並列ワークフロー管理 |
+
+### 利用可能なサブエージェント
+
+| タイプ | 用途 |
+|--------|------|
+| `Explore` | コードベース探索（quick/medium/very thorough） |
+| `Plan` | 実装計画・アーキテクチャ設計 |
+| `general-purpose` | 複合リサーチ・マルチステップタスク |
+| `claude-code-guide` | Claude Code自体の使い方確認 |
 
 ---
 

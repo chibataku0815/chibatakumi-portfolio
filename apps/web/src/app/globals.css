@@ -150,3 +150,40 @@ body {
   }
 }
 
+/* === Page Transition Overlays === */
+.transition-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  pointer-events: none;
+  z-index: 9998;
+}
+
+.transition-block {
+  flex: 1;
+  height: 100%;
+  background: var(--bg-darker);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+.logo-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--bg-darker);
+  pointer-events: none;
+  opacity: 0;
+}
+
+.logo-container {
+  width: 120px;
+  height: 120px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+

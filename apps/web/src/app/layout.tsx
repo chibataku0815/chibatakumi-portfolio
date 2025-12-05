@@ -1,4 +1,6 @@
 import { HeroShaderBackground } from "@/features/hero/components";
+import { PageTransition } from "@/shared/transitions";
+import { Nav } from "@/shared/components";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -31,7 +33,10 @@ export default function RootLayout({
         {/* Shader-generated background using hero.jpg (blurred + noise) */}
         <HeroShaderBackground />
 
-        {children}
+        <PageTransition>
+          <Nav />
+          {children}
+        </PageTransition>
       </body>
     </html>
   );
