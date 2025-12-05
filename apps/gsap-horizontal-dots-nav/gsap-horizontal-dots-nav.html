@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Horizontal Scroll Text Reveal</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;700&family=Noto+Sans+JP:wght@300;700&display=swap');
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Outfit', 'Noto Sans JP', sans-serif;
+      background: #050505;
+      color: #fafafa;
+      overflow-x: hidden;
+    }
+    
+    .intro {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .scroll-hint {
+      font-size: 10px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: #333;
+      animation: pulse 2.5s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 0.2; transform: translateY(0); }
+      50% { opacity: 0.8; transform: translateY(5px); }
+    }
+    
+    .horizontal-wrapper {
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .horizontal-container {
+      display: flex;
+      width: fit-content;
+    }
+    
+    .panel {
+      width: 100vw;
+      height: 100vh;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 60px;
+      position: relative;
+    }
+    
+    .panel { background: #050505; }
+    
+    .panel-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transform-origin: center center;
+    }
+    
+    .title {
+      font-size: clamp(100px, 30vw, 450px);
+      font-weight: 700;
+      line-height: 0.9;
+      letter-spacing: -0.05em;
+      text-align: center;
+      text-transform: uppercase;
+    }
+    
+    .title .char {
+      display: inline-block;
+      opacity: 0.04;
+    }
+    
+    .description {
+      font-size: clamp(14px, 1.8vw, 22px);
+      font-weight: 300;
+      line-height: 1.9;
+      letter-spacing: 0.03em;
+      text-align: center;
+      max-width: 800px;
+      margin-top: 4vh;
+    }
+    
+    .description .char {
+      display: inline-block;
+      opacity: 0.03;
+    }
+    
+    .panel-number {
+      position: absolute;
+      top: 40px;
+      left: 50px;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      color: #222;
+      transition: opacity 0.4s ease;
+    }
+    
+    /* トランジションオーバーレイ */
+    .transition-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 50;
+    }
+    
+    .transition-line {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: 0%;
+      height: 1px;
+      background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(250, 250, 250, 0.8) 50%, 
+        transparent 100%
+      );
+      transform: translateY(-50%);
+      opacity: 0;
+    }
+    
+    .transition-line-top,
+    .transition-line-bottom {
+      position: absolute;
+      left: 0;
+      width: 0%;
+      height: 1px;
+      background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(250, 250, 250, 0.3) 50%, 
+        transparent 100%
+      );
+      opacity: 0;
+    }
+    
+    .transition-line-top { top: 30%; }
+    .transition-line-bottom { bottom: 30%; }
+    
+    .transition-flash {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(ellipse at center, 
+        rgba(250, 250, 250, 0.1) 0%, 
+        transparent 70%
+      );
+      opacity: 0;
+    }
+    
+    /* セクションプログレスバー */
+    .section-progress {
+      position: absolute;
+      bottom: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    
+    .progress-track {
+      width: 200px;
+      height: 2px;
+      background: #1a1a1a;
+      position: relative;
+      overflow: visible;
+      border-radius: 1px;
+    }
+    
+    .progress-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 0%;
+      background: #fafafa;
+      border-radius: 1px;
+      transition: box-shadow 0.3s ease;
+    }
+    
+    .progress-fill.active {
+      box-shadow: 0 0 8px rgba(250, 250, 250, 0.6),
+                  0 0 20px rgba(250, 250, 250, 0.3);
+    }
+    
+    .progress-fill.completed {
+      animation: progressFlash 0.6s ease-out;
+    }
+    
+    @keyframes progressFlash {
+      0% {
+        box-shadow: 0 0 8px rgba(250, 250, 250, 0.6),
+                    0 0 20px rgba(250, 250, 250, 0.3);
+      }
+      50% {
+        box-shadow: 0 0 15px rgba(250, 250, 250, 0.9),
+                    0 0 40px rgba(250, 250, 250, 0.5),
+                    0 0 60px rgba(250, 250, 250, 0.2);
+      }
+      100% {
+        box-shadow: none;
+      }
+    }
+    
+    .progress-head {
+      position: absolute;
+      top: 50%;
+      right: -4px;
+      transform: translateY(-50%);
+      width: 8px;
+      height: 8px;
+      background: #fafafa;
+      border-radius: 50%;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .progress-fill.active .progress-head {
+      opacity: 1;
+      animation: progressHeadPulse 1.2s ease-in-out infinite;
+    }
+    
+    @keyframes progressHeadPulse {
+      0%, 100% { transform: translateY(-50%) scale(1); opacity: 1; }
+      50% { transform: translateY(-50%) scale(1.4); opacity: 0.7; }
+    }
+    
+    .progress-text {
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      color: #333;
+      min-width: 36px;
+      transition: color 0.3s ease;
+    }
+    
+    .progress-text.active {
+      color: #fafafa;
+    }
+    
+    /* グローバルプログレス */
+    .global-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: #111;
+      z-index: 100;
+      overflow: visible;
+    }
+    
+    .global-progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #333 0%, #fafafa 100%);
+      position: relative;
+      box-shadow: 0 0 10px rgba(250, 250, 250, 0.3);
+    }
+    
+    .global-progress-fill::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 6px;
+      height: 6px;
+      background: #fafafa;
+      border-radius: 50%;
+      box-shadow: 0 0 10px rgba(250, 250, 250, 0.8),
+                  0 0 20px rgba(250, 250, 250, 0.4);
+    }
+    
+    /* セクションインジケーター */
+    .section-indicators {
+      position: fixed;
+      right: 40px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      z-index: 100;
+    }
+    
+    .section-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #222;
+      position: relative;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+    }
+    
+    .section-dot:hover {
+      background: #444;
+      transform: scale(1.2);
+    }
+    
+    .section-dot::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 10px;
+      height: 10px;
+      border: 1px solid transparent;
+      border-radius: 50%;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .section-dot.active {
+      background: #fafafa;
+      transform: scale(1);
+      box-shadow: 0 0 12px rgba(250, 250, 250, 0.6);
+    }
+    
+    .section-dot.active:hover {
+      transform: scale(1.1);
+    }
+    
+    .section-dot.active::before {
+      width: 24px;
+      height: 24px;
+      border-color: rgba(250, 250, 250, 0.4);
+      animation: ringPulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes ringPulse {
+      0%, 100% { width: 24px; height: 24px; opacity: 0.4; }
+      50% { width: 32px; height: 32px; opacity: 0.1; }
+    }
+    
+    .section-dot.completed {
+      background: #fafafa;
+      transform: scale(0.8);
+    }
+    
+    .section-dot.completed:hover {
+      transform: scale(1);
+    }
+    
+    .section-dot.completed::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 4px;
+      height: 2px;
+      border-left: 1.5px solid #050505;
+      border-bottom: 1.5px solid #050505;
+      transform: translate(-50%, -60%) rotate(-45deg);
+      opacity: 1;
+    }
+    
+    .section-dot.just-completed {
+      animation: dotComplete 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    @keyframes dotComplete {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.5); }
+      100% { transform: scale(0.8); }
+    }
+    
+    .section-dot-line {
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 1px;
+      height: 20px;
+      background: #222;
+      margin-top: 0;
+    }
+    
+    .section-dot:last-child .section-dot-line {
+      display: none;
+    }
+    
+    .section-dot.completed .section-dot-line {
+      background: linear-gradient(180deg, #fafafa 0%, #222 100%);
+    }
+    
+    .ending {
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .ending-text {
+      font-size: 11px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: #222;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="global-progress">
+    <div class="global-progress-fill" id="globalProgress"></div>
+  </div>
+  
+  <div class="section-indicators" id="sectionIndicators"></div>
+  
+  <div class="transition-overlay" id="transitionOverlay">
+    <div class="transition-line" id="transitionLine"></div>
+    <div class="transition-line-top" id="transitionLineTop"></div>
+    <div class="transition-line-bottom" id="transitionLineBottom"></div>
+    <div class="transition-flash" id="transitionFlash"></div>
+  </div>
+
+  <section class="intro">
+    <span class="scroll-hint">↓ Scroll to explore</span>
+  </section>
+
+  <div class="horizontal-wrapper">
+    <div class="horizontal-container" id="horizontal">
+      
+      <div class="panel">
+        <span class="panel-number">01</span>
+        <div class="panel-content">
+          <h1 class="title" data-reveal="title">Raw</h1>
+          <p class="description" data-reveal="desc">素材そのものが持つ力を信じる。過度な装飾や演出を排除し、本質だけを残す。削ぎ落とすことで見えてくる美しさがある。それは写真においても、デザインにおいても、コードにおいても同じ。余計なものを取り除いた先にある純粋な表現を追求する。</p>
+        </div>
+        <div class="section-progress">
+          <div class="progress-track">
+            <div class="progress-fill">
+              <div class="progress-head"></div>
+            </div>
+          </div>
+          <span class="progress-text">0%</span>
+        </div>
+      </div>
+      
+      <div class="panel">
+        <span class="panel-number">02</span>
+        <div class="panel-content">
+          <h2 class="title" data-reveal="title">Craft</h2>
+          <p class="description" data-reveal="desc">細部への執着が全体の品質を決定する。1ピクセルのズレ、0.1秒のタイミング、微妙な色味の違い。それらの積み重ねが、プロフェッショナルとアマチュアを分ける。見えない部分にこそ、本当の実力が表れる。妥協なき追求の先に、真のクラフトマンシップがある。</p>
+        </div>
+        <div class="section-progress">
+          <div class="progress-track">
+            <div class="progress-fill">
+              <div class="progress-head"></div>
+            </div>
+          </div>
+          <span class="progress-text">0%</span>
+        </div>
+      </div>
+      
+      <div class="panel">
+        <span class="panel-number">03</span>
+        <div class="panel-content">
+          <h2 class="title" data-reveal="title">Less</h2>
+          <p class="description" data-reveal="desc">より少なく。それは制限ではなく、選択の結果である。無数の可能性の中から、本当に必要なものだけを選び取る勇気。足すことは簡単だが、引くことは難しい。ミニマリズムとは、思考の純度を高めるプロセスそのものだ。不要を削ることで、必要が際立つ。</p>
+        </div>
+        <div class="section-progress">
+          <div class="progress-track">
+            <div class="progress-fill">
+              <div class="progress-head"></div>
+            </div>
+          </div>
+          <span class="progress-text">0%</span>
+        </div>
+      </div>
+      
+      <div class="panel">
+        <span class="panel-number">04</span>
+        <div class="panel-content">
+          <h2 class="title" data-reveal="title">More</h2>
+          <p class="description" data-reveal="desc">より良く。量ではなく質への転換。ひとつひとつの要素が最高の状態で存在すること。Dieter Ramsが示した原則は、今なお色褪せない。少ないからこそ、その少数が輝きを放つ。制約の中でこそ創造性は磨かれ、本当の価値が生まれる。</p>
+        </div>
+        <div class="section-progress">
+          <div class="progress-track">
+            <div class="progress-fill">
+              <div class="progress-head"></div>
+            </div>
+          </div>
+          <span class="progress-text">0%</span>
+        </div>
+      </div>
+      
+      <div class="panel">
+        <span class="panel-number">05</span>
+        <div class="panel-content">
+          <h2 class="title" data-reveal="title">Design</h2>
+          <p class="description" data-reveal="desc">意図のない線は引かない。すべての要素に理由がある。デザインとは問題解決であり、自己表現ではない。使う人のことを考え、目的を達成するための最適解を導き出す。美しさは結果として生まれるもの。機能を追求した先に、自然と形が定まる。それが本質的なデザインの姿。</p>
+        </div>
+        <div class="section-progress">
+          <div class="progress-track">
+            <div class="progress-fill">
+              <div class="progress-head"></div>
+            </div>
+          </div>
+          <span class="progress-text">0%</span>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+  <section class="ending">
+    <span class="ending-text">Less, but better — Dieter Rams</span>
+  </section>
+
+  <script>
+    gsap.registerPlugin(ScrollTrigger);
+    
+    let scrollTriggerInstance = null;
+    let totalPanels = 0;
+    let mainTimelineInstance = null;
+    let panelDataGlobal = [];
+
+    function splitToChars(element) {
+      const text = element.textContent;
+      element.innerHTML = '';
+      return [...text].map(char => {
+        const span = document.createElement('span');
+        span.className = 'char';
+        span.textContent = char === ' ' ? '\u00A0' : char;
+        element.appendChild(span);
+        return span;
+      });
+    }
+
+    function createSectionIndicators(count) {
+      const container = document.getElementById('sectionIndicators');
+      for (let i = 0; i < count; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'section-dot';
+        dot.dataset.index = i;
+        const line = document.createElement('div');
+        line.className = 'section-dot-line';
+        dot.appendChild(line);
+        container.appendChild(dot);
+        
+        dot.addEventListener('click', () => {
+          navigateToSection(i);
+        });
+      }
+    }
+    
+    function navigateToSection(index) {
+      if (index < 0 || index >= totalPanels || !scrollTriggerInstance) return;
+      
+      const st = scrollTriggerInstance;
+      const scrollStart = st.start;
+      const scrollEnd = st.end;
+      const scrollRange = scrollEnd - scrollStart;
+      
+      // 各セクションの「開始位置」を計算
+      // タイムラインの構造に基づいて正確な位置を算出
+      const sectionProgress = index / totalPanels;
+      const targetScroll = scrollStart + (scrollRange * sectionProgress) + 5;
+      
+      // まず対象セクションの状態をリセット
+      resetSectionState(index);
+      
+      gsap.to(window, {
+        scrollTo: targetScroll,
+        duration: 0.6,
+        ease: "power2.inOut"
+      });
+    }
+    
+    function resetSectionState(index) {
+      const data = panelDataGlobal[index];
+      if (!data) return;
+      
+      // タイトルとディスクリプションをゴースト状態に戻す
+      data.titleChars.forEach(char => {
+        char.style.opacity = '0.04';
+      });
+      data.descChars.forEach(char => {
+        char.style.opacity = '0.03';
+      });
+      
+      // プログレスをリセット
+      data.progressFill.style.width = '0%';
+      data.progressFill.classList.remove('active', 'completed');
+      data.progressText.textContent = '0%';
+      data.progressText.classList.remove('active');
+      data.wasCompleted = false;
+      
+      // パネルコンテンツの表示をリセット
+      gsap.set(data.panelContent, {
+        scale: 1,
+        opacity: 1,
+        filter: "blur(0px)"
+      });
+      gsap.set(data.panelNumber, {
+        opacity: 1
+      });
+    }
+
+    function initHorizontalScroll() {
+      const container = document.getElementById('horizontal');
+      const panels = gsap.utils.toArray('.panel');
+      const panelContents = gsap.utils.toArray('.panel-content');
+      totalPanels = panels.length;
+      
+      const transitionLine = document.getElementById('transitionLine');
+      const transitionLineTop = document.getElementById('transitionLineTop');
+      const transitionLineBottom = document.getElementById('transitionLineBottom');
+      const transitionFlash = document.getElementById('transitionFlash');
+      
+      createSectionIndicators(totalPanels);
+      const dots = document.querySelectorAll('.section-dot');
+      
+      const panelData = panels.map((panel, i) => {
+        const titleEl = panel.querySelector('[data-reveal="title"]');
+        const descEl = panel.querySelector('[data-reveal="desc"]');
+        const progressFill = panel.querySelector('.progress-fill');
+        const progressText = panel.querySelector('.progress-text');
+        const panelContent = panelContents[i];
+        const panelNumber = panel.querySelector('.panel-number');
+        
+        return {
+          panel,
+          panelContent,
+          panelNumber,
+          titleChars: splitToChars(titleEl),
+          descChars: splitToChars(descEl),
+          progressFill,
+          progressText,
+          wasCompleted: false
+        };
+      });
+      
+      panelDataGlobal = panelData;
+      
+      let previousActiveIndex = -1;
+      
+      const scrollDistance = window.innerHeight * totalPanels * 2.2;
+      
+      const mainTimeline = gsap.timeline({
+        scrollTrigger: {
+          trigger: ".horizontal-wrapper",
+          start: "top top",
+          end: () => "+=" + scrollDistance,
+          scrub: 1,
+          pin: true,
+          anticipatePin: 1,
+          onUpdate: (self) => {
+            document.getElementById('globalProgress').style.width = (self.progress * 100) + '%';
+          },
+          onLeave: () => {
+            markLastSectionCompleted(dots);
+          }
+        }
+      });
+      
+      scrollTriggerInstance = mainTimeline.scrollTrigger;
+      mainTimelineInstance = mainTimeline;
+      
+      panelData.forEach((data, i) => {
+        const isLastPanel = i === totalPanels - 1;
+        const nextData = panelData[i + 1];
+        
+        // ===== フェーズ1: テキストアニメーション =====
+        
+        mainTimeline.to(data.titleChars, {
+          opacity: 1,
+          duration: 0.25,
+          stagger: 0.025,
+          ease: "power2.out",
+          onStart: () => {
+            data.progressFill.classList.add('active');
+            data.progressFill.classList.remove('completed');
+            data.progressText.classList.add('active');
+            updateSectionIndicators(i, dots, previousActiveIndex);
+            previousActiveIndex = i;
+          }
+        }, i === 0 ? 0 : ">");
+        
+        mainTimeline.to(data.descChars, {
+          opacity: 1,
+          duration: 0.4,
+          stagger: 0.004,
+          ease: "power1.out",
+          onUpdate: function() {
+            const completedChars = data.descChars.filter(c => parseFloat(c.style.opacity) > 0.5).length;
+            const progress = Math.round((completedChars / data.descChars.length) * 100);
+            data.progressFill.style.width = progress + '%';
+            data.progressText.textContent = progress + '%';
+          },
+          onComplete: () => {
+            if (!data.wasCompleted) {
+              data.wasCompleted = true;
+              data.progressFill.classList.remove('active');
+              data.progressFill.classList.add('completed');
+              data.progressText.classList.remove('active');
+              
+              if (isLastPanel) {
+                markLastSectionCompleted(dots);
+              }
+            }
+          }
+        }, "<0.12");
+        
+        // ===== フェーズ2: トランジション =====
+        if (!isLastPanel) {
+          
+          mainTimeline.to(data.panelContent, {
+            scale: 0.95,
+            opacity: 0.3,
+            filter: "blur(4px)",
+            duration: 0.12,
+            ease: "power2.in"
+          }, ">");
+          
+          mainTimeline.to(data.panelNumber, {
+            opacity: 0,
+            duration: 0.08,
+            ease: "power2.in"
+          }, "<");
+          
+          mainTimeline.to(transitionLine, {
+            width: "100%",
+            opacity: 1,
+            duration: 0.15,
+            ease: "power2.inOut",
+          }, "<0.03");
+          
+          mainTimeline.to([transitionLineTop, transitionLineBottom], {
+            width: "100%",
+            opacity: 1,
+            duration: 0.18,
+            ease: "power2.inOut",
+            stagger: 0.02
+          }, "<");
+          
+          mainTimeline.to(transitionFlash, {
+            opacity: 1,
+            duration: 0.08,
+            ease: "power2.in"
+          }, "<0.06");
+          
+          mainTimeline.to(container, {
+            x: () => -(window.innerWidth * (i + 1)),
+            duration: 0.2,
+            ease: "power3.inOut",
+            onStart: () => {
+              updateSectionIndicators(i + 1, dots, i);
+              previousActiveIndex = i + 1;
+            }
+          }, "<0.03");
+          
+          mainTimeline.to(transitionLine, {
+            width: "0%",
+            left: "100%",
+            opacity: 0,
+            duration: 0.15,
+            ease: "power2.out",
+            onComplete: () => {
+              gsap.set(transitionLine, { left: "0%" });
+            }
+          }, ">-0.08");
+          
+          mainTimeline.to([transitionLineTop, transitionLineBottom], {
+            width: "0%",
+            left: "100%",
+            opacity: 0,
+            duration: 0.15,
+            ease: "power2.out",
+            stagger: 0.015,
+            onComplete: () => {
+              gsap.set([transitionLineTop, transitionLineBottom], { left: "0%" });
+            }
+          }, "<");
+          
+          mainTimeline.to(transitionFlash, {
+            opacity: 0,
+            duration: 0.1,
+            ease: "power2.out"
+          }, "<");
+          
+          mainTimeline.set(nextData.panelContent, {
+            scale: 1.05,
+            opacity: 0,
+            filter: "blur(4px)"
+          }, "<-0.1");
+          
+          mainTimeline.set(nextData.panelNumber, {
+            opacity: 0
+          }, "<");
+          
+          mainTimeline.to(nextData.panelContent, {
+            scale: 1,
+            opacity: 1,
+            filter: "blur(0px)",
+            duration: 0.15,
+            ease: "power2.out"
+          }, ">-0.08");
+          
+          mainTimeline.to(nextData.panelNumber, {
+            opacity: 1,
+            duration: 0.1,
+            ease: "power2.out"
+          }, "<0.03");
+        }
+      });
+      
+      function updateSectionIndicators(activeIndex, dots, prevIndex) {
+        dots.forEach((dot, i) => {
+          if (i === prevIndex && prevIndex < activeIndex) {
+            dot.classList.add('just-completed');
+            setTimeout(() => dot.classList.remove('just-completed'), 500);
+          }
+          
+          dot.classList.remove('active');
+          
+          if (i < activeIndex) {
+            dot.classList.add('completed');
+          } else if (i === activeIndex) {
+            dot.classList.remove('completed');
+            dot.classList.add('active');
+          } else {
+            dot.classList.remove('completed');
+          }
+        });
+      }
+      
+      function markLastSectionCompleted(dots) {
+        const lastDot = dots[dots.length - 1];
+        if (lastDot && !lastDot.classList.contains('completed')) {
+          lastDot.classList.remove('active');
+          lastDot.classList.add('just-completed');
+          setTimeout(() => {
+            lastDot.classList.remove('just-completed');
+            lastDot.classList.add('completed');
+          }, 500);
+        }
+      }
+    }
+
+    // ScrollToプラグイン代替
+    gsap.to = ((originalTo) => {
+      return function(target, vars) {
+        if (target === window && vars.scrollTo !== undefined) {
+          const start = window.scrollY;
+          const end = vars.scrollTo;
+          const duration = vars.duration || 1;
+          const ease = vars.ease || "power2.out";
+          
+          return gsap.to({ val: start }, {
+            val: end,
+            duration: duration,
+            ease: ease,
+            onUpdate: function() {
+              window.scrollTo(0, this.targets()[0].val);
+            }
+          });
+        }
+        return originalTo.call(gsap, target, vars);
+      };
+    })(gsap.to);
+
+    initHorizontalScroll();
+  </script>
+
+</body>
+</html>

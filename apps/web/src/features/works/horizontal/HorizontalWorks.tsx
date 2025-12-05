@@ -1,0 +1,500 @@
+"use client";
+
+import { useEffect, useRef, useCallback, useState } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ScrollToPlugin } from "gsap/ScrollToPlugin";
+import { splitText } from "@/shared/utils/splitText";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+}
+
+// === DATA ===
+interface WorkItem {
+  id: string;
+  title: string;
+  description: string;
+  meta: string;
+}
+
+const WORKS: WorkItem[] = [
+  {
+    id: "01",
+    title: "Digital Experiences",
+    description:
+      "Crafting immersive web applications with cutting-edge technologies and thoughtful interactions.",
+    meta: "Web Development",
+  },
+  {
+    id: "02",
+    title: "Creative Development",
+    description:
+      "Bridging design and engineering to build products that feel alive and responsive.",
+    meta: "Frontend Engineering",
+  },
+  {
+    id: "03",
+    title: "Visual Systems",
+    description:
+      "Designing cohesive component libraries and design systems for scalable applications.",
+    meta: "Design Systems",
+  },
+  {
+    id: "04",
+    title: "Motion & Interaction",
+    description:
+      "Adding purposeful animations that guide users and elevate the overall experience.",
+    meta: "Animation",
+  },
+];
+
+interface PanelData {
+  panel: HTMLDivElement;
+  panelContent: HTMLDivElement;
+  titleChars: HTMLSpanElement[];
+  descChars: HTMLSpanElement[];
+  progressFill: HTMLDivElement;
+  progressText: HTMLSpanElement;
+  titleSplit: ReturnType<typeof splitText>;
+  descSplit: ReturnType<typeof splitText>;
+  wasCompleted: boolean;
+}
+
+export function HorizontalWorks() {
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const panelRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const contentRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const titleRefs = useRef<(HTMLHeadingElement | null)[]>([]);
+  const descRefs = useRef<(HTMLParagraphElement | null)[]>([]);
+  const progressFillRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const progressTextRefs = useRef<(HTMLSpanElement | null)[]>([]);
+  const globalProgressRef = useRef<HTMLDivElement>(null);
+  const transitionLineRef = useRef<HTMLDivElement>(null);
+
+  const scrollTriggerRef = useRef<ScrollTrigger | null>(null);
+  const panelDataRef = useRef<PanelData[]>([]);
+
+  const [activeSection, setActiveSection] = useState(0);
+  const [completedSections, setCompletedSections] = useState<Set<number>>(
+    new Set()
+  );
+
+  const resetSectionState = useCallback((index: number) => {
+    const data = panelDataRef.current[index];
+    if (!data) return;
+
+    // Reset title chars to ghost
+    data.titleChars.forEach((char) => {
+      char.style.opacity = "0.04";
+    });
+
+    // Reset desc chars to ghost
+    data.descChars.forEach((char) => {
+      char.style.opacity = "0.03";
+    });
+
+    // Reset progress
+    data.progressFill.style.width = "0%";
+    data.progressFill.classList.remove("active", "completed");
+    data.progressText.textContent = "0%";
+    data.wasCompleted = false;
+
+    // Reset panel content
+    gsap.set(data.panelContent, {
+      scale: 1,
+      opacity: 1,
+      filter: "blur(0px)",
+    });
+  }, []);
+
+  const navigateToSection = useCallback(
+    (index: number) => {
+      const st = scrollTriggerRef.current;
+      if (!st || index < 0 || index >= WORKS.length) return;
+
+      const scrollStart = st.start;
+      const scrollEnd = st.end;
+      const scrollRange = scrollEnd - scrollStart;
+
+      const sectionProgress = index / WORKS.length;
+      const targetScroll = scrollStart + scrollRange * sectionProgress + 5;
+
+      // Reset target section
+      resetSectionState(index);
+
+      gsap.to(window, {
+        scrollTo: targetScroll,
+        duration: 0.6,
+        ease: "power2.inOut",
+      });
+    },
+    [resetSectionState]
+  );
+
+  const initAnimations = useCallback(() => {
+    if (!wrapperRef.current || !containerRef.current) return;
+
+    // Cleanup previous
+    if (scrollTriggerRef.current) {
+      scrollTriggerRef.current.kill();
+    }
+    panelDataRef.current.forEach((data) => {
+      data.titleSplit.revert();
+      data.descSplit.revert();
+    });
+    panelDataRef.current = [];
+
+    const totalPanels = WORKS.length;
+    const scrollDistance = window.innerHeight * totalPanels * 2.2;
+    const transitionLine = transitionLineRef.current;
+
+    // Prepare panel data
+    const panelData: PanelData[] = [];
+
+    for (let i = 0; i < totalPanels; i++) {
+      const panel = panelRefs.current[i];
+      const panelContent = contentRefs.current[i];
+      const title = titleRefs.current[i];
+      const desc = descRefs.current[i];
+      const progressFill = progressFillRefs.current[i];
+      const progressText = progressTextRefs.current[i];
+
+      if (!panel || !panelContent || !title || !desc || !progressFill || !progressText)
+        continue;
+
+      const titleSplit = splitText(title, "chars");
+      const descSplit = splitText(desc, "chars");
+
+      // Set ghost state
+      titleSplit.chars.forEach((char) => {
+        char.style.opacity = "0.04";
+      });
+      descSplit.chars.forEach((char) => {
+        char.style.opacity = "0.03";
+      });
+
+      panelData.push({
+        panel,
+        panelContent,
+        titleChars: titleSplit.chars,
+        descChars: descSplit.chars,
+        progressFill,
+        progressText,
+        titleSplit,
+        descSplit,
+        wasCompleted: false,
+      });
+    }
+
+    panelDataRef.current = panelData;
+
+    // Build timeline
+    const mainTimeline = gsap.timeline();
+
+    panelData.forEach((data, i) => {
+      const isLastPanel = i === totalPanels - 1;
+      const nextData = panelData[i + 1];
+
+      // Phase 1: Title reveal
+      mainTimeline.to(
+        data.titleChars,
+        {
+          opacity: 1,
+          duration: 0.25,
+          stagger: 0.025,
+          ease: "power2.out",
+          onStart: () => {
+            data.progressFill.classList.add("active");
+            setActiveSection(i);
+          },
+        },
+        i === 0 ? 0 : ">"
+      );
+
+      // Phase 2: Description reveal
+      mainTimeline.to(
+        data.descChars,
+        {
+          opacity: 1,
+          duration: 0.4,
+          stagger: 0.004,
+          ease: "power1.out",
+          onUpdate: function () {
+            const completedChars = data.descChars.filter(
+              (c) => parseFloat(c.style.opacity) > 0.5
+            ).length;
+            const progress = Math.round(
+              (completedChars / data.descChars.length) * 100
+            );
+            data.progressFill.style.width = progress + "%";
+            data.progressText.textContent = progress + "%";
+          },
+          onComplete: () => {
+            data.progressFill.classList.add("completed");
+            data.wasCompleted = true;
+            setCompletedSections((prev) => new Set([...prev, i]));
+          },
+        },
+        "<0.12"
+      );
+
+      // Phase 3: Transition (except last panel)
+      if (!isLastPanel && nextData) {
+        // Current panel fade out
+        mainTimeline.to(
+          data.panelContent,
+          {
+            scale: 0.95,
+            opacity: 0.3,
+            filter: "blur(4px)",
+            duration: 0.12,
+            ease: "power2.in",
+          },
+          ">"
+        );
+
+        // Transition line
+        if (transitionLine) {
+          mainTimeline.to(
+            transitionLine,
+            {
+              width: "100%",
+              opacity: 1,
+              duration: 0.15,
+              ease: "power2.inOut",
+            },
+            "<0.03"
+          );
+        }
+
+        // Horizontal movement
+        mainTimeline.to(
+          containerRef.current,
+          {
+            x: () => -(window.innerWidth * (i + 1)),
+            duration: 0.2,
+            ease: "power3.inOut",
+          },
+          "<0.03"
+        );
+
+        // Line fade out
+        if (transitionLine) {
+          mainTimeline.to(
+            transitionLine,
+            {
+              width: "0%",
+              left: "100%",
+              opacity: 0,
+              duration: 0.15,
+              ease: "power2.out",
+              onComplete: () => {
+                gsap.set(transitionLine, { left: "0%" });
+              },
+            },
+            ">-0.08"
+          );
+        }
+
+        // Next panel setup and fade in
+        mainTimeline.set(
+          nextData.panelContent,
+          {
+            scale: 1.05,
+            opacity: 0,
+            filter: "blur(4px)",
+          },
+          "<-0.1"
+        );
+
+        mainTimeline.to(
+          nextData.panelContent,
+          {
+            scale: 1,
+            opacity: 1,
+            filter: "blur(0px)",
+            duration: 0.15,
+            ease: "power2.out",
+          },
+          ">-0.08"
+        );
+      }
+    });
+
+    // Create ScrollTrigger
+    scrollTriggerRef.current = ScrollTrigger.create({
+      trigger: wrapperRef.current,
+      start: "top top",
+      end: () => "+=" + scrollDistance,
+      scrub: 1,
+      pin: true,
+      anticipatePin: 1,
+      animation: mainTimeline,
+      onUpdate: (self) => {
+        // Update global progress
+        if (globalProgressRef.current) {
+          globalProgressRef.current.style.width = self.progress * 100 + "%";
+        }
+      },
+    });
+  }, []);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      document.fonts.ready.then(() => {
+        initAnimations();
+      });
+    }, wrapperRef);
+
+    const handleResize = () => {
+      initAnimations();
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      ctx.revert();
+      window.removeEventListener("resize", handleResize);
+      if (scrollTriggerRef.current) {
+        scrollTriggerRef.current.kill();
+      }
+      panelDataRef.current.forEach((data) => {
+        data.titleSplit.revert();
+        data.descSplit.revert();
+      });
+    };
+  }, [initAnimations]);
+
+  return (
+    <div
+      ref={wrapperRef}
+      className="horizontal-wrapper relative overflow-hidden bg-[var(--bg-darker)]"
+    >
+      {/* Horizontal Container */}
+      <div
+        ref={containerRef}
+        className="horizontal-container flex h-screen w-fit"
+      >
+        {WORKS.map((work, index) => (
+          <div
+            key={work.id}
+            ref={(el) => {
+              panelRefs.current[index] = el;
+            }}
+            className="horizontal-panel flex h-screen w-screen flex-shrink-0 flex-col items-center justify-center px-6"
+          >
+            {/* Panel Number */}
+            <span className="absolute left-8 top-8 text-sm font-medium tracking-wide text-white/20">
+              {work.id}
+            </span>
+
+            {/* Panel Content */}
+            <div
+              ref={(el) => {
+                contentRefs.current[index] = el;
+              }}
+              className="horizontal-content flex max-w-2xl flex-col items-center text-center"
+            >
+              <span className="mb-4 text-xs font-medium uppercase tracking-[0.2em] text-[var(--accent-amber1)]/60">
+                {work.meta}
+              </span>
+
+              <h2
+                ref={(el) => {
+                  titleRefs.current[index] = el;
+                }}
+                className="horizontal-title mb-6 text-[clamp(2rem,6vw,4rem)] font-semibold leading-tight tracking-[-0.02em] text-[var(--text-base)]"
+              >
+                {work.title}
+              </h2>
+
+              <p
+                ref={(el) => {
+                  descRefs.current[index] = el;
+                }}
+                className="horizontal-desc text-lg leading-relaxed text-[var(--text-muted)]"
+              >
+                {work.description}
+              </p>
+
+              {/* Section Progress */}
+              <div className="mt-12 flex w-48 items-center gap-3">
+                <div className="progress-track relative h-[2px] flex-1 overflow-hidden rounded-full bg-white/10">
+                  <div
+                    ref={(el) => {
+                      progressFillRefs.current[index] = el;
+                    }}
+                    className="progress-fill absolute left-0 top-0 h-full w-0 rounded-full bg-[var(--text-base)] transition-shadow duration-300"
+                  >
+                    <div className="progress-head absolute right-0 top-1/2 h-2 w-2 -translate-y-1/2 translate-x-1/2 rounded-full bg-[var(--text-base)] opacity-0" />
+                  </div>
+                </div>
+                <span
+                  ref={(el) => {
+                    progressTextRefs.current[index] = el;
+                  }}
+                  className="progress-text w-10 text-right text-xs font-medium tabular-nums text-white/40"
+                >
+                  0%
+                </span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Transition Line Overlay */}
+      <div className="transition-overlay pointer-events-none fixed inset-0 z-50">
+        <div
+          ref={transitionLineRef}
+          className="transition-line absolute left-0 top-1/2 h-[1px] w-0 -translate-y-1/2 bg-[var(--text-base)] opacity-0"
+        />
+      </div>
+
+      {/* Dot Navigation */}
+      <div className="section-indicators fixed right-8 top-1/2 z-40 flex -translate-y-1/2 flex-col gap-3">
+        {WORKS.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => navigateToSection(index)}
+            className={`section-dot relative h-2.5 w-2.5 rounded-full transition-all duration-300 ${
+              activeSection === index
+                ? "scale-125 bg-[var(--text-base)] shadow-[0_0_12px_rgba(250,250,250,0.6)]"
+                : completedSections.has(index)
+                  ? "bg-[var(--text-base)]"
+                  : "bg-white/20 hover:bg-white/40"
+            }`}
+            aria-label={`Go to section ${index + 1}`}
+          >
+            {activeSection === index && (
+              <span className="absolute inset-0 animate-ping rounded-full border border-white/40" />
+            )}
+            {completedSections.has(index) && activeSection !== index && (
+              <span className="absolute inset-0 flex items-center justify-center">
+                <svg
+                  className="h-1.5 w-1.5 text-[var(--bg-darker)]"
+                  fill="currentColor"
+                  viewBox="0 0 12 12"
+                >
+                  <path d="M10 3L4.5 8.5 2 6" stroke="currentColor" strokeWidth="2" fill="none" />
+                </svg>
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {/* Global Progress Bar */}
+      <div className="global-progress fixed bottom-0 left-0 z-40 h-[2px] w-full bg-white/5">
+        <div
+          ref={globalProgressRef}
+          className="global-progress-fill h-full w-0 bg-gradient-to-r from-[var(--accent-amber1)] to-[var(--accent-amber2)]"
+        />
+      </div>
+    </div>
+  );
+}
+
+export default HorizontalWorks;

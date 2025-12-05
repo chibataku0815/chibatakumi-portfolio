@@ -2,11 +2,20 @@
 
 ## 現在アクティブなタスクなし
 
-最終更新: 2025-12-05T21:00:00+09:00 (Asia/Tokyo)
+最終更新: 2025-12-05T22:03:41+09:00 (Asia/Tokyo)
 
 ---
 
 ## 直近の完了タスク
+
+### ✅ Reference Files Integration Plan (2025-12-05)
+- **完了:** 2025-12-05T22:03:41+09:00 (Asia/Tokyo)
+- **内容:** 参考ファイル精査と `apps/web` への組み込み計画策定、Claude Code向け実装プロンプト作成
+- **成果物:**
+  - `.claude/tasks/2025-12-05-reference-integration-plan.md`
+  - `.claude/prompts/2025-12-05-claude-code-reference-integration.md`
+  - `.claude/tasks/ACTIVE-PARALLEL-TASK.md`（更新）
+- **備考:** 実装は未着手。後続タスクでClaude Code (Haiku 4.5) に委譲予定。
 
 ### ✅ Global Rules Strategy (2025-12-05)
 - **完了:** 2025-12-05T21:00:00+09:00
