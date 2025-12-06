@@ -16,8 +16,8 @@ export interface TextureLoadResult {
 export function loadTexture(
   path: string,
   options?: {
-    minFilter?: THREE.TextureFilter;
-    magFilter?: THREE.TextureFilter;
+    minFilter?: THREE.MinificationTextureFilter;
+    magFilter?: THREE.MagnificationTextureFilter;
   }
 ): Promise<TextureLoadResult> {
   const loader = new THREE.TextureLoader();
@@ -26,8 +26,12 @@ export function loadTexture(
     loader.load(
       path,
       (texture) => {
-        texture.minFilter = options?.minFilter ?? THREE.LinearFilter;
-        texture.magFilter = options?.magFilter ?? THREE.LinearFilter;
+        texture.minFilter =
+          options?.minFilter ??
+          (THREE.LinearFilter as THREE.MinificationTextureFilter);
+        texture.magFilter =
+          options?.magFilter ??
+          (THREE.LinearFilter as THREE.MagnificationTextureFilter);
 
         resolve({
           texture,

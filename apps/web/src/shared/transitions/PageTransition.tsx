@@ -162,7 +162,10 @@ export function PageTransition({ children }: PageTransitionProps) {
     revealTimeoutRef.current = setTimeout(() => {
       if (blocksRef.current.length > 0) {
         const firstBlock = blocksRef.current[0];
-        if (firstBlock && gsap.getProperty(firstBlock, "scaleX") > 0) {
+        const scaleX = firstBlock
+          ? Number(gsap.getProperty(firstBlock, "scaleX"))
+          : 0;
+        if (firstBlock && scaleX > 0) {
           gsap.to(blocksRef.current, {
             scaleX: 0,
             duration: 0.2,
