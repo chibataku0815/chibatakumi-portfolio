@@ -2,11 +2,20 @@
 
 ## 現在アクティブなタスクなし
 
-最終更新: 2025-12-05T22:32:00+09:00 (Asia/Tokyo)
+最終更新: 2025-12-05T23:10:46+09:00 (Asia/Tokyo)
 
 ---
 
 ## 直近の完了タスク
+
+### ✅ apps/web Portfolio Prompt Refresh (2025-12-05)
+- **完了:** 2025-12-05T23:10:46+09:00 (Asia/Tokyo)
+- **内容:** Claude Code (Haiku 4.5) 向けにポートフォリオ実データ差し替え用の詳細プロンプトとタスクドキュメントを整備。ロゴ差し替え設計、データ集約スキーマ、挙動のガードレールを明記。
+- **成果物:**
+  - `.claude/tasks/2025-12-05-web-portfolio-prompt-refresh.md`
+  - `.claude/prompts/2025-12-05-claude-code-web-portfolio-prompt-refresh.md`
+  - `.claude/tasks/ACTIVE-PARALLEL-TASK.md`（更新）
+- **備考:** 実装は未着手。コミット/依存追加禁止をプロンプトに明示。
 
 ### ✅ apps/web Page Transition & Multipage 計画 (2025-12-05)
 - **完了:** 2025-12-05T22:32:00+09:00 (Asia/Tokyo)
@@ -31,6 +40,12 @@
 - **内容:** PageTransition（20ブロック＋ロゴストローク）導入、Nav/AnimatedHeading追加、マルチページ構成（Motion/Interactive/Installation/Archive/Contact）とトップのジャンルカードを実装
 - **成果物:** `src/shared/transitions/*`, `src/shared/components/*`, `src/app/*`（各ページ追加・レイアウト更新）
 - **備考:** コミット未実施。トランジションは`data-transition="true"`リンクのみをインターセプト。
+
+### ✅ apps/web Portfolio Content Handoff (2025-12-05)
+- **完了:** 2025-12-05T22:48:00+09:00 (Asia/Tokyo)
+- **内容:** サンプルコンテンツを本人ポートフォリオ用に刷新するための引き継ぎプロンプト/タスク整理。ロゴ・タイトルSVGの格納先設計提案。
+- **成果物:** `.claude/tasks/archive/2025-12-05-web-portfolio-content-handoff.md`, `.claude/prompts/2025-12-05-claude-code-web-portfolio-handoff.md`
+- **備考:** 実装は未着手。コンテンツ/アセットを本人提供前提で設計。
 
 ### ✅ Reference Files Integration Plan (2025-12-05)
 - **完了:** 2025-12-05T22:03:41+09:00 (Asia/Tokyo)

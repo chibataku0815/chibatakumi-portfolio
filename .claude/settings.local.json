@@ -36,7 +36,9 @@
       "WebFetch(domain:frontend.horse)",
       "WebFetch(domain:tympanus.net)",
       "WebFetch(domain:gsap.com)",
-      "WebFetch(domain:gsapify.com)"
+      "WebFetch(domain:gsapify.com)",
+      "WebFetch(domain:www.radix-ui.com)",
+      "WebFetch(domain:www.colorsandfonts.com)"
     ],
     "deny": [],
     "ask": []

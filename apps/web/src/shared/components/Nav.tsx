@@ -2,23 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
-interface NavLink {
-  href: string;
-  label: string;
-}
-
-const navLinks: NavLink[] = [
-  { href: "/", label: "Index" },
-  { href: "/motion", label: "Motion" },
-  { href: "/interactive", label: "Interactive" },
-  { href: "/installation", label: "Installation" },
-  { href: "/archive", label: "Archive" },
-  { href: "/contact", label: "Contact" },
-];
+import { portfolioData } from "@/shared/data/portfolio";
 
 export function Nav() {
   const pathname = usePathname();
+  const { navBrand } = portfolioData.branding;
+  const { links } = portfolioData.navigation;
 
   return (
     <nav className="fixed top-0 left-0 z-50 flex w-full items-center justify-between px-6 py-5 md:px-8">
@@ -29,13 +18,13 @@ export function Nav() {
           data-transition="true"
           className="font-semibold text-[var(--text-base)] tracking-tight text-lg hover:opacity-80 transition-opacity"
         >
-          TC
+          {navBrand}
         </Link>
       </div>
 
       {/* Navigation Links */}
       <div className="flex gap-4 md:gap-6">
-        {navLinks.map(({ href, label }) => {
+        {links.map(({ href, label }) => {
           const isCurrent = pathname === href;
           return (
             <Link

@@ -5,38 +5,14 @@ import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { splitText } from "@/shared/utils/splitText";
+import { portfolioData } from "@/shared/data/portfolio";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
 // === DATA ===
-const IMAGES = [
-  { src: "/spotlight/img_1.jpg", alt: "Project 1" },
-  { src: "/spotlight/img_2.jpg", alt: "Project 2" },
-  { src: "/spotlight/img_3.jpg", alt: "Project 3" },
-  { src: "/spotlight/img_4.jpg", alt: "Project 4" },
-  { src: "/spotlight/img_5.jpg", alt: "Project 5" },
-  { src: "/spotlight/img_6.jpg", alt: "Project 6" },
-  { src: "/spotlight/img_7.jpg", alt: "Project 7" },
-  { src: "/spotlight/img_8.jpg", alt: "Project 8" },
-  { src: "/spotlight/img_9.jpg", alt: "Project 9" },
-  { src: "/spotlight/img_10.jpg", alt: "Project 10" },
-  { src: "/spotlight/img_11.jpg", alt: "Project 11" },
-  { src: "/spotlight/img_12.jpg", alt: "Project 12" },
-  { src: "/spotlight/img_13.jpg", alt: "Project 13" },
-  { src: "/spotlight/img_14.jpg", alt: "Project 14" },
-  { src: "/spotlight/img_15.jpg", alt: "Project 15" },
-  { src: "/spotlight/img_16.jpg", alt: "Project 16" },
-  { src: "/spotlight/img_17.jpg", alt: "Project 17" },
-  { src: "/spotlight/img_18.jpg", alt: "Project 18" },
-  { src: "/spotlight/img_19.jpg", alt: "Project 19" },
-  { src: "/spotlight/img_20.jpg", alt: "Project 20" },
-];
-
-const COVER_IMAGE = { src: "/spotlight/spotlight_cover.jpg", alt: "Cover" };
-const INTRO_TEXT = "Selected Works & Creative Explorations";
-const OUTRO_TEXT = "Building Digital Experiences";
+const { images: IMAGES, coverImage: COVER_IMAGE, introText: INTRO_TEXT, outroText: OUTRO_TEXT } = portfolioData.spotlight;
 
 const SCATTER_DIRECTIONS = [
   { x: 1.3, y: 0.7 },

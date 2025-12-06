@@ -1,6 +1,7 @@
 "use client";
 
 import { forwardRef } from "react";
+import { portfolioData } from "@/shared/data/portfolio";
 
 interface LogoProps {
   className?: string;
@@ -9,22 +10,24 @@ interface LogoProps {
 /**
  * Abstract monoline logo for page transition
  * Uses stroke animation (strokeDasharray/strokeDashoffset)
+ * Path data from portfolioData.branding.logo (replaceable)
  */
 const Logo = forwardRef<SVGSVGElement, LogoProps>(({ className }, ref) => {
+  const { viewBox, width, height, paths } = portfolioData.branding.logo;
+
   return (
     <svg
       ref={ref}
-      width="80"
-      height="80"
-      viewBox="0 0 80 80"
+      width={width}
+      height={height}
+      viewBox={viewBox}
       fill="none"
       className={className}
     >
-      {/* Abstract "TC" monoline mark */}
       <path
-        d="M16 20 L64 20 M40 20 L40 60 M20 60 L60 60 M20 40 L35 40"
+        d={paths.join(" ")}
         fill="none"
-        stroke="var(--text-base)"
+        stroke="var(--logo-stroke)"
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"

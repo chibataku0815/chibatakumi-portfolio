@@ -116,7 +116,7 @@ export function PageTransition({ children }: PageTransitionProps) {
       tl.to(
         path,
         {
-          fill: "var(--text-base)",
+          fill: "var(--logo-fill)",
           duration: 0.5,
           ease: "power2.out",
         },

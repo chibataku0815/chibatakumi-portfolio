@@ -1,6 +1,9 @@
 import { AnimatedHeading } from "@/shared/components";
+import { portfolioData } from "@/shared/data/portfolio";
 
 export default function InstallationPage() {
+  const { label, title, description, meta } = portfolioData.pages.installation;
+
   return (
     <main className="min-h-screen bg-[var(--bg-dark)] pt-32 pb-24">
       <section className="px-6">
@@ -11,14 +14,14 @@ export default function InstallationPage() {
           {/* Text Column */}
           <div className="flex flex-col gap-6 lg:py-8">
             <span className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent-amber1)]/60">
-              Installation
+              {label}
             </span>
 
             <AnimatedHeading
               as="h1"
               className="text-[clamp(2rem,5vw,3.5rem)] font-semibold leading-[1.1] tracking-[-0.02em] text-[var(--text-base)]"
             >
-              Physical Digital
+              {title}
             </AnimatedHeading>
 
             <AnimatedHeading
@@ -27,24 +30,16 @@ export default function InstallationPage() {
               delay={0.5}
               splitType="words"
             >
-              Bridging the gap between screen and space. These works explore how
-              digital systems can inhabit physical environments, creating
-              experiences that engage the body as much as the eye.
+              {description}
             </AnimatedHeading>
 
             <div className="mt-4 space-y-4 border-t border-white/10 pt-6">
-              <div className="flex justify-between text-sm">
-                <span className="text-[var(--text-muted)]">Medium</span>
-                <span className="text-[var(--text-base)]">
-                  Projection, Sensors, Custom Software
-                </span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-[var(--text-muted)]">Context</span>
-                <span className="text-[var(--text-base)]">
-                  Galleries, Public Spaces
-                </span>
-              </div>
+              {meta.map((item) => (
+                <div key={item.label} className="flex items-center justify-between text-sm">
+                  <span className="text-[var(--text-muted)]">{item.label}</span>
+                  <span className="text-[var(--text-base)]">{item.value}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>

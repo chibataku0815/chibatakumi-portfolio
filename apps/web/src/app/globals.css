@@ -1,12 +1,23 @@
 @import "tailwindcss";
+@import "@radix-ui/colors/slate-dark.css";
+@import "@radix-ui/colors/amber-dark.css";
 
 :root {
-  --bg-dark: #0a0a0a;
-  --bg-darker: #050505;
-  --text-base: #ededed;
-  --text-muted: #888888;
-  --accent-amber1: #ff9f43;
-  --accent-amber2: #ffb15e;
+  /* ==========================================================================
+     Semantic Aliases (Radix Colors)
+     ========================================================================== */
+  --bg-dark: var(--slate-1);
+  --bg-darker: var(--slate-2);
+  --text-base: var(--slate-12);
+  --text-muted: var(--slate-11);
+  --accent-amber1: var(--amber-9);
+  --accent-amber2: var(--amber-10);
+
+  /* Logo / Transition tokens */
+  --logo-stroke: var(--slate-12);
+  --logo-fill: var(--slate-12);
+  /* Use a darker contrast for page transition blocks */
+  --transition-overlay: var(--slate-4);
   --noise-texture: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 
   /* Typography Scale - Apple Style */
@@ -45,7 +56,7 @@
 }
 
 body {
-  background: #0a0a0a;
+  background: var(--bg-dark);
   color: var(--text-base);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
@@ -162,7 +173,7 @@ body {
 .transition-block {
   flex: 1;
   height: 100%;
-  background: var(--bg-darker);
+  background: var(--transition-overlay);
   transform: scaleX(0);
   transform-origin: left;
 }
@@ -174,7 +185,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: var(--bg-darker);
+  background: var(--transition-overlay);
   pointer-events: none;
   opacity: 0;
 }
@@ -186,4 +197,3 @@ body {
   justify-content: center;
   align-items: center;
 }
-

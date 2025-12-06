@@ -5,49 +5,13 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 import { splitText } from "@/shared/utils/splitText";
+import { portfolioData } from "@/shared/data/portfolio";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 }
 
-// === DATA ===
-interface WorkItem {
-  id: string;
-  title: string;
-  description: string;
-  meta: string;
-}
-
-const WORKS: WorkItem[] = [
-  {
-    id: "01",
-    title: "Digital Experiences",
-    description:
-      "Crafting immersive web applications with cutting-edge technologies and thoughtful interactions.",
-    meta: "Web Development",
-  },
-  {
-    id: "02",
-    title: "Creative Development",
-    description:
-      "Bridging design and engineering to build products that feel alive and responsive.",
-    meta: "Frontend Engineering",
-  },
-  {
-    id: "03",
-    title: "Visual Systems",
-    description:
-      "Designing cohesive component libraries and design systems for scalable applications.",
-    meta: "Design Systems",
-  },
-  {
-    id: "04",
-    title: "Motion & Interaction",
-    description:
-      "Adding purposeful animations that guide users and elevate the overall experience.",
-    meta: "Animation",
-  },
-];
+const WORKS = portfolioData.works.items;
 
 interface PanelData {
   panel: HTMLDivElement;

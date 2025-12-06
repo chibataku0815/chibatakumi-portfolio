@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { splitText } from "@/shared/utils/splitText";
+import { portfolioData } from "@/shared/data/portfolio";
 
 // Register GSAP plugins
 if (typeof window !== "undefined") {
@@ -25,11 +26,13 @@ if (typeof window !== "undefined") {
 export function HeroText() {
   const containerRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
-  const subtitleRef = useRef<HTMLParagraphElement>(null);
+  const taglineRef = useRef<HTMLParagraphElement>(null);
   const scrollIndicatorRef = useRef<HTMLDivElement>(null);
 
+  const { title: titleText, tagline, scrollText } = portfolioData.hero;
+
   useEffect(() => {
-    if (!containerRef.current || !titleRef.current || !subtitleRef.current) return;
+    if (!containerRef.current || !titleRef.current || !taglineRef.current) return;
 
     // Wait for fonts to load (critical for accurate layout)
     document.fonts.ready.then(() => {
@@ -64,13 +67,13 @@ export function HeroText() {
           clearProps: "filter",     // Clean up blur after animation
         });
 
-        // Stage 2: Subtitle fade-in (overlapping start)
-        gsap.set(subtitleRef.current, {
+        // Stage 2: Tagline fade-in (overlapping start)
+        gsap.set(taglineRef.current, {
           opacity: 0,
           y: 12,
         });
 
-        masterTl.to(subtitleRef.current, {
+        masterTl.to(taglineRef.current, {
           opacity: 1,
           y: 0,
           duration: 0.6,
@@ -114,8 +117,8 @@ export function HeroText() {
               opacity: 1 - progress * 1.5,
             });
 
-            // Subtitle: slightly less parallax
-            gsap.set(subtitleRef.current, {
+            // Tagline: slightly less parallax
+            gsap.set(taglineRef.current, {
               y: -progress * 50,
               opacity: 1 - progress * 2,
             });
@@ -149,15 +152,15 @@ export function HeroText() {
         ref={titleRef}
         className="text-[clamp(2.75rem,10vw,7rem)] font-semibold leading-[1.0] tracking-[-0.03em] text-white"
       >
-        Takumi Chiba
+        {titleText}
       </h1>
 
-      {/* Subtitle */}
+      {/* Tagline */}
       <p
-        ref={subtitleRef}
-        className="mt-5 text-[clamp(1rem,2vw,1.25rem)] font-normal tracking-[0.02em] text-white/50"
+        ref={taglineRef}
+        className="mt-5 text-[clamp(1rem,2vw,1.25rem)] font-normal tracking-[0.08em] text-white/50"
       >
-        Software Engineer
+        {tagline}
       </p>
 
       {/* Scroll Indicator */}
@@ -166,7 +169,7 @@ export function HeroText() {
         className="absolute bottom-10 flex flex-col items-center gap-3"
       >
         <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-white/40">
-          Scroll
+          {scrollText}
         </span>
         <svg
           width="16"

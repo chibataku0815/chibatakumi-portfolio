@@ -1,6 +1,7 @@
 import { HeroShaderBackground } from "@/features/hero/components";
 import { PageTransition } from "@/shared/transitions";
 import { Nav } from "@/shared/components";
+import { portfolioData } from "@/shared/data/portfolio";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -16,8 +17,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Takumi Chiba - Portfolio",
-  description: "Creative developer portfolio",
+  title: portfolioData.site.title,
+  description: portfolioData.site.description,
 };
 
 export default function RootLayout({
@@ -26,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ja">
+    <html lang="ja" className="dark">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
