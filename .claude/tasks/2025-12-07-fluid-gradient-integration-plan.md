@@ -1,9 +1,28 @@
 # 2025-12-07 Fluid Gradient Integration Plan
 - Created: 2025-12-07T20:39:46+0900 (Asia/Tokyo)
+- **Completed: 2025-12-07T21:51:30+0900 (Asia/Tokyo)**
+- **Status: DONE** ✅
 - Purpose: `apps/cg-webgl-interactive-gradient` を `apps/web` へ統合する計画
 - Scope: 設計・段取りのみ（実装は別タスクでClaude Codeに委譲）
 - Model downstream: Claude Code (Haiku 4.5)
 - Constraints: **コミット禁止** / 既存アーキテクチャ尊重 / 最小差分方針
+
+---
+
+## 完了サマリ
+
+### 実装成果物
+- `src/features/fluid-gradient/` - FluidGradientBackground コンポーネント一式
+- `src/app/page.tsx` - Hero以外のセクションにモノトーンFluidGradient配置
+- `fluidConfigMonochrome` プリセット追加
+
+### 技術的解決
+- Document-level マウスイベントで z-index 問題を解決
+- Sticky パターンでセクション別背景を実現
+- 背景透過のためコンポーネントから `bg-*` クラス削除
+
+### ナレッジ
+- `.ai/knowledge/2025-12-07-fluid-gradient-integration.md`
 
 ---
 

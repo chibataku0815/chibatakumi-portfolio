@@ -41,6 +41,29 @@
   --weight-normal: 400;
   --weight-medium: 500;
   --weight-semibold: 600;
+
+  /* ==========================================================================
+     Opacity Variants (for consistent transparency)
+     ========================================================================== */
+  --text-base-90: color-mix(in srgb, var(--slate-12) 90%, transparent);
+  --text-base-80: color-mix(in srgb, var(--slate-12) 80%, transparent);
+  --text-base-60: color-mix(in srgb, var(--slate-12) 60%, transparent);
+  --text-base-50: color-mix(in srgb, var(--slate-12) 50%, transparent);
+  --text-base-40: color-mix(in srgb, var(--slate-12) 40%, transparent);
+  --text-base-30: color-mix(in srgb, var(--slate-12) 30%, transparent);
+  --text-base-20: color-mix(in srgb, var(--slate-12) 20%, transparent);
+
+  --bg-overlay-40: color-mix(in srgb, var(--slate-12) 40%, transparent);
+  --bg-overlay-20: color-mix(in srgb, var(--slate-12) 20%, transparent);
+  --bg-overlay-10: color-mix(in srgb, var(--slate-12) 10%, transparent);
+  --bg-overlay-5: color-mix(in srgb, var(--slate-12) 5%, transparent);
+
+  /* ==========================================================================
+     Shadow Tokens
+     ========================================================================== */
+  --shadow-glow-sm: 0 0 8px rgba(250, 250, 250, 0.6);
+  --shadow-glow-md: 0 0 12px rgba(250, 250, 250, 0.6);
+  --shadow-glow-lg: 0 0 8px rgba(250, 250, 250, 0.6), 0 0 20px rgba(250, 250, 250, 0.3);
 }
 
 @theme inline {
@@ -51,6 +74,15 @@
   --color-text-muted: var(--text-muted);
   --color-accent-amber1: var(--accent-amber1);
   --color-accent-amber2: var(--accent-amber2);
+  --color-text-base-60: var(--text-base-60);
+  --color-text-base-50: var(--text-base-50);
+  --color-text-base-40: var(--text-base-40);
+  --color-text-base-30: var(--text-base-30);
+  --color-text-base-20: var(--text-base-20);
+  --color-bg-overlay-40: var(--bg-overlay-40);
+  --color-bg-overlay-20: var(--bg-overlay-20);
+  --color-bg-overlay-10: var(--bg-overlay-10);
+  --color-bg-overlay-5: var(--bg-overlay-5);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -125,9 +157,7 @@ body {
 
 /* Progress bar animations */
 .progress-fill.active {
-  box-shadow:
-    0 0 8px rgba(250, 250, 250, 0.6),
-    0 0 20px rgba(250, 250, 250, 0.3);
+  box-shadow: var(--shadow-glow-lg);
 }
 
 .progress-fill.active .progress-head {
@@ -152,9 +182,7 @@ body {
 
 @keyframes progressFlash {
   0% {
-    box-shadow:
-      0 0 8px rgba(250, 250, 250, 0.8),
-      0 0 30px rgba(250, 250, 250, 0.5);
+    box-shadow: var(--shadow-glow-lg);
   }
   100% {
     box-shadow: none;

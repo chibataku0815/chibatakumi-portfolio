@@ -289,6 +289,7 @@ export function HorizontalWorks() {
 
     // Create ScrollTrigger
     scrollTriggerRef.current = ScrollTrigger.create({
+      id: 'horizontal-works',
       trigger: wrapperRef.current,
       start: "top top",
       end: () => "+=" + scrollDistance,
@@ -350,7 +351,7 @@ export function HorizontalWorks() {
             className="horizontal-panel flex h-screen w-screen flex-shrink-0 flex-col items-center justify-center px-6"
           >
             {/* Panel Number */}
-            <span className="absolute left-8 top-8 text-sm font-medium tracking-wide text-white/20">
+            <span className="absolute left-8 top-8 text-sm font-medium tracking-wide text-[var(--text-base-20)]">
               {work.id}
             </span>
 
@@ -385,7 +386,7 @@ export function HorizontalWorks() {
 
               {/* Section Progress */}
               <div className="mt-12 flex w-48 items-center gap-3">
-                <div className="progress-track relative h-[2px] flex-1 overflow-hidden rounded-full bg-white/10">
+                <div className="progress-track relative h-[2px] flex-1 overflow-hidden rounded-full bg-[var(--bg-overlay-10)]">
                   <div
                     ref={(el) => {
                       progressFillRefs.current[index] = el;
@@ -399,7 +400,7 @@ export function HorizontalWorks() {
                   ref={(el) => {
                     progressTextRefs.current[index] = el;
                   }}
-                  className="progress-text w-10 text-right text-xs font-medium tabular-nums text-white/40"
+                  className="progress-text w-10 text-right text-xs font-medium tabular-nums text-[var(--text-base-40)]"
                 >
                   0%
                 </span>
@@ -425,10 +426,10 @@ export function HorizontalWorks() {
             onClick={() => navigateToSection(index)}
             className={`section-dot relative h-2.5 w-2.5 rounded-full transition-all duration-300 ${
               activeSection === index
-                ? "scale-125 bg-[var(--text-base)] shadow-[0_0_12px_rgba(250,250,250,0.6)]"
+                ? "scale-125 bg-[var(--text-base)] shadow-[var(--shadow-glow-md)]"
                 : completedSections.has(index)
                   ? "bg-[var(--text-base)]"
-                  : "bg-white/20 hover:bg-white/40"
+                  : "bg-[var(--bg-overlay-20)] hover:bg-[var(--bg-overlay-40)]"
             }`}
             aria-label={`Go to section ${index + 1}`}
           >
@@ -451,7 +452,7 @@ export function HorizontalWorks() {
       </div>
 
       {/* Global Progress Bar */}
-      <div className="global-progress fixed bottom-0 left-0 z-40 h-[2px] w-full bg-white/5">
+      <div className="global-progress fixed bottom-0 left-0 z-40 h-[2px] w-full bg-[var(--bg-overlay-5)]">
         <div
           ref={globalProgressRef}
           className="global-progress-fill h-full w-0 bg-gradient-to-r from-[var(--accent-amber1)] to-[var(--accent-amber2)]"

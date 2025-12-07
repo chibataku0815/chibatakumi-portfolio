@@ -110,6 +110,7 @@ export function SpotlightGallery() {
     });
 
     scrollTriggerRef.current = ScrollTrigger.create({
+      id: 'spotlight-gallery',
       trigger: sectionRef.current,
       start: "top top",
       end: `+=${window.innerHeight * 15}px`,
@@ -258,7 +259,7 @@ export function SpotlightGallery() {
               ref={(el) => {
                 imageRefs.current[index] = el;
               }}
-              className="spotlight-img absolute left-1/2 top-1/2 h-48 w-72 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-lg bg-white/5 md:h-64 md:w-96"
+              className="spotlight-img absolute left-1/2 top-1/2 h-48 w-72 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-lg bg-[var(--bg-overlay-5)] md:h-64 md:w-96"
             >
               <Image
                 src={image.src}
@@ -273,7 +274,7 @@ export function SpotlightGallery() {
           {/* Cover Image */}
           <div
             ref={coverRef}
-            className="spotlight-cover absolute left-1/2 top-1/2 h-72 w-[28rem] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-xl bg-white/10 md:h-96 md:w-[36rem]"
+            className="spotlight-cover absolute left-1/2 top-1/2 h-72 w-[28rem] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-xl bg-[var(--bg-overlay-10)] md:h-96 md:w-[36rem]"
           >
             <Image
               src={COVER_IMAGE.src}

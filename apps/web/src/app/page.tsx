@@ -1,13 +1,17 @@
-import { HeroText } from "@/features/hero/components";
-import { HorizontalWorks, SpotlightGallery } from "@/features/works";
 import {
   FluidGradientBackground,
   fluidConfigMonochrome,
 } from "@/features/fluid-gradient";
+import { HeroText } from "@/features/hero/components";
+import { SectionScrollManager } from "@/features/scroll-manager";
+import { HorizontalWorks } from "@/features/works";
 
 export default function Home() {
   return (
     <main>
+      {/* Section Scroll Snap Manager */}
+      <SectionScrollManager />
+
       {/* Hero Section - uses HeroShaderBackground from layout.tsx */}
       <section className="relative min-h-screen">
         <HeroText />
@@ -27,12 +31,6 @@ export default function Home() {
         <div className="relative -mt-[100vh]">
           {/* Horizontal Works Section */}
           <HorizontalWorks />
-
-          {/* Spotlight Gallery */}
-          <SpotlightGallery />
-
-          {/* Footer spacer */}
-          <section className="h-[50vh]" />
         </div>
       </div>
     </main>

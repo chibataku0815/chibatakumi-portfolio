@@ -12,24 +12,22 @@ if (typeof window !== "undefined") {
 }
 
 /**
- * Premium Hero Text Animation
+ * Premium Hero Text Animation - Asymmetric Layout
  *
  * Design principles:
+ * - Diagonal composition: top-right (title) → center-left (tagline) → bottom-right (scroll)
  * - Only animate opacity + transform (GPU accelerated)
- * - Micro Y-movements (12px, not 60px)
- * - Blur-to-sharp for focus perception
- * - No gimmicky 3D effects (rotateX/Y)
- * - No letter-spacing animation (causes jank)
- * - Duration: 0.6-0.8s (not rushed, not lazy)
+ * - Micro movements with blur-to-sharp for focus perception
+ * - Duration: 0.6-0.8s (luxury feel)
  * - Easing: power2.out (smooth, professional)
  */
 export function HeroText() {
   const containerRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
-  const taglineRef = useRef<HTMLParagraphElement>(null);
+  const taglineRef = useRef<HTMLDivElement>(null);
   const scrollIndicatorRef = useRef<HTMLDivElement>(null);
 
-  const { title: titleText, tagline, scrollText } = portfolioData.hero;
+  const { scrollText } = portfolioData.hero;
 
   useEffect(() => {
     if (!containerRef.current || !titleRef.current || !taglineRef.current) return;
@@ -43,14 +41,14 @@ export function HeroText() {
         // Initial state: invisible, slightly below, blurred
         gsap.set(titleSplit.chars, {
           opacity: 0,
-          y: 16,                    // Micro-movement (not 60px)
-          filter: "blur(8px)",      // Blur for focus perception
+          y: 16,
+          filter: "blur(8px)",
         });
 
         // Premium timeline
         const masterTl = gsap.timeline({
           defaults: {
-            ease: "power2.out",     // Smooth, professional easing
+            ease: "power2.out",
           },
         });
 
@@ -59,26 +57,30 @@ export function HeroText() {
           opacity: 1,
           y: 0,
           filter: "blur(0px)",
-          duration: 0.7,            // 700ms (luxury feel)
+          duration: 0.7,
           stagger: {
-            each: 0.035,            // 35ms between chars
+            each: 0.035,
             from: "start",
           },
-          clearProps: "filter",     // Clean up blur after animation
+          clearProps: "filter",
         });
 
-        // Stage 2: Tagline fade-in (overlapping start)
-        gsap.set(taglineRef.current, {
-          opacity: 0,
-          y: 12,
-        });
+        // Stage 2: Tagline lines reveal (staggered from left)
+        const taglineLines = taglineRef.current?.querySelectorAll('.tagline-line');
+        if (taglineLines) {
+          gsap.set(taglineLines, {
+            opacity: 0,
+            x: -20,
+          });
 
-        masterTl.to(taglineRef.current, {
-          opacity: 1,
-          y: 0,
-          duration: 0.6,
-          ease: "power2.out",
-        }, "-=0.3");                 // Start 300ms before title ends
+          masterTl.to(taglineLines, {
+            opacity: 1,
+            x: 0,
+            duration: 0.5,
+            stagger: 0.15,
+            ease: "power2.out",
+          }, "-=0.2");
+        }
 
         // Stage 3: Scroll indicator fade-in
         gsap.set(scrollIndicatorRef.current, {
@@ -87,7 +89,7 @@ export function HeroText() {
         });
 
         masterTl.to(scrollIndicatorRef.current, {
-          opacity: 0.6,             // Subtle, not full opacity
+          opacity: 0.6,
           y: 0,
           duration: 0.5,
           ease: "power2.out",
@@ -107,21 +109,26 @@ export function HeroText() {
           trigger: containerRef.current,
           start: "top top",
           end: "bottom top",
-          scrub: 0.8,               // Smoother scrub
+          scrub: 0.8,
           onUpdate: (self) => {
             const progress = self.progress;
 
             // Title: subtle parallax + fade
             gsap.set(titleRef.current, {
-              y: -progress * 80,     // Reduced parallax
+              y: -progress * 80,
               opacity: 1 - progress * 1.5,
             });
 
-            // Tagline: slightly less parallax
-            gsap.set(taglineRef.current, {
-              y: -progress * 50,
-              opacity: 1 - progress * 2,
-            });
+            // Tagline lines: slightly less parallax with stagger
+            const taglineLines = taglineRef.current?.querySelectorAll('.tagline-line');
+            if (taglineLines) {
+              taglineLines.forEach((line, i) => {
+                gsap.set(line, {
+                  y: -progress * (40 + i * 5),
+                  opacity: 1 - progress * 2,
+                });
+              });
+            }
 
             // Scroll indicator: fade out quickly
             gsap.set(scrollIndicatorRef.current, {
@@ -146,29 +153,41 @@ export function HeroText() {
   return (
     <div
       ref={containerRef}
-      className="relative flex min-h-[80vh] min-h-[600px] flex-col items-center justify-center text-center px-6"
+      className="relative flex min-h-[85vh] min-h-[700px] flex-col justify-center px-0"
     >
-      <h1
-        ref={titleRef}
-        className="text-[clamp(2.75rem,10vw,7rem)] font-semibold leading-[1.0] tracking-[-0.03em] text-white"
-      >
-        {titleText}
-      </h1>
+      {/* Title - Right aligned */}
+      <div className="flex w-full flex-col items-end pr-8 md:pr-16 lg:pr-24">
+        <h1
+          ref={titleRef}
+          className="text-right text-[clamp(4rem,15vw,12rem)] font-semibold leading-[0.9] tracking-[-0.04em] text-[var(--text-base)]"
+        >
+          <span className="block">Takumi</span>
+          <span className="block">Chiba</span>
+        </h1>
+      </div>
 
-      {/* Tagline */}
-      <p
+      {/* Tagline - Left aligned, 3 lines */}
+      <div
         ref={taglineRef}
-        className="mt-5 text-[clamp(1rem,2vw,1.25rem)] font-normal tracking-[0.08em] text-white/50"
+        className="mt-16 flex w-full flex-col items-start pl-8 md:pl-16 lg:pl-24"
       >
-        {tagline}
-      </p>
+        <p className="tagline-line text-[clamp(1.125rem,2.5vw,1.5rem)] font-normal tracking-[0.05em] text-[var(--text-base-60)]">
+          コードを書く。
+        </p>
+        <p className="tagline-line mt-2 text-[clamp(1.125rem,2.5vw,1.5rem)] font-normal tracking-[0.05em] text-[var(--text-base-60)]">
+          撮る。
+        </p>
+        <p className="tagline-line mt-2 text-[clamp(1.125rem,2.5vw,1.5rem)] font-normal tracking-[0.05em] text-[var(--text-base-60)]">
+          編む。
+        </p>
+      </div>
 
-      {/* Scroll Indicator */}
+      {/* Scroll Indicator - Bottom right */}
       <div
         ref={scrollIndicatorRef}
-        className="absolute bottom-10 flex flex-col items-center gap-3"
+        className="absolute bottom-10 right-8 flex flex-col items-center gap-3 md:right-16 lg:right-24"
       >
-        <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-white/40">
+        <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--text-base-40)]">
           {scrollText}
         </span>
         <svg
@@ -176,7 +195,7 @@ export function HeroText() {
           height="24"
           viewBox="0 0 16 24"
           fill="none"
-          className="text-white/30"
+          className="text-[var(--text-base-30)]"
         >
           <rect
             x="1"

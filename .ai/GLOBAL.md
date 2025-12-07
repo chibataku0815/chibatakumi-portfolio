@@ -139,13 +139,23 @@ Claude Codeでは、**サブエージェント（Task）** と **スキル（Ski
 
 ### スキル使用基準
 
+**Creative Direction (クリエイティブ層)**
+
+| スキル | 使用タイミング |
+|--------|---------------|
+| `art-direction` | ビジュアルコンセプト策定、ムード設計、参照分析時 |
+| `visual-composition` | 構図設計、グリッドシステム、視線誘導設計時 |
+| `motion-design` | アニメーション設計、タイミング、トランジション演出時 |
+| `typography` | フォント選定・視覚階層設計時 |
+
+**Implementation (実装層)**
+
 | スキル | 使用タイミング |
 |--------|---------------|
 | `frontend-dev` | React/Next.js/Tailwind/GSAP実装時 |
 | `frontend-design` | UI品質・デザインシステム構築時 |
-| `backend-dev` | API/Server Actions/DB操作時 |
 | `webgl-shader` | Three.js/シェーダー/3D実装時 |
-| `typography` | フォント選定・視覚階層設計時 |
+| `backend-dev` | API/Server Actions/DB操作時 |
 
 ### サブエージェント使用基準
 

@@ -2,39 +2,78 @@
 
 ## 現在アクティブなタスク
 
-### Fluid Gradient Integration (2025-12-07)
-- **開始:** 2025-12-07T20:39:46+0900 (Asia/Tokyo)
-- **内容:** `apps/cg-webgl-interactive-gradient` を `apps/web` へ統合
-- **制約:** コミット禁止、依存追加なし
-
-#### Phase 1: FluidGradientBackground 実装 ✅
-- **ステータス:** 実装完了・精査済み
+### Index Brushup - グラフィックデザイン強化 (2025-12-07)
+- **開始:** 2025-12-07T22:52:14+0900 (Asia/Tokyo)
+- **ステータス:** Phase 1 プロンプト作成完了・実装待機
+- **内容:** indexページのビジュアルインパクト強化。グラフィックデザイン観点（構図、タイポグラフィ、モーション）からの全面リデザイン。
+- **フェーズ構成:**
+  - Phase 1: Hero Section リデザイン（非対称配置、タイポグラフィ強化）← **プロンプト作成済み**
+  - Phase 2: Hero → Works トランジション演出強化
+  - Phase 3: Works Section リデザイン（パネルごとに構図変化）
+  - Phase 4: 視覚言語の統一（アンバーアクセント活用）
 - **成果物:**
-  - `.claude/tasks/2025-12-07-fluid-gradient-integration-plan.md` - 統合計画
-  - `.claude/prompts/2025-12-07-claude-code-fluid-gradient-integration.md` - 実装プロンプト
-  - `src/features/fluid-gradient/` - コンポーネント・シェーダー一式
-- **精査結果:** EXCELLENT（TypeScriptエラーなし、メモリ管理適切、既存パターン準拠）
-
-#### Phase 2: セクション別背景配置 ⏳
-- **ステータス:** 計画完了、実装待ち
-- **方針変更:** layout全体切り替えではなく、セクション単位で背景配置
-- **成果物:**
-  - `.claude/prompts/2025-12-07-claude-code-fluid-gradient-sections.md` - 実装プロンプト
-- **変更予定:**
-  - `src/features/fluid-gradient/shader/config/fluid.ts` (モノトーンプリセット追加)
-  - `src/app/page.tsx` (Hero以外にFluidGradient配置)
-  - `src/app/interactive/page.tsx` (重複背景削除)
-- **背景構成:**
-  - Hero: HeroShaderBackground (layout.tsx、維持)
-  - 他セクション: FluidGradientBackground (モノトーン、マウス反応)
+  - `.claude/tasks/2025-12-07-index-brushup-plan.md` - 全体計画
+  - `.claude/prompts/2025-12-07-claude-code-index-brushup-hero.md` - Phase 1 実装プロンプト
+- **新規スキル追加:**
+  - `.claude/skills/art-direction/` - アートディレクション
+  - `.claude/skills/visual-composition/` - ビジュアルコンポジション
+  - `.claude/skills/motion-design/` - モーションデザイン
+- **影響ファイル:**
+  - `src/features/hero/components/HeroText.tsx` - 構図・タイポグラフィ変更
+  - `src/features/works/horizontal/HorizontalWorks.tsx` - パネル構図変更（Phase 3）
+  - `src/app/globals.css` - スタイル追加
+- **備考:** 実装は Claude Code (Haiku 4.5) に委譲。**コミット禁止**。
 
 ---
 
-最終更新: 2025-12-07T20:59:16+0900 (Asia/Tokyo)
+### Design Consistency Brushup (2025-12-07) - 保留
+- **開始:** 2025-12-07T22:21:23+0900 (Asia/Tokyo)
+- **ステータス:** 保留（Index Brushup 完了後に実施）
+- **内容:** UI/デザイン統一性向上のリファクタリング。カラー・タイポグラフィ・Shadowのトークン化。
+- **成果物:**
+  - `.claude/tasks/2025-12-07-design-consistency-brushup.md` - タスク計画
+  - `.claude/prompts/2025-12-07-claude-code-design-consistency.md` - 実装プロンプト
+- **備考:** Index Brushup と影響ファイルが重複するため、順序を整理して実施。
+
+---
+
+最終更新: 2025-12-07T22:52:14+0900 (Asia/Tokyo)
 
 ---
 
 ## 直近の完了タスク
+
+### ✅ Section Scroll Snap Implementation (2025-12-07)
+- **完了:** 2025-12-07T22:12:01+0900 (Asia/Tokyo)
+- **内容:** indexページにセクションスナップ（スクロールジャック）を実装。中途半端なスクロール位置を防止し、セクションごとにきっちりスナップする。
+- **成果物:**
+  - `src/features/scroll-manager/` - コンポーネント・フック一式
+  - HorizontalWorks/SpotlightGallery に ScrollTrigger ID 追加
+  - `page.tsx` に SectionScrollManager 統合
+- **技術的解決:**
+  - GSAP Observer + ScrollToPlugin でスナップ実装
+  - ScrollTrigger.progress を使用してpinned セクション内のスナップを制御
+  - progress 0〜2% または 98〜100% の場合のみスナップ許可
+- **関連ドキュメント:**
+  - `.claude/tasks/2025-12-07-scroll-snap-implementation-plan.md`
+  - `.claude/prompts/2025-12-07-claude-code-scroll-snap.md`
+  - `.ai/knowledge/2025-12-07-scroll-snap-implementation.md`
+
+### ✅ Fluid Gradient Integration (2025-12-07)
+- **完了:** 2025-12-07T21:51:30+0900 (Asia/Tokyo)
+- **内容:** `apps/cg-webgl-interactive-gradient` を `apps/web` へ統合。Hero以外のセクションにモノトーンFluidGradientBackgroundを配置。
+- **成果物:**
+  - `src/features/fluid-gradient/` - コンポーネント・シェーダー一式
+  - `src/app/page.tsx` - sticky パターンでセクション背景配置
+  - `.ai/knowledge/2025-12-07-fluid-gradient-integration.md` - 技術知見
+- **技術的解決:**
+  - Document-level マウスイベントで z-index 問題を解決
+  - Sticky パターンでセクション別背景を実現
+  - fluidConfigMonochrome プリセット（Radix slate ベース）
+- **関連ドキュメント:**
+  - `.claude/tasks/2025-12-07-fluid-gradient-integration-plan.md`
+  - `.claude/prompts/2025-12-07-claude-code-fluid-gradient-integration.md`
+  - `.claude/prompts/2025-12-07-claude-code-fluid-gradient-sections.md`
 
 ### ✅ apps/web Portfolio Prompt Refresh (2025-12-05)
 - **完了:** 2025-12-05T23:10:46+09:00 (Asia/Tokyo)
