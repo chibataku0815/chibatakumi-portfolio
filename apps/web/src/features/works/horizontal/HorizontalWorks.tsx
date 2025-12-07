@@ -16,6 +16,47 @@ const TITLE_GHOST_OPACITY = "0.04";
 const DESC_GHOST_OPACITY = "0.03";
 const SCROLL_DISTANCE_FACTOR = 2.2;
 const NAV_SCROLL_OFFSET = 5; // 少し進めてセクション開始直後の状態にするためのオフセット
+const OPACITY_VISIBLE_THRESHOLD = 0.5;
+
+/**
+ * Animation tuning knobs to avoid scattered magic numbers.
+ */
+const ANIMATION = {
+  entry: {
+    offsetY: 60,
+    blur: 8,
+    start: "top 80%",
+    end: "top 20%",
+    scrub: 0.8,
+  },
+  title: {
+    duration: 0.25,
+    stagger: 0.025,
+  },
+  desc: {
+    duration: 0.4,
+    stagger: 0.004,
+  },
+  progressLine: {
+    durationIn: 0.15,
+    durationOut: 0.15,
+  },
+  panelFade: {
+    scale: 0.95,
+    opacity: 0.3,
+    blur: 4,
+    duration: 0.12,
+  },
+  slide: {
+    duration: 0.2,
+  },
+  nextPanel: {
+    setupScale: 1.05,
+    setupOpacity: 0,
+    setupBlur: 4,
+    duration: 0.15,
+  },
+} as const;
 
 interface PanelData {
   panelContent: HTMLDivElement;
@@ -198,22 +239,22 @@ export function HorizontalWorks() {
       }
 
       gsap.set(firstPanelContent, {
-        y: 60,
+        y: ANIMATION.entry.offsetY,
         opacity: 0,
-        filter: "blur(8px)",
+        filter: `blur(${ANIMATION.entry.blur}px)`,
       });
 
       return ScrollTrigger.create({
         trigger: wrapperRef.current,
-        start: "top 80%",
-        end: "top 20%",
-        scrub: 0.8,
+        start: ANIMATION.entry.start,
+        end: ANIMATION.entry.end,
+        scrub: ANIMATION.entry.scrub,
         onUpdate: (self) => {
           const progress = self.progress;
           gsap.set(firstPanelContent, {
-            y: 60 * (1 - progress),
+            y: ANIMATION.entry.offsetY * (1 - progress),
             opacity: progress,
-            filter: `blur(${8 * (1 - progress)}px)`,
+            filter: `blur(${ANIMATION.entry.blur * (1 - progress)}px)`,
           });
         },
       });
@@ -236,8 +277,8 @@ export function HorizontalWorks() {
           data.titleChars,
           {
             opacity: 1,
-            duration: 0.25,
-            stagger: 0.025,
+            duration: ANIMATION.title.duration,
+            stagger: ANIMATION.title.stagger,
             ease: "power2.out",
             onStart: () => {
               data.progressFill.classList.add("active");
@@ -251,13 +292,13 @@ export function HorizontalWorks() {
           data.descChars,
           {
             opacity: 1,
-            duration: 0.4,
-            stagger: 0.004,
+            duration: ANIMATION.desc.duration,
+            stagger: ANIMATION.desc.stagger,
             ease: "power1.out",
             onUpdate: () => {
               let completedChars = 0;
               for (const char of data.descChars) {
-                if (parseFloat(char.style.opacity) > 0.5) {
+                if (parseFloat(char.style.opacity) > OPACITY_VISIBLE_THRESHOLD) {
                   completedChars += 1;
                 }
               }
@@ -287,10 +328,10 @@ export function HorizontalWorks() {
           timeline.to(
             data.panelContent,
             {
-              scale: 0.95,
-              opacity: 0.3,
-              filter: "blur(4px)",
-              duration: 0.12,
+              scale: ANIMATION.panelFade.scale,
+              opacity: ANIMATION.panelFade.opacity,
+              filter: `blur(${ANIMATION.panelFade.blur}px)`,
+              duration: ANIMATION.panelFade.duration,
               ease: "power2.in",
             },
             ">"
@@ -302,7 +343,7 @@ export function HorizontalWorks() {
               {
                 width: "100%",
                 opacity: 1,
-                duration: 0.15,
+                duration: ANIMATION.progressLine.durationIn,
                 ease: "power2.inOut",
               },
               "<0.03"
@@ -313,7 +354,7 @@ export function HorizontalWorks() {
             containerRef.current,
             {
               x: () => -(window.innerWidth * (index + 1)),
-              duration: 0.2,
+              duration: ANIMATION.slide.duration,
               ease: "power3.inOut",
             },
             "<0.03"
@@ -326,7 +367,7 @@ export function HorizontalWorks() {
                 width: "0%",
                 left: "100%",
                 opacity: 0,
-                duration: 0.15,
+                duration: ANIMATION.progressLine.durationOut,
                 ease: "power2.out",
                 onComplete: () => {
                   gsap.set(transitionLine, { left: "0%" });
@@ -339,9 +380,9 @@ export function HorizontalWorks() {
           timeline.set(
             nextData.panelContent,
             {
-              scale: 1.05,
-              opacity: 0,
-              filter: "blur(4px)",
+              scale: ANIMATION.nextPanel.setupScale,
+              opacity: ANIMATION.nextPanel.setupOpacity,
+              filter: `blur(${ANIMATION.nextPanel.setupBlur}px)`,
             },
             "<-0.1"
           );
@@ -352,7 +393,7 @@ export function HorizontalWorks() {
               scale: 1,
               opacity: 1,
               filter: "blur(0px)",
-              duration: 0.15,
+              duration: ANIMATION.nextPanel.duration,
               ease: "power2.out",
             },
             ">-0.08"
