@@ -38,6 +38,7 @@ export function HorizontalWorks() {
   const transitionLineRef = useRef<HTMLDivElement>(null);
 
   const scrollTriggerRef = useRef<ScrollTrigger | null>(null);
+  const entryTriggerRef = useRef<ScrollTrigger | null>(null);
   const panelDataRef = useRef<PanelData[]>([]);
 
   const [activeSection, setActiveSection] = useState(0);
@@ -104,6 +105,9 @@ export function HorizontalWorks() {
     if (scrollTriggerRef.current) {
       scrollTriggerRef.current.kill();
     }
+    if (entryTriggerRef.current) {
+      entryTriggerRef.current.kill();
+    }
     panelDataRef.current.forEach((data) => {
       data.titleSplit.revert();
       data.descSplit.revert();
@@ -153,6 +157,33 @@ export function HorizontalWorks() {
     }
 
     panelDataRef.current = panelData;
+
+    // === Entry Animation: First panel "rise from depth" ===
+    const firstPanelContent = contentRefs.current[0];
+    if (firstPanelContent) {
+      // Initial state: below, blurred
+      gsap.set(firstPanelContent, {
+        y: 60,
+        opacity: 0,
+        filter: "blur(8px)",
+      });
+
+      // Entry trigger: Works section entry
+      entryTriggerRef.current = ScrollTrigger.create({
+        trigger: wrapperRef.current,
+        start: "top 80%",
+        end: "top 20%",
+        scrub: 0.8,
+        onUpdate: (self) => {
+          const progress = self.progress;
+          gsap.set(firstPanelContent, {
+            y: 60 * (1 - progress),
+            opacity: progress,
+            filter: `blur(${8 * (1 - progress)}px)`,
+          });
+        },
+      });
+    }
 
     // Build timeline
     const mainTimeline = gsap.timeline();
@@ -324,6 +355,9 @@ export function HorizontalWorks() {
       window.removeEventListener("resize", handleResize);
       if (scrollTriggerRef.current) {
         scrollTriggerRef.current.kill();
+      }
+      if (entryTriggerRef.current) {
+        entryTriggerRef.current.kill();
       }
       panelDataRef.current.forEach((data) => {
         data.titleSplit.revert();

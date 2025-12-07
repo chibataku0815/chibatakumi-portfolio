@@ -104,7 +104,7 @@ export function HeroText() {
           ease: "sine.inOut",
         });
 
-        // === SCROLL PARALLAX: Minimal, purposeful ===
+        // === SCROLL PARALLAX: Enhanced "sinking" effect ===
         ScrollTrigger.create({
           trigger: containerRef.current,
           start: "top top",
@@ -113,26 +113,29 @@ export function HeroText() {
           onUpdate: (self) => {
             const progress = self.progress;
 
-            // Title: subtle parallax + fade
+            // Title: enhanced "sinking" parallax
             gsap.set(titleRef.current, {
-              y: -progress * 80,
-              opacity: 1 - progress * 1.5,
+              y: -progress * 120,
+              opacity: 1 - progress * 1.2,
+              scale: 1 - progress * 0.05,
             });
 
-            // Tagline lines: slightly less parallax with stagger
+            // Tagline lines: staggered sinking with blur
             const taglineLines = taglineRef.current?.querySelectorAll('.tagline-line');
             if (taglineLines) {
               taglineLines.forEach((line, i) => {
                 gsap.set(line, {
-                  y: -progress * (40 + i * 5),
-                  opacity: 1 - progress * 2,
+                  y: -progress * (60 + i * 15),
+                  opacity: 1 - progress * 1.8,
+                  filter: `blur(${progress * 3}px)`,
                 });
               });
             }
 
-            // Scroll indicator: fade out quickly
+            // Scroll indicator: quick fade with y movement
             gsap.set(scrollIndicatorRef.current, {
-              opacity: Math.max(0, 0.6 - progress * 3),
+              opacity: Math.max(0, 0.6 - progress * 4),
+              y: -progress * 40,
             });
           },
         });

@@ -4,6 +4,14 @@
 
 ## スキル一覧
 
+### Strategy (戦略)
+
+| スキル | 用途 | キーワード |
+|--------|------|-----------|
+| [brand-strategy](./brand-strategy/SKILL.md) | ブランド戦略 | ポジショニング, 価値提案, 差別化, ターゲット |
+| [copywriting](./copywriting/SKILL.md) | コピーライティング | タグライン, ヒーローコピー, CTA, トーン&マナー |
+| [user-journey](./user-journey/SKILL.md) | ユーザージャーニー | 感情設計, コンバージョン, CTA戦略, 心理学 |
+
 ### Creative Direction (クリエイティブ)
 
 | スキル | 用途 | キーワード |
@@ -36,25 +44,35 @@
                               │    (進捗管理・調整)    │
                               └──────────┬───────────┘
                                          │
-          ┌──────────────────────────────┼──────────────────────────────┐
-          │                              │                              │
-          ▼                              ▼                              ▼
+    ┌────────────────────────────────────┼────────────────────────────────────┐
+    │                                    │                                    │
+    ▼                                    ▼                                    ▼
 ┌─────────────────────┐      ┌─────────────────────┐      ┌─────────────────────┐
-│   Creative Layer    │      │ Implementation Layer│      │   Technical Layer   │
-│   (クリエイティブ層)    │      │     (実装層)         │      │     (技術層)         │
+│   Strategy Layer    │      │   Creative Layer    │      │ Implementation Layer│
+│     (戦略層)         │      │  (クリエイティブ層)   │      │      (実装層)        │
 ├─────────────────────┤      ├─────────────────────┤      ├─────────────────────┤
-│ • art-direction     │ ───▶ │ • frontend-dev      │ ◀─── │ • webgl-shader      │
-│ • visual-composition│      │ • frontend-design   │      │ • backend-dev       │
-│ • motion-design     │      │                     │      │                     │
-│ • typography        │      │                     │      │                     │
+│ • brand-strategy    │ ───▶ │ • art-direction     │ ───▶ │ • frontend-dev      │
+│ • copywriting       │      │ • visual-composition│      │ • frontend-design   │
+│ • user-journey      │      │ • motion-design     │      │ • webgl-shader      │
+│                     │      │ • typography        │      │ • backend-dev       │
 └─────────────────────┘      └─────────────────────┘      └─────────────────────┘
 ```
 
 ### レイヤー間の関係
 
 ```
+【戦略層】
+  ビジネス目標とターゲット心理を定義し、クリエイティブ層に指針を渡す
+
+  brand-strategy ──── ポジショニング・価値提案・差別化
+       │
+       ├── copywriting ────── メッセージング・言語設計
+       │
+       └── user-journey ───── 感情設計・コンバージョン
+
+
 【クリエイティブ層】
-  方向性を定義し、実装層に指針を渡す
+  戦略層の指針を受け、ビジュアル方向性を定義し実装層に渡す
 
   art-direction ──── 全体のビジュアルコンセプト
        │
@@ -66,21 +84,38 @@
 
 
 【実装層】
-  クリエイティブ層の指針を受け、技術層と連携して実装
+  クリエイティブ層の指針を受け、技術的に実現
 
   frontend-dev ────── コンポーネント・アニメーション実装
        │
-       └── frontend-design ──── UIの品質・差別化
-
-
-【技術層】
-  専門技術を提供、実装層に成果物を渡す
-
-  webgl-shader ────── シェーダー・3D実装
-  backend-dev ─────── API・データ層
+       ├── frontend-design ──── UIの品質・差別化
+       │
+       ├── webgl-shader ─────── シェーダー・3D実装
+       │
+       └── backend-dev ──────── API・データ層
 ```
 
 ## 各スキルの責務
+
+### Strategy
+
+#### brand-strategy (ブランド戦略)
+- ポジショニングステートメントの策定
+- 価値提案（Value Proposition）の構築
+- 競合差別化の言語化
+- ターゲットセグメンテーション
+
+#### copywriting (コピーライティング)
+- タグライン・ヒーローコピーの開発
+- About / Services セクションの言語設計
+- CTA のコピー設計
+- トーン&マナーガイドの策定
+
+#### user-journey (ユーザージャーニー)
+- 訪問者の感情アーク設計
+- コンバージョンファネル最適化
+- CTA 配置・表現戦略
+- ペルソナ別体験設計
 
 ### Creative Direction
 
@@ -147,6 +182,27 @@
 - ブロッカーの検出と解消
 
 ## ハンドオフプロトコル
+
+### 戦略層 → クリエイティブ層
+
+```markdown
+## [Creative] への戦略指針
+
+### ポジショニング (from brand-strategy)
+- Core Identity: [1文で定義]
+- Target: [ターゲット像]
+- Value Proposition: [価値提案]
+
+### メッセージング (from copywriting)
+- Tagline: [案]
+- Key Messages: [階層別]
+- Tone: [voice characteristics]
+
+### ユーザージャーニー (from user-journey)
+- 感情アーク: [5幕構造]
+- CTA戦略: [配置・表現]
+- 各セクションの目的: [一覧]
+```
 
 ### クリエイティブ層 → 実装層
 
@@ -219,6 +275,14 @@
     │
     ▼
 ┌───────────────────────────────────────────────┐
+│ 0. 戦略的観点が必要？                           │
+│    • ブランド/ポジショニング → brand-strategy   │
+│    • コピー/メッセージ → copywriting           │
+│    • ユーザー心理/CTA → user-journey           │
+└───────────────────────────────────────────────┘
+    │
+    ▼
+┌───────────────────────────────────────────────┐
 │ 1. クリエイティブ観点が必要？                    │
 │    • ビジュアル方向性 → art-direction          │
 │    • 構図・レイアウト → visual-composition     │
@@ -247,6 +311,15 @@
 .claude/skills/
 ├── README.md                    # このファイル
 │
+│ # Strategy Layer
+├── brand-strategy/              # ブランド戦略
+│   └── SKILL.md
+├── copywriting/                 # コピーライティング
+│   └── SKILL.md
+├── user-journey/                # ユーザージャーニー
+│   └── SKILL.md
+│
+│ # Creative Layer
 ├── art-direction/               # クリエイティブ方向性
 │   └── SKILL.md
 ├── visual-composition/          # 構図・空間設計
@@ -256,6 +329,7 @@
 ├── typography/                  # タイポグラフィ
 │   └── SKILL.md
 │
+│ # Implementation Layer
 ├── frontend-dev/                # フロントエンド実装
 │   └── SKILL.md
 ├── frontend-design/             # UIデザイン実装
@@ -265,6 +339,7 @@
 ├── backend-dev/                 # バックエンド
 │   └── SKILL.md
 │
+│ # Coordination
 └── project-coordinator/         # 進捗管理
     └── SKILL.md
 ```

@@ -2,6 +2,12 @@
 
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 import {
   isWebGLSupported,
   getOptimalPixelRatio,
@@ -118,10 +124,29 @@ export function HeroShaderBackground() {
         window.addEventListener("pointermove", handlePointer, { passive: true });
         window.addEventListener("scroll", handleScroll, { passive: true });
         window.addEventListener("resize", handleResize);
+
+        // HeroShader fade-out on scroll
+        const heroFadeOutTrigger = ScrollTrigger.create({
+          trigger: "body",
+          start: "top top",
+          end: () => `+=${window.innerHeight * 0.8}`,
+          scrub: 0.5,
+          onUpdate: (self) => {
+            // 0→1 の progress を 1→0 の opacity に
+            const opacity = 1 - self.progress;
+            container.style.opacity = String(opacity);
+          },
+        });
+
+        // Store trigger for cleanup
+        (container as HTMLDivElement & { _heroFadeOutTrigger?: ScrollTrigger })._heroFadeOutTrigger = heroFadeOutTrigger;
       })
       .catch((err) => console.error("Failed to load hero texture", err));
 
     return () => {
+      // Cleanup ScrollTrigger
+      const trigger = (container as HTMLDivElement & { _heroFadeOutTrigger?: ScrollTrigger })._heroFadeOutTrigger;
+      if (trigger) trigger.kill();
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
       window.removeEventListener("pointermove", handlePointer);
       window.removeEventListener("scroll", handleScroll);
@@ -143,7 +168,7 @@ export function HeroShaderBackground() {
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 -z-10 pointer-events-none"
+      className="hero-shader-bg fixed inset-0 -z-10 pointer-events-none"
       style={{ background: cfg.fallbackColor }}
       aria-hidden="true"
     />

@@ -2,13 +2,20 @@
 
 import { useRef, useEffect } from "react";
 import * as THREE from "three";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { isWebGLSupported, getOptimalPixelRatio } from "@/shared/gl";
 import { fluidConfig, hexToRgb, type FluidConfig } from "../shader/config";
 import { vertexShader, fluidShader, displayShader } from "../shader/materials";
 
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
 interface Props {
   className?: string;
   config?: Partial<FluidConfig>;
+  fadeIn?: boolean;
 }
 
 /**
@@ -17,8 +24,9 @@ interface Props {
  * - Ping-Pongバッファによる流体シミュレーション
  * - パラメータは shader/config/fluid.ts で調整
  */
-export function FluidGradientBackground({ className, config: overrides }: Props) {
+export function FluidGradientBackground({ className, config: overrides, fadeIn = false }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const fadeInTriggerRef = useRef<ScrollTrigger | null>(null);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -184,6 +192,34 @@ export function FluidGradientBackground({ className, config: overrides }: Props)
       }
     };
   }, []);
+
+  // FadeIn effect for transition
+  useEffect(() => {
+    if (!fadeIn || !containerRef.current) return;
+
+    const container = containerRef.current;
+
+    // Initial state: transparent
+    gsap.set(container, { opacity: 0 });
+
+    // Scroll-based fade-in
+    fadeInTriggerRef.current = ScrollTrigger.create({
+      trigger: container,
+      start: "top 80%",
+      end: "top 20%",
+      scrub: 0.5,
+      onUpdate: (self) => {
+        container.style.opacity = String(self.progress);
+      },
+    });
+
+    return () => {
+      if (fadeInTriggerRef.current) {
+        fadeInTriggerRef.current.kill();
+        fadeInTriggerRef.current = null;
+      }
+    };
+  }, [fadeIn]);
 
   return (
     <div

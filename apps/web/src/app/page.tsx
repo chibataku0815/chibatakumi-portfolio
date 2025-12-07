@@ -24,6 +24,7 @@ export default function Home() {
           <FluidGradientBackground
             className="absolute inset-0"
             config={fluidConfigMonochrome}
+            fadeIn={true}
           />
         </div>
 

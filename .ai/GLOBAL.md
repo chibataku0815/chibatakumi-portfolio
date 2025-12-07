@@ -114,6 +114,9 @@ Claude Codeでは、**サブエージェント（Task）** と **スキル（Ski
 タスク受領
     ↓
 ┌─ 専門領域に該当？ ─────────────────────────┐
+│  - ブランド/ポジショニング → brand-strategy│
+│  - コピー/メッセージ → copywriting        │
+│  - ユーザー心理/CTA → user-journey        │
 │  - フロントエンド実装 → frontend-dev      │
 │  - UI/デザイン品質重視 → frontend-design  │
 │  - バックエンド/API → backend-dev         │
@@ -138,6 +141,14 @@ Claude Codeでは、**サブエージェント（Task）** と **スキル（Ski
 ```
 
 ### スキル使用基準
+
+**Strategy (戦略層)**
+
+| スキル | 使用タイミング |
+|--------|---------------|
+| `brand-strategy` | ポジショニング策定、価値提案の構築、差別化言語化時 |
+| `copywriting` | タグライン開発、ヒーローコピー、CTA設計、トーン&マナー時 |
+| `user-journey` | 感情アーク設計、コンバージョン最適化、CTA配置戦略時 |
 
 **Creative Direction (クリエイティブ層)**
 
