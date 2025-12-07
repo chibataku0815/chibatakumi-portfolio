@@ -1,8 +1,36 @@
 # Active Parallel Task
 
-## 現在アクティブなタスクなし
+## 現在アクティブなタスク
 
-最終更新: 2025-12-05T23:10:46+09:00 (Asia/Tokyo)
+### Fluid Gradient Integration (2025-12-07)
+- **開始:** 2025-12-07T20:39:46+0900 (Asia/Tokyo)
+- **内容:** `apps/cg-webgl-interactive-gradient` を `apps/web` へ統合
+- **制約:** コミット禁止、依存追加なし
+
+#### Phase 1: FluidGradientBackground 実装 ✅
+- **ステータス:** 実装完了・精査済み
+- **成果物:**
+  - `.claude/tasks/2025-12-07-fluid-gradient-integration-plan.md` - 統合計画
+  - `.claude/prompts/2025-12-07-claude-code-fluid-gradient-integration.md` - 実装プロンプト
+  - `src/features/fluid-gradient/` - コンポーネント・シェーダー一式
+- **精査結果:** EXCELLENT（TypeScriptエラーなし、メモリ管理適切、既存パターン準拠）
+
+#### Phase 2: セクション別背景配置 ⏳
+- **ステータス:** 計画完了、実装待ち
+- **方針変更:** layout全体切り替えではなく、セクション単位で背景配置
+- **成果物:**
+  - `.claude/prompts/2025-12-07-claude-code-fluid-gradient-sections.md` - 実装プロンプト
+- **変更予定:**
+  - `src/features/fluid-gradient/shader/config/fluid.ts` (モノトーンプリセット追加)
+  - `src/app/page.tsx` (Hero以外にFluidGradient配置)
+  - `src/app/interactive/page.tsx` (重複背景削除)
+- **背景構成:**
+  - Hero: HeroShaderBackground (layout.tsx、維持)
+  - 他セクション: FluidGradientBackground (モノトーン、マウス反応)
+
+---
+
+最終更新: 2025-12-07T20:59:16+0900 (Asia/Tokyo)
 
 ---
 

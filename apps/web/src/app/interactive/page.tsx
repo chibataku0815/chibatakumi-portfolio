@@ -5,7 +5,7 @@ export default function InteractivePage() {
   const { label, title, cards } = portfolioData.pages.interactive;
 
   return (
-    <main className="min-h-screen bg-[var(--bg-dark)] pt-32 pb-24">
+    <main className="relative min-h-screen pt-32 pb-24">
       {/* Hero */}
       <section className="px-6 pb-16">
         <div className="mx-auto max-w-4xl">

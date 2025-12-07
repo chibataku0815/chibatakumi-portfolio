@@ -246,7 +246,7 @@ export function SpotlightGallery() {
   return (
     <section
       ref={sectionRef}
-      className="spotlight-section relative h-screen w-full overflow-hidden bg-[var(--bg-darker)]"
+      className="spotlight-section relative h-screen w-full overflow-hidden"
     >
       {/* 3D Container */}
       <div className="spotlight-perspective absolute inset-0 flex items-center justify-center">

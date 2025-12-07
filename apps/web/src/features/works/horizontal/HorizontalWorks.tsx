@@ -334,7 +334,7 @@ export function HorizontalWorks() {
   return (
     <div
       ref={wrapperRef}
-      className="horizontal-wrapper relative overflow-hidden bg-[var(--bg-darker)]"
+      className="horizontal-wrapper relative overflow-hidden"
     >
       {/* Horizontal Container */}
       <div

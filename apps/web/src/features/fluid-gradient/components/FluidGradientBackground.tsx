@@ -1,0 +1,197 @@
+"use client";
+
+import { useRef, useEffect } from "react";
+import * as THREE from "three";
+import { isWebGLSupported, getOptimalPixelRatio } from "@/shared/gl";
+import { fluidConfig, hexToRgb, type FluidConfig } from "../shader/config";
+import { vertexShader, fluidShader, displayShader } from "../shader/materials";
+
+interface Props {
+  className?: string;
+  config?: Partial<FluidConfig>;
+}
+
+/**
+ * FluidGradientBackground
+ * - マウスインタラクティブな流体グラデーション背景
+ * - Ping-Pongバッファによる流体シミュレーション
+ * - パラメータは shader/config/fluid.ts で調整
+ */
+export function FluidGradientBackground({ className, config: overrides }: Props) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container || !isWebGLSupported()) return;
+
+    // Merge config with overrides
+    const cfg = { ...fluidConfig, ...overrides };
+
+    // === Three.js Setup ===
+    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+
+    let width = container.clientWidth;
+    let height = container.clientHeight;
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(getOptimalPixelRatio(1.5));
+    container.appendChild(renderer.domElement);
+
+    // === Render Targets (Ping-Pong) ===
+    const targetOptions: THREE.RenderTargetOptions = {
+      minFilter: THREE.LinearFilter,
+      magFilter: THREE.LinearFilter,
+      format: THREE.RGBAFormat,
+      type: THREE.FloatType,
+    };
+    let fluidTarget1 = new THREE.WebGLRenderTarget(width, height, targetOptions);
+    let fluidTarget2 = new THREE.WebGLRenderTarget(width, height, targetOptions);
+    let currentTarget = fluidTarget1;
+    let previousTarget = fluidTarget2;
+
+    // === Materials ===
+    const fluidMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        iTime: { value: 0 },
+        iResolution: { value: new THREE.Vector2(width, height) },
+        iMouse: { value: new THREE.Vector4(0, 0, 0, 0) },
+        iFrame: { value: 0 },
+        iPreviousFrame: { value: null },
+        uBrushSize: { value: cfg.brushSize },
+        uBrushStrength: { value: cfg.brushStrength },
+        uFluidDecay: { value: cfg.fluidDecay },
+        uTrailLength: { value: cfg.trailLength },
+        uStopDecay: { value: cfg.stopDecay },
+      },
+      vertexShader,
+      fragmentShader: fluidShader,
+    });
+
+    const displayMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        iTime: { value: 0 },
+        iResolution: { value: new THREE.Vector2(width, height) },
+        iFluid: { value: null },
+        uDistortionAmount: { value: cfg.distortionAmount },
+        uColor1: { value: new THREE.Vector3(...hexToRgb(cfg.color1)) },
+        uColor2: { value: new THREE.Vector3(...hexToRgb(cfg.color2)) },
+        uColor3: { value: new THREE.Vector3(...hexToRgb(cfg.color3)) },
+        uColor4: { value: new THREE.Vector3(...hexToRgb(cfg.color4)) },
+        uColorIntensity: { value: cfg.colorIntensity },
+        uSoftness: { value: cfg.softness },
+      },
+      vertexShader,
+      fragmentShader: displayShader,
+    });
+
+    // === Geometry & Meshes ===
+    const geometry = new THREE.PlaneGeometry(2, 2);
+    const fluidPlane = new THREE.Mesh(geometry, fluidMaterial);
+    const displayPlane = new THREE.Mesh(geometry, displayMaterial);
+
+    // === Mouse State ===
+    let mouseX = 0;
+    let mouseY = 0;
+    let prevMouseX = 0;
+    let prevMouseY = 0;
+    let lastMoveTime = 0;
+    let frameCount = 0;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      // Use document-level mouse tracking for z-index compatibility
+      prevMouseX = mouseX;
+      prevMouseY = mouseY;
+      mouseX = e.clientX;
+      mouseY = height - e.clientY;
+      lastMoveTime = performance.now();
+      fluidMaterial.uniforms.iMouse.value.set(mouseX, mouseY, prevMouseX, prevMouseY);
+    };
+
+    const handleMouseLeave = () => {
+      fluidMaterial.uniforms.iMouse.value.set(0, 0, 0, 0);
+    };
+
+    // Listen on document for mouse events (works even when behind other elements)
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseleave", handleMouseLeave);
+
+    // === Resize Handler ===
+    const handleResize = () => {
+      width = container.clientWidth;
+      height = container.clientHeight;
+      renderer.setSize(width, height);
+      fluidMaterial.uniforms.iResolution.value.set(width, height);
+      displayMaterial.uniforms.iResolution.value.set(width, height);
+      fluidTarget1.setSize(width, height);
+      fluidTarget2.setSize(width, height);
+      frameCount = 0;
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    // === Animation Loop ===
+    let animationId: number;
+
+    const animate = () => {
+      animationId = requestAnimationFrame(animate);
+
+      const time = performance.now() * 0.001;
+      fluidMaterial.uniforms.iTime.value = time;
+      displayMaterial.uniforms.iTime.value = time;
+      fluidMaterial.uniforms.iFrame.value = frameCount;
+
+      // Reset mouse if no movement for 100ms
+      if (performance.now() - lastMoveTime > 100) {
+        fluidMaterial.uniforms.iMouse.value.set(0, 0, 0, 0);
+      }
+
+      // Render fluid simulation
+      fluidMaterial.uniforms.iPreviousFrame.value = previousTarget.texture;
+      renderer.setRenderTarget(currentTarget);
+      renderer.render(fluidPlane, camera);
+
+      // Render display
+      displayMaterial.uniforms.iFluid.value = currentTarget.texture;
+      renderer.setRenderTarget(null);
+      renderer.render(displayPlane, camera);
+
+      // Swap targets
+      const temp = currentTarget;
+      currentTarget = previousTarget;
+      previousTarget = temp;
+
+      frameCount++;
+    };
+
+    animate();
+
+    // === Cleanup ===
+    return () => {
+      cancelAnimationFrame(animationId);
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseleave", handleMouseLeave);
+      window.removeEventListener("resize", handleResize);
+
+      geometry.dispose();
+      fluidMaterial.dispose();
+      displayMaterial.dispose();
+      fluidTarget1.dispose();
+      fluidTarget2.dispose();
+      renderer.dispose();
+
+      if (container.contains(renderer.domElement)) {
+        container.removeChild(renderer.domElement);
+      }
+    };
+  }, []);
+
+  return (
+    <div
+      ref={containerRef}
+      className={className}
+      aria-hidden="true"
+    />
+  );
+}
+
+export default FluidGradientBackground;
