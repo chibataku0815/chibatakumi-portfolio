@@ -35,6 +35,14 @@ const setGhostOpacity = (elements: HTMLElement[], opacity: string) => {
   }
 };
 
+const warnMissingRefs = (indices: number[]) => {
+  if (!indices.length) return;
+  if (process.env.NODE_ENV !== "development") return;
+  console.warn(
+    `[HorizontalWorks] Missing DOM refs at indices: ${indices.join(", ")}`
+  );
+};
+
 const revertSplits = (panelData: PanelData[]) => {
   for (const data of panelData) {
     data.titleSplit.revert();
@@ -90,8 +98,12 @@ export function HorizontalWorks() {
     [resetPanelVisualState]
   );
 
+  /**
+   * Collect panel data from DOM refs; skips panels missing refs and warns in dev.
+   */
   const buildPanelData = useCallback((): PanelData[] => {
     const panelData: PanelData[] = [];
+    const missingRefIndices: number[] = [];
 
     for (const [index] of WORKS.entries()) {
       const panelContent = contentRefs.current[index];
@@ -106,8 +118,10 @@ export function HorizontalWorks() {
         !desc ||
         !progressFill ||
         !progressText
-      )
+      ) {
+        missingRefIndices.push(index);
         continue;
+      }
 
       const titleSplit = splitText(title, "chars");
       const descSplit = splitText(desc, "chars");
@@ -128,6 +142,7 @@ export function HorizontalWorks() {
       panelData.push(data);
     }
 
+    warnMissingRefs(missingRefIndices);
     return panelData;
   }, [resetPanelVisualState]);
 
@@ -177,7 +192,10 @@ export function HorizontalWorks() {
 
   const createEntryTrigger = useCallback(
     (firstPanelContent: HTMLDivElement | null | undefined) => {
-      if (!wrapperRef.current || !firstPanelContent) return null;
+      if (!wrapperRef.current || !firstPanelContent) {
+        warnMissingRefs([0]);
+        return null;
+      }
 
       gsap.set(firstPanelContent, {
         y: 60,
@@ -203,6 +221,9 @@ export function HorizontalWorks() {
     []
   );
 
+  /**
+   * Assemble the master GSAP timeline for all panels.
+   */
   const createMainTimeline = useCallback(
     (panelData: PanelData[], transitionLine: HTMLDivElement | null) => {
       const timeline = gsap.timeline();
@@ -352,6 +373,11 @@ export function HorizontalWorks() {
     const panelData = buildPanelData();
     if (!panelData.length) return;
 
+    lastSizeRef.current = {
+      width: window.innerWidth,
+      height: window.innerHeight,
+    };
+
     panelDataRef.current = panelData;
     setActiveSection(0);
     setCompletedSections(new Set());
@@ -423,6 +449,8 @@ export function HorizontalWorks() {
       ctx.revert();
     };
   }, [cleanupAnimations, initAnimations]);
+
+  const isNavReady = Boolean(scrollTriggerRef.current);
 
   return (
     <div
@@ -535,16 +563,20 @@ export function HorizontalWorks() {
 
       {/* Dot Navigation */}
       <div className="section-indicators fixed right-8 top-1/2 z-40 flex -translate-y-1/2 flex-col gap-3">
-        {WORKS.map((_, index) => (
+        {WORKS.map((work, index) => (
           <button
-            key={index}
+            key={work.id}
             onClick={() => navigateToSection(index)}
+            disabled={!isNavReady}
+            aria-disabled={!isNavReady}
             className={`section-dot relative h-2.5 w-2.5 rounded-full transition-all duration-300 ${
-              activeSection === index
-                ? "scale-125 bg-[var(--text-base)] shadow-[var(--shadow-glow-md)]"
-                : completedSections.has(index)
-                  ? "bg-[var(--text-base)]"
-                  : "bg-[var(--bg-overlay-20)] hover:bg-[var(--bg-overlay-40)]"
+              !isNavReady
+                ? "cursor-not-allowed opacity-60"
+                : activeSection === index
+                  ? "scale-125 bg-[var(--text-base)] shadow-[var(--shadow-glow-md)]"
+                  : completedSections.has(index)
+                    ? "bg-[var(--text-base)]"
+                    : "bg-[var(--bg-overlay-20)] hover:bg-[var(--bg-overlay-40)]"
             }`}
             aria-label={`Go to section ${index + 1}`}
           >
