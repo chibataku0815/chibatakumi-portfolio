@@ -16,29 +16,33 @@ if (typeof window !== "undefined") {
 }
 
 /**
- * Profile ページ - Unified Premium Animation
+ * Profile ページ - Unified Premium Animation (UX Improved)
+ *
+ * UX改善:
+ * - 全要素は最初から薄く表示（opacity: 0.2〜0.3）
+ * - スクロールで完全表示へアニメーション
+ * - 内容が見えない状態を作らない
  *
  * 統一されたアニメーション設計:
  * - 2層構造: エントリー（once）+ 継続的パララックス（scrub）
- * - 統一表現: clipPath reveal / mask reveal / stagger fade
+ * - 統一表現: transform + opacity のみ（clipPath廃止）
  * - 差分は「強度」のみ: Strengths=subtle, Timeline=pronounced
- *
- * 共通技法:
- * - clipPath reveal: レールの上から下への描画
- * - mask reveal: 帯タイトルの内側からのスライドイン
- * - stagger fade: メタ・タグの順次フェードアップ
- * - パララックス: ゴースト・グリッドのスクロール連動
- *
- * イージング基本セット:
- * - expo.out: レール・帯（劇的な減速）
- * - power3.out: ゴースト（滑らかな登場）
- * - back.out(1.4): メタ行（軽いバウンス）
- * - power2.out: タグ・説明文（自然な動き）
  */
 
 const profile = portfolioData.pages.profile;
 const BASE_BG = "#0b0b0b";
 const BAND_BG = "#f2f2f2";
+
+/**
+ * 初期表示の透明度（薄く見える状態）
+ */
+const INITIAL_OPACITY = {
+  content: 0.25,      // メタ/タグ/説明文の初期透明度
+  ghost: 0.015,       // ゴーストの初期透明度
+  rail: 0.08,         // レールの初期透明度
+  band: 0.2,          // 帯の初期透明度
+  grid: 0.03,         // グリッドの初期透明度
+} as const;
 
 /**
  * アニメーション強度の設定
@@ -48,19 +52,19 @@ const BAND_BG = "#f2f2f2";
 const ANIMATION_CONFIG = {
   strengths: {
     rail: { duration: 0.85 },
-    ghost: { y: 50, scale: 0.9, opacity: 0.06, parallaxY: 60 },
-    band: { duration: 0.9 },
-    meta: { y: 16, stagger: 0.1 },
-    tag: { y: 8, stagger: 0.04 },
-    description: { y: 20 },
+    ghost: { y: 30, scale: 0.95, targetOpacity: 0.06, parallaxY: 60 },
+    band: { x: -20, duration: 0.9 },
+    meta: { y: 12, stagger: 0.1 },
+    tag: { y: 6, stagger: 0.04 },
+    description: { y: 15 },
   },
   timeline: {
     rail: { duration: 1.0 },
-    ghost: { y: 70, scale: 0.85, opacity: 0.07, parallaxY: 100 },
-    band: { duration: 1.0 },
-    meta: { y: 20, stagger: 0.08 },
-    tag: { y: 10, stagger: 0.05 },
-    description: { y: 25 },
+    ghost: { y: 45, scale: 0.92, targetOpacity: 0.07, parallaxY: 100 },
+    band: { x: -25, duration: 1.0 },
+    meta: { y: 15, stagger: 0.08 },
+    tag: { y: 8, stagger: 0.05 },
+    description: { y: 18 },
   },
 } as const;
 
@@ -71,7 +75,6 @@ export default function ProfilePage() {
   // セクション要素のref配列
   const strengthSectionRefs = useRef<(HTMLElement | null)[]>([]);
   const timelineSectionRefs = useRef<(HTMLElement | null)[]>([]);
-  const triggerRefs = useRef<ScrollTrigger[]>([]);
 
   /**
    * Strength セクションの ref を設定するコールバック
@@ -95,7 +98,7 @@ export default function ProfilePage() {
 
   /**
    * 共通アニメーションを設定するユーティリティ関数
-   * Strengths/Timeline で同じ種類のアニメーションを使用
+   * 初期状態は薄く表示、アニメーションで完全表示へ
    */
   const setupSectionAnimation = useCallback(
     (
@@ -113,29 +116,93 @@ export default function ProfilePage() {
       const description = el.querySelector<HTMLElement>(".description");
       const achievements = el.querySelectorAll<HTMLElement>(".achievement-item");
 
-      // --- エントリーアニメーション (once) ---
+      // --- 初期状態: 薄く表示（内容は見える） ---
+
+      // レール: 短い状態から開始（scaleYで）
+      if (rail) {
+        gsap.set(rail, {
+          scaleY: 0.2,
+          opacity: INITIAL_OPACITY.rail,
+          transformOrigin: "top",
+        });
+      }
+
+      // グリッドライン: 薄く表示
+      if (gridLines) {
+        gsap.set(gridLines, { opacity: INITIAL_OPACITY.grid });
+      }
+
+      // ゴースト: 薄く見える状態
+      if (ghost) {
+        gsap.set(ghost, {
+          y: config.ghost.y,
+          opacity: INITIAL_OPACITY.ghost,
+          scale: config.ghost.scale,
+        });
+      }
+
+      // 帯: 少しずれた位置で薄く表示
+      if (bandWrapper && bandText) {
+        gsap.set(bandText, {
+          x: config.band.x,
+          opacity: INITIAL_OPACITY.band,
+        });
+      }
+
+      // メタ行: 薄く表示
+      if (metaItems.length > 0) {
+        gsap.set(metaItems, {
+          y: config.meta.y,
+          opacity: INITIAL_OPACITY.content,
+        });
+      }
+
+      // 説明文: 薄く表示
+      if (description) {
+        gsap.set(description, {
+          y: config.description.y,
+          opacity: INITIAL_OPACITY.content,
+        });
+      }
+
+      // 実績リスト: 薄く表示
+      if (achievements.length > 0) {
+        gsap.set(achievements, {
+          y: 8,
+          opacity: INITIAL_OPACITY.content,
+        });
+      }
+
+      // タグ: 薄く表示
+      if (tags.length > 0) {
+        gsap.set(tags, {
+          y: config.tag.y,
+          opacity: INITIAL_OPACITY.content,
+        });
+      }
+
+      // --- エントリーアニメーション: 完全表示へ (once) ---
       const entryTl = gsap.timeline({
         scrollTrigger: {
           trigger: el,
-          start: "top 75%",
-          end: "top 25%",
+          start: "top 80%",
+          end: "top 30%",
           once: true,
         },
       });
 
-      // [共通] レール: clipPath reveal（上から下へ）
+      // レール: 完全に伸びる + 完全表示
       if (rail) {
-        gsap.set(rail, { clipPath: "inset(0 0 100% 0)" });
         entryTl.to(rail, {
-          clipPath: "inset(0 0 0% 0)",
+          scaleY: 1,
+          opacity: 1,
           duration: config.rail.duration,
           ease: "expo.out",
         });
       }
 
-      // [共通] グリッドライン: フェードイン
+      // グリッドライン: 完全表示
       if (gridLines) {
-        gsap.set(gridLines, { opacity: 0 });
         entryTl.to(
           gridLines,
           {
@@ -147,33 +214,27 @@ export default function ProfilePage() {
         );
       }
 
-      // [共通] ゴースト: y移動 + scale + opacity
+      // ゴースト: 定位置 + 目標透明度へ
       if (ghost) {
-        gsap.set(ghost, {
-          y: config.ghost.y,
-          opacity: 0,
-          scale: config.ghost.scale,
-        });
         entryTl.to(
           ghost,
           {
             y: 0,
-            opacity: config.ghost.opacity,
+            opacity: config.ghost.targetOpacity,
             scale: 1,
-            duration: 1.1,
+            duration: 1.0,
             ease: "power3.out",
           },
-          "<0.15"
+          "<0.1"
         );
       }
 
-      // [共通] 帯: mask reveal（内側から横スライド）
+      // 帯: 定位置 + 完全表示
       if (bandWrapper && bandText) {
-        gsap.set(bandText, { x: "-105%", opacity: 0 });
         entryTl.to(
           bandText,
           {
-            x: "0%",
+            x: 0,
             opacity: 1,
             duration: config.band.duration,
             ease: "expo.out",
@@ -182,9 +243,8 @@ export default function ProfilePage() {
         );
       }
 
-      // [共通] メタ行: y移動 + opacity + stagger（軽いバウンス）
+      // メタ行: 定位置 + 完全表示
       if (metaItems.length > 0) {
-        gsap.set(metaItems, { y: config.meta.y, opacity: 0 });
         entryTl.to(
           metaItems,
           {
@@ -198,45 +258,37 @@ export default function ProfilePage() {
         );
       }
 
-      // [共通] 説明文: y移動 + opacity
+      // 説明文: 定位置 + 完全表示
       if (description) {
-        gsap.set(description, { y: config.description.y, opacity: 0 });
         entryTl.to(
           description,
           {
             y: 0,
             opacity: 1,
-            duration: 0.65,
+            duration: 0.6,
             ease: "power2.out",
           },
           "-=0.3"
         );
       }
 
-      // [Timeline専用] 実績リスト: clipPath line reveal
+      // 実績リスト: 定位置 + 完全表示
       if (isTimeline && achievements.length > 0) {
-        gsap.set(achievements, {
-          y: 10,
-          opacity: 0,
-          clipPath: "inset(0 100% 0 0)",
-        });
         entryTl.to(
           achievements,
           {
             y: 0,
             opacity: 1,
-            clipPath: "inset(0 0% 0 0)",
-            stagger: 0.1,
-            duration: 0.5,
+            stagger: 0.08,
+            duration: 0.45,
             ease: "power2.out",
           },
           "-=0.25"
         );
       }
 
-      // [共通] タグ: y移動 + opacity + stagger
+      // タグ: 定位置 + 完全表示
       if (tags.length > 0) {
-        gsap.set(tags, { y: config.tag.y, opacity: 0 });
         entryTl.to(
           tags,
           {
@@ -251,17 +303,16 @@ export default function ProfilePage() {
       }
 
       // --- 継続的パララックス (scrub) ---
-      const scrubTrigger = ScrollTrigger.create({
+      ScrollTrigger.create({
         trigger: el,
         start: "top bottom",
         end: "bottom top",
         scrub: 0.8,
         onUpdate: (self) => {
           const progress = self.progress;
-          // 中央を0として -0.5 ~ +0.5 に正規化
           const centered = progress - 0.5;
 
-          // [共通] ゴースト: パララックス
+          // ゴースト: パララックス
           if (ghost) {
             gsap.set(ghost, {
               y: centered * config.ghost.parallaxY,
@@ -269,7 +320,7 @@ export default function ProfilePage() {
             });
           }
 
-          // [共通] グリッドライン: subtle drift
+          // グリッドライン: subtle drift
           if (gridLines) {
             gsap.set(gridLines, {
               backgroundPositionY: `${progress * 25}px`,
@@ -277,7 +328,6 @@ export default function ProfilePage() {
           }
         },
       });
-      triggerRefs.current.push(scrubTrigger);
     },
     []
   );
@@ -287,25 +337,22 @@ export default function ProfilePage() {
     document.fonts.ready.then(() => {
       const ctx = gsap.context(() => {
         // Strengths セクション
-        for (const el of strengthSectionRefs.current) {
-          if (!el) continue;
+        strengthSectionRefs.current.forEach((el) => {
+          if (!el) return;
           setupSectionAnimation(el, ANIMATION_CONFIG.strengths, false);
-        }
+        });
 
         // Timeline セクション
-        for (const el of timelineSectionRefs.current) {
-          if (!el) continue;
+        timelineSectionRefs.current.forEach((el) => {
+          if (!el) return;
           setupSectionAnimation(el, ANIMATION_CONFIG.timeline, true);
-        }
+        });
       });
 
       // クリーンアップ
       return () => {
         ctx.revert();
-        for (const trigger of triggerRefs.current) {
-          trigger.kill();
-        }
-        triggerRefs.current = [];
+        ScrollTrigger.getAll().forEach((st) => st.kill());
       };
     });
   }, [setupSectionAnimation]);
@@ -362,7 +409,6 @@ export default function ProfilePage() {
                 backgroundImage:
                   "linear-gradient(90deg,rgba(255,255,255,0.12) 1px, transparent 1px), linear-gradient(0deg,rgba(255,255,255,0.12) 1px, transparent 1px)",
                 backgroundSize: "120px 120px",
-                opacity: 0,
               }}
             />
 
@@ -379,10 +425,7 @@ export default function ProfilePage() {
 
             {/* 左レール（細線） */}
             <div className="pointer-events-none absolute inset-y-0 left-0 flex w-12 items-center justify-center sm:w-16 md:w-20">
-              <div
-                className="rail absolute inset-y-0 right-0 w-px bg-white/20"
-                style={{ clipPath: "inset(0 0 100% 0)" }}
-              />
+              <div className="rail absolute inset-y-0 right-0 w-px bg-white/20" />
               <div className="-rotate-90 text-[10px] font-semibold uppercase tracking-[0.32em] text-[var(--text-base-50)]">
                 Profile
               </div>
@@ -463,7 +506,6 @@ export default function ProfilePage() {
                 backgroundImage:
                   "linear-gradient(90deg,rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(0deg,rgba(255,255,255,0.1) 1px, transparent 1px)",
                 backgroundSize: "120px 120px",
-                opacity: 0,
               }}
             />
 
@@ -477,10 +519,7 @@ export default function ProfilePage() {
 
             {/* 左レール（太線） */}
             <div className="pointer-events-none absolute inset-y-0 left-0 flex w-20 items-center justify-center sm:w-22 md:w-24">
-              <div
-                className="rail absolute inset-y-0 right-0 w-[3px] bg-white/20"
-                style={{ clipPath: "inset(0 0 100% 0)" }}
-              />
+              <div className="rail absolute inset-y-0 right-0 w-[3px] bg-white/20" />
               <div className="-rotate-90 text-[12px] font-semibold uppercase tracking-[0.32em] text-[var(--text-base-60)]">
                 Timeline
               </div>
