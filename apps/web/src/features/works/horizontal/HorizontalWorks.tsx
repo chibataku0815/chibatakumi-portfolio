@@ -12,9 +12,11 @@ if (typeof window !== "undefined") {
 }
 
 const WORKS = portfolioData.works.items;
+const TITLE_GHOST_OPACITY = "0.04";
+const DESC_GHOST_OPACITY = "0.03";
+const SCROLL_DISTANCE_FACTOR = 2.2;
 
 interface PanelData {
-  panel: HTMLDivElement;
   panelContent: HTMLDivElement;
   titleChars: HTMLSpanElement[];
   descChars: HTMLSpanElement[];
@@ -25,10 +27,22 @@ interface PanelData {
   wasCompleted: boolean;
 }
 
+const setGhostOpacity = (elements: HTMLElement[], opacity: string) => {
+  for (const char of elements) {
+    char.style.opacity = opacity;
+  }
+};
+
+const revertSplits = (panelData: PanelData[]) => {
+  for (const data of panelData) {
+    data.titleSplit.revert();
+    data.descSplit.revert();
+  }
+};
+
 export function HorizontalWorks() {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const panelRefs = useRef<(HTMLDivElement | null)[]>([]);
   const contentRefs = useRef<(HTMLDivElement | null)[]>([]);
   const titleRefs = useRef<(HTMLHeadingElement | null)[]>([]);
   const descRefs = useRef<(HTMLParagraphElement | null)[]>([]);
@@ -46,32 +60,89 @@ export function HorizontalWorks() {
     new Set()
   );
 
-  const resetSectionState = useCallback((index: number) => {
-    const data = panelDataRef.current[index];
-    if (!data) return;
+  const resetPanelVisualState = useCallback((panelData: PanelData) => {
+    setGhostOpacity(panelData.titleChars, TITLE_GHOST_OPACITY);
+    setGhostOpacity(panelData.descChars, DESC_GHOST_OPACITY);
 
-    // Reset title chars to ghost
-    data.titleChars.forEach((char) => {
-      char.style.opacity = "0.04";
-    });
+    panelData.progressFill.style.width = "0%";
+    panelData.progressFill.classList.remove("active", "completed");
+    panelData.progressText.textContent = "0%";
+    panelData.wasCompleted = false;
 
-    // Reset desc chars to ghost
-    data.descChars.forEach((char) => {
-      char.style.opacity = "0.03";
-    });
-
-    // Reset progress
-    data.progressFill.style.width = "0%";
-    data.progressFill.classList.remove("active", "completed");
-    data.progressText.textContent = "0%";
-    data.wasCompleted = false;
-
-    // Reset panel content
-    gsap.set(data.panelContent, {
+    gsap.set(panelData.panelContent, {
       scale: 1,
       opacity: 1,
       filter: "blur(0px)",
     });
+  }, []);
+
+  const resetSectionState = useCallback(
+    (index: number) => {
+      const data = panelDataRef.current[index];
+      if (!data) return;
+
+      resetPanelVisualState(data);
+    },
+    [resetPanelVisualState]
+  );
+
+  const buildPanelData = useCallback((): PanelData[] => {
+    const panelData: PanelData[] = [];
+
+    for (const [index] of WORKS.entries()) {
+      const panelContent = contentRefs.current[index];
+      const title = titleRefs.current[index];
+      const desc = descRefs.current[index];
+      const progressFill = progressFillRefs.current[index];
+      const progressText = progressTextRefs.current[index];
+
+      if (
+        !panelContent ||
+        !title ||
+        !desc ||
+        !progressFill ||
+        !progressText
+      )
+        continue;
+
+      const titleSplit = splitText(title, "chars");
+      const descSplit = splitText(desc, "chars");
+
+      const data: PanelData = {
+        panelContent,
+        titleChars: titleSplit.chars,
+        descChars: descSplit.chars,
+        progressFill,
+        progressText,
+        titleSplit,
+        descSplit,
+        wasCompleted: false,
+      };
+
+      resetPanelVisualState(data);
+      panelData.push(data);
+    }
+
+    return panelData;
+  }, [resetPanelVisualState]);
+
+  const cleanupAnimations = useCallback(() => {
+    if (scrollTriggerRef.current) {
+      scrollTriggerRef.current.kill();
+      scrollTriggerRef.current = null;
+    }
+
+    if (entryTriggerRef.current) {
+      entryTriggerRef.current.kill();
+      entryTriggerRef.current = null;
+    }
+
+    revertSplits(panelDataRef.current);
+    panelDataRef.current = [];
+
+    if (globalProgressRef.current) {
+      globalProgressRef.current.style.width = "0%";
+    }
   }, []);
 
   const navigateToSection = useCallback(
@@ -98,78 +169,17 @@ export function HorizontalWorks() {
     [resetSectionState]
   );
 
-  const initAnimations = useCallback(() => {
-    if (!wrapperRef.current || !containerRef.current) return;
+  const createEntryTrigger = useCallback(
+    (firstPanelContent: HTMLDivElement | null | undefined) => {
+      if (!wrapperRef.current || !firstPanelContent) return null;
 
-    // Cleanup previous
-    if (scrollTriggerRef.current) {
-      scrollTriggerRef.current.kill();
-    }
-    if (entryTriggerRef.current) {
-      entryTriggerRef.current.kill();
-    }
-    panelDataRef.current.forEach((data) => {
-      data.titleSplit.revert();
-      data.descSplit.revert();
-    });
-    panelDataRef.current = [];
-
-    const totalPanels = WORKS.length;
-    const scrollDistance = window.innerHeight * totalPanels * 2.2;
-    const transitionLine = transitionLineRef.current;
-
-    // Prepare panel data
-    const panelData: PanelData[] = [];
-
-    for (let i = 0; i < totalPanels; i++) {
-      const panel = panelRefs.current[i];
-      const panelContent = contentRefs.current[i];
-      const title = titleRefs.current[i];
-      const desc = descRefs.current[i];
-      const progressFill = progressFillRefs.current[i];
-      const progressText = progressTextRefs.current[i];
-
-      if (!panel || !panelContent || !title || !desc || !progressFill || !progressText)
-        continue;
-
-      const titleSplit = splitText(title, "chars");
-      const descSplit = splitText(desc, "chars");
-
-      // Set ghost state
-      titleSplit.chars.forEach((char) => {
-        char.style.opacity = "0.04";
-      });
-      descSplit.chars.forEach((char) => {
-        char.style.opacity = "0.03";
-      });
-
-      panelData.push({
-        panel,
-        panelContent,
-        titleChars: titleSplit.chars,
-        descChars: descSplit.chars,
-        progressFill,
-        progressText,
-        titleSplit,
-        descSplit,
-        wasCompleted: false,
-      });
-    }
-
-    panelDataRef.current = panelData;
-
-    // === Entry Animation: First panel "rise from depth" ===
-    const firstPanelContent = contentRefs.current[0];
-    if (firstPanelContent) {
-      // Initial state: below, blurred
       gsap.set(firstPanelContent, {
         y: 60,
         opacity: 0,
         filter: "blur(8px)",
       });
 
-      // Entry trigger: Works section entry
-      entryTriggerRef.current = ScrollTrigger.create({
+      return ScrollTrigger.create({
         trigger: wrapperRef.current,
         start: "top 80%",
         end: "top 20%",
@@ -183,159 +193,190 @@ export function HorizontalWorks() {
           });
         },
       });
-    }
+    },
+    []
+  );
 
-    // Build timeline
-    const mainTimeline = gsap.timeline();
+  const createMainTimeline = useCallback(
+    (panelData: PanelData[], transitionLine: HTMLDivElement | null) => {
+      const timeline = gsap.timeline();
 
-    panelData.forEach((data, i) => {
-      const isLastPanel = i === totalPanels - 1;
-      const nextData = panelData[i + 1];
+      for (const [index, data] of panelData.entries()) {
+        const isLastPanel = index === panelData.length - 1;
+        const nextData = panelData[index + 1];
 
-      // Phase 1: Title reveal
-      mainTimeline.to(
-        data.titleChars,
-        {
-          opacity: 1,
-          duration: 0.25,
-          stagger: 0.025,
-          ease: "power2.out",
-          onStart: () => {
-            data.progressFill.classList.add("active");
-            setActiveSection(i);
-          },
-        },
-        i === 0 ? 0 : ">"
-      );
-
-      // Phase 2: Description reveal
-      mainTimeline.to(
-        data.descChars,
-        {
-          opacity: 1,
-          duration: 0.4,
-          stagger: 0.004,
-          ease: "power1.out",
-          onUpdate: function () {
-            const completedChars = data.descChars.filter(
-              (c) => parseFloat(c.style.opacity) > 0.5
-            ).length;
-            const progress = Math.round(
-              (completedChars / data.descChars.length) * 100
-            );
-            data.progressFill.style.width = progress + "%";
-            data.progressText.textContent = progress + "%";
-          },
-          onComplete: () => {
-            data.progressFill.classList.add("completed");
-            data.wasCompleted = true;
-            setCompletedSections((prev) => new Set([...prev, i]));
-          },
-        },
-        "<0.12"
-      );
-
-      // Phase 3: Transition (except last panel)
-      if (!isLastPanel && nextData) {
-        // Current panel fade out
-        mainTimeline.to(
-          data.panelContent,
+        timeline.to(
+          data.titleChars,
           {
-            scale: 0.95,
-            opacity: 0.3,
-            filter: "blur(4px)",
-            duration: 0.12,
-            ease: "power2.in",
+            opacity: 1,
+            duration: 0.25,
+            stagger: 0.025,
+            ease: "power2.out",
+            onStart: () => {
+              data.progressFill.classList.add("active");
+              setActiveSection(index);
+            },
           },
-          ">"
+          index === 0 ? 0 : ">"
         );
 
-        // Transition line
-        if (transitionLine) {
-          mainTimeline.to(
-            transitionLine,
+        timeline.to(
+          data.descChars,
+          {
+            opacity: 1,
+            duration: 0.4,
+            stagger: 0.004,
+            ease: "power1.out",
+            onUpdate: () => {
+              const completedChars = data.descChars.filter(
+                (c) => parseFloat(c.style.opacity) > 0.5
+              ).length;
+              const progress = Math.round(
+                (completedChars / data.descChars.length) * 100
+              );
+              data.progressFill.style.width = progress + "%";
+              data.progressText.textContent = progress + "%";
+            },
+            onComplete: () => {
+              if (data.wasCompleted) return;
+
+              data.wasCompleted = true;
+              data.progressFill.classList.add("completed");
+              setCompletedSections((prev) => {
+                if (prev.has(index)) return prev;
+                const next = new Set(prev);
+                next.add(index);
+                return next;
+              });
+            },
+          },
+          "<0.12"
+        );
+
+        if (!isLastPanel && nextData) {
+          timeline.to(
+            data.panelContent,
             {
-              width: "100%",
-              opacity: 1,
-              duration: 0.15,
-              ease: "power2.inOut",
+              scale: 0.95,
+              opacity: 0.3,
+              filter: "blur(4px)",
+              duration: 0.12,
+              ease: "power2.in",
+            },
+            ">"
+          );
+
+          if (transitionLine) {
+            timeline.to(
+              transitionLine,
+              {
+                width: "100%",
+                opacity: 1,
+                duration: 0.15,
+                ease: "power2.inOut",
+              },
+              "<0.03"
+            );
+          }
+
+          timeline.to(
+            containerRef.current,
+            {
+              x: () => -(window.innerWidth * (i + 1)),
+              duration: 0.2,
+              ease: "power3.inOut",
             },
             "<0.03"
           );
-        }
 
-        // Horizontal movement
-        mainTimeline.to(
-          containerRef.current,
-          {
-            x: () => -(window.innerWidth * (i + 1)),
-            duration: 0.2,
-            ease: "power3.inOut",
-          },
-          "<0.03"
-        );
+          if (transitionLine) {
+            timeline.to(
+              transitionLine,
+              {
+                width: "0%",
+                left: "100%",
+                opacity: 0,
+                duration: 0.15,
+                ease: "power2.out",
+                onComplete: () => {
+                  gsap.set(transitionLine, { left: "0%" });
+                },
+              },
+              ">-0.08"
+            );
+          }
 
-        // Line fade out
-        if (transitionLine) {
-          mainTimeline.to(
-            transitionLine,
+          timeline.set(
+            nextData.panelContent,
             {
-              width: "0%",
-              left: "100%",
+              scale: 1.05,
               opacity: 0,
+              filter: "blur(4px)",
+            },
+            "<-0.1"
+          );
+
+          timeline.to(
+            nextData.panelContent,
+            {
+              scale: 1,
+              opacity: 1,
+              filter: "blur(0px)",
               duration: 0.15,
               ease: "power2.out",
-              onComplete: () => {
-                gsap.set(transitionLine, { left: "0%" });
-              },
             },
             ">-0.08"
           );
         }
+      });
 
-        // Next panel setup and fade in
-        mainTimeline.set(
-          nextData.panelContent,
-          {
-            scale: 1.05,
-            opacity: 0,
-            filter: "blur(4px)",
-          },
-          "<-0.1"
-        );
+      return timeline;
+    },
+    []
+  );
 
-        mainTimeline.to(
-          nextData.panelContent,
-          {
-            scale: 1,
-            opacity: 1,
-            filter: "blur(0px)",
-            duration: 0.15,
-            ease: "power2.out",
-          },
-          ">-0.08"
-        );
-      }
-    });
+  const initAnimations = useCallback(() => {
+    if (!wrapperRef.current || !containerRef.current) return;
 
-    // Create ScrollTrigger
+    cleanupAnimations();
+
+    const panelData = buildPanelData();
+    if (!panelData.length) return;
+
+    panelDataRef.current = panelData;
+    setActiveSection(0);
+    setCompletedSections(new Set());
+
+    const entryTrigger = createEntryTrigger(panelData[0]?.panelContent);
+    if (entryTrigger) {
+      entryTriggerRef.current = entryTrigger;
+    }
+
+    const transitionLine = transitionLineRef.current;
+    const mainTimeline = createMainTimeline(panelData, transitionLine);
+
     scrollTriggerRef.current = ScrollTrigger.create({
-      id: 'horizontal-works',
+      id: "horizontal-works",
       trigger: wrapperRef.current,
       start: "top top",
-      end: () => "+=" + scrollDistance,
+      end: () =>
+        "+=" + window.innerHeight * panelData.length * SCROLL_DISTANCE_FACTOR,
       scrub: 1,
       pin: true,
       anticipatePin: 1,
       animation: mainTimeline,
       onUpdate: (self) => {
-        // Update global progress
         if (globalProgressRef.current) {
           globalProgressRef.current.style.width = self.progress * 100 + "%";
         }
       },
     });
-  }, []);
+  }, [
+    buildPanelData,
+    cleanupAnimations,
+    createEntryTrigger,
+    createMainTimeline,
+  ]);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -351,20 +392,11 @@ export function HorizontalWorks() {
     window.addEventListener("resize", handleResize);
 
     return () => {
-      ctx.revert();
       window.removeEventListener("resize", handleResize);
-      if (scrollTriggerRef.current) {
-        scrollTriggerRef.current.kill();
-      }
-      if (entryTriggerRef.current) {
-        entryTriggerRef.current.kill();
-      }
-      panelDataRef.current.forEach((data) => {
-        data.titleSplit.revert();
-        data.descSplit.revert();
-      });
+      cleanupAnimations();
+      ctx.revert();
     };
-  }, [initAnimations]);
+  }, [cleanupAnimations, initAnimations]);
 
   return (
     <div
@@ -379,9 +411,6 @@ export function HorizontalWorks() {
         {WORKS.map((work, index) => (
           <div
             key={work.id}
-            ref={(el) => {
-              panelRefs.current[index] = el;
-            }}
             className="horizontal-panel relative flex h-screen w-screen flex-shrink-0 flex-col items-center justify-center px-6"
             style={
               work.media?.type === "gradient"
@@ -404,7 +433,7 @@ export function HorizontalWorks() {
               ref={(el) => {
                 contentRefs.current[index] = el;
               }}
-              className="horizontal-content relative z-10 flex max-w-4xl flex-col items-start gap-4 text-left"
+              className="horizontal-content relative z-10 flex max-w-5xl flex-col items-start gap-4 text-left"
             >
               <span className="text-[11px] font-medium uppercase tracking-[0.28em] text-[var(--accent-amber1)]/70">
                 {work.meta}
@@ -427,6 +456,22 @@ export function HorizontalWorks() {
               >
                 {work.description}
               </p>
+
+              <div className="flex flex-wrap items-center gap-3 text-sm text-[var(--text-base-60)]">
+                {work.role && (
+                  <span className="rounded-full bg-[var(--bg-overlay-10)] px-3 py-1 text-xs font-medium text-[var(--text-base-70)]">
+                    {work.role}
+                  </span>
+                )}
+                {work.tags?.slice(0, 5).map((tag) => (
+                  <span
+                    key={`${work.id}-${tag}`}
+                    className="rounded-full bg-[var(--bg-overlay-5)] px-3 py-1 text-xs text-[var(--text-base-60)]"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
 
               {/* Hidden progress elements to satisfy animation logic */}
               <div className="mt-6 hidden w-48 items-center gap-3">

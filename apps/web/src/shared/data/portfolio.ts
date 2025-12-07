@@ -32,6 +32,10 @@ export interface WorkItem {
   description: string;
   meta: string;
   media?: Media;
+  role?: string;
+  tags?: string[];
+  background?: string;
+  accent?: string;
 }
 
 export interface MotionShowcase {
@@ -261,31 +265,50 @@ export const portfolioData: PortfolioData = {
     items: [
       {
         id: "01",
-        title: "Digital Experiences",
-        description:
-          "Design and code in one head. Ship the exact vision without translation loss.",
-        meta: "Web Development",
+        title: "Enterprise DX",
+        description: "Amazon Connect統合問合せ管理 / 5層CA / 小規模チーム",
+        meta: "Case Study",
+        role: "Fullstack / Lead",
+        tags: [
+          "Next.js 15",
+          "TypeScript",
+          "Drizzle ORM",
+          "PostgreSQL",
+          "AWS Connect",
+          "QuickSight",
+        ],
+        background: "#0e0b0b",
+        accent: "#f8c365",
       },
       {
         id: "02",
-        title: "Creative Engineering",
-        description:
-          "Start where others say it's impossible. Push constraints until ideas ship.",
-        meta: "Technical Direction",
+        title: "Insurance Chat Ops",
+        description: "損保チャット&事案管理 / 72名協働 / LINE連携",
+        meta: "Case Study",
+        role: "Frontend / Backend",
+        tags: ["Next.js 13", "TypeScript", "Nest.js", "Prisma", "MySQL"],
+        background: "#111827",
+        accent: "#f39c58",
       },
       {
         id: "03",
-        title: "Design Systems",
-        description:
-          "Keep every touchpoint speaking the same voice — photo, film, and web aligned.",
-        meta: "Design Systems",
+        title: "SaaS Product",
+        description: "ノーコードSaaS / 2年8ヶ月継続開発 / FEリード",
+        meta: "Case Study",
+        role: "Frontend Lead",
+        tags: ["Remix", "React", "TypeScript", "DynamoDB", "Cognito"],
+        background: "#0f172a",
+        accent: "#e67f46",
       },
       {
         id: "04",
-        title: "Motion & Interaction",
-        description:
-          "Where stills come alive. Designing experiences where code, image, and sound cross.",
-        meta: "Experience Design",
+        title: "Visual Identity",
+        description: "写真・映像・UIを一貫した声で設計・実装",
+        meta: "Case Study",
+        role: "Visual / Frontend",
+        tags: ["Photography", "Videography", "Next.js", "Design System"],
+        background: "#1b0f0f",
+        accent: "#f5a623",
       },
     ],
   },

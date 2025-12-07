@@ -54,6 +54,7 @@ Phase 2 で GSAP / Three.js への拡張を見据えた設計。
 - Tailwind: カスタムトークンを優先し、インラインスタイル多用を避ける
 - shadcn/ui + Radix を優先活用（アクセシビリティ担保）
 - Phase 2 拡張余地を確保（GSAP / Three.js 置換しやすい抽象化）
+- ループ記法: `forEach` と `for (let i...)` は使用禁止。`for...of` / `for...of entries()` など明示的なループ、または意図の合う配列メソッドを用いる
 
 ---
 

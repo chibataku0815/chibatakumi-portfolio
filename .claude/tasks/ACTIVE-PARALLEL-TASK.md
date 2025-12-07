@@ -2,6 +2,37 @@
 
 ## 現在アクティブなタスク
 
+### Loop Style Rule Documentation (2025-12-08)
+- **開始:** 2025-12-08T02:22:20+09:00 (Asia/Tokyo)
+- **完了:** 2025-12-08T02:23:05+09:00 (Asia/Tokyo)
+- **ステータス:** 完了
+- **内容:** ループ記法ルール（forEach / `for (let i...)` 禁止）をグローバルルールとナレッジに追記。
+- **影響ファイル:**
+  - `.ai/GLOBAL.md`
+  - `.ai/knowledge/2025-12-08-loop-style-guideline.md`
+- **Agent:** Codex CLI
+
+### Skills Page Creation (2025-12-08)
+- **開始:** 2025-12-08T02:15:47+09:00 (Asia/Tokyo)
+- **ステータス:** 進行中
+- **内容:** `/skills` ページ追加。マルチスキル訴求のため、Works/Case-Study と Profile 情報を統合し、FluidGradient 背景上にモノトーン+最小アンバーでセクション化。ナビに Skills を追加し、Works 導線を整理。
+- **影響ファイル:**
+  - `apps/web/src/app/skills/page.tsx`（新規）
+  - `apps/web/src/shared/data/portfolio.ts`
+  - `apps/web/src/shared/components/nav/MainNav.tsx`
+- **Agent:** Codex CLI
+- **備考:** コミット禁止。既存構造を壊さず最小差分。
+
+### HorizontalWorks Maintainability Refactor (2025-12-08)
+- **開始:** 2025-12-08T02:11:29+09:00 (Asia/Tokyo)
+- **完了:** 2025-12-08T02:17:42+09:00 (Asia/Tokyo)
+- **ステータス:** 完了
+- **内容:** `HorizontalWorks` のスクロール/アニメーションロジックを分離整理し、保守性を高めるリファクタリング。
+- **影響ファイル:**
+  - `apps/web/src/features/works/horizontal/HorizontalWorks.tsx`
+- **Agent:** Codex CLI
+- **備考:** コミット不要
+
 ### Index Brushup - グラフィックデザイン強化 (2025-12-07)
 - **開始:** 2025-12-07T22:52:14+0900 (Asia/Tokyo)
 - **ステータス:** 全フェーズ プロンプト作成完了・実装待機
