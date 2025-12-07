@@ -50,6 +50,7 @@ export function HorizontalWorks() {
   const progressTextRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const globalProgressRef = useRef<HTMLDivElement>(null);
   const transitionLineRef = useRef<HTMLDivElement>(null);
+  const resizeRafRef = useRef<number | null>(null);
 
   const scrollTriggerRef = useRef<ScrollTrigger | null>(null);
   const entryTriggerRef = useRef<ScrollTrigger | null>(null);
@@ -282,7 +283,7 @@ export function HorizontalWorks() {
           timeline.to(
             containerRef.current,
             {
-              x: () => -(window.innerWidth * (i + 1)),
+              x: () => -(window.innerWidth * (index + 1)),
               duration: 0.2,
               ease: "power3.inOut",
             },
@@ -386,12 +387,22 @@ export function HorizontalWorks() {
     }, wrapperRef);
 
     const handleResize = () => {
-      initAnimations();
+      if (resizeRafRef.current !== null) {
+        cancelAnimationFrame(resizeRafRef.current);
+      }
+      resizeRafRef.current = window.requestAnimationFrame(() => {
+        resizeRafRef.current = null;
+        initAnimations();
+      });
     };
 
     window.addEventListener("resize", handleResize);
 
     return () => {
+      if (resizeRafRef.current !== null) {
+        cancelAnimationFrame(resizeRafRef.current);
+        resizeRafRef.current = null;
+      }
       window.removeEventListener("resize", handleResize);
       cleanupAnimations();
       ctx.revert();
