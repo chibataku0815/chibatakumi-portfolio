@@ -403,7 +403,7 @@ export function HorizontalWorks() {
 
       return timeline;
     },
-    []
+    [setActiveSection, setCompletedSections]
   );
 
   const initAnimations = useCallback(() => {
