@@ -15,7 +15,7 @@ export default function ContactPage() {
         </AnimatedHeading>
 
         <div className="mb-12 space-y-4">
-          {contact.description.split("\n\n").map((paragraph, i) => (
+          {contact.description.split("\n").map((paragraph, i) => (
             <p
               key={i}
               className="text-lg leading-relaxed text-[var(--text-muted)]"

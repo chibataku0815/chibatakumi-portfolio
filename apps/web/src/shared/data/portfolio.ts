@@ -236,7 +236,7 @@ export const portfolioData: PortfolioData = {
   navigation: {
     links: [
       { href: "/", label: "Index" },
-      { href: "/archive", label: "Archive" },
+      { href: "/works", label: "Works" },
       { href: "/profile", label: "Profile" },
       { href: "/contact", label: "Contact" },
     ],
@@ -416,39 +416,40 @@ export const portfolioData: PortfolioData = {
     // Contact Page
     contact: {
       title: "対話を始める",
-      description: `案件が具体化したときも、まだアイデア段階でも。
-売り込みはしません。ビジョンを教えてください。`,
+      description: "具体的な要件が決まる前の、漠然とした段階でも構いません。\nまずは、あなたの描いているイメージをお聞かせください。",
       email: "hello@takumichiba.com",
       cta: "メールを送る",
-      responseNote: "返信は48時間以内に。",
+      responseNote: "通常、2日以内に返信いたします。",
     },
+
+    // Profile Page
     profile: {
       header: {
         title: "Experience & Skills",
         subtitle:
-          "デザインとフロントエンド開発を軸に、映像・写真まで一貫して手がける統合型クリエイター",
+          "デザイン、実装、映像制作。一人の作り手が全工程を担当することで、意図した通りのアウトプットを形にします。",
       },
       strengths: [
         {
           id: "design-engineering",
           title: "デザイン × エンジニアリング",
           description:
-            "UIデザインから実装まで一貫して担当。デザイナーとエンジニアの間に生じる「翻訳ロス」をゼロに。Figmaでの設計からNext.js実装まで、同じ頭で考える。",
-          keywords: ["Figma", "React", "Next.js", "デザインシステム"],
+            "UI設計からプロトタイプ実装、本番コードまでを一貫して担当。デザインデータに基づき、忠実にコードへ実装します。",
+          keywords: ["Figma", "React", "Next.js", "GSAP"],
         },
         {
           id: "enterprise-quality",
           title: "エンタープライズ品質",
           description:
-            "大手金融・保険企業でのシステム開発経験。72名規模の開発チームでの協働、5層クリーンアーキテクチャの設計・導入実績。",
-          keywords: ["クリーンアーキテクチャ", "CQRS", "AWS", "TypeScript"],
+            "クリーンアーキテクチャやCQRSパターンの導入により、複雑な業務ロジックに対応した、保守性と拡張性の高いコードベースを構築します。",
+          keywords: ["クリーンアーキテクチャ", "CQRS", "AWS", "Playwright"],
         },
         {
-          id: "visual-technology",
-          title: "ビジュアル × テクノロジー",
+          id: "full-cycle",
+          title: "0→1開発の全フェーズ対応",
           description:
-            "写真・映像制作の経験がWeb体験設計に直結。撮影現場での判断が、そのままコードに落ちる。S-Log撮影からカラーグレーディング、WebGL表現まで。",
-          keywords: ["Photography", "Videography", "Three.js", "GSAP"],
+            "要件定義から技術選定、デザイン、実装、保守運用まで。プロジェクトの全フェーズを担当し、サービスの立ち上げから運用までを支援します。",
+          keywords: ["要件定義", "技術選定", "UI/UX設計", "保守運用"],
         },
       ],
       experience: [
@@ -456,13 +457,13 @@ export const portfolioData: PortfolioData = {
           id: "exp-1",
           period: "2025.05 - 現在",
           type: "Enterprise DX",
-          role: "フルスタックエンジニア / リードエンジニア",
+          role: "フルスタック / リード",
           description:
-            "大手SIerでのAmazon Connect統合問合せ管理システム開発。5層クリーンアーキテクチャの設計・導入、QuickSightダッシュボード開発を主導。",
+            "Amazon Connectを用いた大規模コンタクトセンターシステムの刷新。5層クリーンアーキテクチャを導入し、複雑な業務ロジックを整理・実装。",
           achievements: [
-            "5層クリーンアーキテクチャ（UI/State/Service/Query-Command/DB）の設計・導入",
-            "CQRSパターンによるクエリ最適化",
-            "Playwright E2Eテスト・品質ゲート構築",
+            "5層アーキテクチャ設計および動的JOIN最適化の実装",
+            "Amazon Connect / QuickSight連携機能の開発",
+            "PlaywrightとBiomeによる品質ゲートの構築",
           ],
           techStack: [
             "Next.js 15",
@@ -470,74 +471,91 @@ export const portfolioData: PortfolioData = {
             "Drizzle ORM",
             "PostgreSQL",
             "AWS Connect",
-            "QuickSight",
           ],
           teamSize: "小規模チーム",
         },
         {
           id: "exp-2",
           period: "2024.12 - 2025.03",
-          type: "損害保険システム開発",
-          role: "フロントエンド / バックエンドエンジニア",
+          type: "SaaS / InsurTech",
+          role: "フロントエンド / バックエンド",
           description:
-            "大手金融グループの損害保険事案管理システム開発。LINE連携チャットベースコミュニケーション機能の実装を担当。",
+            "大手損保グループの事故対応プラットフォーム開発。事案管理機能およびLINE連携チャット機能のバックエンド・フロントエンド開発を担当。",
           achievements: [
-            "保険事故事案の登録・管理機能開発",
-            "REST API設計・開発",
-            "72名規模チームでの協働経験",
+            "事故情報の登録・管理機能のバックエンド/フロントエンド実装",
+            "LINE連携チャット機能のアーキテクチャ設計",
+            "REST API設計および実装",
           ],
-          techStack: ["Next.js 13", "TypeScript", "Nest.js", "Prisma", "MySQL"],
+          techStack: [
+            "Next.js 13",
+            "Nest.js",
+            "Prisma",
+            "MySQL",
+            "TypeScript",
+          ],
           teamSize: "72名",
         },
         {
           id: "exp-3",
           period: "2022.05 - 2024.12",
-          type: "SaaSプロダクト開発",
+          type: "SaaS Product",
           role: "フロントエンドリード",
           description:
-            "ノーコード・ローコードサービスのフロントエンド開発をリード。技術選定からアーキテクチャ設計、ステークホルダー対応まで担当。",
+            "SaaSプロダクト「おもてなしDX」のフロントエンドリード。フォーム作成エンジンの設計・実装および、生成AI連携機能の開発を担当。",
           achievements: [
-            "2年8ヶ月の継続的な開発・保守",
-            "フォームクリエーター管理画面の設計・実装",
-            "生成AIプラグイン for kintone 開発",
+            "フォームクリエーター（管理画面）のUI設計・実装",
+            "Cognitoを用いた認証基盤の構築",
+            "生成AIプラグイン for kintoneの開発",
           ],
           techStack: [
             "Remix",
             "React",
-            "TypeScript",
             "DynamoDB",
             "Cognito",
+            "TypeScript",
           ],
           teamSize: "8-15名",
         },
         {
           id: "exp-4",
           period: "2015.04 - 2022.12",
-          type: "新規事業開発・デザイン",
-          role: "フロントエンド / デザイナー",
+          type: "新規事業開発",
+          role: "デザイン / フロントエンド",
           description:
-            "介護経営支援プラットフォームの新規事業開発。フロントエンド実装からサイトデザイン、ロゴ制作、UI設計まで一貫して担当。",
+            "介護経営支援プラットフォームの新規立ち上げ。サービスロゴ制作・UIデザインからフロントエンド実装までを7年間にわたり担当。",
           achievements: [
-            "7年9ヶ月の長期継続案件",
-            "新規事業サイトのデザイン〜フロントエンド一貫担当",
-            "デザイナー向け設計共有・育成",
+            "7年9ヶ月の長期運用におけるUI/UX改善",
+            "新規事業サイトの0→1デザイン・実装",
+            "デザイナーチームへの設計共有と育成",
           ],
-          techStack: ["Vue.js", "SCSS/BEM", "Figma", "Adobe XD", "Illustrator"],
+          techStack: [
+            "Vue.js",
+            "SCSS/BEM",
+            "Figma",
+            "Adobe XD",
+            "Firebase",
+          ],
           teamSize: "20名",
         },
         {
           id: "exp-5",
           period: "2018.05 - 2024.12",
           type: "受託開発（自社）",
-          role: "代表 / フルスタックエンジニア",
+          role: "代表 / フルスタック",
           description:
-            "技術選定からデザイン・構築まで一貫して担当。複数クライアントへの技術コンサルティング、アーキテクチャ設計を提供。",
+            "自社受託事業として6年以上稼働。技術選定からデザイン・実装までをワンストップで提供し、スタートアップのMVP開発を支援。",
           achievements: [
-            "要件定義〜運用保守まで全フェーズ対応",
-            "Firebase/Supabaseを活用したスピード開発",
-            "6年8ヶ月の事業運営",
+            "要件定義から運用保守まで全フェーズの完遂",
+            "Firebase/Supabaseを活用した高速な開発サイクル",
+            "クライアントへの技術コンサルティング",
           ],
-          techStack: ["Next.js", "Remix", "Firebase", "Supabase", "Figma"],
+          techStack: [
+            "Remix",
+            "Next.js",
+            "Firebase",
+            "Supabase",
+            "Figma",
+          ],
         },
       ],
       techStack: [
@@ -582,8 +600,9 @@ export const portfolioData: PortfolioData = {
         },
       ],
       cta: {
-        headline: "プロジェクトについて相談する",
-        subtext: "技術選定やチーム構成についてもお気軽にご相談ください。売り込みはしません。",
+        headline: "プロジェクトのご相談",
+        subtext:
+          "技術的な実現可能性や、チーム体制についても。\nまずは気軽にお話ししましょう。",
         buttonLabel: "対話を始める",
       },
     },

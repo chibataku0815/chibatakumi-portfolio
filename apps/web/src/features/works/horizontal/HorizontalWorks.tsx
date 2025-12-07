@@ -382,10 +382,20 @@ export function HorizontalWorks() {
             ref={(el) => {
               panelRefs.current[index] = el;
             }}
-            className="horizontal-panel flex h-screen w-screen flex-shrink-0 flex-col items-center justify-center px-6"
+            className="horizontal-panel relative flex h-screen w-screen flex-shrink-0 flex-col items-center justify-center px-6"
+            style={
+              work.media?.type === "gradient"
+                ? { backgroundImage: work.media.value }
+                : work.media?.type === "image"
+                  ? { backgroundImage: `url(${work.media.src})`, backgroundSize: "cover", backgroundPosition: "center" }
+                  : undefined
+            }
           >
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.05),transparent_35%),radial-gradient(circle_at_80%_80%,rgba(255,191,73,0.12),transparent_40%)]" />
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.55),rgba(0,0,0,0.85))]" />
+
             {/* Panel Number */}
-            <span className="absolute left-8 top-8 text-sm font-medium tracking-wide text-[var(--text-base-20)]">
+            <span className="absolute left-8 top-8 text-sm font-medium tracking-wide text-[var(--text-base-40)]">
               {work.id}
             </span>
 
@@ -394,9 +404,9 @@ export function HorizontalWorks() {
               ref={(el) => {
                 contentRefs.current[index] = el;
               }}
-              className="horizontal-content flex max-w-2xl flex-col items-center text-center"
+              className="horizontal-content relative z-10 flex max-w-4xl flex-col items-start gap-4 text-left"
             >
-              <span className="mb-4 text-xs font-medium uppercase tracking-[0.2em] text-[var(--accent-amber1)]/60">
+              <span className="text-[11px] font-medium uppercase tracking-[0.28em] text-[var(--accent-amber1)]/70">
                 {work.meta}
               </span>
 
@@ -404,7 +414,7 @@ export function HorizontalWorks() {
                 ref={(el) => {
                   titleRefs.current[index] = el;
                 }}
-                className="horizontal-title mb-6 text-[clamp(2rem,6vw,4rem)] font-semibold leading-tight tracking-[-0.02em] text-[var(--text-base)]"
+                className="horizontal-title break-words text-[clamp(2.5rem,7vw,5rem)] font-semibold leading-[1.0] tracking-[-0.03em] text-[var(--text-base)]"
               >
                 {work.title}
               </h2>
@@ -413,13 +423,13 @@ export function HorizontalWorks() {
                 ref={(el) => {
                   descRefs.current[index] = el;
                 }}
-                className="horizontal-desc text-lg leading-relaxed text-[var(--text-muted)]"
+                className="horizontal-desc text-xl leading-relaxed text-[var(--text-base-70)]"
               >
                 {work.description}
               </p>
 
-              {/* Section Progress */}
-              <div className="mt-12 flex w-48 items-center gap-3">
+              {/* Hidden progress elements to satisfy animation logic */}
+              <div className="mt-6 hidden w-48 items-center gap-3">
                 <div className="progress-track relative h-[2px] flex-1 overflow-hidden rounded-full bg-[var(--bg-overlay-10)]">
                   <div
                     ref={(el) => {
@@ -486,11 +496,8 @@ export function HorizontalWorks() {
       </div>
 
       {/* Global Progress Bar */}
-      <div className="global-progress fixed bottom-0 left-0 z-40 h-[2px] w-full bg-[var(--bg-overlay-5)]">
-        <div
-          ref={globalProgressRef}
-          className="global-progress-fill h-full w-0 bg-gradient-to-r from-[var(--accent-amber1)] to-[var(--accent-amber2)]"
-        />
+      <div className="global-progress fixed bottom-0 left-0 z-40 h-[2px] w-full bg-transparent">
+        <div ref={globalProgressRef} className="global-progress-fill h-full w-0 bg-transparent" />
       </div>
     </div>
   );

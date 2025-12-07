@@ -68,6 +68,7 @@ export default function ProfilePage() {
                 key={exp.id}
                 className="group relative border-l border-[var(--text-base-20)] pl-6 transition-all duration-300 hover:border-[var(--accent-amber1)]/50"
               >
+                {/* Period & Type */}
                 <div className="mb-3 flex flex-wrap items-center gap-3">
                   <span className="text-sm font-medium text-[var(--accent-amber1)]">
                     {exp.period}
@@ -82,18 +83,21 @@ export default function ProfilePage() {
                   )}
                 </div>
 
+                {/* Role */}
                 <h3 className="mb-2 text-lg font-semibold text-[var(--text-base)]">
                   {exp.role}
                 </h3>
 
+                {/* Description */}
                 <p className="mb-4 leading-relaxed text-[var(--text-muted)]">
                   {exp.description}
                 </p>
 
+                {/* Achievements */}
                 <ul className="mb-4 space-y-1">
                   {exp.achievements.map((achievement, i) => (
                     <li
-                      key={`${exp.id}-achievement-${i}`}
+                      key={i}
                       className="flex items-start gap-2 text-sm text-[var(--text-base-60)]"
                     >
                       <span className="mt-1.5 h-1 w-1 flex-shrink-0 rounded-full bg-[var(--accent-amber1)]/60" />
@@ -102,10 +106,11 @@ export default function ProfilePage() {
                   ))}
                 </ul>
 
+                {/* Tech Stack */}
                 <div className="flex flex-wrap gap-2">
                   {exp.techStack.map((tech) => (
                     <span
-                      key={`${exp.id}-${tech}`}
+                      key={tech}
                       className="rounded bg-[var(--bg-overlay-5)] px-2 py-0.5 text-xs font-medium text-[var(--text-base-40)]"
                     >
                       {tech}
@@ -161,7 +166,9 @@ export default function ProfilePage() {
           <h2 className="mb-4 text-2xl font-semibold text-[var(--text-base)]">
             {profile.cta.headline}
           </h2>
-          <p className="mb-8 text-[var(--text-muted)]">{profile.cta.subtext}</p>
+          <p className="mb-8 text-[var(--text-muted)]">
+            {profile.cta.subtext}
+          </p>
           <a
             href="/contact"
             data-transition="true"
