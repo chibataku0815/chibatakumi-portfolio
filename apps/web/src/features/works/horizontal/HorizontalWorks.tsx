@@ -15,6 +15,7 @@ const WORKS = portfolioData.works.items;
 const TITLE_GHOST_OPACITY = "0.04";
 const DESC_GHOST_OPACITY = "0.03";
 const SCROLL_DISTANCE_FACTOR = 2.2;
+const NAV_SCROLL_OFFSET = 5; // 少し進めてセクション開始直後の状態にするためのオフセット
 
 interface PanelData {
   panelContent: HTMLDivElement;
@@ -25,6 +26,7 @@ interface PanelData {
   titleSplit: ReturnType<typeof splitText>;
   descSplit: ReturnType<typeof splitText>;
   wasCompleted: boolean;
+  totalDescChars: number;
 }
 
 const setGhostOpacity = (elements: HTMLElement[], opacity: string) => {
@@ -51,6 +53,7 @@ export function HorizontalWorks() {
   const globalProgressRef = useRef<HTMLDivElement>(null);
   const transitionLineRef = useRef<HTMLDivElement>(null);
   const resizeRafRef = useRef<number | null>(null);
+  const lastSizeRef = useRef<{ width: number; height: number } | null>(null);
 
   const scrollTriggerRef = useRef<ScrollTrigger | null>(null);
   const entryTriggerRef = useRef<ScrollTrigger | null>(null);
@@ -118,6 +121,7 @@ export function HorizontalWorks() {
         titleSplit,
         descSplit,
         wasCompleted: false,
+        totalDescChars: descSplit.chars.length,
       };
 
       resetPanelVisualState(data);
@@ -156,7 +160,8 @@ export function HorizontalWorks() {
       const scrollRange = scrollEnd - scrollStart;
 
       const sectionProgress = index / WORKS.length;
-      const targetScroll = scrollStart + scrollRange * sectionProgress + 5;
+      const targetScroll =
+        scrollStart + scrollRange * sectionProgress + NAV_SCROLL_OFFSET;
 
       // Reset target section
       resetSectionState(index);
@@ -229,11 +234,14 @@ export function HorizontalWorks() {
             stagger: 0.004,
             ease: "power1.out",
             onUpdate: () => {
-              const completedChars = data.descChars.filter(
-                (c) => parseFloat(c.style.opacity) > 0.5
-              ).length;
+              let completedChars = 0;
+              for (const char of data.descChars) {
+                if (parseFloat(char.style.opacity) > 0.5) {
+                  completedChars += 1;
+                }
+              }
               const progress = Math.round(
-                (completedChars / data.descChars.length) * 100
+                (completedChars / data.totalDescChars) * 100
               );
               data.progressFill.style.width = progress + "%";
               data.progressText.textContent = progress + "%";
@@ -392,6 +400,13 @@ export function HorizontalWorks() {
       }
       resizeRafRef.current = window.requestAnimationFrame(() => {
         resizeRafRef.current = null;
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        const lastSize = lastSizeRef.current;
+        if (lastSize && lastSize.width === width && lastSize.height === height) {
+          return;
+        }
+        lastSizeRef.current = { width, height };
         initAnimations();
       });
     };
