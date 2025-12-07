@@ -26,22 +26,28 @@
 
 ---
 
-### Design Consistency Brushup (2025-12-07) - 保留
-- **開始:** 2025-12-07T22:21:23+0900 (Asia/Tokyo)
-- **ステータス:** 保留（Index Brushup 完了後に実施）
-- **内容:** UI/デザイン統一性向上のリファクタリング。カラー・タイポグラフィ・Shadowのトークン化。
-- **成果物:**
-  - `.claude/tasks/2025-12-07-design-consistency-brushup.md` - タスク計画
-  - `.claude/prompts/2025-12-07-claude-code-design-consistency.md` - 実装プロンプト
-- **備考:** Index Brushup と影響ファイルが重複するため、順序を整理して実施。
-
----
-
-最終更新: 2025-12-07T22:52:14+0900 (Asia/Tokyo)
+最終更新: 2025-12-07T23:21:33+0900 (Asia/Tokyo)
 
 ---
 
 ## 直近の完了タスク
+
+### ✅ Design Consistency Brushup (2025-12-07)
+- **完了:** 2025-12-07T23:21:33+0900 (Asia/Tokyo)
+- **内容:** UI/デザイン統一性向上のリファクタリング。カラー・タイポグラフィ・Shadowのトークン化。
+- **成果物:**
+  - `src/app/globals.css` - トークン追加（--text-base-{20-90}, --bg-overlay-{5-40}, --shadow-glow-{sm,md,lg}）
+  - `src/features/hero/components/HeroText.tsx` - カラー置換
+  - `src/features/works/horizontal/HorizontalWorks.tsx` - カラー・Shadow置換
+  - `src/features/works/spotlight/SpotlightGallery.tsx` - カラー置換
+- **技術的解決:**
+  - `color-mix(in srgb, ...)` で透明度トークンを定義
+  - `text-white/XX` → `text-[var(--text-base-XX)]` に統一
+  - `bg-white/XX` → `bg-[var(--bg-overlay-XX)]` に統一
+  - インラインshadow値 → `var(--shadow-glow-XX)` に統一
+- **関連ドキュメント:**
+  - `.claude/tasks/archive/2025-12-07-design-consistency-brushup.md`
+  - `.ai/knowledge/2025-12-07-design-consistency-brushup.md`
 
 ### ✅ Section Scroll Snap Implementation (2025-12-07)
 - **完了:** 2025-12-07T22:12:01+0900 (Asia/Tokyo)
