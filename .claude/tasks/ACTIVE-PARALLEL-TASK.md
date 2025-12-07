@@ -4,16 +4,19 @@
 
 ### Index Brushup - グラフィックデザイン強化 (2025-12-07)
 - **開始:** 2025-12-07T22:52:14+0900 (Asia/Tokyo)
-- **ステータス:** Phase 1 プロンプト作成完了・実装待機
+- **ステータス:** 全フェーズ プロンプト作成完了・実装待機
 - **内容:** indexページのビジュアルインパクト強化。グラフィックデザイン観点（構図、タイポグラフィ、モーション）からの全面リデザイン。
 - **フェーズ構成:**
   - Phase 1: Hero Section リデザイン（非対称配置、タイポグラフィ強化）← **プロンプト作成済み**
-  - Phase 2: Hero → Works トランジション演出強化
-  - Phase 3: Works Section リデザイン（パネルごとに構図変化）
-  - Phase 4: 視覚言語の統一（アンバーアクセント活用）
+  - Phase 2: Hero → Works トランジション演出強化 ← **プロンプト作成済み**
+  - Phase 3: Works Section リデザイン（パネルごとに構図変化）← **プロンプト作成済み**
+  - Phase 4: 視覚言語の統一（アンバーアクセント活用）← **プロンプト作成済み**
 - **成果物:**
   - `.claude/tasks/2025-12-07-index-brushup-plan.md` - 全体計画
   - `.claude/prompts/2025-12-07-claude-code-index-brushup-hero.md` - Phase 1 実装プロンプト
+  - `.claude/prompts/2025-12-07-claude-code-index-brushup-phase2.md` - Phase 2 実装プロンプト
+  - `.claude/prompts/2025-12-07-claude-code-index-brushup-phase3.md` - Phase 3 実装プロンプト
+  - `.claude/prompts/2025-12-07-claude-code-index-brushup-phase4.md` - Phase 4 実装プロンプト
 - **新規スキル追加:**
   - `.claude/skills/art-direction/` - アートディレクション
   - `.claude/skills/visual-composition/` - ビジュアルコンポジション
@@ -26,7 +29,36 @@
 
 ---
 
-最終更新: 2025-12-07T23:21:33+0900 (Asia/Tokyo)
+### Marketing Strategy & Content Update (2025-12-07)
+- **開始:** 2025-12-07
+- **ステータス:** プロンプト作成完了・実装待機
+- **内容:** ポートフォリオマーケティング戦略の策定とコンテンツ更新。「統合クリエイティブ・パートナー」としてのポジショニング確立。
+- **フェーズ構成:**
+  - 戦略策定: マーケティング戦略ドキュメント作成 ← **完了**
+  - スキル追加: Strategy Layer スキル3種追加 ← **完了**
+  - コンテンツ更新: Hero/Contact/Works コピー更新 ← **プロンプト作成済み**
+- **成果物:**
+  - `.ai/knowledge/2025-12-07-portfolio-marketing-strategy.md` - マーケティング戦略定義書
+  - `.claude/skills/brand-strategy/SKILL.md` - ブランド戦略スキル
+  - `.claude/skills/copywriting/SKILL.md` - コピーライティングスキル
+  - `.claude/skills/user-journey/SKILL.md` - ユーザージャーニースキル
+  - `.claude/prompts/2025-12-07-claude-code-marketing-content.md` - コンテンツ更新プロンプト
+- **Core Value:**
+  - 「足し算ではなく掛け算」: Photo × Video × Code × Design × Sound
+  - 翻訳ロスゼロ（一人で完結）
+  - 一貫したブランド体験
+  - AIネイティブ効率
+- **Target Psychology:**
+  - 美意識の高い経営者 / 決裁権者
+  - ユーザージャーニー: Intrigue → Recognition → Discovery → Realization → Action
+- **影響ファイル:**
+  - `src/shared/data/portfolio.ts` - コンテンツデータ更新
+  - `src/app/contact/page.tsx` - Contact UI更新
+- **備考:** 実装は Claude Code (Haiku 4.5) に委譲。**コミット禁止**。
+
+---
+
+最終更新: 2025-12-07T23:49:06+0900 (Asia/Tokyo)
 
 ---
 

@@ -65,3 +65,18 @@ export interface SiteContent {
   seo: SeoInfo;
   logo_notes?: LogoNotes;
 }
+
+export interface ContactContent {
+  title: string;
+  description: string;
+  email: string;
+  cta: string;
+  responseNote?: string;
+}
+
+export interface HeroContent {
+  title: string;
+  tagline: string | { lines: string[] };
+  scrollText: string;
+  subTagline?: string;
+}

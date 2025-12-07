@@ -2,28 +2,54 @@ import { AnimatedHeading } from "@/shared/components";
 import { portfolioData } from "@/shared/data/portfolio";
 
 export default function ContactPage() {
-  const { title, description, email, ctaText } = portfolioData.pages.contact;
+  const contact = portfolioData.pages.contact;
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-[var(--bg-dark)] px-6 py-24">
+    <main className="flex min-h-screen flex-col items-center justify-center px-6 py-24">
       <div className="max-w-xl text-center">
         <AnimatedHeading
           as="h1"
-          className="mb-6 text-[clamp(2.5rem,8vw,5rem)] font-semibold leading-[1.05] tracking-[-0.03em] text-[var(--text-base)]"
+          className="mb-8 text-[clamp(2.5rem,8vw,4rem)] font-semibold tracking-[-0.02em] text-[var(--text-base)]"
         >
-          {title}
+          {contact.title}
         </AnimatedHeading>
 
-        <p className="mb-10 text-lg leading-relaxed text-[var(--text-muted)]">
-          {description}
-        </p>
+        <div className="mb-12 space-y-4">
+          {contact.description.split("\n\n").map((paragraph, i) => (
+            <p
+              key={i}
+              className="text-lg leading-relaxed text-[var(--text-muted)]"
+            >
+              {paragraph}
+            </p>
+          ))}
+        </div>
 
         <a
-          href={`mailto:${email}`}
-          className="inline-block font-mono text-sm uppercase tracking-[0.15em] text-[var(--bg-dark)] bg-[var(--text-base)] px-8 py-4 transition-all duration-300 hover:bg-[var(--accent-amber1)] hover:text-[var(--bg-darker)]"
+          href={`mailto:${contact.email}`}
+          className="amber-border-glow relative inline-flex items-center gap-2 rounded-full border border-[var(--text-base-20)] px-8 py-4 text-base font-medium text-[var(--text-base)] transition-all duration-300 hover:border-[var(--accent-amber1)]/50 hover:text-[var(--accent-amber1)]"
         >
-          {ctaText}
+          {contact.cta}
+          <svg
+            className="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M14 5l7 7m0 0l-7 7m7-7H3"
+            />
+          </svg>
         </a>
+
+        {contact.responseNote && (
+          <p className="mt-6 text-sm text-[var(--text-base-40)]">
+            {contact.responseNote}
+          </p>
+        )}
       </div>
     </main>
   );

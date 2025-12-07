@@ -27,7 +27,11 @@ export function HeroText() {
   const taglineRef = useRef<HTMLDivElement>(null);
   const scrollIndicatorRef = useRef<HTMLDivElement>(null);
 
-  const { scrollText } = portfolioData.hero;
+  const { scrollText, tagline, subTagline } = portfolioData.hero;
+  const taglineLines =
+    typeof tagline === "string"
+      ? tagline.split("\n").filter(Boolean)
+      : tagline.lines;
 
   useEffect(() => {
     if (!containerRef.current || !titleRef.current || !taglineRef.current) return;
@@ -174,15 +178,21 @@ export function HeroText() {
         ref={taglineRef}
         className="mt-16 flex w-full flex-col items-start pl-8 md:pl-16 lg:pl-24"
       >
-        <p className="tagline-line text-[clamp(1.125rem,2.5vw,1.5rem)] font-normal tracking-[0.05em] text-[var(--text-base-60)]">
-          コードを書く。
-        </p>
-        <p className="tagline-line mt-2 text-[clamp(1.125rem,2.5vw,1.5rem)] font-normal tracking-[0.05em] text-[var(--text-base-60)]">
-          撮る。
-        </p>
-        <p className="tagline-line mt-2 text-[clamp(1.125rem,2.5vw,1.5rem)] font-normal tracking-[0.05em] text-[var(--text-base-60)]">
-          編む。
-        </p>
+        {taglineLines.map((line, index) => (
+          <p
+            key={line}
+            className={`tagline-line ${
+              index > 0 ? "mt-2" : ""
+            } text-[clamp(1.125rem,2.5vw,1.5rem)] font-normal tracking-[0.05em] text-[var(--text-base-60)]`}
+          >
+            {line}
+          </p>
+        ))}
+        {subTagline && (
+          <p className="mt-4 text-[clamp(0.95rem,2vw,1.15rem)] font-medium tracking-[0.04em] text-[var(--text-base-60)]">
+            {subTagline}
+          </p>
+        )}
       </div>
 
       {/* Scroll Indicator - Bottom right */}
