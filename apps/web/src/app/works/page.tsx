@@ -1,11 +1,30 @@
 import { AnimatedHeading } from "@/shared/components";
 import { portfolioData } from "@/shared/data/portfolio";
+import {
+  FluidGradientBackground,
+  fluidConfigMonochrome,
+} from "@/features/fluid-gradient";
 
 const works = portfolioData.works.items;
+const BASE_BG = "#0b0b0b";
+const BAND_BG = "#f2f2f2";
 
 export default function WorksPage() {
   return (
-    <main className="relative min-h-screen bg-[var(--bg-base)] text-[var(--text-base)]">
+    <main className="relative min-h-screen text-[var(--text-base)]">
+      {/* Three.js background with color overlay to keep tone consistent */}
+      <div className="pointer-events-none fixed inset-0 -z-[5]">
+        <FluidGradientBackground
+          className="h-full w-full"
+          config={fluidConfigMonochrome}
+          fadeIn={true}
+        />
+        <div
+          className="absolute inset-0"
+          style={{ backgroundColor: BASE_BG, mixBlendMode: "multiply", opacity: 0.82 }}
+        />
+      </div>
+
       {/* Intro */}
       <section className="relative z-10 flex min-h-[60vh] items-center justify-center px-6 py-24">
         <div className="max-w-4xl text-center">
@@ -27,68 +46,68 @@ export default function WorksPage() {
         {works.map((work, idx) => (
           <section
             key={work.id}
-            className="relative isolate flex min-h-screen items-center px-8 py-16 sm:px-10 md:px-16 lg:px-24 overflow-hidden"
-            style={{
-              background: work.background ?? "#0b0b0b",
-            }}
+            className="relative isolate flex min-h-screen items-center px-8 py-16 sm:px-12 md:px-16 lg:px-20 overflow-hidden"
+            style={{ backgroundColor: "transparent" }}
           >
+            {/* Photo layer */}
+            {work.media?.type === "image" && (
+              <div
+                className="absolute inset-0 -z-10 bg-cover bg-center opacity-55"
+                style={{
+                  backgroundImage: `url(${work.media.src})`,
+                }}
+              />
+            )}
+            <div className="absolute inset-0 -z-5 bg-[linear-gradient(180deg,rgba(0,0,0,0.55),rgba(0,0,0,0.85))]" />
+
             {/* Side rail */}
-            <div className="pointer-events-none absolute inset-y-0 left-0 w-20 sm:w-24 md:w-28 border-r border-[var(--text-base-10)]/30">
-              <div className="absolute left-1/2 top-6 -translate-x-1/2 text-[var(--text-base)]/60 text-[10px] tracking-[0.4em] uppercase">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex w-16 items-center justify-center border-r border-white/10 sm:w-20 md:w-24">
+              <div className="-rotate-90 text-[11px] font-semibold uppercase tracking-[0.36em] text-[var(--text-base-60)]">
                 Gallery
               </div>
-              <div className="absolute left-1/2 top-16 h-24 w-[1px] -translate-x-1/2 bg-[var(--text-base-20)]/50" />
-              <div
-                className="absolute bottom-8 left-1/2 -translate-x-1/2 text-[11px] font-semibold uppercase tracking-[0.32em]"
-                style={{ color: work.accent ?? "var(--accent-amber1)" }}
-              >
-                {String(idx + 1).padStart(2, "0")}
-              </div>
-              <div className="absolute bottom-0 left-1/2 h-24 w-[1px] -translate-x-1/2 bg-[var(--text-base-20)]/50" />
             </div>
 
-            {/* Overlay lines */}
-            <div className="pointer-events-none absolute inset-0 mix-blend-screen opacity-40">
-              <div className="absolute inset-0 bg-[repeating-linear-gradient(90deg,rgba(255,255,255,0.06)_0,rgba(255,255,255,0.06)_1px,transparent_1px,transparent_120px)]" />
-              <div className="absolute inset-0 bg-[repeating-linear-gradient(0deg,rgba(255,255,255,0.04)_0,rgba(255,255,255,0.04)_1px,transparent_1px,transparent_140px)]" />
-            </div>
-
-            <div className="relative z-10 flex flex-col gap-6 max-w-5xl">
-              <div className="flex items-center gap-3 text-[var(--accent-amber1)]/80">
-                <span className="text-[11px] font-semibold uppercase tracking-[0.3em]">
-                  {work.meta}
-                </span>
-                <span className="text-xs text-[var(--text-base-50)]">{work.id}</span>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <div className="text-[clamp(2.75rem,10vw,6rem)] font-semibold leading-[0.9] tracking-[-0.04em] text-[var(--text-base)]">
-                  {work.title}
+            <div className="relative z-10 ml-[5rem] flex w-full flex-col gap-10 sm:ml-[6rem] md:ml-[7rem]">
+              <div className="flex items-start justify-between">
+                <div className="flex flex-col gap-2 text-[var(--text-base-80)]">
+                  <span className="text-[17px] italic tracking-[0.08em] text-[var(--text-base-70)]">
+                    (since_2011) 2025
+                  </span>
+                  <span className="inline-block bg-black/12 px-3 py-1 text-[34px] font-semibold leading-none tracking-tight text-black">
+                    Case Study
+                  </span>
                 </div>
+                <div className="bg-[var(--text-base)] text-[var(--bg-base)] px-3 py-1 text-sm font-semibold">
+                  {String(idx + 1).padStart(2, "0")}
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-6">
                 <div
-                  className="text-[clamp(3.75rem,16vw,10rem)] font-black uppercase leading-[0.88] tracking-[-0.08em] text-transparent"
+                  className="text-[clamp(2.6rem,8vw,4.2rem)] font-semibold leading-[1.05] tracking-[-0.02em] text-black"
                   style={{
-                    WebkitTextStroke: "1.4px rgba(255,255,255,0.16)",
+                    backgroundColor: BAND_BG,
+                    display: "inline-block",
+                    padding: "0.28em 0.6em",
                   }}
                 >
                   {work.title}
                 </div>
+                <p className="text-[22px] leading-relaxed text-[var(--text-base-80)] max-w-5xl">
+                  {work.description}
+                </p>
               </div>
 
-              <p className="text-lg leading-relaxed text-[var(--text-base-70)] max-w-3xl">
-                {work.description}
-              </p>
-
-              <div className="flex flex-wrap items-center gap-2 text-sm text-[var(--text-base-60)]">
+              <div className="flex flex-wrap items-center gap-3 text-sm text-[var(--text-base-80)]">
                 {work.role && (
-                  <span className="rounded-full border border-[var(--text-base-20)] px-3 py-1 text-xs font-medium text-[var(--text-base-80)]">
+                  <span className="border border-white/20 bg-white/10 px-4 py-2 text-xs font-medium">
                     {work.role}
                   </span>
                 )}
                 {work.tags?.map((tag) => (
                   <span
                     key={`${work.id}-${tag}`}
-                    className="rounded-full bg-[var(--bg-overlay-10)] px-3 py-1 text-xs text-[var(--text-base-60)]"
+                    className="border border-white/15 bg-white/08 px-4 py-2 text-xs"
                   >
                     {tag}
                   </span>

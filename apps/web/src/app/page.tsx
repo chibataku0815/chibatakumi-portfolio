@@ -18,11 +18,11 @@ export default function Home() {
 
         <div className="absolute bottom-16 left-0 right-0 flex justify-center">
           <Link
-            href="/works"
+            href="/skills"
             data-transition="true"
             className="amber-border-glow inline-flex items-center gap-2 rounded-full border border-[var(--text-base-20)] px-6 py-3 text-sm font-medium uppercase tracking-[0.12em] text-[var(--text-base)] transition-all duration-300 hover:border-[var(--accent-amber1)]/60 hover:text-[var(--accent-amber1)]"
           >
-            View Works
+            View Skills
             <svg
               className="h-4 w-4"
               fill="none"

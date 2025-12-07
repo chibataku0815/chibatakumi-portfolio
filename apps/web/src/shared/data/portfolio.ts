@@ -189,6 +189,7 @@ export interface PortfolioData {
   navigation: NavigationConfig;
   hero: HeroContent;
   works: WorksSection;
+  skills: WorksSection;
   spotlight: SpotlightContent;
   pages: {
     motion: MotionPageContent;
@@ -203,6 +204,58 @@ export interface PortfolioData {
 // =============================================================================
 // 実データ（プレースホルダー → ユーザー提供データで差し替え）
 // =============================================================================
+
+// Works/Skills 共通で使うマルチスキル項目
+const multiskillItems: WorkItem[] = [
+  {
+    id: "01",
+    title: "Visual & Photo Direction",
+    description:
+      "スタジオ/ロケ撮影からカラー設計、Web/誌面での再現までをワンストップ。光とトーンを先に決め、実装時の再現性まで見据えて仕上げる。",
+    meta: "Visual & Photo",
+    role: "Photography / Color Science",
+    tags: ["Lighting Design", "Color Grading", "Retouch & Delivery", "Film & Stills"],
+    media: { type: "image", src: "/spotlight/img_1.jpg", alt: "Visual Direction" },
+    background: "#0b0b0b",
+    accent: "#f2b869",
+  },
+  {
+    id: "02",
+    title: "Code & Interaction Systems",
+    description:
+      "Next.js / TypeScript / Three.js を軸に、インタラクションとパフォーマンスを両立。デザインシステムとモーションを同じ視点で実装し、データ接続も担う。",
+    meta: "Code & Interaction",
+    role: "Frontend / Creative Coding",
+    tags: ["Next.js", "Three.js", "GSAP", "Design Systems"],
+    media: { type: "image", src: "/spotlight/img_4.jpg", alt: "Interactive" },
+    background: "#0c0c0c",
+    accent: "#e8a85a",
+  },
+  {
+    id: "03",
+    title: "Motion & Sound Layering",
+    description:
+      "タイポとサウンドを同期させたモーショングラフィック。スクロールや入力に応じたダイナミクスを設計し、Web再生向けに軽量化する。",
+    meta: "Motion & Sound",
+    role: "Motion / Sound Design",
+    tags: ["Kinetic Type", "Sound Reactive", "After Effects", "Web Playback"],
+    media: { type: "image", src: "/spotlight/img_7.jpg", alt: "Motion and Sound" },
+    background: "#0b0b0b",
+    accent: "#e19246",
+  },
+  {
+    id: "04",
+    title: "Identity & Systems",
+    description:
+      "写真・映像・UIが同じ声で鳴るようにデザインシステムを構築。ブランドトーンと実装ルールをセットで定義し、運用まで伴走する。",
+    meta: "Identity & Systems",
+    role: "Design System / Frontend Lead",
+    tags: ["Brand Voice", "Component Library", "Figma", "Guideline"],
+    media: { type: "image", src: "/spotlight/img_10.jpg", alt: "Identity Systems" },
+    background: "#0d0d0d",
+    accent: "#f0b25a",
+  },
+];
 
 export const portfolioData: PortfolioData = {
   // ---------------------------------------------------------------------------
@@ -240,7 +293,7 @@ export const portfolioData: PortfolioData = {
   navigation: {
     links: [
       { href: "/", label: "Index" },
-      { href: "/works", label: "Works" },
+      { href: "/skills", label: "Skills" },
       { href: "/profile", label: "Profile" },
       { href: "/contact", label: "Contact" },
     ],
@@ -262,55 +315,14 @@ export const portfolioData: PortfolioData = {
   // Horizontal Works
   // ---------------------------------------------------------------------------
   works: {
-    items: [
-      {
-        id: "01",
-        title: "Enterprise DX",
-        description: "Amazon Connect統合問合せ管理 / 5層CA / 小規模チーム",
-        meta: "Case Study",
-        role: "Fullstack / Lead",
-        tags: [
-          "Next.js 15",
-          "TypeScript",
-          "Drizzle ORM",
-          "PostgreSQL",
-          "AWS Connect",
-          "QuickSight",
-        ],
-        background: "#0e0b0b",
-        accent: "#f8c365",
-      },
-      {
-        id: "02",
-        title: "Insurance Chat Ops",
-        description: "損保チャット&事案管理 / 72名協働 / LINE連携",
-        meta: "Case Study",
-        role: "Frontend / Backend",
-        tags: ["Next.js 13", "TypeScript", "Nest.js", "Prisma", "MySQL"],
-        background: "#111827",
-        accent: "#f39c58",
-      },
-      {
-        id: "03",
-        title: "SaaS Product",
-        description: "ノーコードSaaS / 2年8ヶ月継続開発 / FEリード",
-        meta: "Case Study",
-        role: "Frontend Lead",
-        tags: ["Remix", "React", "TypeScript", "DynamoDB", "Cognito"],
-        background: "#0f172a",
-        accent: "#e67f46",
-      },
-      {
-        id: "04",
-        title: "Visual Identity",
-        description: "写真・映像・UIを一貫した声で設計・実装",
-        meta: "Case Study",
-        role: "Visual / Frontend",
-        tags: ["Photography", "Videography", "Next.js", "Design System"],
-        background: "#1b0f0f",
-        accent: "#f5a623",
-      },
-    ],
+    items: multiskillItems,
+  },
+
+  // ---------------------------------------------------------------------------
+  // Skills (Multi-skill showcase)
+  // ---------------------------------------------------------------------------
+  skills: {
+    items: multiskillItems,
   },
 
   // ---------------------------------------------------------------------------

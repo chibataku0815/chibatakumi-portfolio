@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { portfolioData } from "@/shared/data/portfolio";
+import { splitText } from "@/shared/utils/splitText";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { splitText } from "@/shared/utils/splitText";
-import { portfolioData } from "@/shared/data/portfolio";
+import { useEffect, useRef } from "react";
 
 // Register GSAP plugins
 if (typeof window !== "undefined") {
@@ -195,39 +195,6 @@ export function HeroText() {
         )}
       </div>
 
-      {/* Scroll Indicator - Bottom right */}
-      <div
-        ref={scrollIndicatorRef}
-        className="absolute bottom-10 right-8 flex flex-col items-center gap-3 md:right-16 lg:right-24"
-      >
-        <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--text-base-40)]">
-          {scrollText}
-        </span>
-        <svg
-          width="16"
-          height="24"
-          viewBox="0 0 16 24"
-          fill="none"
-          className="text-[var(--text-base-30)]"
-        >
-          <rect
-            x="1"
-            y="1"
-            width="14"
-            height="22"
-            rx="7"
-            stroke="currentColor"
-            strokeWidth="1.5"
-          />
-          <circle
-            cx="8"
-            cy="8"
-            r="2"
-            fill="currentColor"
-            className="animate-scroll-dot"
-          />
-        </svg>
-      </div>
     </div>
   );
 }
