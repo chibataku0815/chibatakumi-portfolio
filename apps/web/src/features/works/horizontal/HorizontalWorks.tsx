@@ -264,6 +264,7 @@ export function HorizontalWorks() {
 
   /**
    * Assemble the master GSAP timeline for all panels.
+   * Keeping dependency array explicit to satisfy React/TS hook signature.
    */
   const createMainTimeline = useCallback(
     (panelData: PanelData[], transitionLine: HTMLDivElement | null) => {
