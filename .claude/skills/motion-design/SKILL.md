@@ -1,17 +1,24 @@
 ---
 name: motion-design
-description: Motion graphics specialist focusing on animation artistry, timing choreography, and kinetic storytelling. Use this skill for transition design, motion rhythm, emotional pacing, and transforming technical animation into expressive visual experiences. Bridges frontend-dev and webgl-shader with artistic intent.
+description: Motion graphics specialist focusing on animation artistry, timing choreography, and kinetic storytelling. Use this skill for transition design, motion rhythm, emotional pacing, and transforming technical animation into expressive visual experiences. Bridges frontend-dev and webgl-shader with artistic intent. (project)
 ---
 
 # motion-design
 
 モーションデザイン専門。アニメーションの芸術性、タイミングの振り付け、動きによるストーリーテリングを設計する。
 
+**目標: Excellence Framework Level 5（受賞レベル）**
+
+---
+
 ## Role Definition
 
 - **責務**: トランジション設計、モーションリズム、感情的ペーシング、キネティックタイポグラフィ
 - **成果物**: モーション指針、タイミングチャート、トランジション設計、アニメーションストーリーボード
 - **境界**: GSAP/CSS実装は Frontend、WebGL/シェーダーは Specialist に委譲
+- **品質基準**: EXCELLENCE-FRAMEWORK.md を参照し、常に Level 5 を目指す
+
+---
 
 ## Philosophy: Motion as Meaning
 
@@ -29,6 +36,71 @@ description: Motion graphics specialist focusing on animation artistry, timing c
   → 感情を運ぶ動き、記憶に残る
 ```
 
+### Award-Worthy Motion の特徴
+
+```
+Level 3（洗練）: スムーズ、心地よいタイミング
+Level 4（差別化）: 動きに性格がある、物語を感じる
+Level 5（受賞）: 動きが言語になる、見たことのないモーション
+
+Level 5 に必要なもの:
+1. モーションボキャブラリー（一貫した動きの文法）
+2. 感情のオーケストレーション（複数要素の協奏）
+3. 予想を超える瞬間（「そう来るか」）
+4. 沈黙の設計（動かないことの意図）
+5. パフォーマンスと美学の完全両立
+```
+
+---
+
+## Award-Worthy Motion Reference Library
+
+### 必修参照: モーションの達人たち
+
+#### Page Transition Masters
+| サイト | 特徴 | 学ぶべき点 |
+|--------|------|-----------|
+| [Aristide Benoist](https://aristidebenoist.com) | シームレスなページ遷移 | 要素の継続性 |
+| [Dennis Snellenberg](https://dennissnellenberg.com) | 流体的な動き | 自然なフロー |
+| [Jesper Landberg](https://jesperlandberg.dev) | ミニマルな動き | 少ない動きで最大効果 |
+
+#### Scroll-Driven Animation
+| サイト | 特徴 | 学ぶべき点 |
+|--------|------|-----------|
+| [Locomotive](https://locomotive.ca) | Lenis/Smooth Scrollの美学 | スクロール連動の芸術 |
+| [Cuberto](https://cuberto.com) | 予想外の展開 | スクロールのストーリーテリング |
+| [Obys Agency](https://obys.agency) | 大胆なタイポグラフィアニメーション | 文字を動かす勇気 |
+
+#### Micro-Interaction Excellence
+| サイト | 特徴 | 学ぶべき点 |
+|--------|------|-----------|
+| [Linear](https://linear.app) | 機能的な美しさ | プロダクトUIのモーション |
+| [Vercel](https://vercel.com) | 控えめな高級感 | 引き算のモーション |
+| [Raycast](https://raycast.com) | 反応の心地よさ | フィードバックの完璧さ |
+
+### 反面教師: 避けるべきモーションパターン
+
+```
+Meaningless Motion（無意味な動き）:
+- 理由のないバウンス
+- すべてがスライドイン
+- 永続的なパルス/グロー
+- 無限ループアニメーション
+
+Performance Killers（パフォーマンス殺し）:
+- width/height のアニメーション
+- filter: blur() の乱用
+- 同時に動く要素が多すぎ
+- will-change の過剰使用
+
+Generic Patterns（AIが生成しがちな動き）:
+- 均一な stagger (0.1s, 0.2s, 0.3s...)
+- 同じイージングの繰り返し
+- 予測可能なフェードイン
+```
+
+---
+
 ## The 12 Principles (Disney + Digital)
 
 クラシックアニメーションの12原則をデジタルに応用:
@@ -38,10 +110,13 @@ description: Motion graphics specialist focusing on animation artistry, timing c
 ```
 物理的な伸縮 → デジタルな変形
 
+Level 3: 微細なスケール変化 (1.0 → 1.02)
+Level 5: 要素が「呼吸」している感覚
+
 Applications:
-- ボタンホバー: 微細なスケール変化 (1.0 → 1.02)
-- モーダル登場: 中心から外への拡大
-- エラー: 軽い横揺れ
+- ボタンホバー: scale(1.02) + 微細な歪み
+- モーダル登場: 中心から外への有機的な拡大
+- カード: ホバーで「膨らむ」感覚
 
 注意:
 - 過剰な変形は安っぽい
@@ -53,14 +128,16 @@ Applications:
 ```
 動作前の予備動作 → デジタルでの予感
 
-Applications:
-- ホバー前の微妙な光の変化
-- クリック前の要素の「引き」
-- スクロール前のインジケーター
+Level 3: ホバー時の視覚的フィードバック
+Level 5: 「何かが起きる」という期待の設計
 
-Pitch Black & Fire:
-  クリック → 0.1秒前にアンバーの微細な glow
-  → 「何かが起きる」予感
+Applications:
+- クリック前の微かな引き（scale 0.98）
+- ページ遷移前の要素の収束
+- スクロール到達前のヒント
+
+Level 5 のテクニック:
+  1. 視線を集める → 2. 期待を作る → 3. 予想を超える
 ```
 
 ### 3. Staging → Visual Hierarchy in Time
@@ -68,21 +145,20 @@ Pitch Black & Fire:
 ```
 何に注目させるか → 時間軸での階層
 
-Applications:
-- 最重要要素が最初に動く
-- 二次要素は遅れて追従
-- 背景は最も控えめに
+Level 3: メイン要素が最初に動く
+Level 5: 動きの「振り付け」が物語を語る
 
-Sequence Example:
-  T+0.0s: Title appears
-  T+0.3s: Subtitle fades in
-  T+0.5s: Background subtly shifts
+Sequence Example (Level 5):
+  T+0.0s: 背景が微かに変化（予感）
+  T+0.3s: タイトルが reveal（主役の登場）
+  T+0.6s: サブ要素が追従（支える動き）
+  T+1.0s: すべてが落ち着く（呼吸）
 ```
 
 ### 4. Straight Ahead / Pose to Pose → Scripted vs Emergent
 
 ```
-逐次アニメ vs キーフレーム → 計画的 vs 創発的
+計画的 vs 創発的
 
 Scripted Motion:
 - 予測可能、安定
@@ -91,7 +167,11 @@ Scripted Motion:
 Emergent Motion:
 - 予測不能、生命感
 - パーティクル、背景効果
-- webgl-shader との連携領域
+- マウス追従、物理シミュレーション
+
+Level 5: 両者の絶妙なバランス
+- 主要UIは Scripted（安心感）
+- 背景/アクセントは Emergent（生命感）
 ```
 
 ### 5. Follow Through / Overlapping → Secondary Motion
@@ -99,14 +179,15 @@ Emergent Motion:
 ```
 慣性による余韻 → 二次的な動き
 
-Applications:
-- メインカードが動いた後、影が追従
-- テキストが停止した後、アンダーラインが滑り込む
-- パネル遷移後、背景グラデーションが落ち着く
+Level 3: メインの後に影が追従
+Level 5: すべての要素が異なるタイミングで「落ち着く」
 
-Timing:
-  Main: 0.0 → 0.6s
-  Secondary: 0.1 → 0.8s (少し遅れて、少し長い)
+Timing Architecture:
+  Primary:   ████████────────  (0.0 → 0.6s)
+  Secondary: ──████████────    (0.1 → 0.8s)
+  Tertiary:  ────████████      (0.2 → 1.0s)
+
+→ 要素が「重さ」を持っている感覚
 ```
 
 ### 6. Slow In / Slow Out → Easing
@@ -128,9 +209,10 @@ ease-in-out (power2.inOut):
   滑らかに始まり終わる
   → 移動、状態変化
 
-custom (expo, elastic):
-  性格付け
-  → 特別な瞬間のみ使用
+Level 5 Easing:
+  カスタムベジェで「性格」を作る
+  cubic-bezier(0.22, 1, 0.36, 1) → 「自信ある登場」
+  cubic-bezier(0.33, 1, 0.68, 1) → 「穏やかな確信」
 ```
 
 ### 7. Arc → Curved Motion Paths
@@ -146,105 +228,38 @@ Arc (有機的):
     │          │
     ╰──────────╯ B
 
-Applications:
-- フローティング要素
-- ドラッグ＆ドロップ
-- 視線誘導の補助
-
-注意:
-- UIナビゲーションは直線が適切
-- 弧は演出的な動きに限定
+Level 5: 弧が「意図」を持つ
+- 上向きの弧 = 軽さ、希望
+- 下向きの弧 = 重さ、落ち着き
+- S字の弧 = 優雅さ、流れ
 ```
 
-### 8. Secondary Action → Supporting Motion
+### 8-12. 残りの原則
 
 ```
-主動作を支える副動作
+8. Secondary Action → Supporting Motion
+   主役を引き立てる脇役の動き
+   Level 5: オーケストラのような協奏
 
-Primary: カードの展開
-Secondary:
-  - 周囲のカードが少し避ける
-  - 影が伸びる
-  - 背景が微かに暗くなる
+9. Timing → Duration and Tempo
+   Level 5 Duration Guide:
+     Micro: 100-200ms (瞬き)
+     Small: 200-400ms (呼吸)
+     Medium: 400-700ms (歩み)
+     Large: 700-1200ms (うねり)
+     Dramatic: 1200-2000ms (波)
 
-→ 主役を引き立てる脇役の動き
+10. Exaggeration → Emphasis
+    Level 5: 控えめな中の「一点の誇張」
+
+11. Solid Drawing → Consistent Visual Language
+    Level 5: 動きの「文法」が確立している
+
+12. Appeal → Aesthetic Quality
+    Level 5: 動きに「人格」がある
 ```
 
-### 9. Timing → Duration and Tempo
-
-```
-時間設計の基本:
-
-Duration Guide (Pitch Black & Fire):
-  Micro (hover, feedback): 150-250ms
-  Small (button, toggle): 250-400ms
-  Medium (panel, modal): 400-600ms
-  Large (page, section): 600-1000ms
-  Dramatic (hero, transition): 800-1500ms
-
-Tempo:
-  Fast tempo = 緊張、エネルギー
-  Slow tempo = 高級、落ち着き
-
-  Pitch Black & Fire → Slow tempo 基調
-    (ただし、アクセントとしての fast を配置)
-```
-
-### 10. Exaggeration → Emphasis
-
-```
-誇張 → 強調（控えめに）
-
-デジタルでの誇張:
-- 通常: 1.0 → 1.02 のスケール
-- 誇張: 1.0 → 1.05 のスケール（限定的に）
-
-使用場面:
-- エラー状態
-- 重要な達成
-- 注意喚起
-
-注意:
-- 常時使用は効果を殺す
-- 特別な瞬間に限定
-```
-
-### 11. Solid Drawing → Consistent Visual Language
-
-```
-一貫した視覚言語
-
-モーションの文法:
-- 登場は常に下から上 + fade
-- 退場は常に上へ + fade
-- 強調は常に scale + glow
-
-→ ユーザーは動きのパターンを学習する
-→ 一貫性が予測可能性を生む
-→ 予測可能性が心地よさを生む
-```
-
-### 12. Appeal → Aesthetic Quality
-
-```
-魅力 → 美的品質
-
-技術的に正しくても魅力がない動き:
-- 機械的すぎる
-- 予測可能すぎる
-- 個性がない
-
-魅力のある動き:
-- 微細な不規則性
-- 意外な瞬間
-- 一貫した性格
-
-Pitch Black & Fire の動きの性格:
-  「静かな自信」
-  - 急がない
-  - 過剰に主張しない
-  - しかし存在感がある
-```
+---
 
 ## Motion Rhythm
 
@@ -259,10 +274,11 @@ Rhythm Pattern:
   ○ ○ ○ ○  →  ● ○ ○ ○  →  ○ ● ○ ○  →  ...
   (静) (静)    (動) (静)    (静) (動)
 
-Polyrhythm:
+Level 5 Polyrhythm:
   Layer 1: ● ○ ○ ● ○ ○  (メイン要素: 3拍子)
   Layer 2: ● ○ ● ○ ● ○  (副要素: 2拍子)
-  → 複雑さと深み
+  Layer 3: ●──────●──────  (背景: 長い波)
+  → 複雑さの中の調和
 ```
 
 ### Silence is Motion
@@ -270,67 +286,88 @@ Polyrhythm:
 ```
 動きの「間」:
 
-連続した動き:
-  ●●●●●●●●  → 疲れる、安っぽい
+Level 3:
+  ●●●●○○●●●●  → 休みがある
 
-間のある動き:
-  ●○○●○○●○  → 呼吸、高級感
+Level 5:
+  ●○○○○○●○○○  → 沈黙が「語る」
 
-Pitch Black & Fire:
-  動きの後に必ず「沈黙」を
-  → 余韻 = 価値
+間の設計:
+- 大きな動きの後 → 長い間（余韻）
+- 次の動きの前 → 短い間（予感）
+- 頂点の瞬間 → 完全な静止（息を呑む）
 ```
 
-### Stagger Patterns
+### Award-Worthy Stagger Patterns
 
 ```
-複数要素の時間差:
+Generic Stagger (避ける):
+  Element 1: |████        | +0.0s
+  Element 2: |  ████      | +0.1s
+  Element 3: |    ████    | +0.2s
+  Element 4: |      ████  | +0.3s
+  → 予測可能、退屈
 
-Linear Stagger:
-  Element 1: |████        |
-  Element 2: |  ████      |
-  Element 3: |    ████    |
-  → 均等、予測可能
-
-Eased Stagger:
-  Element 1: |████        |
-  Element 2: | ████       |
-  Element 3: |  ████      |
-  → 最初が密、後が疎
-
-Grouped Stagger:
-  Group A: |████         |
-  Group A: | ████        |
-  (pause)
-  Group B: |     ████    |
-  Group B: |      ████   |
-  → 意味のまとまり
+Level 5 Stagger:
+  Element 1: |████            | +0.0s  (主役、長め)
+  Element 2: | ██             | +0.05s (素早く追従)
+  Element 3: |  ██            | +0.08s (さらに素早く)
+  Element 4: |        ████    | +0.4s  (間を置いて)
+  → 「呼吸」のリズム、予測不能な心地よさ
 ```
+
+---
 
 ## Transition Design
 
-### Transition Types
+### Page Transition Types
 
 ```
-1. Cut (カット)
-   即座の切り替え
-   → 関連性の低いコンテンツ間
+Level 3 Transitions:
+  - Fade (opacity crossfade)
+  - Slide (directional movement)
+  - Scale (zoom in/out)
 
-2. Dissolve (ディゾルブ)
-   クロスフェード
-   → 関連性のあるコンテンツ間
+Level 5 Transitions:
+  1. Shared Element Transition
+     - 要素が次のページへ「旅をする」
+     - アイデンティティの継続
 
-3. Wipe (ワイプ)
-   方向性のある遷移
-   → シーケンシャルなナビゲーション
+  2. Morphing Transition
+     - 要素が変形して次の要素になる
+     - 視覚的な連続性
 
-4. Morph (モーフ)
-   要素の変形
-   → 同一要素の状態変化
+  3. Choreographed Exit/Enter
+     - 退場と登場が対話する
+     - 物語の「場面転換」
 
-5. Shared Element
-   要素を保持した遷移
-   → カードからディテールへ
+  4. Reveal Transition
+     - 次のページが「現れる」
+     - カーテンが開く感覚
+```
+
+### Level 5 Transition Anatomy
+
+```
+Phase 1: 予感 (0-200ms)
+  - 現在のページ要素が「準備」を始める
+  - 微かな動き、色の変化
+
+Phase 2: 収束 (200-500ms)
+  - 要素が exit point に向かって集まる
+  - または個別に消えていく
+
+Phase 3: 間 (500-700ms)
+  - 完全な空白、または中間状態
+  - 「息を吸う」瞬間
+
+Phase 4: 展開 (700-1200ms)
+  - 新しいページ要素が entry point から現れる
+  - 段階的な reveal
+
+Phase 5: 着地 (1200-1500ms)
+  - すべてが最終位置に落ち着く
+  - 余韻の動き
 ```
 
 ### For Pitch Black & Fire
@@ -339,275 +376,244 @@ Grouped Stagger:
 推奨トランジション:
 
 Hero → Works:
-  - Dissolve + Subtle scale down
-  - 2-3秒かけてゆっくり
-  - 「沈んでいく」感覚
+  Phase 1: タイトルが上へ消えながら opacity 低下
+  Phase 2: 背景シェーダーが波打つ
+  Phase 3: 一瞬の暗転（深淵への沈降）
+  Phase 4: Works要素が下から浮上
+  Phase 5: 背景シェーダーが安定
 
 Works Panel → Panel:
-  - Wipe (horizontal)
-  - トランジションライン
+  - 水平ワイプ + 要素の stagger
   - 「ページをめくる」感覚
+  - 前のパネルの残像が一瞬残る
 
 Works → Contact:
-  - Dissolve + Light emergence
-  - アンバーが一瞬強まる
+  - すべての要素が中央に収束
+  - アンバーの光が強まる
   - 「終わりと始まり」の感覚
 ```
 
-### Micro-Transitions
-
-```
-小さな状態変化:
-
-Hover:
-  - opacity: 1 → 0.8 (100ms)
-  - transform: none → translateY(-2px) (150ms)
-  - 影の subtle な変化
-
-Focus:
-  - outline 代わりの glow
-  - scale: 1 → 1.02 (150ms)
-
-Active:
-  - scale: 1 → 0.98 (50ms)
-  - 「押し込み」の感触
-
-Disabled:
-  - opacity: 1 → 0.4
-  - grayscale filter
-```
-
-## Kinetic Typography
-
-### Text as Motion
-
-```
-文字を動かす原則:
-
-1. Character Level (文字単位)
-   - 一文字ずつ reveal
-   - 文字が主役の時のみ
-
-2. Word Level (単語単位)
-   - 意味の塊で reveal
-   - より読みやすい
-
-3. Line Level (行単位)
-   - 行ごとに reveal
-   - 長文に適切
-
-4. Block Level (ブロック単位)
-   - 段落/セクションで reveal
-   - 最も控えめ
-```
-
-### For Hero Text
-
-```
-Pitch Black & Fire Hero:
-
-Character Reveal with Blur:
-  Initial: opacity 0, blur 8px, y +16px
-  Final: opacity 1, blur 0px, y 0px
-  Duration: 35ms/char stagger
-  Easing: power2.out
-
-Philosophy:
-  - 「霧の中から現れる」
-  - 急がない reveal
-  - 完了後の余韻
-```
-
-### Text Interaction
-
-```
-インタラクティブテキスト:
-
-Hover on Word:
-  - 単語全体が反応（文字単位は過剰）
-  - 色の変化 or 微細な動き
-  - 意味の強調
-
-Scroll-linked:
-  - スクロールに連動した reveal
-  - 視線を導く
-  - 読む速度に合わせる
-```
-
-## Emotional Motion
-
-### Motion and Emotion
-
-```
-動きと感情のマッピング:
-
-Slow + Smooth = 落ち着き、高級
-Fast + Bouncy = 楽しさ、遊び
-Slow + Heavy = 重厚、権威
-Fast + Sharp = 緊張、アラート
-
-Pitch Black & Fire:
-  Base: Slow + Smooth (高級感、深み)
-  Accent: Medium + Smooth (注目、活性)
-  Alert: Fast + Sharp (限定使用)
-```
-
-### Building Tension
-
-```
-緊張の構築:
-
-Slow build:
-  - 徐々に速度を上げる
-  - 要素を徐々に近づける
-  - 色を徐々に濃くする
-
-Release:
-  - 突然の解放
-  - 新しい要素の登場
-  - 色/形の急変
-
-Example (Works Section):
-  0-70%: 文字がゆっくり reveal (build)
-  70-90%: 最後の数文字が加速 (tension)
-  90-100%: 完了 + 一瞬の pause + 次への遷移 (release)
-```
-
-### Breathing Room
-
-```
-動きの「呼吸」:
-
-Inhale (吸気):
-  - 要素が近づく
-  - 色が濃くなる
-  - スケールが上がる
-
-Hold (保持):
-  - 静止の瞬間
-  - 最も緊張が高い
-
-Exhale (呼気):
-  - 要素が離れる
-  - 色が薄くなる
-  - スケールが下がる
-
-→ サイト全体がゆっくり「呼吸」している感覚
-```
+---
 
 ## Scroll-Driven Motion
 
-### Scroll as Input
+### Scroll as Instrument
 
 ```
-スクロールを入力として:
+Level 3: スクロールで要素が appear
+Level 5: スクロールが「演奏」になる
 
-Discrete (離散的):
-  - セクションごとに独立
-  - snap points で区切り
-  - 明確な「章」
+Scroll Motion Types:
 
-Continuous (連続的):
-  - スクロール量に連動
-  - scrub animation
-  - 流れるような体験
+1. Trigger-based (トリガー型)
+   - 特定位置で発火
+   - IntersectionObserver / ScrollTrigger
+   - 確実、予測可能
 
-Hybrid (ハイブリッド):
-  - 基本は continuous
-  - 重要ポイントで discrete に切り替え
+2. Scrub-based (スクラブ型)
+   - スクロール量に連動
+   - 0-1 の progress で制御
+   - インタラクティブ、没入感
+
+3. Hybrid (ハイブリッド)
+   - 基本は trigger
+   - 特別なセクションで scrub
+   - Level 5 の選択
 ```
 
-### Scroll-Linked Animation Design
+### Level 5 Scroll Choreography
 
 ```
-スクロール連動アニメーションの設計:
+Section Entry Sequence:
 
-Progress Mapping:
-  0% scroll → Initial state
-  50% scroll → Transition state
-  100% scroll → Final state
-
-Danger Zone:
-  - すべてをスクロール連動にしない
-  - 重要な要素は独立したタイミングで
-  - スクロール速度の違いに対応
+Viewport Enter (0%)
+    │
+    ▼ 20% - 予感の動き開始
+    │       (背景変化、微細なヒント)
+    │
+    ▼ 40% - メイン要素 reveal 開始
+    │       (タイトル、主要コンテンツ)
+    │
+    ▼ 60% - サポート要素 reveal
+    │       (サブテキスト、装飾)
+    │
+    ▼ 80% - すべてが安定
+    │       (アニメーション完了)
+    │
+    ▼ 100% - 次のセクションへの予感
+            (exit の準備)
 ```
 
-## Performance Considerations
+---
+
+## Kinetic Typography
+
+### Level 5 Text Animation
+
+```
+Character Animation Approaches:
+
+1. Reveal (出現)
+   Level 3: 文字が順番に fade in
+   Level 5: 文字が「物質化」する感覚
+           - blur → sharp
+           - scale 0.8 → 1.0
+           - y +20 → 0
+
+2. Wave (波)
+   Level 3: 均一な波
+   Level 5: 有機的な波、強弱のある波
+
+3. Scatter/Gather (散乱/収束)
+   Level 3: 文字がランダムに散らばる
+   Level 5: 意味のある散らばり方、
+           収束時の「意図」
+
+Hero Text (Pitch Black & Fire):
+  Initial: opacity 0, blur 12px, y +24px
+  Final: opacity 1, blur 0px, y 0px
+  Duration: 40ms/char stagger
+  Easing: cubic-bezier(0.22, 1, 0.36, 1)
+
+  + 完了後 500ms の「静寂」
+  + その後、サブテキストの reveal
+```
+
+---
+
+## Performance & Motion
 
 ### Motion Budget
 
 ```
-動きの予算:
+同時アニメーション制限:
 
-Simultaneous Animations:
-  - 同時に動く要素は 3-5 以下
-  - それ以上は混乱を招く
+Level 3: 最大 5 要素
+Level 5: 最大 3 主要 + 無限の微細
 
-Animation Properties:
-  Cheap (GPU):
-    - transform (translate, scale, rotate)
-    - opacity
+なぜ制限するか:
+- 注意の分散を防ぐ
+- パフォーマンスを確保
+- 「主役」を明確にする
 
-  Expensive (CPU):
-    - width, height
-    - margin, padding
-    - filter (blur など)
-
-Rule:
-  - 可能な限り transform + opacity
-  - filter は限定的に
-  - レイアウトを動かさない
+GPU-Friendly Properties:
+✓ transform (translate, scale, rotate)
+✓ opacity
+△ filter (控えめに)
+✗ width, height
+✗ margin, padding
+✗ top, left
 ```
 
 ### Reduced Motion
 
 ```
-アクセシビリティ:
-
 @media (prefers-reduced-motion: reduce) {
-  - アニメーションを簡素化
-  - 必要最小限に
-  - 意味は維持、動きは削減
-}
+  Level 3: アニメーションを短縮
+  Level 5: 意味を維持した別表現
 
-代替:
-  - fade のみにする
-  - duration を短縮
-  - parallax を無効化
+  例:
+  通常: 複雑なスクロールアニメーション
+  reduced: 即時表示 + 微細なフェード
+
+  → 体験の本質は維持
+  → 動きに依存しない情報設計
+}
 ```
 
-## Handoff Protocol
+---
 
-### To Frontend Team
+## Motion Quality Checklist
+
+### Award-Worthy Checklist
+
+```
+### The "Feel" Test
+□ 動きに「性格」があるか？
+□ 見ていて気持ちいいか？
+□ 何度見ても飽きないか？
+□ 動きを止めたくならないか？
+
+### The "Purpose" Test
+□ すべての動きに理由があるか？
+□ 動かないことにも意図があるか？
+□ 削除できる動きはないか？
+
+### The "Orchestration" Test
+□ 複数要素が協奏しているか？
+□ 「主役」と「脇役」が明確か？
+□ 沈黙/間が設計されているか？
+
+### The "Surprise" Test
+□ 予想外の瞬間があるか？
+□ しかし文脈に沿っているか？
+□ 「そう来るか」があるか？
+
+### The "Performance" Test
+□ 60fps を維持しているか？
+□ GPU-friendly な実装か？
+□ reduced-motion に対応しているか？
+
+### The "Coherence" Test
+□ 動きの「文法」が一貫しているか？
+□ イージングシステムがあるか？
+□ タイミングシステムがあるか？
+```
+
+---
+
+## Integration Protocols
+
+### From Art Direction
+
+```markdown
+## [Motion] Art Direction からの指針
+
+受け取るもの:
+- ムードキーワード → 動きの性格に翻訳
+- Impact Points → 動きの強弱の配置
+- 視覚的メタファー → 動きのモチーフ
+
+翻訳ガイド:
+- 「静謐」→ ゆっくり、呼吸を感じる (800ms+, ease-out)
+- 「緊張」→ 溜めて解放 (anticipation + snap)
+- 「深淵」→ 奥行きを感じる動き (parallax, scale)
+- 「熱」→ 微かな震え、グロー (subtle vibration)
+```
+
+### To Frontend Dev
 
 ```markdown
 ## [Frontend] モーション指針
 
-### Global Timing
-- Base duration: [ms]
-- Easing: [function]
-- Stagger interval: [ms]
+### Global Timing System
+- Beat: 200ms
+- Micro: 100-200ms
+- Small: 200-400ms
+- Medium: 400-700ms
+- Large: 700-1200ms
+
+### Easing Library
+- entry: cubic-bezier(0.22, 1, 0.36, 1)
+- exit: cubic-bezier(0.36, 0, 0.66, 1)
+- move: cubic-bezier(0.33, 1, 0.68, 1)
+- bounce: cubic-bezier(0.34, 1.56, 0.64, 1)
 
 ### Element Choreography
 [要素名]:
   - Initial: [state]
   - Final: [state]
   - Duration: [ms]
-  - Easing: [function]
+  - Easing: [name]
+  - Stagger: [ms] (if applicable)
   - Trigger: [scroll/load/interaction]
 
-### Transitions
+### Page Transitions
 [Source] → [Destination]:
-  - Type: [cut/dissolve/wipe/morph]
-  - Duration: [ms]
-  - Key moments: [description]
-
-### Emotional Intent
-[セクション名]:
-  - Mood: [feeling]
-  - Pace: [slow/medium/fast]
-  - Emphasis: [what to highlight]
+  - Exit choreography: [description]
+  - Transition: [type]
+  - Enter choreography: [description]
+  - Total duration: [ms]
 ```
 
 ### To WebGL Specialist
@@ -615,50 +621,90 @@ Rule:
 ```markdown
 ## [Specialist] モーション連携
 
-### Background Motion
-- Pace: [Art Direction からの指針]
-- 前景との調和: [具体的な注意点]
+### 背景シェーダーとの同期
+- ページ遷移時の変化
+- セクション変更時の反応
+- インタラクション時の呼応
 
-### Interaction Response
-- 入力に対する反応速度
-- 変化の範囲と制限
+### Shared Timeline Points
+- T+0ms: [何が起きるか]
+- T+Xms: [シェーダーの変化]
+- T+Yms: [UI要素の変化]
 
-### Section Transitions
-- 背景がどう変化すべきか
-- 他要素との同期ポイント
+### Performance Coordination
+- 重い処理のタイミング調整
+- GPU負荷の分散
 ```
+
+---
 
 ## Status Report Format
 
 ```markdown
 ## Motion Design ステータス
 
+### Excellence Level
+- 現在: Level [1-5]
+- 目標: Level 5
+
 ### Global System
 - タイミング基準: [確定/検討中]
-- イージング体系: [確定/検討中]
+- イージングライブラリ: [確定/検討中]
+- モーション文法: [確定/検討中]
 
 ### Key Animations
-- Hero: [状態]
-- Works transitions: [状態]
-- Micro-interactions: [状態]
+- Hero entrance: [Level/状態]
+- Page transitions: [Level/状態]
+- Scroll animations: [Level/状態]
+- Micro-interactions: [Level/状態]
 
-### Transitions
-- Section → Section: [設計済/検討中/未着手]
+### Quality Checklist
+- "Feel" Test: [Pass/Fail]
+- "Purpose" Test: [Pass/Fail]
+- "Orchestration" Test: [Pass/Fail]
+- "Surprise" Test: [Pass/Fail]
+- "Performance" Test: [Pass/Fail]
+- "Coherence" Test: [Pass/Fail]
 
 ### Decisions Needed
 - [決定待ち事項]
 
-### Frontend/Specialist 向け
-- [引き渡し可能な指針]
+### Handoffs
+- Frontend: [引き渡し可能な指針]
+- Specialist: [連携ポイント]
 ```
+
+---
 
 ## Anti-Patterns
 
+### Generic Patterns（Level 1-2 に留まる原因）
 - **動きの過剰**: 何でも動かす症候群
 - **意味なき動き**: 理由のないアニメーション
 - **一貫性の欠如**: 各所でバラバラなタイミング/イージング
 - **重い処理**: レイアウトを動かす、filter の乱用
+
+### Stagnation Patterns（Level 3-4 に留まる原因）
 - **間の欠如**: 動きが連続して休みがない
-- **予測不能**: ユーザーが動きのパターンを学習できない
-- **減速モーション無視**: アクセシビリティの軽視
+- **予測可能**: 均一な stagger、同じパターンの繰り返し
+- **主役不在**: すべてが同じ重要度で動く
+- **オーケストレーション不足**: 要素が協奏していない
+- **性格の欠如**: 動きに「人格」がない
 - **技術先行**: 「できるから」やる動き
+
+---
+
+## Excellence Reminder
+
+```
+Level 5 モーションの問い:
+
+「この動きは何を語っているか？」
+「動かないという選択を検討したか？」
+「見ている人の呼吸と合っているか？」
+「1年後もこの動きは美しいか？」
+
+動きは言語。
+沈黙も言語。
+Level 5 は「動きで物語を紡ぐ」こと。
+```
