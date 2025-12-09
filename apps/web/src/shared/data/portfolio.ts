@@ -450,11 +450,11 @@ export const portfolioData: PortfolioData = {
 
     // Contact Page
     contact: {
-      title: "対話を始める",
-      description: "具体的な要件が決まる前の、漠然とした段階でも構いません。\nまずは、あなたの描いているイメージをお聞かせください。",
+      title: "お問い合わせ",
+      description: "具体的な要件が決まる前の、漠然とした段階でも構いません。\nまずは、お気兼ねなくご相談ください。",
       email: "hello@takumichiba.com",
       cta: "メールを送る",
-      responseNote: "通常、2日以内に返信いたします。",
+      responseNote: "通常、2営業日以内に返信いたします。",
     },
 
     // Profile Page
@@ -638,7 +638,7 @@ export const portfolioData: PortfolioData = {
         headline: "プロジェクトのご相談",
         subtext:
           "技術的な実現可能性や、チーム体制についても。\nまずは気軽にお話ししましょう。",
-        buttonLabel: "対話を始める",
+        buttonLabel: "お問い合わせ",
       },
     },
   },

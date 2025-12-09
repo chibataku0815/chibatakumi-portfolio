@@ -404,10 +404,10 @@ function FloatingLabelField({
     <div className="group relative">
       {/* Floating Label */}
       <label
-        className={`pointer-events-none absolute left-0 transition-all duration-300 ease-out ${
+        className={`pointer-events-none absolute transition-all duration-300 ease-out ${
           isFloating
-            ? "-top-6 text-xs font-medium uppercase tracking-wider text-[var(--accent-amber1)]"
-            : "top-3 text-base text-[var(--text-base-40)]"
+            ? "left-0 -top-6 text-xs font-medium uppercase tracking-wider text-[var(--accent-amber1)]"
+            : "left-2 top-4 text-base text-[var(--text-base-40)]"
         }`}
       >
         {label}
@@ -422,7 +422,7 @@ function FloatingLabelField({
           onFocus={onFocus}
           onBlur={onBlur}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full border-0 border-b border-[var(--text-base-20)] bg-transparent py-3 text-[var(--text-base)] focus:outline-none focus:ring-0 transition-colors duration-300"
+          className="w-full border-0 border-b border-[var(--text-base-20)] bg-transparent px-2 py-4 text-[var(--text-base)] focus:outline-none focus:ring-0 transition-colors duration-300 autofill:bg-transparent autofill:text-[var(--text-base)] [&:-webkit-autofill]:[-webkit-text-fill-color:var(--text-base)] [&:-webkit-autofill]:[transition:background-color_9999s_ease-in-out_0s] [&:-webkit-autofill]:shadow-[inset_0_0_0px_1000px_var(--bg-dark)]"
         />
         {/* Base line */}
         <span className="absolute bottom-0 left-0 h-[1px] w-full bg-[var(--text-base-20)]" />
@@ -473,10 +473,10 @@ function FloatingLabelTextarea({
     <div className="group relative">
       {/* Floating Label */}
       <label
-        className={`pointer-events-none absolute left-0 transition-all duration-300 ease-out ${
+        className={`pointer-events-none absolute transition-all duration-300 ease-out ${
           isFloating
-            ? "-top-6 text-xs font-medium uppercase tracking-wider text-[var(--accent-amber1)]"
-            : "top-3 text-base text-[var(--text-base-40)]"
+            ? "left-0 -top-6 text-xs font-medium uppercase tracking-wider text-[var(--accent-amber1)]"
+            : "left-2 top-4 text-base text-[var(--text-base-40)]"
         }`}
       >
         {label}
@@ -491,7 +491,7 @@ function FloatingLabelTextarea({
           onFocus={onFocus}
           onBlur={onBlur}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full resize-none border-0 border-b border-[var(--text-base-20)] bg-transparent py-3 text-[var(--text-base)] focus:outline-none focus:ring-0 transition-colors duration-300"
+          className="w-full resize-none border-0 border-b border-[var(--text-base-20)] bg-transparent px-2 py-4 text-[var(--text-base)] focus:outline-none focus:ring-0 transition-colors duration-300"
         />
         {/* Base line */}
         <span className="absolute bottom-0 left-0 h-[1px] w-full bg-[var(--text-base-20)]" />
