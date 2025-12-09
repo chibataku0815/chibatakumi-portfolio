@@ -530,7 +530,7 @@ export function HorizontalWorks() {
               }}
               className="horizontal-content relative z-10 flex max-w-5xl flex-col items-start gap-4 text-left"
             >
-              <span className="text-[11px] font-medium uppercase tracking-[0.28em] text-[var(--accent-amber1)]/70">
+              <span className="text-[11px] font-medium uppercase tracking-[0.28em] text-[var(--text-base-70)]">
                 {work.meta}
               </span>
 

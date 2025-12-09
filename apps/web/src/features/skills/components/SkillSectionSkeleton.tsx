@@ -70,10 +70,10 @@ export function SkillSectionSkeleton({ pattern }: SkillSectionSkeletonProps) {
   );
 }
 
-// Pattern A: 右重心
+// Pattern A: 右重心（黄金比）
 function SkeletonPatternA() {
   return (
-    <div className="grid min-h-[70vh] items-center gap-12 md:grid-cols-[1.2fr,1fr]">
+    <div className="grid min-h-[70vh] items-center gap-12 md:grid-cols-[1.618fr,1fr]">
       {/* Left: Content Placeholder */}
       <div className="flex flex-col gap-8">
         {/* Title */}
@@ -124,13 +124,12 @@ function SkeletonPatternA() {
           ))}
         </div>
 
-        {/* Amber Pulse (準備中の合図) */}
+        {/* Loading indicator */}
         <div className="mt-4 flex items-center gap-3">
           <div
-            className="h-2 w-2 rounded-full"
+            className="h-2 w-2 rounded-full bg-white/20"
             style={{
-              backgroundColor: "var(--accent-amber1)",
-              animation: "amber-pulse 1.5s ease-in-out infinite",
+              animation: "skeleton-pulse 2s ease-in-out infinite",
             }}
           />
           <div
@@ -157,10 +156,10 @@ function SkeletonPatternA() {
   );
 }
 
-// Pattern B: 左重心
+// Pattern B: 左重心（黄金比）
 function SkeletonPatternB() {
   return (
-    <div className="grid min-h-[70vh] items-center gap-12 md:grid-cols-[1fr,1.2fr]">
+    <div className="grid min-h-[70vh] items-center gap-12 md:grid-cols-[1fr,1.618fr]">
       {/* Left: Image Placeholder */}
       <div
         className="relative aspect-[4/5] overflow-hidden rounded-2xl"
@@ -220,7 +219,7 @@ function SkeletonPatternB() {
           ))}
         </div>
 
-        {/* Amber Pulse */}
+        {/* Loading indicator */}
         <div className="mt-4 flex items-center justify-end gap-3">
           <div
             className="text-xs font-mono uppercase tracking-[0.2em]"
@@ -232,10 +231,9 @@ function SkeletonPatternB() {
             Loading...
           </div>
           <div
-            className="h-2 w-2 rounded-full"
+            className="h-2 w-2 rounded-full bg-white/20"
             style={{
-              backgroundColor: "var(--accent-amber1)",
-              animation: "amber-pulse 1.5s ease-in-out infinite",
+              animation: "skeleton-pulse 2s ease-in-out infinite",
             }}
           />
         </div>
@@ -258,7 +256,7 @@ function SkeletonPatternC() {
       />
 
       {/* Content Grid */}
-      <div className="grid w-full max-w-5xl gap-8 md:grid-cols-[1fr,1.5fr]">
+      <div className="grid w-full max-w-5xl gap-8 md:grid-cols-[1fr,1.618fr]">
         {/* Left: Image Placeholder */}
         <div
           className="relative aspect-square overflow-hidden rounded-2xl"
@@ -309,13 +307,12 @@ function SkeletonPatternC() {
             ))}
           </div>
 
-          {/* Amber Pulse */}
+          {/* Loading indicator */}
           <div className="mt-4 flex items-center gap-3">
             <div
-              className="h-2 w-2 rounded-full"
+              className="h-2 w-2 rounded-full bg-white/20"
               style={{
-                backgroundColor: "var(--accent-amber1)",
-                animation: "amber-pulse 1.5s ease-in-out infinite",
+                animation: "skeleton-pulse 2s ease-in-out infinite",
               }}
             />
             <div

@@ -162,7 +162,7 @@ export function StrengthSection({
               <span className="font-mono text-[10px] uppercase tracking-[0.24em]">
                 Core Strength
               </span>
-              <span className="h-px w-10 bg-[var(--accent-amber1)]" />
+              <span className="h-px w-10 bg-white/20" />
             </div>
 
             {/* Title */}
@@ -330,7 +330,7 @@ export function TimelineSection({
                   className="achievement-item flex items-start gap-3 text-sm text-[var(--text-base-70)]"
                   style={{ transformOrigin: "left center" }}
                 >
-                  <span className="mt-1.5 h-0.5 w-5 flex-shrink-0 bg-[var(--accent-amber1)]/70" />
+                  <span className="mt-1.5 h-0.5 w-5 flex-shrink-0 bg-white/20" />
                   <span>{achievement}</span>
                 </li>
               ))}

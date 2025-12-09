@@ -13,7 +13,7 @@ export default function InstallationPage() {
 
           {/* Text Column */}
           <div className="flex flex-col gap-6 lg:py-8">
-            <span className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent-amber1)]/60">
+            <span className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--text-base-60)]">
               {label}
             </span>
 

@@ -9,7 +9,7 @@ export default function InteractivePage() {
       {/* Hero */}
       <section className="px-6 pb-16">
         <div className="mx-auto max-w-4xl">
-          <span className="mb-4 block font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent-amber1)]/60">
+          <span className="mb-4 block font-mono text-xs uppercase tracking-[0.2em] text-[var(--text-base-60)]">
             {label}
           </span>
           <AnimatedHeading
@@ -36,7 +36,7 @@ export default function InteractivePage() {
                 {card.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--accent-amber1)]/60 bg-[var(--accent-amber1)]/10 px-1.5 py-0.5"
+                    className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--text-base-60)] bg-white/5 px-1.5 py-0.5"
                   >
                     {tag}
                   </span>

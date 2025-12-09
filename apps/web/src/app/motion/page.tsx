@@ -9,7 +9,7 @@ export default function MotionPage() {
       {/* Hero */}
       <section className="px-6 pb-24">
         <div className="mx-auto max-w-4xl">
-          <span className="mb-4 block font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent-amber1)]/60">
+          <span className="mb-4 block font-mono text-xs uppercase tracking-[0.2em] text-[var(--text-base-60)]">
             {label}
           </span>
           <AnimatedHeading

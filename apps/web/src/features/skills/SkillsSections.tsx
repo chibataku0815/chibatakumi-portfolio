@@ -56,7 +56,7 @@ export function SkillsIntro() {
   return (
     <section className="relative z-10 flex min-h-[70vh] items-end px-6 pb-24 sm:px-10">
       <div className="mx-auto w-full max-w-7xl">
-        <div className="grid gap-8 md:grid-cols-[1fr,1.5fr]">
+        <div className="grid gap-8 md:grid-cols-[1fr,1.618fr]">
           <div className="space-y-6">
             <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[11px] font-mono uppercase tracking-[0.24em] text-[var(--text-muted)]">
               Hybrid Skillset
@@ -152,7 +152,7 @@ function PatternA({ skill }: { skill: WorkItem }) {
             <span className="font-mono text-xs uppercase tracking-[0.2em]">
               {skill.meta}
             </span>
-            <span className="h-px w-16 bg-[var(--accent-amber1)]/30" />
+            <span className="h-px w-16 bg-white/20" />
             <span className="text-xs">Since 2011</span>
           </div>
 
@@ -228,7 +228,7 @@ function PatternB({ skill }: { skill: WorkItem }) {
           {/* Meta line */}
           <div className="accent-element flex items-center justify-end gap-4 text-[var(--text-base-60)]">
             <span className="text-xs">Since 2011</span>
-            <span className="h-px w-16 bg-[var(--accent-amber1)]/30" />
+            <span className="h-px w-16 bg-white/20" />
             <span className="font-mono text-xs uppercase tracking-[0.2em]">
               {skill.meta}
             </span>
@@ -304,7 +304,7 @@ function PatternC({ skill }: { skill: WorkItem }) {
             <span className="font-mono text-xs uppercase tracking-[0.2em]">
               {skill.meta}
             </span>
-            <span className="h-px flex-1 bg-[var(--accent-amber1)]/30" />
+            <span className="h-px flex-1 bg-white/20" />
           </div>
 
           {/* Description */}
