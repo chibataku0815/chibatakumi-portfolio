@@ -20,27 +20,35 @@
   --transition-overlay: var(--slate-4);
   --noise-texture: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 
-  /* Typography Scale - Apple Style */
-  --type-display-xl: clamp(3.5rem, 12vw, 8rem);
-  --type-display-lg: clamp(2.5rem, 6vw, 4rem);
-  --type-body: 1rem;
-  --type-caption: 0.875rem;
+  /* Typography Scale - Award-Worthy Level */
+  --type-display-hero: clamp(6rem, 18vw, 14rem);      /* 96–224px Hero */
+  --type-display-xl: clamp(4rem, 12vw, 10rem);        /* 64–160px Skill Title */
+  --type-display-lg: clamp(2.5rem, 8vw, 6rem);        /* 40–96px */
+  --type-heading: clamp(1.8rem, 4vw, 3rem);           /* 28.8–48px Section */
+  --type-body-lg: clamp(1.1rem, 1.5vw, 1.4rem);       /* 17.6–22.4px */
+  --type-body: 1rem;                                   /* 16px */
+  --type-caption: 0.875rem;                            /* 14px */
 
-  /* Letter Spacing - Apple Style (tighter) */
+  /* Letter Spacing - Extreme Contrast */
+  --tracking-ultra-tight: -0.06em;  /* Hero用 */
   --tracking-tighter: -0.04em;
   --tracking-tight: -0.02em;
   --tracking-normal: 0;
   --tracking-wide: 0.1em;
+  --tracking-wider: 0.2em;         /* Meta lines用 */
 
   /* Line Height */
   --leading-tight: 1.1;
   --leading-normal: 1.6;
 
-  /* Font Weight */
+  /* Font Weight - Extreme Contrast */
+  --weight-ultra-light: 200;
   --weight-light: 300;
   --weight-normal: 400;
   --weight-medium: 500;
   --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-ultra-bold: 800;
 
   /* ==========================================================================
      Opacity Variants (for consistent transparency)
@@ -93,6 +101,24 @@
   --section-min-h-sm: 70vh;
   --section-min-h-md: 78vh;
   --section-min-h-lg: 82vh;
+
+  /* ==========================================================================
+     Heat Tokens (Amber アクセント階層 - Pitch Black & Fire)
+     ========================================================================== */
+  --heat-subtle: color-mix(in oklch, var(--accent-amber1) 30%, transparent);
+  --heat-medium: var(--accent-amber1);
+  --heat-intense: var(--accent-amber2);
+
+  /* Heat Glow Effects */
+  --heat-glow-sm: 0 0 8px color-mix(in oklch, var(--accent-amber1) 40%, transparent);
+  --heat-glow-md: 0 0 12px color-mix(in oklch, var(--accent-amber1) 60%, transparent);
+  --heat-glow-lg: 0 0 20px color-mix(in oklch, var(--accent-amber1) 80%, transparent);
+
+  /* Breathing Zone Tokens (Golden Ratio Based) */
+  --breath-sm: 38.2vh;   /* (1 - φ⁻¹) × 100 */
+  --breath-md: 61.8vh;   /* φ⁻¹ × 100 */
+  --breath-lg: 100vh;    /* φ⁰ × 100 */
+  --breath-xl: 161.8vh;  /* φ × 100 */
 }
 
 @theme inline {
@@ -112,6 +138,9 @@
   --color-bg-overlay-20: var(--bg-overlay-20);
   --color-bg-overlay-10: var(--bg-overlay-10);
   --color-bg-overlay-5: var(--bg-overlay-5);
+  --color-heat-subtle: var(--heat-subtle);
+  --color-heat-medium: var(--heat-medium);
+  --color-heat-intense: var(--heat-intense);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }

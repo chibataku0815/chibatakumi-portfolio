@@ -107,8 +107,8 @@ export default function SkillsClient({ skills }: SkillsClientProps) {
       <SkillsBackground />
       <SkillsIntro />
 
-      {/* Breathing Zone before sections */}
-      <div className="h-[20vh]" aria-hidden="true" />
+      {/* Breathing Zone before sections (Golden Ratio) */}
+      <div className="h-[var(--breath-md)]" aria-hidden="true" />
 
       {/* Skill Sections: Skeleton or Real Content */}
       {isLoading ? (
@@ -128,8 +128,8 @@ export default function SkillsClient({ skills }: SkillsClientProps) {
         ))
       )}
 
-      {/* Breathing Zone after sections */}
-      <div className="h-[30vh]" aria-hidden="true" />
+      {/* Breathing Zone after sections (Golden Ratio) */}
+      <div className="h-[var(--breath-lg)]" aria-hidden="true" />
     </SkillsLayout>
   );
 }

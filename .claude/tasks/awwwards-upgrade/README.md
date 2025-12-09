@@ -192,6 +192,7 @@ Phase 1 全体 → Phase 2 全体 → Phase 3 全体
 - [GLOBAL.md](../../../.ai/GLOBAL.md) - プロジェクト概要と技術スタック
 - [EXCELLENCE-FRAMEWORK.md](../../skills/EXCELLENCE-FRAMEWORK.md) - 卓越性評価基準
 - [art-direction/SKILL.md](../../skills/art-direction/SKILL.md) - アートディレクション指針
+- [KNOWLEDGE.md](./KNOWLEDGE.md) - Phase 1 実装ナレッジベース（★ NEW）
 
 ### 参照サイト（Awwwards Site of the Day/Year）
 - **Active Theory**: インタラクションが物語を作る
@@ -221,6 +222,12 @@ Phase 1 全体 → Phase 2 全体 → Phase 3 全体
   - Pitch Black & Fire世界観維持
   - Commit: `cd63e03`
 - 🎯 **Phase 1 進捗**: 3/4 タスク完了（75%）→ Level 4 基盤確立
+- 📚 **ナレッジ記録**: Phase 1 実装パターンを [KNOWLEDGE.md](./KNOWLEDGE.md) に記録
+  - WebGL Shader 最適化パターン（重量版 vs 軽量版）
+  - Motion Design タイミングシステム統一
+  - アクセシビリティ実装パターン
+  - Next.js App Router 規約
+  - コンポーネント設計原則
 
 ---
 

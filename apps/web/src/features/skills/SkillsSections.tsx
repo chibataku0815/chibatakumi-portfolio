@@ -9,7 +9,6 @@ import type { WorkItem } from "@/shared/data/portfolio";
 import { ReactNode } from "react";
 
 const BASE_BG = "#0b0b0b";
-const BAND_BG = "#f2f2f2";
 
 // 構図パターン: A=右重心, B=左重心, C=中央緊張
 type LayoutPattern = "A" | "B" | "C";
@@ -61,11 +60,10 @@ export function SkillsIntro() {
           <div className="space-y-6">
             <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[11px] font-mono uppercase tracking-[0.24em] text-[var(--text-muted)]">
               Hybrid Skillset
-              <span className="h-px w-12 bg-[var(--accent-amber1)]" />
             </div>
             <AnimatedHeading
               as="h1"
-              className="text-[clamp(2.8rem,8vw,5rem)] font-semibold leading-[0.95] tracking-[-0.03em] text-[var(--text-base)]"
+              className="text-[var(--type-display-hero)] font-[200] leading-[0.9] tracking-[var(--tracking-ultra-tight)] text-[var(--text-base)]"
             >
               Skills
             </AnimatedHeading>
@@ -142,10 +140,10 @@ export function SkillSection({ skill, index, setRef }: SkillSectionProps) {
   );
 }
 
-// Pattern A: 右重心
+// Pattern A: 右重心（黄金比）
 function PatternA({ skill }: { skill: WorkItem }) {
   return (
-    <div className="grid min-h-[70vh] items-center gap-12 md:grid-cols-[1.2fr,1fr]">
+    <div className="grid min-h-[70vh] items-center gap-12 md:grid-cols-[1.618fr,1fr]">
       {/* Left: Content */}
       <div className="skill-content flex flex-col gap-8">
         <div className="space-y-4">
@@ -154,20 +152,15 @@ function PatternA({ skill }: { skill: WorkItem }) {
             <span className="font-mono text-xs uppercase tracking-[0.2em]">
               {skill.meta}
             </span>
-            <span
-              className="h-px w-16"
-              style={{ backgroundColor: skill.accent ?? "var(--accent-amber1)" }}
-            />
+            <span className="h-px w-16 bg-[var(--accent-amber1)]/30" />
             <span className="text-xs">Since 2011</span>
           </div>
 
           {/* Title */}
           <div className="relative">
-            <div className="title-shadow absolute inset-0 translate-x-3 translate-y-3 bg-black/60" />
             <h2
-              className="title-band relative inline-block text-[clamp(2.4rem,5vw,4rem)] font-semibold leading-[1] tracking-[-0.02em] text-black"
+              className="relative inline-block text-[var(--type-display-xl)] font-[800] leading-[1] tracking-[var(--tracking-ultra-tight)] text-[var(--text-base)]"
               style={{
-                backgroundColor: BAND_BG,
                 padding: "0.3em 0.5em",
               }}
             >
@@ -211,10 +204,10 @@ function PatternA({ skill }: { skill: WorkItem }) {
   );
 }
 
-// Pattern B: 左重心
+// Pattern B: 左重心（黄金比）
 function PatternB({ skill }: { skill: WorkItem }) {
   return (
-    <div className="grid min-h-[70vh] items-center gap-12 md:grid-cols-[1fr,1.2fr]">
+    <div className="grid min-h-[70vh] items-center gap-12 md:grid-cols-[1fr,1.618fr]">
       {/* Left: Image */}
       {skill.media?.type === "image" && (
         <div className="skill-image relative aspect-[4/5] overflow-hidden rounded-2xl">
@@ -235,10 +228,7 @@ function PatternB({ skill }: { skill: WorkItem }) {
           {/* Meta line */}
           <div className="accent-element flex items-center justify-end gap-4 text-[var(--text-base-60)]">
             <span className="text-xs">Since 2011</span>
-            <span
-              className="h-px w-16"
-              style={{ backgroundColor: skill.accent ?? "var(--accent-amber1)" }}
-            />
+            <span className="h-px w-16 bg-[var(--accent-amber1)]/30" />
             <span className="font-mono text-xs uppercase tracking-[0.2em]">
               {skill.meta}
             </span>
@@ -246,11 +236,9 @@ function PatternB({ skill }: { skill: WorkItem }) {
 
           {/* Title */}
           <div className="relative text-right">
-            <div className="title-shadow absolute inset-0 -translate-x-3 translate-y-3 bg-black/60" />
             <h2
-              className="title-band relative inline-block text-[clamp(2.4rem,5vw,4rem)] font-semibold leading-[1] tracking-[-0.02em] text-black"
+              className="relative inline-block text-[var(--type-display-xl)] font-[800] leading-[1] tracking-[var(--tracking-ultra-tight)] text-[var(--text-base)]"
               style={{
-                backgroundColor: BAND_BG,
                 padding: "0.3em 0.5em",
               }}
             >
@@ -286,11 +274,9 @@ function PatternC({ skill }: { skill: WorkItem }) {
     <div className="flex min-h-[70vh] flex-col items-center justify-center gap-12">
       {/* Title (Center) */}
       <div className="relative text-center">
-        <div className="title-shadow absolute inset-0 translate-y-4 bg-black/60" />
         <h2
-          className="title-band relative inline-block text-[clamp(2.8rem,6vw,5rem)] font-semibold leading-[1] tracking-[-0.02em] text-black"
+          className="relative inline-block text-[var(--type-display-xl)] font-[800] leading-[1] tracking-[var(--tracking-ultra-tight)] text-[var(--text-base)]"
           style={{
-            backgroundColor: BAND_BG,
             padding: "0.3em 0.6em",
           }}
         >
@@ -299,7 +285,7 @@ function PatternC({ skill }: { skill: WorkItem }) {
       </div>
 
       {/* Content Grid */}
-      <div className="grid w-full max-w-5xl gap-8 md:grid-cols-[1fr,1.5fr]">
+      <div className="grid w-full max-w-5xl gap-8 md:grid-cols-[1fr,1.618fr]">
         {/* Left: Image */}
         {skill.media?.type === "image" && (
           <div className="skill-image relative aspect-square overflow-hidden rounded-2xl">
@@ -318,10 +304,7 @@ function PatternC({ skill }: { skill: WorkItem }) {
             <span className="font-mono text-xs uppercase tracking-[0.2em]">
               {skill.meta}
             </span>
-            <span
-              className="h-px flex-1"
-              style={{ backgroundColor: skill.accent ?? "var(--accent-amber1)" }}
-            />
+            <span className="h-px flex-1 bg-[var(--accent-amber1)]/30" />
           </div>
 
           {/* Description */}

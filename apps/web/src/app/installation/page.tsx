@@ -28,7 +28,6 @@ export default function InstallationPage() {
               as="h2"
               className="text-lg leading-relaxed text-[var(--text-muted)]"
               delay={0.5}
-              splitType="words"
             >
               {description}
             </AnimatedHeading>

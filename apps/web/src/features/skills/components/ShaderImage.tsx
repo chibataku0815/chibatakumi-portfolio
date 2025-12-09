@@ -24,8 +24,9 @@ function ShaderImageMesh({ src, progress }: ShaderImageMeshProps) {
 
   // Preserve texture aspect ratio
   const aspect = useMemo(() => {
-    if (texture.image) {
-      return texture.image.width / texture.image.height;
+    const img = texture.image as HTMLImageElement | undefined;
+    if (img?.width && img?.height) {
+      return img.width / img.height;
     }
     return 1;
   }, [texture]);

@@ -8,7 +8,6 @@ import {
 import { ReactNode } from "react";
 
 const BASE_BG = "#0b0b0b";
-const BAND_BG = "#f2f2f2";
 
 export interface Strength {
   id: string;
@@ -50,7 +49,7 @@ export function ProfileIntro() {
           <div>
             <AnimatedHeading
               as="h1"
-              className="mb-4 text-[clamp(3rem,10vw,6rem)] font-semibold leading-[0.9] tracking-[-0.04em] text-[var(--text-base)]"
+              className="mb-4 text-[var(--type-display-hero)] font-[200] leading-[0.85] tracking-[var(--tracking-ultra-tight)] text-[var(--text-base)]"
             >
               Profile
             </AnimatedHeading>
