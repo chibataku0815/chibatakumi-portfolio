@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
@@ -9,6 +9,7 @@ import {
   SkillsIntro,
   SkillSection,
 } from "./SkillsSections";
+import { SkillSectionSkeleton } from "./components";
 import {
   setInitialState,
   setupSectionEntry,
@@ -24,7 +25,14 @@ interface SkillsClientProps {
   skills: WorkItem[];
 }
 
+type LayoutPattern = "A" | "B" | "C";
+function getLayoutPattern(index: number): LayoutPattern {
+  const patterns: LayoutPattern[] = ["A", "B", "C"];
+  return patterns[index % 3];
+}
+
 export default function SkillsClient({ skills }: SkillsClientProps) {
+  const [isLoading, setIsLoading] = useState(true);
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
   const triggersRef = useRef<ScrollTrigger[]>([]);
   const ctxRef = useRef<gsap.Context | null>(null);
@@ -34,19 +42,32 @@ export default function SkillsClient({ skills }: SkillsClientProps) {
     sectionRefs.current[index] = el;
   }, []);
 
+  // 初期ロード完了後にスケルトンを非表示
+  useEffect(() => {
+    // 最小表示時間を確保（体験の一貫性）
+    const minDisplayTime = 800;
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, minDisplayTime);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   // 初期状態を即座に設定（ちらつき防止）
   useEffect(() => {
-    if (initializedRef.current) return;
+    if (initializedRef.current || isLoading) return;
 
     // 即座に初期状態を設定
     for (const el of sectionRefs.current) {
       if (el) setInitialState(el);
     }
     initializedRef.current = true;
-  }, [skills]);
+  }, [skills, isLoading]);
 
   // アニメーションのセットアップ
   useEffect(() => {
+    if (isLoading) return; // ローディング中はスキップ
+
     let cancelled = false;
 
     // レイアウト安定後に実行
@@ -79,7 +100,7 @@ export default function SkillsClient({ skills }: SkillsClientProps) {
       }
       triggersRef.current = [];
     };
-  }, [skills]);
+  }, [skills, isLoading]);
 
   return (
     <SkillsLayout>
@@ -89,15 +110,23 @@ export default function SkillsClient({ skills }: SkillsClientProps) {
       {/* Breathing Zone before sections */}
       <div className="h-[20vh]" aria-hidden="true" />
 
-      {/* Skill Sections */}
-      {skills.map((skill, idx) => (
-        <SkillSection
-          key={skill.id}
-          skill={skill}
-          index={idx}
-          setRef={setRef}
-        />
-      ))}
+      {/* Skill Sections: Skeleton or Real Content */}
+      {isLoading ? (
+        // Loading state: Show skeletons
+        skills.map((_, idx) => (
+          <SkillSectionSkeleton key={`skeleton-${idx}`} pattern={getLayoutPattern(idx)} />
+        ))
+      ) : (
+        // Loaded state: Show real content with animations
+        skills.map((skill, idx) => (
+          <SkillSection
+            key={skill.id}
+            skill={skill}
+            index={idx}
+            setRef={setRef}
+          />
+        ))
+      )}
 
       {/* Breathing Zone after sections */}
       <div className="h-[30vh]" aria-hidden="true" />

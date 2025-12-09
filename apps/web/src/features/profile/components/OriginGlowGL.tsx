@@ -30,9 +30,9 @@ function GlowMesh({ progress }: GlowMeshProps) {
     []
   );
 
-  useFrame(({ clock }) => {
+  useFrame((state) => {
     if (materialRef.current) {
-      materialRef.current.uniforms.uTime.value = clock.elapsedTime;
+      materialRef.current.uniforms.uTime.value = state.clock.elapsedTime;
       materialRef.current.uniforms.uProgress.value = progress.current;
     }
   });
@@ -63,7 +63,7 @@ function GlowMesh({ progress }: GlowMeshProps) {
 }
 
 interface OriginGlowGLProps {
-  triggerRef: React.RefObject<HTMLElement>;
+  triggerRef: React.RefObject<HTMLElement | null>;
   className?: string;
 }
 

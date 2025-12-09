@@ -31,9 +31,9 @@ function StrataLayerMesh({ depth, progress }: StrataLayerMeshProps) {
     [depth, viewport]
   );
 
-  useFrame(({ clock }) => {
+  useFrame((state) => {
     if (materialRef.current) {
-      materialRef.current.uniforms.uTime.value = clock.elapsedTime;
+      materialRef.current.uniforms.uTime.value = state.clock.elapsedTime;
       materialRef.current.uniforms.uProgress.value = progress.current;
     }
   });
@@ -64,7 +64,7 @@ function StrataLayerMesh({ depth, progress }: StrataLayerMeshProps) {
 
 interface StrataLayerGLProps {
   depth: number;  // 0.0 (surface) ~ 1.0 (deepest)
-  triggerRef: React.RefObject<HTMLElement>;
+  triggerRef: React.RefObject<HTMLElement | null>;
   className?: string;
 }
 

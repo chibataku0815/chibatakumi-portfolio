@@ -88,6 +88,196 @@ apps/
 
 ---
 
+## Excellence Level 維持ルール（品質劣化防止）
+
+**目標:** プロジェクトは **Level 5（Awwwards 受賞レベル）** を目指す。実装中に Level が下がることを絶対に許容しない。
+
+### 必須参照ドキュメント
+
+すべての実装作業前に以下を確認:
+
+| ドキュメント | 確認内容 |
+|-------------|---------|
+| `.claude/skills/EXCELLENCE-FRAMEWORK.md` | Level 定義、Award-Worthy Checklist |
+| `.claude/skills/art-direction/SKILL.md` | ビジュアル品質基準、Signature Moment |
+| `.claude/tasks/awwwards-upgrade/README.md` | 現在の Level、ギャップ分析 |
+
+### 実装前チェック（必須）
+
+```
+実装開始前に自問:
+
+1. この実装は何 Level を目指すか？
+   → Level 3 以下の回答は不可。最低 Level 4 を目指す。
+
+2. Excellence Framework のどの次元に貢献するか？
+   - Visual Impact
+   - Motion & Interaction
+   - Technical Craft
+   - Emotional Resonance
+   - Conceptual Clarity
+
+3. 参照サイト（Awwwards Site of the Day）と比較して遜色ないか？
+   → 「そこそこ良い」は Level 3。Level 4+ には「他と違う」が必要。
+
+4. この実装に Signature Moment はあるか？
+   → なければ Level 4 止まり。Level 5 には必須。
+```
+
+### 妥協禁止リスト
+
+以下の妥協は **絶対に許容しない**:
+
+| 妥協パターン | Level への影響 | 対処 |
+|-------------|---------------|------|
+| 「とりあえず動けばいい」 | L1-2 | 動作だけでなく美学を追求 |
+| 「時間がないので簡易版で」 | L2-3 | 時間がないなら scope を減らし、質を保つ |
+| 「ユーザーは気づかないから」 | L3 | **細部が Level 5 を作る** |
+| 「他のサイトでもよくある」 | L3-4 | **Level 5 は前例を作る側** |
+| 「技術的に難しいので妥協」 | L3-4 | 難しいからこそ価値がある |
+| 「デザインは後で調整」 | L2-3 | デザインと実装は不可分 |
+
+### 「十分良い」の排除
+
+```
+禁止フレーズ:
+❌ "This is good enough"（これで十分）
+❌ "Probably fine"（たぶん大丈夫）
+❌ "Users won't notice"（ユーザーは気づかない）
+❌ "We can improve later"（後で改善できる）
+❌ "It's just a minor detail"（些細な詳細）
+
+Level 5 に必要なマインドセット:
+✅ "Can this be better?"（もっと良くできないか？）
+✅ "What would [参照サイト] do?"（参照サイトならどうするか？）
+✅ "Is this Award-Worthy?"（受賞レベルか？）
+✅ "Does this surprise?"（驚きがあるか？）
+✅ "Will I be proud in a year?"（1年後も誇れるか？）
+```
+
+### スキル呼び出し強制
+
+以下の作業では、**直接実装を禁止**。必ず先にスキルを呼び出す:
+
+| 作業内容 | 必須スキル | 理由 |
+|---------|----------|------|
+| UI/コンポーネント実装 | `frontend-design` | デザイン品質の担保 |
+| アニメーション実装 | `motion-design` | タイミング・イージングの芸術性 |
+| WebGL/シェーダー | `webgl-shader` | Level 5 の技術的革新 |
+| ビジュアル調整 | `art-direction` | 世界観の一貫性 |
+| タイポグラフィ | `typography` | 視覚階層の最適化 |
+
+**違反例:**
+```
+❌ ユーザー: "ボタンにホバーエフェクトを追加して"
+   AI: [直接 CSS を書く] ← Level 3 に留まる
+
+✅ ユーザー: "ボタンにホバーエフェクトを追加して"
+   AI: [motion-design スキル呼び出し]
+   → Level 5 のタイミング・イージングで実装
+```
+
+### 実装中レビュー（セルフチェック）
+
+実装の節目で以下を確認:
+
+```markdown
+## Level Self-Check
+
+### Visual Impact
+- [ ] 初見で「これは違う」と感じるか？
+- [ ] スクリーンショットを撮りたくなるか？
+
+### Motion & Interaction
+- [ ] 動きに意味と感情があるか？
+- [ ] 予測可能すぎないか？（驚きはあるか？）
+
+### Technical Craft
+- [ ] コードは最適化されているか？
+- [ ] パフォーマンス影響はないか？
+
+### Emotional Resonance
+- [ ] 意図した感情が生まれるか？
+- [ ] 余韻が残るか？
+
+### Conceptual Clarity
+- [ ] 「なぜこの選択？」に答えられるか？
+- [ ] Pitch Black & Fire の世界観に沿っているか？
+```
+
+### 完了判定基準
+
+タスク完了の判定は以下の基準で:
+
+```
+Level 1-2: 動作する → **却下（やり直し）**
+Level 3: 洗練されている → **不十分（改善必須）**
+Level 4: 差別化されている → **許容（最低ライン）**
+Level 5: 受賞レベル → **目標達成**
+
+最低でも Level 4 到達を完了条件とする。
+```
+
+### Excellence Framework 常時参照
+
+```
+実装の各段階で Excellence Framework を参照:
+
+設計時: 目標 Level を設定（最低 L4）
+実装時: Quality Dimensions を意識
+完了時: Award-Worthy Checklist で検証
+
+参照: .claude/skills/EXCELLENCE-FRAMEWORK.md
+```
+
+### Anti-Pattern 検出と修正
+
+以下のパターンを検出したら即座に修正:
+
+| Anti-Pattern | 検出方法 | 修正アクション |
+|-------------|---------|---------------|
+| Generic AI Aesthetics | 紫〜青グラデーション、ガラスモーフィズム | art-direction スキルで再設計 |
+| Template 的レイアウト | よくある3カラム、Hero + Feature Grid | visual-composition で独自性追加 |
+| 意味のないアニメーション | 「動けばいい」感覚 | motion-design で意図を明確化 |
+| Stock な色選択 | 無難な青/白 | Pitch Black & Fire に準拠 |
+
+### 品質劣化の早期検出
+
+以下の兆候があれば即座に立ち止まる:
+
+```
+⚠️ 警告サイン:
+- 「これで良いか」と迷いながら進めている
+- 参照サイトと比較せずに実装している
+- スキルを呼ばずに「感覚」で進めている
+- 細部を「後回し」にしている
+- パフォーマンスを「とりあえず」無視している
+
+→ 検出したら作業を停止し、スキルを呼び出すか、ユーザーに確認
+```
+
+### Level 5 哲学（常に想起）
+
+```
+Art Direction スキルより:
+
+「良い」は敵。「素晴らしい」を目指す。
+
+Level 3（洗練された）で満足しない。
+Level 4（差別化された）で妥協しない。
+Level 5（受賞レベル）を当然の目標とする。
+
+これは傲慢ではなく、基準の設定。
+到達できなくても、目指すことで Level 4 に到達する。
+Level 3 を目指すと Level 2 になる。
+
+妥協は Level 4 の始まり。
+「十分良い」は Level 3 の終わり。
+Level 5 は「これ以上は無理」の先にある。
+```
+
+---
+
 ## 変更安全性
 
 - 破壊的・広範囲変更前は意図/影響を簡潔に共有
