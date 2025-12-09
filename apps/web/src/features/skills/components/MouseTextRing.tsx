@@ -113,6 +113,10 @@ export function MouseTextRing({ text, accentColor, isVisible }: MouseTextRingPro
     }
   }, [shouldShow]);
 
+  // モバイル用のデフォルトテキスト・色
+  const displayText = showMobileRing && !text ? "Touch" : (text || "Touch");
+  const displayColor = accentColor ?? "#e8a85a";
+
   // リング設定
   const outerRadius = 70;
   const innerRadius = 40;
@@ -129,10 +133,6 @@ export function MouseTextRing({ text, accentColor, isVisible }: MouseTextRingPro
   // パーティクル（浮遊ドット）
   const particleCount = 8;
   const particles = Array.from({ length: particleCount }, (_, i) => i);
-
-  // モバイル用のデフォルトテキスト・色
-  const displayText = showMobileRing && !text ? "Touch" : (text || "Touch");
-  const displayColor = accentColor ?? "#e8a85a";
 
   return (
     <div
