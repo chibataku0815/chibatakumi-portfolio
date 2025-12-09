@@ -602,30 +602,34 @@ export function HorizontalWorks() {
         />
       </div>
 
-      {/* Dot Navigation */}
-      <div className="section-indicators fixed right-8 top-1/2 z-40 flex -translate-y-1/2 flex-col gap-3">
+      {/* Dot Navigation - タッチターゲット44x44px確保 */}
+      <div className="section-indicators fixed right-4 top-1/2 z-40 flex -translate-y-1/2 flex-col gap-1 sm:right-6 md:right-8 md:gap-2">
         {WORKS.map((work, index) => (
           <button
             key={work.id}
             onClick={() => navigateToSection(index)}
             disabled={!isNavReady}
             aria-disabled={!isNavReady}
-            className={`section-dot relative h-2.5 w-2.5 rounded-full transition-all duration-300 ${
-              !isNavReady
-                ? "cursor-not-allowed opacity-60"
-                : activeSection === index
+            className={`section-dot relative flex h-11 w-11 items-center justify-center transition-all duration-300 ${
+              !isNavReady ? "cursor-not-allowed opacity-60" : ""
+            }`}
+            aria-label={`Go to section ${index + 1}`}
+          >
+            {/* Inner dot */}
+            <span
+              className={`block h-2.5 w-2.5 rounded-full transition-all duration-300 ${
+                activeSection === index
                   ? "scale-125 bg-[var(--text-base)] shadow-[var(--shadow-glow-md)]"
                   : completedSections.has(index)
                     ? "bg-[var(--text-base)]"
                     : "bg-[var(--bg-overlay-20)] hover:bg-[var(--bg-overlay-40)]"
-            }`}
-            aria-label={`Go to section ${index + 1}`}
-          >
+              }`}
+            />
             {activeSection === index && (
-              <span className="absolute inset-0 animate-ping rounded-full border border-white/40" />
+              <span className="absolute left-1/2 top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 animate-ping rounded-full border border-white/40" />
             )}
             {completedSections.has(index) && activeSection !== index && (
-              <span className="absolute inset-0 flex items-center justify-center">
+              <span className="absolute left-1/2 top-1/2 flex h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 items-center justify-center">
                 <svg
                   className="h-1.5 w-1.5 text-[var(--bg-darker)]"
                   fill="currentColor"

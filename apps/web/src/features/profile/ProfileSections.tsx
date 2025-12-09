@@ -43,9 +43,9 @@ interface TimelineSectionProps {
 
 export function ProfileIntro() {
   return (
-    <section className="relative z-10 flex min-h-[60vh] items-end px-6 pb-20 sm:px-10">
+    <section className="relative z-10 flex min-h-[40vh] items-end px-4 pb-12 sm:min-h-[50vh] sm:px-6 sm:pb-16 md:min-h-[60vh] md:px-10 md:pb-20">
       <div className="mx-auto w-full max-w-6xl">
-        <div className="grid gap-8 md:grid-cols-[1.2fr,1fr]">
+        <div className="grid gap-6 md:gap-8 md:grid-cols-[1.2fr,1fr]">
           <div>
             <AnimatedHeading
               as="h1"
@@ -105,7 +105,7 @@ export function StrengthSection({
   return (
     <section
       ref={(el) => setRef(el, index)}
-      className="strength-section relative isolate min-h-[60vh] overflow-visible px-6 py-20 sm:px-10"
+      className="strength-section relative isolate min-h-[40vh] overflow-visible px-4 py-12 sm:min-h-[50vh] sm:px-6 sm:py-16 md:min-h-[60vh] md:px-10 md:py-20"
     >
       {/* Grid Lines */}
       <div
@@ -119,17 +119,17 @@ export function StrengthSection({
         }}
       />
 
-      {/* Ghost STR */}
+      {/* Ghost STR - モバイルで非表示 */}
       <div
-        className="ghost pointer-events-none absolute -z-2 select-none whitespace-nowrap font-black uppercase leading-none tracking-[-0.08em]"
+        className="ghost pointer-events-none absolute -z-2 hidden select-none whitespace-nowrap font-black uppercase leading-none tracking-[-0.08em] md:block"
         style={{
-          fontSize: "clamp(8rem, 18vw, 14rem)",
-          color: "rgba(255,255,255,0.15)",
+          fontSize: "clamp(6rem, 15vw, 12rem)",
+          color: "rgba(255,255,255,0.12)",
           mixBlendMode: "overlay",
           willChange: "transform, opacity",
           ...(isEven
-            ? { right: "-10%", top: "15%" }
-            : { left: "-10%", top: "20%" }),
+            ? { right: "0%", top: "15%" }
+            : { left: "0%", top: "20%" }),
         }}
       >
         STR
@@ -150,10 +150,10 @@ export function StrengthSection({
 
       {/* Content */}
       <div
-        className={`profile-content mx-auto max-w-5xl ${isEven ? "pr-16 md:pr-0" : "pl-16 md:pl-0"}`}
+        className={`profile-content mx-auto max-w-5xl ${isEven ? "pr-12 sm:pr-14 md:pr-0" : "pl-12 sm:pl-14 md:pl-0"}`}
       >
         <div
-          className={`grid gap-10 md:grid-cols-[1fr,1.5fr] ${isEven ? "" : "md:grid-cols-[1.5fr,1fr]"}`}
+          className={`grid gap-6 md:gap-10 md:grid-cols-[1fr,1.5fr] ${isEven ? "" : "md:grid-cols-[1.5fr,1fr]"}`}
         >
           {/* Title側 */}
           <div className={`space-y-6 ${isEven ? "" : "md:order-2"}`}>
@@ -230,7 +230,7 @@ export function TimelineSection({
   return (
     <section
       ref={(el) => setRef(el, index)}
-      className="timeline-section relative isolate min-h-[70vh] overflow-visible px-6 py-20 sm:px-10"
+      className="timeline-section relative isolate min-h-[50vh] overflow-visible px-4 py-12 sm:min-h-[60vh] sm:px-6 sm:py-16 md:min-h-[70vh] md:px-10 md:py-20"
       data-depth={depth}
     >
       {/* Grid Lines */}
@@ -253,15 +253,15 @@ export function TimelineSection({
         }}
       />
 
-      {/* Ghost Year */}
+      {/* Ghost Year - モバイルで非表示 */}
       <div
-        className="ghost-year pointer-events-none absolute -z-8 select-none whitespace-nowrap font-black uppercase leading-none tracking-[-0.06em]"
+        className="ghost-year pointer-events-none absolute -z-8 hidden select-none whitespace-nowrap font-black uppercase leading-none tracking-[-0.06em] md:block"
         style={{
-          fontSize: "clamp(10rem, 22vw, 18rem)",
-          color: `rgba(255,255,255,${0.12 + (depth / total) * 0.08})`,
+          fontSize: "clamp(8rem, 18vw, 14rem)",
+          color: `rgba(255,255,255,${0.10 + (depth / total) * 0.06})`,
           mixBlendMode: "overlay",
           willChange: "transform, opacity",
-          right: "-12%",
+          right: "0%",
           top: "12%",
         }}
       >
@@ -269,7 +269,7 @@ export function TimelineSection({
       </div>
 
       {/* Rail */}
-      <div className="pointer-events-none absolute inset-y-0 left-0 flex w-16 items-center justify-center sm:w-20">
+      <div className="pointer-events-none absolute inset-y-0 left-0 flex w-12 items-center justify-center sm:w-16 md:w-20">
         <div
           className="rail absolute inset-y-16 right-0 bg-white/25"
           style={{
@@ -283,8 +283,8 @@ export function TimelineSection({
       </div>
 
       {/* Content */}
-      <div className="profile-content mx-auto ml-20 max-w-5xl sm:ml-24">
-        <div className="grid gap-10 md:grid-cols-[1.3fr,1fr]">
+      <div className="profile-content mx-auto ml-14 max-w-5xl sm:ml-20 md:ml-24">
+        <div className="grid gap-6 md:gap-10 md:grid-cols-[1.3fr,1fr]">
           {/* Left: Main info */}
           <div className="space-y-6">
             {/* Meta items */}

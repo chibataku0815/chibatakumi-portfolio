@@ -14,6 +14,8 @@ export const displayShader = /* glsl */ `
   uniform vec3 uColor4;
   uniform float uColorIntensity;
   uniform float uSoftness;
+  uniform vec3 uAccentColor;
+  uniform float uAccentMix;
   varying vec2 vUv;
 
   void main() {
@@ -47,6 +49,10 @@ export const displayShader = /* glsl */ `
     vec3 col = mix(uColor1, uColor2, mixer1);
     col = mix(col, uColor3, mixer2);
     col = mix(col, uColor4, mixer3 * 0.4);
+
+    // Color-Responsive: accent色の微妙なブレンド（Signature Moment）
+    vec3 accentedColor2 = mix(uColor2, uAccentColor, uAccentMix * 0.3);
+    col = mix(col, accentedColor2, mixer2 * uAccentMix * 0.15);
 
     col *= uColorIntensity;
 

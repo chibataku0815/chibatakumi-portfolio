@@ -20,12 +20,12 @@
   --transition-overlay: var(--slate-4);
   --noise-texture: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 
-  /* Typography Scale - Award-Worthy Level */
-  --type-display-hero: clamp(6rem, 18vw, 14rem);      /* 96–224px Hero */
-  --type-display-xl: clamp(4rem, 12vw, 10rem);        /* 64–160px Skill Title */
-  --type-display-lg: clamp(2.5rem, 8vw, 6rem);        /* 40–96px */
-  --type-heading: clamp(1.8rem, 4vw, 3rem);           /* 28.8–48px Section */
-  --type-body-lg: clamp(1.1rem, 1.5vw, 1.4rem);       /* 17.6–22.4px */
+  /* Typography Scale - Award-Worthy Level (モバイル対応) */
+  --type-display-hero: clamp(3.5rem, 15vw, 14rem);    /* 56–224px Hero (モバイル最小調整) */
+  --type-display-xl: clamp(2.5rem, 10vw, 10rem);      /* 40–160px Skill Title (モバイル最小調整) */
+  --type-display-lg: clamp(2rem, 6vw, 6rem);          /* 32–96px */
+  --type-heading: clamp(1.5rem, 3.5vw, 3rem);         /* 24–48px Section */
+  --type-body-lg: clamp(1rem, 1.4vw, 1.4rem);         /* 16–22.4px */
   --type-body: 1rem;                                   /* 16px */
   --type-caption: 0.875rem;                            /* 14px */
 

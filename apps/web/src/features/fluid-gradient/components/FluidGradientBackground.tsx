@@ -16,6 +16,7 @@ interface Props {
   className?: string;
   config?: Partial<FluidConfig>;
   fadeIn?: boolean;
+  accentColor?: string | null;
 }
 
 /**
@@ -24,9 +25,11 @@ interface Props {
  * - Ping-Pongバッファによる流体シミュレーション
  * - パラメータは shader/config/fluid.ts で調整
  */
-export function FluidGradientBackground({ className, config: overrides, fadeIn = false }: Props) {
+export function FluidGradientBackground({ className, config: overrides, fadeIn = false, accentColor }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const fadeInTriggerRef = useRef<ScrollTrigger | null>(null);
+  const displayMaterialRef = useRef<THREE.ShaderMaterial | null>(null);
+  const accentTweenRef = useRef<gsap.core.Tween | null>(null);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -87,10 +90,13 @@ export function FluidGradientBackground({ className, config: overrides, fadeIn =
         uColor4: { value: new THREE.Vector3(...hexToRgb(cfg.color4)) },
         uColorIntensity: { value: cfg.colorIntensity },
         uSoftness: { value: cfg.softness },
+        uAccentColor: { value: new THREE.Vector3(0.5, 0.5, 0.5) },
+        uAccentMix: { value: 0.0 },
       },
       vertexShader,
       fragmentShader: displayShader,
     });
+    displayMaterialRef.current = displayMaterial;
 
     // === Geometry & Meshes ===
     const geometry = new THREE.PlaneGeometry(2, 2);
@@ -190,6 +196,7 @@ export function FluidGradientBackground({ className, config: overrides, fadeIn =
       if (container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);
       }
+      displayMaterialRef.current = null;
     };
   }, []);
 
@@ -220,6 +227,40 @@ export function FluidGradientBackground({ className, config: overrides, fadeIn =
       }
     };
   }, [fadeIn]);
+
+  // Color-Responsive: accentColor変更時のGSAP tween
+  useEffect(() => {
+    if (!displayMaterialRef.current) return;
+
+    // 既存tweenをkill
+    accentTweenRef.current?.kill();
+
+    const uniforms = displayMaterialRef.current.uniforms;
+
+    if (accentColor) {
+      // accent色をセット
+      const [r, g, b] = hexToRgb(accentColor);
+      uniforms.uAccentColor.value.set(r, g, b);
+
+      // 0→1 に遷移 (1.0秒)
+      accentTweenRef.current = gsap.to(uniforms.uAccentMix, {
+        value: 1.0,
+        duration: 1.0,
+        ease: "power2.out",
+      });
+    } else {
+      // 1→0 に遷移 (1.5秒)
+      accentTweenRef.current = gsap.to(uniforms.uAccentMix, {
+        value: 0.0,
+        duration: 1.5,
+        ease: "power2.inOut",
+      });
+    }
+
+    return () => {
+      accentTweenRef.current?.kill();
+    };
+  }, [accentColor]);
 
   return (
     <div

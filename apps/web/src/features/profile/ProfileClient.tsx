@@ -79,8 +79,8 @@ export default function ProfileClient({ profile }: ProfileClientProps) {
       <ProfileBackground />
       <ProfileIntro />
 
-      {/* Breathing Zone (Golden Ratio) */}
-      <div className="h-[50vh]" aria-hidden="true" />
+      {/* Breathing Zone (Golden Ratio - レスポンシブ) */}
+      <div className="h-[25vh] sm:h-[35vh] md:h-[50vh]" aria-hidden="true" />
 
       {/* Strengths Section Header */}
       <div className="relative z-10 px-6 pb-10 sm:px-10">
@@ -107,8 +107,8 @@ export default function ProfileClient({ profile }: ProfileClientProps) {
         ))}
       </div>
 
-      {/* Breathing Zone (Golden Ratio) */}
-      <div className="h-[var(--breath-md)]" aria-hidden="true" />
+      {/* Breathing Zone (Golden Ratio - レスポンシブ) */}
+      <div className="h-[25vh] sm:h-[40vh] md:h-[var(--breath-md)]" aria-hidden="true" />
 
       {/* Timeline Section Header */}
       <div className="relative z-10 px-6 pb-10 sm:px-10">
@@ -135,8 +135,8 @@ export default function ProfileClient({ profile }: ProfileClientProps) {
         ))}
       </div>
 
-      {/* Breathing Zone (Golden Ratio) */}
-      <div className="h-[var(--breath-lg)]" aria-hidden="true" />
+      {/* Breathing Zone (Golden Ratio - レスポンシブ) */}
+      <div className="h-[30vh] sm:h-[50vh] md:h-[var(--breath-lg)]" aria-hidden="true" />
     </ProfileLayout>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
@@ -33,10 +33,27 @@ function getLayoutPattern(index: number): LayoutPattern {
 
 export default function SkillsClient({ skills }: SkillsClientProps) {
   const [isLoading, setIsLoading] = useState(true);
+  const [hoveredSkillId, setHoveredSkillId] = useState<string | null>(null);
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
   const triggersRef = useRef<ScrollTrigger[]>([]);
   const ctxRef = useRef<gsap.Context | null>(null);
   const initializedRef = useRef(false);
+
+  // Color-Responsive: hoveredSkillIdからaccent色を取得
+  const accentColor = useMemo(() => {
+    if (!hoveredSkillId) return null;
+    const skill = skills.find((s) => s.id === hoveredSkillId);
+    return skill?.accent ?? null;
+  }, [hoveredSkillId, skills]);
+
+  // Hover handlers
+  const handleHoverStart = useCallback((skillId: string) => {
+    setHoveredSkillId(skillId);
+  }, []);
+
+  const handleHoverEnd = useCallback(() => {
+    setHoveredSkillId(null);
+  }, []);
 
   const setRef = useCallback((el: HTMLElement | null, index: number) => {
     sectionRefs.current[index] = el;
@@ -104,11 +121,11 @@ export default function SkillsClient({ skills }: SkillsClientProps) {
 
   return (
     <SkillsLayout>
-      <SkillsBackground />
+      <SkillsBackground accentColor={accentColor} />
       <SkillsIntro />
 
-      {/* Breathing Zone before sections (Golden Ratio) */}
-      <div className="h-[var(--breath-md)]" aria-hidden="true" />
+      {/* Breathing Zone before sections (Golden Ratio - レスポンシブ) */}
+      <div className="h-[30vh] sm:h-[40vh] md:h-[var(--breath-md)]" aria-hidden="true" />
 
       {/* Skill Sections: Skeleton or Real Content */}
       {isLoading ? (
@@ -124,12 +141,14 @@ export default function SkillsClient({ skills }: SkillsClientProps) {
             skill={skill}
             index={idx}
             setRef={setRef}
+            onHoverStart={handleHoverStart}
+            onHoverEnd={handleHoverEnd}
           />
         ))
       )}
 
-      {/* Breathing Zone after sections (Golden Ratio) */}
-      <div className="h-[var(--breath-lg)]" aria-hidden="true" />
+      {/* Breathing Zone after sections (Golden Ratio - レスポンシブ) */}
+      <div className="h-[40vh] sm:h-[60vh] md:h-[var(--breath-lg)]" aria-hidden="true" />
     </SkillsLayout>
   );
 }

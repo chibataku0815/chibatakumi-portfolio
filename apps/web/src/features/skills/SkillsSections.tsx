@@ -6,7 +6,7 @@ import {
   fluidConfigMonochrome,
 } from "@/features/fluid-gradient";
 import type { WorkItem } from "@/shared/data/portfolio";
-import { ReactNode } from "react";
+import { ReactNode, useCallback, useEffect, useState } from "react";
 
 const BASE_BG = "#0b0b0b";
 
@@ -22,6 +22,12 @@ interface SkillSectionProps {
   skill: WorkItem;
   index: number;
   setRef: (el: HTMLElement | null, index: number) => void;
+  onHoverStart?: (skillId: string) => void;
+  onHoverEnd?: () => void;
+}
+
+interface SkillsBackgroundProps {
+  accentColor?: string | null;
 }
 
 export function SkillsLayout({ children }: { children: ReactNode }) {
@@ -32,13 +38,14 @@ export function SkillsLayout({ children }: { children: ReactNode }) {
   );
 }
 
-export function SkillsBackground() {
+export function SkillsBackground({ accentColor }: SkillsBackgroundProps) {
   return (
     <div className="pointer-events-none fixed inset-0 -z-[5]">
       <FluidGradientBackground
         className="h-full w-full"
         config={fluidConfigMonochrome}
         fadeIn={true}
+        accentColor={accentColor}
       />
       <div
         className="absolute inset-0"
@@ -54,9 +61,9 @@ export function SkillsBackground() {
 
 export function SkillsIntro() {
   return (
-    <section className="relative z-10 flex min-h-[70vh] items-end px-6 pb-24 sm:px-10">
+    <section className="relative z-10 flex min-h-[50vh] items-end px-4 pb-16 sm:min-h-[60vh] sm:px-6 sm:pb-20 md:min-h-[70vh] md:px-10 md:pb-24">
       <div className="mx-auto w-full max-w-7xl">
-        <div className="grid gap-8 md:grid-cols-[1fr,1.618fr]">
+        <div className="grid gap-6 md:gap-8 md:grid-cols-[1fr,1.618fr]">
           <div className="space-y-6">
             <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[11px] font-mono uppercase tracking-[0.24em] text-[var(--text-muted)]">
               Hybrid Skillset
@@ -83,14 +90,34 @@ export function SkillsIntro() {
   );
 }
 
-export function SkillSection({ skill, index, setRef }: SkillSectionProps) {
+export function SkillSection({ skill, index, setRef, onHoverStart, onHoverEnd }: SkillSectionProps) {
   const pattern = getLayoutPattern(index);
+
+  // モバイル判定（pointer: coarse では無効化）
+  const [canHover, setCanHover] = useState(true);
+  useEffect(() => {
+    setCanHover(window.matchMedia("(pointer: fine)").matches);
+  }, []);
+
+  const handleMouseEnter = useCallback(() => {
+    if (canHover && onHoverStart) {
+      onHoverStart(skill.id);
+    }
+  }, [canHover, onHoverStart, skill.id]);
+
+  const handleMouseLeave = useCallback(() => {
+    if (canHover && onHoverEnd) {
+      onHoverEnd();
+    }
+  }, [canHover, onHoverEnd]);
 
   return (
     <section
       ref={(el) => setRef(el, index)}
-      className="skill-section relative isolate min-h-screen overflow-visible px-6 py-24 sm:px-10"
+      className="skill-section relative isolate min-h-[80vh] overflow-visible px-4 py-16 sm:min-h-screen sm:px-6 sm:py-20 md:px-10 md:py-24"
       data-pattern={pattern}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       {/* Grid Lines (背景レイヤー) */}
       <div
@@ -104,18 +131,18 @@ export function SkillSection({ skill, index, setRef }: SkillSectionProps) {
         }}
       />
 
-      {/* Ghost Text - フルワード、はみ出し */}
+      {/* Ghost Text - フルワード、モバイルではみ出し防止 */}
       <div
-        className="ghost pointer-events-none absolute -z-2 select-none whitespace-nowrap font-black uppercase leading-none tracking-[-0.06em]"
+        className="ghost pointer-events-none absolute -z-2 hidden select-none whitespace-nowrap font-black uppercase leading-none tracking-[-0.06em] md:block"
         style={{
-          fontSize: "clamp(10rem, 25vw, 20rem)",
-          color: "rgba(255,255,255,0.15)",
+          fontSize: "clamp(8rem, 20vw, 18rem)",
+          color: "rgba(255,255,255,0.12)",
           mixBlendMode: "overlay",
           willChange: "transform, opacity",
           ...(pattern === "A"
-            ? { right: "-15%", top: "10%" }
+            ? { right: "0%", top: "10%" }
             : pattern === "B"
-              ? { left: "-15%", top: "15%" }
+              ? { left: "0%", top: "15%" }
               : { left: "50%", top: "5%", transform: "translateX(-50%)" }),
         }}
       >
@@ -143,7 +170,7 @@ export function SkillSection({ skill, index, setRef }: SkillSectionProps) {
 // Pattern A: 右重心（黄金比）
 function PatternA({ skill }: { skill: WorkItem }) {
   return (
-    <div className="grid min-h-[70vh] items-center gap-12 md:grid-cols-[1.618fr,1fr]">
+    <div className="grid min-h-[50vh] items-center gap-6 md:min-h-[70vh] md:gap-12 md:grid-cols-[1.618fr,1fr]">
       {/* Left: Content */}
       <div className="skill-content flex flex-col gap-8">
         <div className="space-y-4">
@@ -207,7 +234,7 @@ function PatternA({ skill }: { skill: WorkItem }) {
 // Pattern B: 左重心（黄金比）
 function PatternB({ skill }: { skill: WorkItem }) {
   return (
-    <div className="grid min-h-[70vh] items-center gap-12 md:grid-cols-[1fr,1.618fr]">
+    <div className="grid min-h-[50vh] items-center gap-6 md:min-h-[70vh] md:gap-12 md:grid-cols-[1fr,1.618fr]">
       {/* Left: Image */}
       {skill.media?.type === "image" && (
         <div className="skill-image relative aspect-[4/5] overflow-hidden rounded-2xl">
@@ -271,7 +298,7 @@ function PatternB({ skill }: { skill: WorkItem }) {
 // Pattern C: 中央緊張
 function PatternC({ skill }: { skill: WorkItem }) {
   return (
-    <div className="flex min-h-[70vh] flex-col items-center justify-center gap-12">
+    <div className="flex min-h-[50vh] flex-col items-center justify-center gap-6 md:min-h-[70vh] md:gap-12">
       {/* Title (Center) */}
       <div className="relative text-center">
         <h2
@@ -285,7 +312,7 @@ function PatternC({ skill }: { skill: WorkItem }) {
       </div>
 
       {/* Content Grid */}
-      <div className="grid w-full max-w-5xl gap-8 md:grid-cols-[1fr,1.618fr]">
+      <div className="grid w-full max-w-5xl gap-6 md:gap-8 md:grid-cols-[1fr,1.618fr]">
         {/* Left: Image */}
         {skill.media?.type === "image" && (
           <div className="skill-image relative aspect-square overflow-hidden rounded-2xl">
