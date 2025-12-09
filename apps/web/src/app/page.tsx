@@ -13,13 +13,14 @@ export default function Home() {
       <SectionScrollManager />
 
       {/* Hero Section - uses HeroShaderBackground from layout.tsx */}
-      <section className="relative min-h-screen">
+      <section className="relative min-h-screen overflow-hidden">
         <HeroText />
 
-        <div className="absolute bottom-16 left-0 right-0 flex justify-center">
+        <div className="absolute bottom-16 left-0 right-0 flex justify-center overflow-visible">
           <GlowButton
             href="/skills"
             data-transition="true"
+            orbitText="VIEW SKILLS • EXPLORE WORK • DISCOVER MORE • VIEW SKILLS • EXPLORE WORK • DISCOVER MORE • "
             className="text-sm font-medium uppercase tracking-[0.12em] text-[var(--text-base)] transition-colors duration-300 hover:text-[var(--accent-amber1)]"
           >
             View Skills
