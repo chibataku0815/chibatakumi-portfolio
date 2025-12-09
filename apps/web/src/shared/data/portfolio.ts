@@ -453,7 +453,7 @@ export const portfolioData: PortfolioData = {
       title: "お問い合わせ",
       description: "具体的な要件が決まる前の、漠然とした段階でも構いません。\nまずは、お気兼ねなくご相談ください。",
       email: "hello@takumichiba.com",
-      cta: "メールを送る",
+      cta: "内容を確認してメールを送る",
       responseNote: "通常、2営業日以内に返信いたします。",
     },
 

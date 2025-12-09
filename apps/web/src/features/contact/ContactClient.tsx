@@ -597,6 +597,10 @@ function SubmitButton({ isPending }: SubmitButtonProps) {
           0%, 100% { opacity: 0.3; transform: scale(1); }
           50% { opacity: 0.5; transform: scale(1.02); }
         }
+        @keyframes contactButtonShimmer {
+          0%, 100% { opacity: 0.4; }
+          50% { opacity: 0.7; }
+        }
         @keyframes contactSpinner {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
@@ -646,10 +650,10 @@ function SubmitButton({ isPending }: SubmitButtonProps) {
           <span className="absolute inset-[1.5px] rounded-full bg-[var(--bg-dark)]" />
         </span>
 
-        {/* Static border */}
+        {/* Shimmer border */}
         <span
           className="pointer-events-none absolute inset-0 rounded-full border border-[var(--accent-amber1)]"
-          style={{ opacity: 0.5 }}
+          style={{ animation: "contactButtonShimmer 2s ease-in-out infinite" }}
         />
 
         {/* Button content */}
