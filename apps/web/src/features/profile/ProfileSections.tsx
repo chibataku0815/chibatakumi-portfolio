@@ -172,9 +172,8 @@ export function StrengthSection({
                 style={{ display: "inline-block" }}
               >
                 <div
-                  className="band-text text-[clamp(2.2rem,5vw,3.4rem)] font-semibold leading-[1] tracking-[-0.02em] text-black"
+                  className="band-text text-[clamp(2.2rem,5vw,3.4rem)] font-semibold leading-[1] tracking-[-0.02em] text-[var(--text-base)]"
                   style={{
-                    backgroundColor: BAND_BG,
                     display: "inline-block",
                     padding: "0.25em 0.45em",
                   }}
@@ -306,11 +305,9 @@ export function TimelineSection({
             {/* Title */}
             <div className="relative">
               <div
-                className="band inline-block text-[clamp(2rem,5vw,3.2rem)] font-semibold leading-[1.05] tracking-[-0.02em] text-black"
+                className="band inline-block text-[clamp(2rem,5vw,3.2rem)] font-semibold leading-[1.05] tracking-[-0.02em] text-[var(--text-base)]"
                 style={{
-                  backgroundColor: BAND_BG,
                   padding: "0.22em 0.4em",
-                  boxShadow: "10px 10px 0 rgba(0,0,0,0.5)",
                 }}
               >
                 {exp.role}
