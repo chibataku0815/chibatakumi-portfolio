@@ -13,6 +13,14 @@
   --accent-amber1: var(--amber-9);
   --accent-amber2: var(--amber-10);
 
+  /* ==========================================================================
+     Font Family Stacks
+     ========================================================================== */
+  --font-family-sans: var(--font-geist-sans), var(--font-noto-sans-jp),
+    "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+  --font-family-mono: var(--font-geist-mono), "SFMono-Regular", "Consolas",
+    monospace;
+
   /* Logo / Transition tokens */
   --logo-stroke: var(--slate-12);
   --logo-fill: var(--slate-12);
@@ -141,14 +149,14 @@
   --color-heat-subtle: var(--heat-subtle);
   --color-heat-medium: var(--heat-medium);
   --color-heat-intense: var(--heat-intense);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-family-sans);
+  --font-mono: var(--font-family-mono);
 }
 
 body {
   background: var(--bg-dark);
   color: var(--text-base);
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-family-sans);
 }
 
 /* Scroll indicator dot animation */

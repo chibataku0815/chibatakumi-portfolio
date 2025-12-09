@@ -83,6 +83,7 @@ export function FluidGradientBackground({ className, config: overrides, fadeIn =
         iTime: { value: 0 },
         iResolution: { value: new THREE.Vector2(width, height) },
         iFluid: { value: null },
+        iMouse: { value: new THREE.Vector4(0, 0, 0, 0) },
         uDistortionAmount: { value: cfg.distortionAmount },
         uColor1: { value: new THREE.Vector3(...hexToRgb(cfg.color1)) },
         uColor2: { value: new THREE.Vector3(...hexToRgb(cfg.color2)) },
@@ -157,6 +158,10 @@ export function FluidGradientBackground({ className, config: overrides, fadeIn =
       // Reset mouse if no movement for 100ms
       if (performance.now() - lastMoveTime > 100) {
         fluidMaterial.uniforms.iMouse.value.set(0, 0, 0, 0);
+        displayMaterial.uniforms.iMouse.value.set(0, 0, 0, 0);
+      } else {
+        // Pass current mouse to display shader for glow effect
+        displayMaterial.uniforms.iMouse.value.set(mouseX, mouseY, prevMouseX, prevMouseY);
       }
 
       // Render fluid simulation

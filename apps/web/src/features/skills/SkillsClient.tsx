@@ -9,7 +9,7 @@ import {
   SkillsIntro,
   SkillSection,
 } from "./SkillsSections";
-import { SkillSectionSkeleton } from "./components";
+import { SkillSectionSkeleton, MouseTextRing } from "./components";
 import {
   setInitialState,
   setupSectionEntry,
@@ -39,12 +39,14 @@ export default function SkillsClient({ skills }: SkillsClientProps) {
   const ctxRef = useRef<gsap.Context | null>(null);
   const initializedRef = useRef(false);
 
-  // Color-Responsive: hoveredSkillIdからaccent色を取得
-  const accentColor = useMemo(() => {
+  // Color-Responsive: hoveredSkillIdからaccent色とタイトルを取得
+  const hoveredSkill = useMemo(() => {
     if (!hoveredSkillId) return null;
-    const skill = skills.find((s) => s.id === hoveredSkillId);
-    return skill?.accent ?? null;
+    return skills.find((s) => s.id === hoveredSkillId) ?? null;
   }, [hoveredSkillId, skills]);
+
+  const accentColor = hoveredSkill?.accent ?? null;
+  const hoveredTitle = hoveredSkill?.title ?? "";
 
   // Hover handlers
   const handleHoverStart = useCallback((skillId: string) => {
@@ -123,6 +125,11 @@ export default function SkillsClient({ skills }: SkillsClientProps) {
     <SkillsLayout>
       <SkillsBackground accentColor={accentColor} />
       <SkillsIntro />
+      <MouseTextRing
+        text={hoveredTitle}
+        accentColor={accentColor}
+        isVisible={!!hoveredSkillId}
+      />
 
       {/* Breathing Zone before sections (Golden Ratio - レスポンシブ) */}
       <div className="h-[30vh] sm:h-[40vh] md:h-[var(--breath-md)]" aria-hidden="true" />
