@@ -5,7 +5,7 @@ import {
   FluidGradientBackground,
   fluidConfigMonochrome,
 } from "@/features/fluid-gradient";
-import { ReactNode } from "react";
+import { ReactNode, useCallback, useEffect, useState } from "react";
 
 const BASE_BG = "#0b0b0b";
 
@@ -32,6 +32,8 @@ interface StrengthSectionProps {
   index: number;
   total: number;
   setRef: (el: HTMLElement | null, index: number) => void;
+  onHoverStart?: (id: string, title: string) => void;
+  onHoverEnd?: () => void;
 }
 
 interface TimelineSectionProps {
@@ -39,6 +41,12 @@ interface TimelineSectionProps {
   index: number;
   total: number;
   setRef: (el: HTMLElement | null, index: number) => void;
+  onHoverStart?: (id: string, title: string) => void;
+  onHoverEnd?: () => void;
+}
+
+interface ProfileBackgroundProps {
+  accentColor?: string | null;
 }
 
 export function ProfileIntro() {
@@ -67,7 +75,7 @@ export function ProfileIntro() {
   );
 }
 
-export function ProfileBackground() {
+export function ProfileBackground({ accentColor }: ProfileBackgroundProps) {
   return (
     <div className="pointer-events-none fixed inset-0 -z-[5]">
       <FluidGradientBackground
@@ -80,6 +88,7 @@ export function ProfileBackground() {
           softness: 0.85,
         }}
         fadeIn={true}
+        accentColor={accentColor}
       />
       <div
         className="absolute inset-0"
@@ -98,14 +107,36 @@ export function StrengthSection({
   index,
   total,
   setRef,
+  onHoverStart,
+  onHoverEnd,
 }: StrengthSectionProps) {
   // 非対称配置: 偶数は左寄り、奇数は右寄り
   const isEven = index % 2 === 0;
+
+  // モバイル判定
+  const [canHover, setCanHover] = useState(true);
+  useEffect(() => {
+    setCanHover(window.matchMedia("(pointer: fine)").matches);
+  }, []);
+
+  const handleMouseEnter = useCallback(() => {
+    if (canHover && onHoverStart) {
+      onHoverStart(strength.id, strength.title);
+    }
+  }, [canHover, onHoverStart, strength.id, strength.title]);
+
+  const handleMouseLeave = useCallback(() => {
+    if (canHover && onHoverEnd) {
+      onHoverEnd();
+    }
+  }, [canHover, onHoverEnd]);
 
   return (
     <section
       ref={(el) => setRef(el, index)}
       className="strength-section relative isolate min-h-[40vh] overflow-visible px-4 py-12 sm:min-h-[50vh] sm:px-6 sm:py-16 md:min-h-[60vh] md:px-10 md:py-20"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       {/* Grid Lines */}
       <div
@@ -223,15 +254,37 @@ export function TimelineSection({
   index,
   total,
   setRef,
+  onHoverStart,
+  onHoverEnd,
 }: TimelineSectionProps) {
   const depth = index;
   const isDeepest = index === total - 1;
+
+  // モバイル判定
+  const [canHover, setCanHover] = useState(true);
+  useEffect(() => {
+    setCanHover(window.matchMedia("(pointer: fine)").matches);
+  }, []);
+
+  const handleMouseEnter = useCallback(() => {
+    if (canHover && onHoverStart) {
+      onHoverStart(exp.id, exp.role);
+    }
+  }, [canHover, onHoverStart, exp.id, exp.role]);
+
+  const handleMouseLeave = useCallback(() => {
+    if (canHover && onHoverEnd) {
+      onHoverEnd();
+    }
+  }, [canHover, onHoverEnd]);
 
   return (
     <section
       ref={(el) => setRef(el, index)}
       className="timeline-section relative isolate min-h-[50vh] overflow-visible px-4 py-12 sm:min-h-[60vh] sm:px-6 sm:py-16 md:min-h-[70vh] md:px-10 md:py-20"
       data-depth={depth}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       {/* Grid Lines */}
       <div

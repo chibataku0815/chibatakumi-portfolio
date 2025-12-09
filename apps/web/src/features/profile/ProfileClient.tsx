@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
@@ -17,6 +17,7 @@ import {
   setupTimelineEntry,
   setupProfileParallax,
 } from "./ProfileAnimations";
+import { MouseTextRing } from "@/features/skills/components";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -29,12 +30,29 @@ interface ProfileClientProps {
   };
 }
 
+// Profile用のアクセント色（アンバー系）
+const PROFILE_ACCENT = "#e8a85a";
+
 export default function ProfileClient({ profile }: ProfileClientProps) {
   const { strengths, experience } = profile;
 
   const strengthRefs = useRef<(HTMLElement | null)[]>([]);
   const timelineRefs = useRef<(HTMLElement | null)[]>([]);
   const triggersRef = useRef<ScrollTrigger[]>([]);
+
+  // Hover state for Color-Responsive
+  const [hoveredTitle, setHoveredTitle] = useState<string | null>(null);
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleHoverStart = useCallback((_id: string, title: string) => {
+    setHoveredTitle(title);
+    setIsHovered(true);
+  }, []);
+
+  const handleHoverEnd = useCallback(() => {
+    setHoveredTitle(null);
+    setIsHovered(false);
+  }, []);
 
   const setStrengthRef = useCallback((el: HTMLElement | null, index: number) => {
     strengthRefs.current[index] = el;
@@ -76,8 +94,13 @@ export default function ProfileClient({ profile }: ProfileClientProps) {
 
   return (
     <ProfileLayout>
-      <ProfileBackground />
+      <ProfileBackground accentColor={isHovered ? PROFILE_ACCENT : null} />
       <ProfileIntro />
+      <MouseTextRing
+        text={hoveredTitle ?? ""}
+        accentColor={isHovered ? PROFILE_ACCENT : null}
+        isVisible={isHovered}
+      />
 
       {/* Breathing Zone (Golden Ratio - レスポンシブ) */}
       <div className="h-[25vh] sm:h-[35vh] md:h-[50vh]" aria-hidden="true" />
@@ -103,6 +126,8 @@ export default function ProfileClient({ profile }: ProfileClientProps) {
             index={index}
             total={strengths.length}
             setRef={setStrengthRef}
+            onHoverStart={handleHoverStart}
+            onHoverEnd={handleHoverEnd}
           />
         ))}
       </div>
@@ -131,6 +156,8 @@ export default function ProfileClient({ profile }: ProfileClientProps) {
             index={index}
             total={experience.length}
             setRef={setTimelineRef}
+            onHoverStart={handleHoverStart}
+            onHoverEnd={handleHoverEnd}
           />
         ))}
       </div>
