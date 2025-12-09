@@ -266,146 +266,146 @@ export function HorizontalWorks() {
    * Assemble the master GSAP timeline for all panels.
    * Keeping dependency array explicit to satisfy React/TS hook signature.
    */
-  const createMainTimeline = useCallback(
-    (panelData: PanelData[], transitionLine: HTMLDivElement | null) => {
-      const timeline = gsap.timeline();
+  const createMainTimeline = (
+    panelData: PanelData[],
+    transitionLine: HTMLDivElement | null
+  ) => {
+    const timeline = gsap.timeline();
 
-      for (const [index, data] of panelData.entries()) {
-        const isLastPanel = index === panelData.length - 1;
-        const nextData = panelData[index + 1];
+    for (const [index, data] of panelData.entries()) {
+      const isLastPanel = index === panelData.length - 1;
+      const nextData = panelData[index + 1];
 
-        timeline.to(
-          data.titleChars,
-          {
-            opacity: 1,
-            duration: ANIMATION.title.duration,
-            stagger: ANIMATION.title.stagger,
-            ease: "power2.out",
-            onStart: () => {
-              data.progressFill.classList.add("active");
-              setActiveSection(index);
-            },
+      timeline.to(
+        data.titleChars,
+        {
+          opacity: 1,
+          duration: ANIMATION.title.duration,
+          stagger: ANIMATION.title.stagger,
+          ease: "power2.out",
+          onStart: () => {
+            data.progressFill.classList.add("active");
+            setActiveSection(index);
           },
-          index === 0 ? 0 : ">"
-        );
+        },
+        index === 0 ? 0 : ">"
+      );
 
-        timeline.to(
-          data.descChars,
-          {
-            opacity: 1,
-            duration: ANIMATION.desc.duration,
-            stagger: ANIMATION.desc.stagger,
-            ease: "power1.out",
-            onUpdate: () => {
-              let completedChars = 0;
-              for (const char of data.descChars) {
-                if (parseFloat(char.style.opacity) > OPACITY_VISIBLE_THRESHOLD) {
-                  completedChars += 1;
-                }
+      timeline.to(
+        data.descChars,
+        {
+          opacity: 1,
+          duration: ANIMATION.desc.duration,
+          stagger: ANIMATION.desc.stagger,
+          ease: "power1.out",
+          onUpdate: () => {
+            let completedChars = 0;
+            for (const char of data.descChars) {
+              if (parseFloat(char.style.opacity) > OPACITY_VISIBLE_THRESHOLD) {
+                completedChars += 1;
               }
-              const progress = Math.round(
-                (completedChars / data.totalDescChars) * 100
-              );
-              data.progressFill.style.width = progress + "%";
-              data.progressText.textContent = progress + "%";
-            },
-            onComplete: () => {
-              if (data.wasCompleted) return;
-
-              data.wasCompleted = true;
-              data.progressFill.classList.add("completed");
-              setCompletedSections((prev) => {
-                if (prev.has(index)) return prev;
-                const next = new Set(prev);
-                next.add(index);
-                return next;
-              });
-            },
+            }
+            const progress = Math.round(
+              (completedChars / data.totalDescChars) * 100
+            );
+            data.progressFill.style.width = progress + "%";
+            data.progressText.textContent = progress + "%";
           },
-          "<0.12"
+          onComplete: () => {
+            if (data.wasCompleted) return;
+
+            data.wasCompleted = true;
+            data.progressFill.classList.add("completed");
+            setCompletedSections((prev) => {
+              if (prev.has(index)) return prev;
+              const next = new Set(prev);
+              next.add(index);
+              return next;
+            });
+          },
+        },
+        "<0.12"
+      );
+
+      if (!isLastPanel && nextData) {
+        timeline.to(
+          data.panelContent,
+          {
+            scale: ANIMATION.panelFade.scale,
+            opacity: ANIMATION.panelFade.opacity,
+            filter: `blur(${ANIMATION.panelFade.blur}px)`,
+            duration: ANIMATION.panelFade.duration,
+            ease: "power2.in",
+          },
+          ">"
         );
 
-        if (!isLastPanel && nextData) {
+        if (transitionLine) {
           timeline.to(
-            data.panelContent,
+            transitionLine,
             {
-              scale: ANIMATION.panelFade.scale,
-              opacity: ANIMATION.panelFade.opacity,
-              filter: `blur(${ANIMATION.panelFade.blur}px)`,
-              duration: ANIMATION.panelFade.duration,
-              ease: "power2.in",
-            },
-            ">"
-          );
-
-          if (transitionLine) {
-            timeline.to(
-              transitionLine,
-              {
-                width: "100%",
-                opacity: 1,
-                duration: ANIMATION.progressLine.durationIn,
-                ease: "power2.inOut",
-              },
-              "<0.03"
-            );
-          }
-
-          timeline.to(
-            containerRef.current,
-            {
-              x: () => -(window.innerWidth * (index + 1)),
-              duration: ANIMATION.slide.duration,
-              ease: "power3.inOut",
+              width: "100%",
+              opacity: 1,
+              duration: ANIMATION.progressLine.durationIn,
+              ease: "power2.inOut",
             },
             "<0.03"
           );
+        }
 
-          if (transitionLine) {
-            timeline.to(
-              transitionLine,
-              {
-                width: "0%",
-                left: "100%",
-                opacity: 0,
-                duration: ANIMATION.progressLine.durationOut,
-                ease: "power2.out",
-                onComplete: () => {
-                  gsap.set(transitionLine, { left: "0%" });
-                },
-              },
-              ">-0.08"
-            );
-          }
+        timeline.to(
+          containerRef.current,
+          {
+            x: () => -(window.innerWidth * (index + 1)),
+            duration: ANIMATION.slide.duration,
+            ease: "power3.inOut",
+          },
+          "<0.03"
+        );
 
-          timeline.set(
-            nextData.panelContent,
-            {
-              scale: ANIMATION.nextPanel.setupScale,
-              opacity: ANIMATION.nextPanel.setupOpacity,
-              filter: `blur(${ANIMATION.nextPanel.setupBlur}px)`,
-            },
-            "<-0.1"
-          );
-
+        if (transitionLine) {
           timeline.to(
-            nextData.panelContent,
+            transitionLine,
             {
-              scale: 1,
-              opacity: 1,
-              filter: "blur(0px)",
-              duration: ANIMATION.nextPanel.duration,
+              width: "0%",
+              left: "100%",
+              opacity: 0,
+              duration: ANIMATION.progressLine.durationOut,
               ease: "power2.out",
+              onComplete: () => {
+                gsap.set(transitionLine, { left: "0%" });
+              },
             },
             ">-0.08"
           );
         }
-      });
 
-      return timeline;
-    },
-    [setActiveSection, setCompletedSections]
-  );
+        timeline.set(
+          nextData.panelContent,
+          {
+            scale: ANIMATION.nextPanel.setupScale,
+            opacity: ANIMATION.nextPanel.setupOpacity,
+            filter: `blur(${ANIMATION.nextPanel.setupBlur}px)`,
+          },
+          "<-0.1"
+        );
+
+        timeline.to(
+          nextData.panelContent,
+          {
+            scale: 1,
+            opacity: 1,
+            filter: "blur(0px)",
+            duration: ANIMATION.nextPanel.duration,
+            ease: "power2.out",
+          },
+          ">-0.08"
+        );
+      }
+    }
+
+    return timeline;
+  };
 
   const initAnimations = useCallback(() => {
     if (!wrapperRef.current || !containerRef.current) return;
@@ -452,7 +452,6 @@ export function HorizontalWorks() {
     buildPanelData,
     cleanupAnimations,
     createEntryTrigger,
-    createMainTimeline,
   ]);
 
   useEffect(() => {
