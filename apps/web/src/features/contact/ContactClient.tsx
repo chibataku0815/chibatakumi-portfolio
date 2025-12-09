@@ -6,6 +6,9 @@ import { submitContactForm, type ContactFormState } from "@/app/contact/actions"
 import { AnimatedHeading } from "@/shared/components";
 import type { ContactPageContent } from "@/shared/data/portfolio";
 
+// ARIGATO - Each letter as individual styled text
+const ARIGATO_LETTERS = ['A', 'R', 'I', 'G', 'A', 'T', 'O'];
+
 // =============================================================================
 // Contact Form Client Component
 // Award-worthy contact experience with elegant form interactions
@@ -31,9 +34,11 @@ export default function ContactClient({ contact }: ContactClientProps) {
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
   const formRef = useRef<HTMLFormElement>(null);
+  const formContainerRef = useRef<HTMLDivElement>(null);
   const successRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const checkRef = useRef<SVGPathElement>(null);
+  const arigatoRefs = useRef<(HTMLSpanElement | null)[]>([]);
 
   // Entry animation
   useEffect(() => {
@@ -60,30 +65,78 @@ export default function ContactClient({ contact }: ContactClientProps) {
     return () => ctx.revert();
   }, []);
 
-  // Success animation with checkmark stroke
+  // Success animation with ARIGATO text animation
   useEffect(() => {
-    if (state.success && successRef.current && formRef.current && checkRef.current) {
+    if (state.success && successRef.current && formContainerRef.current) {
       const tl = gsap.timeline();
 
-      // Fade out form
-      tl.to(formRef.current, {
+      // Fade out and hide entire form container (header + form)
+      tl.to(formContainerRef.current, {
         opacity: 0,
         y: -20,
         duration: 0.4,
         ease: "power2.inOut",
+        onComplete: () => {
+          if (formContainerRef.current) formContainerRef.current.style.display = "none";
+        },
       });
 
       // Show success container
       tl.set(successRef.current, { display: "flex" });
 
+      // Get all valid ARIGATO letter refs
+      const validLetters = arigatoRefs.current.filter(Boolean) as HTMLSpanElement[];
+
+      // Phase 1: ARIGATO letters appear with stagger
+      if (validLetters.length > 0) {
+        // Set initial state
+        gsap.set(validLetters, {
+          opacity: 0,
+          y: 60,
+          scale: 0.8,
+          filter: "blur(10px)",
+        });
+
+        // Animate letters with dramatic stagger
+        tl.to(
+          validLetters,
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            filter: "blur(0px)",
+            duration: 0.6,
+            stagger: {
+              each: 0.08,
+              ease: "power2.out",
+            },
+            ease: "power3.out",
+          },
+          "+=0.1"
+        );
+
+        // Phase 2: Glow effect
+        tl.to(
+          validLetters,
+          {
+            textShadow: "0 0 40px rgba(242, 184, 105, 0.8), 0 0 80px rgba(242, 184, 105, 0.4)",
+            duration: 0.5,
+            ease: "power2.out",
+          },
+          "-=0.2"
+        );
+      }
+
       // Animate checkmark stroke
-      const pathLength = checkRef.current.getTotalLength();
-      tl.fromTo(
-        checkRef.current,
-        { strokeDasharray: pathLength, strokeDashoffset: pathLength },
-        { strokeDashoffset: 0, duration: 0.6, ease: "power2.out" },
-        "-=0.1"
-      );
+      if (checkRef.current) {
+        const pathLength = checkRef.current.getTotalLength();
+        tl.fromTo(
+          checkRef.current,
+          { strokeDasharray: pathLength, strokeDashoffset: pathLength },
+          { strokeDashoffset: 0, duration: 0.5, ease: "power2.out" },
+          "-=0.4"
+        );
+      }
 
       // Fade in text elements
       tl.fromTo(
@@ -102,33 +155,35 @@ export default function ContactClient({ contact }: ContactClientProps) {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center px-6 py-24">
       <div ref={containerRef} className="w-full max-w-2xl">
-        {/* Header */}
-        <div className="mb-16 text-center">
-          <AnimatedHeading
-            as="h1"
-            className="mb-6 text-[clamp(2.5rem,8vw,4rem)] font-semibold tracking-[-0.02em] text-[var(--text-base)]"
-          >
-            {contact.title}
-          </AnimatedHeading>
+        {/* Form Container - wraps header + form for unified hide animation */}
+        <div ref={formContainerRef}>
+          {/* Header */}
+          <div className="mb-16 text-center">
+            <AnimatedHeading
+              as="h1"
+              className="mb-6 text-[clamp(2.5rem,8vw,4rem)] font-semibold tracking-[-0.02em] text-[var(--text-base)]"
+            >
+              {contact.title}
+            </AnimatedHeading>
 
-          <div className="space-y-3">
-            {contact.description.split("\n").map((paragraph, i) => (
-              <p
-                key={i}
-                className="text-lg leading-relaxed text-[var(--text-muted)]"
-              >
-                {paragraph}
-              </p>
-            ))}
+            <div className="space-y-3">
+              {contact.description.split("\n").map((paragraph, i) => (
+                <p
+                  key={i}
+                  className="text-lg leading-relaxed text-[var(--text-muted)]"
+                >
+                  {paragraph}
+                </p>
+              ))}
+            </div>
           </div>
-        </div>
 
-        {/* Form */}
-        <form
-          ref={formRef}
-          action={formAction}
-          className="space-y-12"
-        >
+          {/* Form */}
+          <form
+            ref={formRef}
+            action={formAction}
+            className="space-y-12"
+          >
           {/* Name Field */}
           <div className="form-field">
             <FloatingLabelField
@@ -225,23 +280,46 @@ export default function ContactClient({ contact }: ContactClientProps) {
             )}
           </div>
         </form>
+        </div>
 
         {/* Success State */}
         <div
           ref={successRef}
           className="hidden flex-col items-center justify-center py-12 text-center"
         >
+          {/* ARIGATO - Giant Text with stagger animation */}
+          <div className="mb-12 overflow-hidden">
+            <div
+              className="flex items-center justify-center gap-1 sm:gap-2 md:gap-3"
+              aria-label="ARIGATO"
+            >
+              {ARIGATO_LETTERS.map((letter, i) => (
+                <span
+                  key={i}
+                  ref={(el) => { arigatoRefs.current[i] = el; }}
+                  className="inline-block text-[clamp(3rem,15vw,8rem)] font-bold tracking-tight text-[var(--accent-amber1)]"
+                  style={{
+                    fontFamily: "var(--font-geist-sans)",
+                    willChange: "transform, opacity, filter",
+                  }}
+                >
+                  {letter}
+                </span>
+              ))}
+            </div>
+          </div>
+
           {/* Success Icon with animated stroke */}
-          <div className="success-text relative mb-10">
+          <div className="success-text relative mb-8">
             {/* Outer glow ring */}
             <div className="absolute inset-[-12px] rounded-full opacity-30"
               style={{
                 background: "radial-gradient(circle, var(--accent-amber1) 0%, transparent 70%)",
               }}
             />
-            <div className="relative flex h-24 w-24 items-center justify-center rounded-full border-2 border-[var(--accent-amber1)]">
+            <div className="relative flex h-20 w-20 items-center justify-center rounded-full border-2 border-[var(--accent-amber1)]">
               <svg
-                className="h-12 w-12 text-[var(--accent-amber1)]"
+                className="h-10 w-10 text-[var(--accent-amber1)]"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -257,10 +335,10 @@ export default function ContactClient({ contact }: ContactClientProps) {
             </div>
           </div>
 
-          <h2 className="success-text mb-4 text-3xl font-semibold text-[var(--text-base)]">
+          <h2 className="success-text mb-3 text-2xl font-semibold text-[var(--text-base)]">
             送信完了
           </h2>
-          <p className="success-text mb-10 text-lg leading-relaxed text-[var(--text-muted)]">
+          <p className="success-text mb-10 text-base leading-relaxed text-[var(--text-muted)]">
             お問い合わせありがとうございます。<br />
             内容を確認の上、2日以内にご連絡いたします。
           </p>
