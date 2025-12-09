@@ -2,7 +2,21 @@
 
 ## 現在アクティブなタスク
 
-**なし** - 全タスク完了済み
+### ✅ Skills表示順序変更 (2025-12-10)
+- **開始:** 2025-12-10T00:51:33+0900 (Asia/Tokyo)
+- **完了:** 2025-12-10T00:55:00+0900 (Asia/Tokyo)
+- **内容:** Skillsページのスキル表示順序を変更し、コーヒースキルを新規追加
+- **新しい順序:**
+  1. 開発（Code & Interaction Systems）→ パターンA
+  2. デザイン（Identity & Systems）→ パターンB
+  3. 写真関係（Visual & Photo Direction）→ パターンC
+  4. 映像関係（Motion & Sound Layering）→ パターンA
+  5. コーヒー（Coffee & Hospitality）→ パターンB ※新規追加
+- **成果物:**
+  - `.claude/tasks/2025-12-10-skills-reorder-task.md` - タスクドキュメント
+  - `.claude/prompts/2025-12-10-skills-reorder.md` - 実装プロンプト（Haiku 4.5向け）
+- **変更ファイル:**
+  - `apps/web/src/shared/data/portfolio.ts` - multiskillItems配列の順序変更+コーヒー追加
 
 ---
 
@@ -224,4 +238,4 @@
 
 ---
 
-最終更新: 2025-12-09T20:45:00+0900 (Asia/Tokyo)
+最終更新: 2025-12-10T00:51:33+0900 (Asia/Tokyo)

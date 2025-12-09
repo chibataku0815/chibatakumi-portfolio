@@ -206,19 +206,8 @@ export interface PortfolioData {
 // =============================================================================
 
 // Works/Skills 共通で使うマルチスキル項目
+// 順序: 1.開発 2.デザイン 3.写真 4.映像 5.コーヒー
 const multiskillItems: WorkItem[] = [
-  {
-    id: "01",
-    title: "Visual & Photo Direction",
-    description:
-      "スタジオ/ロケ撮影からカラー設計、Web/誌面での再現までをワンストップ。光とトーンを先に決め、実装時の再現性まで見据えて仕上げる。",
-    meta: "Visual & Photo",
-    role: "Photography / Color Science",
-    tags: ["Lighting Design", "Color Grading", "Retouch & Delivery", "Film & Stills"],
-    media: { type: "image", src: "/spotlight/img_1.jpg", alt: "Visual Direction" },
-    background: "#0b0b0b",
-    accent: "#f2b869",
-  },
   {
     id: "02",
     title: "Code & Interaction Systems",
@@ -230,6 +219,30 @@ const multiskillItems: WorkItem[] = [
     media: { type: "image", src: "/spotlight/img_4.jpg", alt: "Interactive" },
     background: "#0c0c0c",
     accent: "#e8a85a",
+  },
+  {
+    id: "04",
+    title: "Identity & Systems",
+    description:
+      "写真・映像・UIが同じ声で鳴るようにデザインシステムを構築。ブランドトーンと実装ルールをセットで定義し、運用まで伴走する。",
+    meta: "Identity & Systems",
+    role: "Design System / Frontend Lead",
+    tags: ["Brand Voice", "Component Library", "Figma", "Guideline"],
+    media: { type: "image", src: "/spotlight/img_10.jpg", alt: "Identity Systems" },
+    background: "#0d0d0d",
+    accent: "#f0b25a",
+  },
+  {
+    id: "01",
+    title: "Visual & Photo Direction",
+    description:
+      "スタジオ/ロケ撮影からカラー設計、Web/誌面での再現までをワンストップ。光とトーンを先に決め、実装時の再現性まで見据えて仕上げる。",
+    meta: "Visual & Photo",
+    role: "Photography / Color Science",
+    tags: ["Lighting Design", "Color Grading", "Retouch & Delivery", "Film & Stills"],
+    media: { type: "image", src: "/spotlight/img_1.jpg", alt: "Visual Direction" },
+    background: "#0b0b0b",
+    accent: "#f2b869",
   },
   {
     id: "03",
@@ -244,16 +257,16 @@ const multiskillItems: WorkItem[] = [
     accent: "#e19246",
   },
   {
-    id: "04",
-    title: "Identity & Systems",
+    id: "05",
+    title: "Coffee & Hospitality",
     description:
-      "写真・映像・UIが同じ声で鳴るようにデザインシステムを構築。ブランドトーンと実装ルールをセットで定義し、運用まで伴走する。",
-    meta: "Identity & Systems",
-    role: "Design System / Frontend Lead",
-    tags: ["Brand Voice", "Component Library", "Figma", "Guideline"],
-    media: { type: "image", src: "/spotlight/img_10.jpg", alt: "Identity Systems" },
-    background: "#0d0d0d",
-    accent: "#f0b25a",
+      "スペシャルティコーヒーの焙煎・抽出から、空間演出としてのサービス設計まで。一杯を通じて体験全体をデザインする視点を持つ。",
+    meta: "Coffee & Hospitality",
+    role: "Barista / Coffee Consultant",
+    tags: ["Specialty Coffee", "Roasting", "Extraction", "Hospitality"],
+    media: { type: "image", src: "/spotlight/img_5.jpg", alt: "Coffee" },
+    background: "#0b0b0b",
+    accent: "#c4a574",
   },
 ];
 
