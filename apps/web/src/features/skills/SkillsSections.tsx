@@ -1,0 +1,347 @@
+"use client";
+
+import { AnimatedHeading } from "@/shared/components";
+import {
+  FluidGradientBackground,
+  fluidConfigMonochrome,
+} from "@/features/fluid-gradient";
+import type { WorkItem } from "@/shared/data/portfolio";
+import { ReactNode } from "react";
+
+const BASE_BG = "#0b0b0b";
+const BAND_BG = "#f2f2f2";
+
+// 構図パターン: A=右重心, B=左重心, C=中央緊張
+type LayoutPattern = "A" | "B" | "C";
+
+function getLayoutPattern(index: number): LayoutPattern {
+  const patterns: LayoutPattern[] = ["A", "B", "C"];
+  return patterns[index % 3];
+}
+
+interface SkillSectionProps {
+  skill: WorkItem;
+  index: number;
+  setRef: (el: HTMLElement | null, index: number) => void;
+}
+
+export function SkillsLayout({ children }: { children: ReactNode }) {
+  return (
+    <main className="relative min-h-screen overflow-x-hidden text-[var(--text-base)]">
+      {children}
+    </main>
+  );
+}
+
+export function SkillsBackground() {
+  return (
+    <div className="pointer-events-none fixed inset-0 -z-[5]">
+      <FluidGradientBackground
+        className="h-full w-full"
+        config={fluidConfigMonochrome}
+        fadeIn={true}
+      />
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundColor: BASE_BG,
+          mixBlendMode: "multiply",
+          opacity: 0.9,
+        }}
+      />
+    </div>
+  );
+}
+
+export function SkillsIntro() {
+  return (
+    <section className="relative z-10 flex min-h-[70vh] items-end px-6 pb-24 sm:px-10">
+      <div className="mx-auto w-full max-w-7xl">
+        <div className="grid gap-8 md:grid-cols-[1fr,1.5fr]">
+          <div className="space-y-6">
+            <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[11px] font-mono uppercase tracking-[0.24em] text-[var(--text-muted)]">
+              Hybrid Skillset
+              <span className="h-px w-12 bg-[var(--accent-amber1)]" />
+            </div>
+            <AnimatedHeading
+              as="h1"
+              className="text-[clamp(2.8rem,8vw,5rem)] font-semibold leading-[0.95] tracking-[-0.03em] text-[var(--text-base)]"
+            >
+              Skills
+            </AnimatedHeading>
+          </div>
+          <div className="flex flex-col justify-end">
+            <p className="max-w-xl text-[clamp(1.1rem,1.5vw,1.4rem)] leading-relaxed text-[var(--text-base-80)]">
+              写真・映像・コード・モーション。
+              <br />
+              <span className="text-[var(--text-base-60)]">
+                すべてが一人の視点で繋がるとき、翻訳ロスは消え、意図だけが残る。
+              </span>
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export function SkillSection({ skill, index, setRef }: SkillSectionProps) {
+  const pattern = getLayoutPattern(index);
+
+  return (
+    <section
+      ref={(el) => setRef(el, index)}
+      className="skill-section relative isolate min-h-screen overflow-visible px-6 py-24 sm:px-10"
+      data-pattern={pattern}
+    >
+      {/* Grid Lines (背景レイヤー) */}
+      <div
+        className="grid-lines pointer-events-none absolute inset-0 -z-[6] mix-blend-soft-light"
+        style={{
+          backgroundImage:
+            "linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(0deg, rgba(255,255,255,0.08) 1px, transparent 1px)",
+          backgroundSize: "100px 100px",
+          opacity: 0,
+          willChange: "transform, opacity",
+        }}
+      />
+
+      {/* Ghost Text - フルワード、はみ出し */}
+      <div
+        className="ghost pointer-events-none absolute -z-2 select-none whitespace-nowrap font-black uppercase leading-none tracking-[-0.06em]"
+        style={{
+          fontSize: "clamp(10rem, 25vw, 20rem)",
+          color: "rgba(255,255,255,0.15)",
+          mixBlendMode: "overlay",
+          willChange: "transform, opacity",
+          ...(pattern === "A"
+            ? { right: "-15%", top: "10%" }
+            : pattern === "B"
+              ? { left: "-15%", top: "15%" }
+              : { left: "50%", top: "5%", transform: "translateX(-50%)" }),
+        }}
+      >
+        {skill.meta.split(" ")[0].toUpperCase()}
+      </div>
+
+      {/* Content Grid */}
+      <div className="mx-auto max-w-7xl">
+        {pattern === "A" && <PatternA skill={skill} />}
+        {pattern === "B" && <PatternB skill={skill} />}
+        {pattern === "C" && <PatternC skill={skill} />}
+      </div>
+
+      {/* Rail */}
+      <div className="pointer-events-none absolute inset-y-0 left-0 flex w-12 items-center justify-center sm:w-16">
+        <div className="rail absolute inset-y-24 right-0 w-px bg-white/20" />
+        <div className="-rotate-90 whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.32em] text-[var(--text-base-40)]">
+          {`Skill ${String(index + 1).padStart(2, "0")}`}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// Pattern A: 右重心
+function PatternA({ skill }: { skill: WorkItem }) {
+  return (
+    <div className="grid min-h-[70vh] items-center gap-12 md:grid-cols-[1.2fr,1fr]">
+      {/* Left: Content */}
+      <div className="skill-content flex flex-col gap-8">
+        <div className="space-y-4">
+          {/* Meta line */}
+          <div className="accent-element flex items-center gap-4 text-[var(--text-base-60)]">
+            <span className="font-mono text-xs uppercase tracking-[0.2em]">
+              {skill.meta}
+            </span>
+            <span
+              className="h-px w-16"
+              style={{ backgroundColor: skill.accent ?? "var(--accent-amber1)" }}
+            />
+            <span className="text-xs">Since 2011</span>
+          </div>
+
+          {/* Title */}
+          <div className="relative">
+            <div className="title-shadow absolute inset-0 translate-x-3 translate-y-3 bg-black/60" />
+            <h2
+              className="title-band relative inline-block text-[clamp(2.4rem,5vw,4rem)] font-semibold leading-[1] tracking-[-0.02em] text-black"
+              style={{
+                backgroundColor: BAND_BG,
+                padding: "0.3em 0.5em",
+              }}
+            >
+              {skill.title}
+            </h2>
+          </div>
+        </div>
+
+        {/* Description */}
+        <p className="description max-w-lg text-[clamp(1rem,1.3vw,1.2rem)] leading-relaxed text-[var(--text-base-80)]">
+          {skill.description}
+        </p>
+
+        {/* Tags */}
+        <div className="flex flex-wrap gap-3">
+          {skill.tags?.map((tag) => (
+            <span
+              key={`${skill.id}-${tag}`}
+              className="tag rounded-full border border-white/12 bg-white/6 px-4 py-2 text-[13px] font-medium text-[var(--text-base-70)] transition-all duration-200 hover:-translate-y-1 hover:border-white/20 hover:bg-white/10"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* Right: Image */}
+      {skill.media?.type === "image" && (
+        <div className="skill-image relative aspect-[4/5] overflow-hidden rounded-2xl">
+          <img
+            src={skill.media.src}
+            alt={skill.media.alt ?? skill.title}
+            className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+          />
+          <div className="absolute bottom-4 left-4 rounded bg-black/70 px-3 py-1 text-xs font-mono uppercase tracking-wider text-white/80">
+            {skill.role}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Pattern B: 左重心
+function PatternB({ skill }: { skill: WorkItem }) {
+  return (
+    <div className="grid min-h-[70vh] items-center gap-12 md:grid-cols-[1fr,1.2fr]">
+      {/* Left: Image */}
+      {skill.media?.type === "image" && (
+        <div className="skill-image relative aspect-[4/5] overflow-hidden rounded-2xl">
+          <img
+            src={skill.media.src}
+            alt={skill.media.alt ?? skill.title}
+            className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+          />
+          <div className="absolute bottom-4 right-4 rounded bg-black/70 px-3 py-1 text-xs font-mono uppercase tracking-wider text-white/80">
+            {skill.role}
+          </div>
+        </div>
+      )}
+
+      {/* Right: Content */}
+      <div className="skill-content flex flex-col gap-8">
+        <div className="space-y-4">
+          {/* Meta line */}
+          <div className="accent-element flex items-center justify-end gap-4 text-[var(--text-base-60)]">
+            <span className="text-xs">Since 2011</span>
+            <span
+              className="h-px w-16"
+              style={{ backgroundColor: skill.accent ?? "var(--accent-amber1)" }}
+            />
+            <span className="font-mono text-xs uppercase tracking-[0.2em]">
+              {skill.meta}
+            </span>
+          </div>
+
+          {/* Title */}
+          <div className="relative text-right">
+            <div className="title-shadow absolute inset-0 -translate-x-3 translate-y-3 bg-black/60" />
+            <h2
+              className="title-band relative inline-block text-[clamp(2.4rem,5vw,4rem)] font-semibold leading-[1] tracking-[-0.02em] text-black"
+              style={{
+                backgroundColor: BAND_BG,
+                padding: "0.3em 0.5em",
+              }}
+            >
+              {skill.title}
+            </h2>
+          </div>
+        </div>
+
+        {/* Description */}
+        <p className="description max-w-lg text-right text-[clamp(1rem,1.3vw,1.2rem)] leading-relaxed text-[var(--text-base-80)] md:ml-auto">
+          {skill.description}
+        </p>
+
+        {/* Tags */}
+        <div className="flex flex-wrap justify-end gap-3">
+          {skill.tags?.map((tag) => (
+            <span
+              key={`${skill.id}-${tag}`}
+              className="tag rounded-full border border-white/12 bg-white/6 px-4 py-2 text-[13px] font-medium text-[var(--text-base-70)] transition-all duration-200 hover:-translate-y-1 hover:border-white/20 hover:bg-white/10"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Pattern C: 中央緊張
+function PatternC({ skill }: { skill: WorkItem }) {
+  return (
+    <div className="flex min-h-[70vh] flex-col items-center justify-center gap-12">
+      {/* Title (Center) */}
+      <div className="relative text-center">
+        <div className="title-shadow absolute inset-0 translate-y-4 bg-black/60" />
+        <h2
+          className="title-band relative inline-block text-[clamp(2.8rem,6vw,5rem)] font-semibold leading-[1] tracking-[-0.02em] text-black"
+          style={{
+            backgroundColor: BAND_BG,
+            padding: "0.3em 0.6em",
+          }}
+        >
+          {skill.title}
+        </h2>
+      </div>
+
+      {/* Content Grid */}
+      <div className="grid w-full max-w-5xl gap-8 md:grid-cols-[1fr,1.5fr]">
+        {/* Left: Image */}
+        {skill.media?.type === "image" && (
+          <div className="skill-image relative aspect-square overflow-hidden rounded-2xl">
+            <img
+              src={skill.media.src}
+              alt={skill.media.alt ?? skill.title}
+              className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+            />
+          </div>
+        )}
+
+        {/* Right: Description + Tags */}
+        <div className="skill-content flex flex-col justify-center gap-6">
+          {/* Meta */}
+          <div className="accent-element flex items-center gap-4 text-[var(--text-base-60)]">
+            <span className="font-mono text-xs uppercase tracking-[0.2em]">
+              {skill.meta}
+            </span>
+            <span
+              className="h-px flex-1"
+              style={{ backgroundColor: skill.accent ?? "var(--accent-amber1)" }}
+            />
+          </div>
+
+          {/* Description */}
+          <p className="description text-[clamp(1rem,1.3vw,1.2rem)] leading-relaxed text-[var(--text-base-80)]">
+            {skill.description}
+          </p>
+
+          {/* Tags */}
+          <div className="flex flex-wrap gap-3">
+            {skill.tags?.map((tag) => (
+              <span
+                key={`${skill.id}-${tag}`}
+                className="tag rounded-full border border-white/12 bg-white/6 px-4 py-2 text-[13px] font-medium text-[var(--text-base-70)] transition-all duration-200 hover:-translate-y-1 hover:border-white/20 hover:bg-white/10"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

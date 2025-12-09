@@ -2,46 +2,102 @@
 
 ## 現在アクティブなタスク
 
-### Loop Style Rule Documentation (2025-12-08)
-- **開始:** 2025-12-08T02:22:20+09:00 (Asia/Tokyo)
-- **完了:** 2025-12-08T02:23:05+09:00 (Asia/Tokyo)
-- **ステータス:** 完了
-- **内容:** ループ記法ルール（forEach / `for (let i...)` 禁止）をグローバルルールとナレッジに追記。
-- **影響ファイル:**
-  - `.ai/GLOBAL.md`
-  - `.ai/knowledge/2025-12-08-loop-style-guideline.md`
-- **Agent:** Codex CLI
+**なし** - 全タスク完了済み
 
-### Skills Page Creation (2025-12-08)
+---
+
+## 直近の完了タスク
+
+### ✅ Skills Upgrade 2025: Excellence Framework Level 5 (2025-12-09)
+- **開始:** 2025-12-09T21:00:00+0900 (Asia/Tokyo)
+- **完了:** 2025-12-09T22:30:00+0900 (Asia/Tokyo)
+- **内容:** スキル構成を「作品賞受賞レベル（Award-Worthy Level 5）」に刷新
+- **フェーズ構成:**
+  - Excellence Framework 設計（5段階評価基準）✅
+  - art-direction スキル Level 5 対応 ✅
+  - motion-design スキル Level 5 対応 ✅
+  - webgl-shader スキル Level 5 対応 ✅
+  - ドキュメント整備（README, SKILLS-UPGRADE-2025.md）✅
+- **成果物:**
+  - `.claude/skills/EXCELLENCE-FRAMEWORK.md` - 5段階卓越性評価基準
+  - `.claude/skills/SKILLS-UPGRADE-2025.md` - 改善履歴ドキュメント
+  - `.claude/skills/art-direction/SKILL.md` - Level 5 対応完了
+  - `.claude/skills/motion-design/SKILL.md` - Level 5 対応完了
+  - `.claude/skills/webgl-shader/SKILL.md` - Level 5 対応完了（今回）
+  - `.claude/skills/README.md` - 全体統合ドキュメント更新
+- **Level 5 の特徴:**
+  - Award-Worthy Reference Library（必修参照サイト）
+  - Signature Moment 定義（このサイトでしか体験できない瞬間）
+  - 6軸 Quality Checklist（Innovation, Performance, Integration, Craft, Emotion, Uniqueness）
+  - 技術革新 + 感情的インパクトの両立
+  - 2024-2025 受賞トレンド統合
+- **哲学:**
+  - 「良い」は敵。「素晴らしい」を目指す
+  - Level 3 で満足しない、Level 5 を当然の目標とする
+  - 到達できなくても目指すことで Level 4 に到達する
+- **コミット:**
+  - `3d04042` feat: upgrade webgl-shader skill to Level 5 award-worthy standard
+- **関連ナレッジ:**
+  - `.ai/knowledge/2025-12-09-skills-upgrade-excellence-framework.md`
+
+### ✅ Skills & Profile Quality Enhancement (2025-12-09)
+- **開始:** 2025-12-09T13:24:42+0900 (Asia/Tokyo)
+- **完了:** 2025-12-09T20:45:00+0900 (Asia/Tokyo)
+- **内容:** Skills/Profile ページのデザイン・アニメーション品質を Awwwards/FWA レベルに引き上げ
+- **フェーズ構成:**
+  - Phase 1: Skills Page Architecture（Client Component変換 + GSAP導入）✅
+  - Phase 2: Skills Page Animations（Entry, Ghost, Band, Tags, Grid）✅
+  - Phase 3: Profile Page Fixes（Ghost opacity, ease, performance）✅
+  - Phase 4: Design Tokens（globals.css統一）✅
+- **成果物:**
+  - `.claude/prompts/2025-12-09-skills-page-animation.md` - Skills Page実装プロンプト
+  - `.claude/prompts/2025-12-09-profile-page-fixes.md` - Profile Page修正プロンプト
+  - `.claude/prompts/2025-12-09-design-tokens.md` - Design Tokens追加プロンプト
+  - `apps/web/src/features/skills/` - Skills Feature モジュール
+  - `apps/web/src/features/profile/ProfileAnimations.ts` - Profile アニメーション分離
+- **影響ファイル:**
+  - `apps/web/src/features/skills/SkillsClient.tsx`（新規）
+  - `apps/web/src/features/skills/SkillsSections.tsx`（新規）
+  - `apps/web/src/features/skills/index.ts`（新規）
+  - `apps/web/src/app/skills/page.tsx`（変更）
+  - `apps/web/src/features/profile/ProfileClient.tsx`（変更）
+  - `apps/web/src/features/profile/ProfileSections.tsx`（変更）
+  - `apps/web/src/features/profile/ProfileAnimations.ts`（新規）
+  - `apps/web/src/app/globals.css`（変更）
+
+### ✅ Skills Page Creation (2025-12-08)
 - **開始:** 2025-12-08T02:15:47+09:00 (Asia/Tokyo)
-- **ステータス:** 進行中
+- **完了:** 2025-12-09T20:45:00+0900 (Asia/Tokyo)
 - **内容:** `/skills` ページ追加。マルチスキル訴求のため、Works/Case-Study と Profile 情報を統合し、FluidGradient 背景上にモノトーン+最小アンバーでセクション化。ナビに Skills を追加し、Works 導線を整理。
 - **影響ファイル:**
   - `apps/web/src/app/skills/page.tsx`（新規）
   - `apps/web/src/shared/data/portfolio.ts`
   - `apps/web/src/shared/components/nav/MainNav.tsx`
-- **Agent:** Codex CLI
-- **備考:** コミット禁止。既存構造を壊さず最小差分。
 
-### HorizontalWorks Maintainability Refactor (2025-12-08)
+### ✅ Loop Style Rule Documentation (2025-12-08)
+- **開始:** 2025-12-08T02:22:20+09:00 (Asia/Tokyo)
+- **完了:** 2025-12-08T02:23:05+09:00 (Asia/Tokyo)
+- **内容:** ループ記法ルール（forEach / `for (let i...)` 禁止）をグローバルルールとナレッジに追記。
+- **影響ファイル:**
+  - `.ai/GLOBAL.md`
+  - `.ai/knowledge/2025-12-08-loop-style-guideline.md`
+
+### ✅ HorizontalWorks Maintainability Refactor (2025-12-08)
 - **開始:** 2025-12-08T02:11:29+09:00 (Asia/Tokyo)
 - **完了:** 2025-12-08T02:17:42+09:00 (Asia/Tokyo)
-- **ステータス:** 完了
 - **内容:** `HorizontalWorks` のスクロール/アニメーションロジックを分離整理し、保守性を高めるリファクタリング。
 - **影響ファイル:**
   - `apps/web/src/features/works/horizontal/HorizontalWorks.tsx`
-- **Agent:** Codex CLI
-- **備考:** コミット不要
 
-### Index Brushup - グラフィックデザイン強化 (2025-12-07)
+### ✅ Index Brushup - グラフィックデザイン強化 (2025-12-07)
 - **開始:** 2025-12-07T22:52:14+0900 (Asia/Tokyo)
-- **ステータス:** 全フェーズ プロンプト作成完了・実装待機
+- **完了:** 2025-12-09T20:45:00+0900 (Asia/Tokyo)
 - **内容:** indexページのビジュアルインパクト強化。グラフィックデザイン観点（構図、タイポグラフィ、モーション）からの全面リデザイン。
 - **フェーズ構成:**
-  - Phase 1: Hero Section リデザイン（非対称配置、タイポグラフィ強化）← **プロンプト作成済み**
-  - Phase 2: Hero → Works トランジション演出強化 ← **プロンプト作成済み**
-  - Phase 3: Works Section リデザイン（パネルごとに構図変化）← **プロンプト作成済み**
-  - Phase 4: 視覚言語の統一（アンバーアクセント活用）← **プロンプト作成済み**
+  - Phase 1: Hero Section リデザイン（非対称配置、タイポグラフィ強化）✅
+  - Phase 2: Hero → Works トランジション演出強化 ✅
+  - Phase 3: Works Section リデザイン（パネルごとに構図変化）✅
+  - Phase 4: 視覚言語の統一（アンバーアクセント活用）✅
 - **成果物:**
   - `.claude/tasks/2025-12-07-index-brushup-plan.md` - 全体計画
   - `.claude/prompts/2025-12-07-claude-code-index-brushup-hero.md` - Phase 1 実装プロンプト
@@ -54,20 +110,17 @@
   - `.claude/skills/motion-design/` - モーションデザイン
 - **影響ファイル:**
   - `src/features/hero/components/HeroText.tsx` - 構図・タイポグラフィ変更
-  - `src/features/works/horizontal/HorizontalWorks.tsx` - パネル構図変更（Phase 3）
+  - `src/features/works/horizontal/HorizontalWorks.tsx` - パネル構図変更
   - `src/app/globals.css` - スタイル追加
-- **備考:** 実装は Claude Code (Haiku 4.5) に委譲。**コミット禁止**。
 
----
-
-### Marketing Strategy & Content Update (2025-12-07)
+### ✅ Marketing Strategy & Content Update (2025-12-07)
 - **開始:** 2025-12-07
-- **ステータス:** プロンプト作成完了・実装待機
+- **完了:** 2025-12-09T20:45:00+0900 (Asia/Tokyo)
 - **内容:** ポートフォリオマーケティング戦略の策定とコンテンツ更新。「統合クリエイティブ・パートナー」としてのポジショニング確立。
 - **フェーズ構成:**
-  - 戦略策定: マーケティング戦略ドキュメント作成 ← **完了**
-  - スキル追加: Strategy Layer スキル3種追加 ← **完了**
-  - コンテンツ更新: Hero/Contact/Works コピー更新 ← **プロンプト作成済み**
+  - 戦略策定: マーケティング戦略ドキュメント作成 ✅
+  - スキル追加: Strategy Layer スキル3種追加 ✅
+  - コンテンツ更新: Hero/Contact/Works コピー更新 ✅
 - **成果物:**
   - `.ai/knowledge/2025-12-07-portfolio-marketing-strategy.md` - マーケティング戦略定義書
   - `.claude/skills/brand-strategy/SKILL.md` - ブランド戦略スキル
@@ -79,21 +132,9 @@
   - 翻訳ロスゼロ（一人で完結）
   - 一貫したブランド体験
   - AIネイティブ効率
-- **Target Psychology:**
-  - 美意識の高い経営者 / 決裁権者
-  - ユーザージャーニー: Intrigue → Recognition → Discovery → Realization → Action
 - **影響ファイル:**
   - `src/shared/data/portfolio.ts` - コンテンツデータ更新
   - `src/app/contact/page.tsx` - Contact UI更新
-- **備考:** 実装は Claude Code (Haiku 4.5) に委譲。**コミット禁止**。
-
----
-
-最終更新: 2025-12-07T23:49:06+0900 (Asia/Tokyo)
-
----
-
-## 直近の完了タスク
 
 ### ✅ Design Consistency Brushup (2025-12-07)
 - **完了:** 2025-12-07T23:21:33+0900 (Asia/Tokyo)
@@ -144,75 +185,43 @@
   - `.claude/prompts/2025-12-07-claude-code-fluid-gradient-integration.md`
   - `.claude/prompts/2025-12-07-claude-code-fluid-gradient-sections.md`
 
-### ✅ apps/web Portfolio Prompt Refresh (2025-12-05)
-- **完了:** 2025-12-05T23:10:46+09:00 (Asia/Tokyo)
-- **内容:** Claude Code (Haiku 4.5) 向けにポートフォリオ実データ差し替え用の詳細プロンプトとタスクドキュメントを整備。ロゴ差し替え設計、データ集約スキーマ、挙動のガードレールを明記。
-- **成果物:**
-  - `.claude/tasks/2025-12-05-web-portfolio-prompt-refresh.md`
-  - `.claude/prompts/2025-12-05-claude-code-web-portfolio-prompt-refresh.md`
-  - `.claude/tasks/ACTIVE-PARALLEL-TASK.md`（更新）
-- **備考:** 実装は未着手。コミット/依存追加禁止をプロンプトに明示。
-
-### ✅ apps/web Page Transition & Multipage 計画 (2025-12-05)
-- **完了:** 2025-12-05T22:32:00+09:00 (Asia/Tokyo)
-- **内容:** apps/web 向けのマルチページ/トランジション設計計画およびClaude Code実装プロンプト作成
-- **成果物:**
-  - `.claude/tasks/2025-12-05-web-page-transition-plan.md`
-  - `.claude/prompts/2025-12-05-claude-code-web-transition.md`
-  - `.claude/tasks/ACTIVE-PARALLEL-TASK.md`（更新）
-- **備考:** 実装は未着手。後続でClaude Code (Haiku 4.5) に委譲予定。
-
-### ✅ Codegrid Page Transition Multipage 設計 (2025-12-05)
-- **完了:** 2025-12-05T22:25:00+09:00 (Asia/Tokyo)
-- **内容:** マルチページ化の計画策定とClaude Code向け実装プロンプト作成
-- **成果物:**
-  - `.claude/tasks/2025-12-05-codegrid-transition-plan.md`
-  - `.claude/prompts/2025-12-05-claude-code-codegrid-transition.md`
-  - `.claude/tasks/ACTIVE-PARALLEL-TASK.md`（更新）
-- **備考:** 実装は未着手。後続でClaude Code (Haiku 4.5) に委譲予定。
-
-### ✅ apps/web Page Transition & Multipage 実装 (2025-12-05)
-- **完了:** 2025-12-05T22:40:00+09:00 (Asia/Tokyo)
-- **内容:** PageTransition（20ブロック＋ロゴストローク）導入、Nav/AnimatedHeading追加、マルチページ構成（Motion/Interactive/Installation/Archive/Contact）とトップのジャンルカードを実装
-- **成果物:** `src/shared/transitions/*`, `src/shared/components/*`, `src/app/*`（各ページ追加・レイアウト更新）
-- **備考:** コミット未実施。トランジションは`data-transition="true"`リンクのみをインターセプト。
-
-### ✅ apps/web Portfolio Content Handoff (2025-12-05)
-- **完了:** 2025-12-05T22:48:00+09:00 (Asia/Tokyo)
-- **内容:** サンプルコンテンツを本人ポートフォリオ用に刷新するための引き継ぎプロンプト/タスク整理。ロゴ・タイトルSVGの格納先設計提案。
-- **成果物:** `.claude/tasks/archive/2025-12-05-web-portfolio-content-handoff.md`, `.claude/prompts/2025-12-05-claude-code-web-portfolio-handoff.md`
-- **備考:** 実装は未着手。コンテンツ/アセットを本人提供前提で設計。
-
-### ✅ Reference Files Integration Plan (2025-12-05)
-- **完了:** 2025-12-05T22:03:41+09:00 (Asia/Tokyo)
-- **内容:** 参考ファイル精査と `apps/web` への組み込み計画策定、Claude Code向け実装プロンプト作成
-- **成果物:**
-  - `.claude/tasks/2025-12-05-reference-integration-plan.md`
-  - `.claude/prompts/2025-12-05-claude-code-reference-integration.md`
-  - `.claude/tasks/ACTIVE-PARALLEL-TASK.md`（更新）
-- **備考:** 実装は未着手。後続タスクでClaude Code (Haiku 4.5) に委譲予定。
-
-### ✅ Global Rules Strategy (2025-12-05)
-- **完了:** 2025-12-05T21:00:00+09:00
-- **内容:** パラレルワーク対応のグローバルルール策定
-- **成果物:**
-  - `.ai/GLOBAL.md` - 全AIツール共通ルール
-  - `.ai/parallel-work.md` - パラレルワーク協調プロトコル
-  - `.ai/tool-mapping.md` - ツール機能マッピング
-  - `.cursor/rules/*.mdc` - Cursor AI専用ルール（3ファイル）
-  - `AGENTS.md` - Codex CLI専用（リファクタリング）
-  - `CLAUDE.md` - Claude Code専用（リファクタリング）
-- **削除:** `.cursorrules`（旧形式）
-- **ナレッジ:** `.claude/knowledge/2025-12-05-global-rules-strategy.md`
-
 ---
 
 ## Archived Tasks
 
 以下は完了済みタスクのアーカイブ参照:
 
+### 2025-12-09
+- `archive/2025-12-09-skills-profile-quality-enhancement.md` - Skills/Profile品質向上
+
+### 2025-12-08
+- `archive/2025-12-08-skills-page-creation.md` - Skills Page作成
+- `archive/2025-12-08-loop-style-rule.md` - ループスタイルルール
+
+### 2025-12-07
+- `archive/2025-12-07-index-brushup.md` - Index Brushup計画
+- `archive/2025-12-07-marketing-strategy.md` - マーケティング戦略
+- `archive/2025-12-07-design-consistency-brushup.md` - デザイン統一性
+- `archive/2025-12-07-scroll-snap-implementation.md` - スクロールスナップ
+- `archive/2025-12-07-fluid-gradient-integration.md` - Fluid Gradient統合
+
+### 2025-12-05
 - `archive/2025-12-05-hero-text-animation-handoff.md` - Hero Text Animation引き継ぎ
+- `archive/2025-12-05-web-portfolio-content-handoff.md` - Portfolio Content引き継ぎ
+- `archive/2025-12-05-web-page-transition-implementation.md` - Page Transition実装
+- `archive/2025-12-05-reference-integration-plan.md` - Reference統合計画
+
+### 2025-12-04
 - `archive/2025-12-04-typography-shader-implementation-prompt.md` - Typography/Shader実装プロンプト
+
+### 2025-12-03
+- `archive/2025-12-03-next-webgl-handoff-prompt.md` - WebGL保守性ハンドオフ
+- `archive/2025-12-03-typography-and-shader-brief.md` - Typography/Shader概要
+
+### 2025-12-02
 - `archive/2025-12-02-bun-next-setup-guide.md` - Bun版 Next.js初期セットアップ
 - `archive/2025-12-02-hero-bg-unification-prompt.md` - Hero/背景親和プロンプト
-- `archive/2025-12-03-next-webgl-handoff-prompt.md` - WebGL保守性ハンドオフ
+
+---
+
+最終更新: 2025-12-09T20:45:00+0900 (Asia/Tokyo)

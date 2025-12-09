@@ -1,5 +1,10 @@
+"use client";
+
 import { AnimatedHeading } from "@/shared/components";
-import { FluidGradientBackground, fluidConfigMonochrome } from "@/features/fluid-gradient";
+import {
+  FluidGradientBackground,
+  fluidConfigMonochrome,
+} from "@/features/fluid-gradient";
 import { ReactNode } from "react";
 
 const BASE_BG = "#0b0b0b";
@@ -26,28 +31,38 @@ export interface Experience {
 interface StrengthSectionProps {
   strength: Strength;
   index: number;
+  total: number;
   setRef: (el: HTMLElement | null, index: number) => void;
 }
 
 interface TimelineSectionProps {
   exp: Experience;
   index: number;
+  total: number;
   setRef: (el: HTMLElement | null, index: number) => void;
 }
 
 export function ProfileIntro() {
   return (
-    <section className="relative z-10 flex min-h-[60vh] items-center justify-center px-6 py-24">
-      <div className="max-w-4xl text-center">
-        <AnimatedHeading
-          as="h1"
-          className="mb-4 text-[clamp(2.5rem,8vw,4.5rem)] font-semibold tracking-[-0.03em] text-[var(--text-base)]"
-        >
-          Experience & Skills
-        </AnimatedHeading>
-        <p className="mx-auto max-w-3xl text-lg leading-relaxed text-[var(--text-muted)]">
-          デザイン・コード・映像を一人で統合し、意図通りのアウトプットを作る。
-        </p>
+    <section className="relative z-10 flex min-h-[60vh] items-end px-6 pb-20 sm:px-10">
+      <div className="mx-auto w-full max-w-6xl">
+        <div className="grid gap-8 md:grid-cols-[1.2fr,1fr]">
+          <div>
+            <AnimatedHeading
+              as="h1"
+              className="mb-4 text-[clamp(3rem,10vw,6rem)] font-semibold leading-[0.9] tracking-[-0.04em] text-[var(--text-base)]"
+            >
+              Profile
+            </AnimatedHeading>
+          </div>
+          <div className="flex items-end">
+            <p className="max-w-md text-[clamp(1rem,1.4vw,1.3rem)] leading-relaxed text-[var(--text-base-70)]">
+              デザイン・コード・映像を一人で統合し、
+              <span className="text-[var(--text-base)]">意図通りのアウトプット</span>
+              を作る。
+            </p>
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -58,7 +73,13 @@ export function ProfileBackground() {
     <div className="pointer-events-none fixed inset-0 -z-[5]">
       <FluidGradientBackground
         className="h-full w-full"
-        config={fluidConfigMonochrome}
+        config={{
+          ...fluidConfigMonochrome,
+          brushStrength: 0.25,
+          distortionAmount: 0.12,
+          colorIntensity: 0.35,
+          softness: 0.85,
+        }}
         fadeIn={true}
       />
       <div
@@ -66,247 +87,288 @@ export function ProfileBackground() {
         style={{
           backgroundColor: BASE_BG,
           mixBlendMode: "multiply",
-          opacity: 0.9,
+          opacity: 0.93,
         }}
       />
     </div>
   );
 }
 
-export function StrengthSection({ strength, index, setRef }: StrengthSectionProps) {
+export function StrengthSection({
+  strength,
+  index,
+  total,
+  setRef,
+}: StrengthSectionProps) {
+  // 非対称配置: 偶数は左寄り、奇数は右寄り
+  const isEven = index % 2 === 0;
+
   return (
     <section
-      key={strength.id}
       ref={(el) => setRef(el, index)}
-      className="strength-section relative isolate flex min-h-[70vh] items-center overflow-hidden px-8 py-16 sm:px-12 md:px-16 lg:px-20"
+      className="strength-section relative isolate min-h-[60vh] overflow-visible px-6 py-20 sm:px-10"
     >
-      {/* 背景グラデーション */}
-      <div className="absolute inset-0 -z-5 bg-[linear-gradient(180deg,rgba(0,0,0,0.66),rgba(0,0,0,0.9))]" />
-
-      {/* グリッドライン */}
+      {/* Grid Lines */}
       <div
         className="grid-lines pointer-events-none absolute inset-0 -z-4 mix-blend-soft-light"
         style={{
           backgroundImage:
-            "linear-gradient(90deg,rgba(255,255,255,0.12) 1px, transparent 1px), linear-gradient(0deg,rgba(255,255,255,0.12) 1px, transparent 1px)",
-          backgroundSize: "120px 120px",
+            "linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(0deg, rgba(255,255,255,0.06) 1px, transparent 1px)",
+          backgroundSize: "80px 80px",
           opacity: 0,
+          willChange: "transform, opacity",
         }}
       />
 
-      {/* 境界線 */}
-      <div className="pointer-events-none absolute inset-6 -z-3 border border-white/8" />
-
-      {/* ゴースト「STR」 */}
+      {/* Ghost STR */}
       <div
-        className="ghost pointer-events-none absolute right-[-12%] top-[18%] -z-2 select-none text-[clamp(5rem,14vw,11rem)] font-black uppercase leading-none tracking-[-0.08em]"
-        style={{ color: "rgba(255,255,255,0.06)" }}
+        className="ghost pointer-events-none absolute -z-2 select-none whitespace-nowrap font-black uppercase leading-none tracking-[-0.08em]"
+        style={{
+          fontSize: "clamp(8rem, 18vw, 14rem)",
+          color: "rgba(255,255,255,0.15)",
+          mixBlendMode: "overlay",
+          willChange: "transform, opacity",
+          ...(isEven
+            ? { right: "-10%", top: "15%" }
+            : { left: "-10%", top: "20%" }),
+        }}
       >
         STR
       </div>
 
-      {/* 左レール（細線） */}
-      <div className="pointer-events-none absolute inset-y-0 left-0 flex w-12 items-center justify-center sm:w-16 md:w-20">
-        {/* レール（clipPath reveal対象） */}
+      {/* Rail */}
+      <div
+        className={`pointer-events-none absolute inset-y-0 flex w-10 items-center justify-center sm:w-12 ${isEven ? "left-0" : "right-0"}`}
+      >
         <div
-          className="rail absolute inset-y-0 right-0 w-px bg-white/20"
+          className={`rail absolute inset-y-20 w-px bg-white/25 ${isEven ? "right-0" : "left-0"}`}
           style={{ clipPath: "inset(0 0 100% 0)" }}
         />
-        <div className="-rotate-90 text-[10px] font-semibold uppercase tracking-[0.32em] text-[var(--text-base-50)]">
-          Profile
+        <div className="-rotate-90 whitespace-nowrap text-[9px] font-semibold uppercase tracking-[0.36em] text-[var(--text-base-40)]">
+          Strength {String(index + 1).padStart(2, "0")}
         </div>
       </div>
 
-      {/* コンテンツ */}
-      <div className="relative z-10 ml-[4.2rem] flex w-full flex-col gap-10 sm:ml-[5.5rem] md:ml-[6.5rem]">
-        {/* メタ行 */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3 text-[var(--text-base-70)]">
-            <span className="meta-item font-mono text-xs uppercase tracking-[0.22em]">
-              since_2011
-            </span>
-            <span className="meta-item h-px w-12 bg-[var(--text-base-30)]" />
-            <span className="meta-item text-xs font-semibold uppercase tracking-[0.18em]">
-              Strength
-            </span>
-          </div>
-          <span className="meta-item font-mono text-[11px] uppercase tracking-[0.22em] text-[var(--text-base-60)]">
-            {String(index + 1).padStart(2, "0")}
-          </span>
-        </div>
+      {/* Content */}
+      <div
+        className={`profile-content mx-auto max-w-5xl ${isEven ? "pr-16 md:pr-0" : "pl-16 md:pl-0"}`}
+      >
+        <div
+          className={`grid gap-10 md:grid-cols-[1fr,1.5fr] ${isEven ? "" : "md:grid-cols-[1.5fr,1fr]"}`}
+        >
+          {/* Title側 */}
+          <div className={`space-y-6 ${isEven ? "" : "md:order-2"}`}>
+            {/* Meta */}
+            <div className="flex items-center gap-3 text-[var(--text-base-50)]">
+              <span className="font-mono text-[10px] uppercase tracking-[0.24em]">
+                Core Strength
+              </span>
+              <span className="h-px w-10 bg-[var(--accent-amber1)]" />
+            </div>
 
-        {/* タイトル帯と説明 */}
-        <div className="flex flex-col gap-6">
-          <div className="relative inline-block">
-            <div className="meta-item absolute -left-5 top-1/2 h-[1px] w-10 bg-[var(--text-base-20)]" />
-            {/* 帯ラッパー（mask reveal用） */}
-            <div
-              className="band-wrapper overflow-hidden"
-              style={{ display: "inline-block" }}
-            >
+            {/* Title */}
+            <div className="relative">
               <div
-                className="band-text text-[clamp(2.4rem,7vw,3.8rem)] font-semibold leading-[1.05] tracking-[-0.02em] text-black"
-                style={{
-                  backgroundColor: BAND_BG,
-                  display: "inline-block",
-                  padding: "0.24em 0.54em",
-                }}
+                className="band-wrapper overflow-hidden"
+                style={{ display: "inline-block" }}
               >
-                {strength.title}
+                <div
+                  className="band-text text-[clamp(2.2rem,5vw,3.4rem)] font-semibold leading-[1] tracking-[-0.02em] text-black"
+                  style={{
+                    backgroundColor: BAND_BG,
+                    display: "inline-block",
+                    padding: "0.25em 0.45em",
+                  }}
+                >
+                  {strength.title}
+                </div>
               </div>
             </div>
           </div>
-          <p className="description max-w-4xl text-[20px] leading-relaxed text-[var(--text-base-80)]">
-            {strength.description}
-          </p>
-        </div>
 
-        {/* タグ */}
-        <div className="flex flex-wrap items-center gap-3 text-xs text-[var(--text-base-80)]">
-          {strength.keywords.map((tag) => (
-            <span
-              key={`${strength.id}-${tag}`}
-              className="tag border border-white/14 bg-white/8 px-3 py-1 uppercase tracking-[0.12em]"
-              style={{ transformOrigin: "center bottom" }}
+          {/* Description側 */}
+          <div className={`space-y-6 ${isEven ? "" : "md:order-1"}`}>
+            <p
+              className={`description text-[clamp(1rem,1.4vw,1.2rem)] leading-relaxed text-[var(--text-base-80)] ${isEven ? "" : "md:text-right"}`}
             >
-              {tag}
-            </span>
-          ))}
+              {strength.description}
+            </p>
+
+            {/* Keywords */}
+            <div className={`flex flex-wrap gap-2 ${isEven ? "" : "md:justify-end"}`}>
+              {strength.keywords.map((keyword) => (
+                <span
+                  key={`${strength.id}-${keyword}`}
+                  className="keyword rounded border border-white/10 bg-white/5 px-3 py-1.5 text-[12px] uppercase tracking-[0.1em] text-[var(--text-base-60)] transition-all duration-200 hover:border-white/20 hover:bg-white/10"
+                >
+                  {keyword}
+                </span>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* Connector Line */}
+      {index < total - 1 && (
+        <div
+          className="connector-line absolute bottom-0 left-1/2 h-24 w-px -translate-x-1/2 bg-gradient-to-b from-white/20 to-transparent"
+          style={{ transformOrigin: "top center" }}
+        />
+      )}
     </section>
   );
 }
 
-export function TimelineSection({ exp, index, setRef }: TimelineSectionProps) {
+export function TimelineSection({
+  exp,
+  index,
+  total,
+  setRef,
+}: TimelineSectionProps) {
+  const depth = index;
+  const isDeepest = index === total - 1;
+
   return (
     <section
-      key={exp.id}
       ref={(el) => setRef(el, index)}
-      className="timeline-section relative isolate flex min-h-[80vh] items-center overflow-hidden px-8 py-16 sm:px-12 md:px-16 lg:px-20"
+      className="timeline-section relative isolate min-h-[70vh] overflow-visible px-6 py-20 sm:px-10"
+      data-depth={depth}
     >
-      {/* 背景グラデーション（ラジアル＋リニア） */}
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.04),transparent_32%),linear-gradient(185deg,rgba(0,0,0,0.75),rgba(0,0,0,0.95))]" />
-
-      {/* グリッドライン */}
+      {/* Grid Lines */}
       <div
         className="grid-lines pointer-events-none absolute inset-0 -z-9 mix-blend-soft-light"
         style={{
           backgroundImage:
-            "linear-gradient(90deg,rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(0deg,rgba(255,255,255,0.1) 1px, transparent 1px)",
-          backgroundSize: "120px 120px",
+            "linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(0deg, rgba(255,255,255,0.08) 1px, transparent 1px)",
+          backgroundSize: "100px 100px",
           opacity: 0,
+          willChange: "transform, opacity",
         }}
       />
 
-      {/* 年号ゴースト */}
+      {/* Depth Indicator */}
       <div
-        className="ghost-year pointer-events-none absolute right-[-14%] top-[20%] -z-8 select-none text-[clamp(5rem,14vw,11rem)] font-black uppercase leading-none tracking-[-0.08em]"
-        style={{ color: "rgba(255,255,255,0.07)" }}
+        className="depth-indicator absolute left-0 top-8 h-px w-full"
+        style={{
+          background: `linear-gradient(90deg, var(--accent-amber1) ${(depth + 1) * 15}%, transparent ${(depth + 1) * 15}%)`,
+        }}
+      />
+
+      {/* Ghost Year */}
+      <div
+        className="ghost-year pointer-events-none absolute -z-8 select-none whitespace-nowrap font-black uppercase leading-none tracking-[-0.06em]"
+        style={{
+          fontSize: "clamp(10rem, 22vw, 18rem)",
+          color: `rgba(255,255,255,${0.12 + (depth / total) * 0.08})`,
+          mixBlendMode: "overlay",
+          willChange: "transform, opacity",
+          right: "-12%",
+          top: "12%",
+        }}
       >
         {exp.period.split(" - ")[0]}
       </div>
 
-      {/* 左レール（太線） */}
-      <div className="pointer-events-none absolute inset-y-0 left-0 flex w-20 items-center justify-center sm:w-22 md:w-24">
-        {/* レール（太め、clipPath reveal対象） */}
+      {/* Rail */}
+      <div className="pointer-events-none absolute inset-y-0 left-0 flex w-16 items-center justify-center sm:w-20">
         <div
-          className="rail absolute inset-y-0 right-0 w-[4px] bg-white/20"
-          style={{ clipPath: "inset(0 0 100% 0)" }}
+          className="rail absolute inset-y-16 right-0 bg-white/25"
+          style={{
+            width: `${2 + depth * 1}px`,
+            clipPath: "inset(0 0 100% 0)",
+          }}
         />
-        <div className="-rotate-90 text-[12px] font-semibold uppercase tracking-[0.32em] text-[var(--text-base-60)]">
-          Timeline
+        <div className="-rotate-90 whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.3em] text-[var(--text-base-50)]">
+          {exp.period.split(" - ")[0]}
         </div>
       </div>
 
-      {/* コンテンツ */}
-      <div className="relative z-10 ml-[5.2rem] flex w-full flex-col gap-12 sm:ml-[6.4rem] md:ml-[7.6rem]">
-        {/* メタ行 */}
-        <div className="flex items-start justify-between">
-          <div className="flex flex-col gap-2 text-[var(--text-base-80)]">
-            <span className="meta-item text-[17px] italic tracking-[0.08em] text-[var(--text-base-70)]">
-              {exp.period}
-            </span>
-            <span className="meta-item inline-block bg-black/16 px-3 py-1 text-[28px] font-semibold leading-none tracking-tight text-black">
-              {exp.type}
-            </span>
-            <div className="flex flex-wrap items-center gap-3 text-xs text-[var(--text-base-70)]">
-              <span className="meta-item font-mono uppercase tracking-[0.2em] text-[var(--accent-amber1)]">
-                Role
+      {/* Content */}
+      <div className="profile-content mx-auto ml-20 max-w-5xl sm:ml-24">
+        <div className="grid gap-10 md:grid-cols-[1.3fr,1fr]">
+          {/* Left: Main info */}
+          <div className="space-y-6">
+            {/* Meta items */}
+            <div className="flex flex-wrap items-center gap-4">
+              <span className="meta-item text-[15px] italic tracking-wide text-[var(--text-base-60)]">
+                {exp.period}
+              </span>
+              <span className="meta-item inline-block bg-white/10 px-3 py-1 text-[24px] font-semibold leading-none text-[var(--text-base)]">
+                {exp.type}
               </span>
               {exp.teamSize && (
-                <span className="meta-item border border-white/15 bg-white/8 px-3 py-1 text-[var(--text-base-70)]">
+                <span className="meta-item rounded border border-white/12 bg-white/5 px-2.5 py-1 text-xs text-[var(--text-base-60)]">
                   {exp.teamSize}
                 </span>
               )}
             </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="meta-item text-[32px] font-black uppercase tracking-[-0.04em] text-white/14">
-              {exp.period.split(" - ")[0]}
-            </span>
-            <div className="meta-item bg-[var(--text-base)] px-3 py-1 text-sm font-semibold text-[var(--bg-base)] shadow-[14px_14px_0_rgba(0,0,0,0.65)]">
-              {String(index + 1).padStart(2, "0")}
-            </div>
-          </div>
-        </div>
 
-        {/* タイトル帯と説明 */}
-        <div className="flex flex-col gap-5">
-          <div
-            className="band inline-block text-[clamp(2.2rem,7vw,3.6rem)] font-semibold leading-[1.05] tracking-[-0.02em] text-black"
-            style={{
-              backgroundColor: BAND_BG,
-              padding: "0.24em 0.5em",
-              boxShadow: "0 0 0 rgba(0,0,0,0)",
-              transformOrigin: "left center",
-            }}
-          >
-            {exp.role}
-          </div>
-          <div className="grid gap-4 md:grid-cols-[1.2fr,0.8fr] md:items-start">
-            <p className="description text-[20px] leading-relaxed text-[var(--text-base-80)]">
+            {/* Title */}
+            <div className="relative">
+              <div
+                className="band inline-block text-[clamp(2rem,5vw,3.2rem)] font-semibold leading-[1.05] tracking-[-0.02em] text-black"
+                style={{
+                  backgroundColor: BAND_BG,
+                  padding: "0.22em 0.4em",
+                  boxShadow: "10px 10px 0 rgba(0,0,0,0.5)",
+                }}
+              >
+                {exp.role}
+              </div>
+            </div>
+
+            {/* Description */}
+            <p className="description max-w-lg text-[clamp(0.95rem,1.3vw,1.15rem)] leading-relaxed text-[var(--text-base-80)]">
               {exp.description}
             </p>
-            <ul className="space-y-2 text-sm text-[var(--text-base-70)]">
-              {exp.achievements.map((achievement, achievementIndex) => (
+          </div>
+
+          {/* Right: Achievements + Tech */}
+          <div className="space-y-6">
+            {/* Achievements */}
+            <ul className="space-y-3">
+              {exp.achievements.map((achievement, i) => (
                 <li
-                  key={achievementIndex}
-                  className="achievement-item flex items-start gap-2"
+                  key={i}
+                  className="achievement-item flex items-start gap-3 text-sm text-[var(--text-base-70)]"
                   style={{ transformOrigin: "left center" }}
                 >
-                  <span className="mt-2 h-1 w-6 flex-shrink-0 bg-[var(--accent-amber1)]/80" />
+                  <span className="mt-1.5 h-0.5 w-5 flex-shrink-0 bg-[var(--accent-amber1)]/70" />
                   <span>{achievement}</span>
                 </li>
               ))}
             </ul>
+
+            {/* Tech Stack */}
+            <div className="flex flex-wrap gap-2">
+              {exp.techStack.map((tech) => (
+                <span
+                  key={tech}
+                  className="tag rounded border border-white/12 bg-white/6 px-3 py-1.5 text-[12px] text-[var(--text-base-70)] transition-all duration-200 hover:border-white/20 hover:bg-white/10"
+                >
+                  {tech}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
-
-        {/* タグ */}
-        <div
-          className="flex flex-wrap gap-2 text-xs text-[var(--text-base-80)]"
-          style={{ perspective: "600px" }}
-        >
-          {exp.techStack.map((tech) => (
-            <span
-              key={tech}
-              className="tag border border-white/15 bg-white/10 px-3 py-1"
-              style={{ transformOrigin: "center bottom" }}
-            >
-              {tech}
-            </span>
-          ))}
-          {exp.teamSize && (
-            <span
-              className="tag border border-white/15 bg-white/6 px-3 py-1 text-[var(--text-base-60)]"
-              style={{ transformOrigin: "center bottom" }}
-            >
-              {exp.teamSize}
-            </span>
-          )}
-        </div>
       </div>
+
+      {/* Origin Glow */}
+      {isDeepest && (
+        <div
+          className="origin-glow pointer-events-none absolute bottom-10 left-1/2 -translate-x-1/2"
+          style={{
+            width: "200px",
+            height: "200px",
+            background:
+              "radial-gradient(circle, var(--accent-amber1) 0%, transparent 70%)",
+            opacity: 0,
+            filter: "blur(60px)",
+          }}
+        />
+      )}
     </section>
   );
 }
