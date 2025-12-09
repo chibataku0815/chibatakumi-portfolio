@@ -20,8 +20,8 @@ export default function Home() {
           <MagneticButton
             href="/skills"
             data-transition="true"
-            strength={0.35}
-            className="amber-border-glow inline-flex items-center gap-2 rounded-full border border-[var(--text-base-20)] px-6 py-3 text-sm font-medium uppercase tracking-[0.12em] text-[var(--text-base)] transition-all duration-300 hover:border-[var(--accent-amber1)]/60 hover:text-[var(--accent-amber1)]"
+            strength={0.3}
+            className="group inline-flex items-center gap-2 rounded-full border border-[var(--text-base-20)] px-6 py-3 text-sm font-medium uppercase tracking-[0.12em] text-[var(--text-base)] transition-all duration-300 hover:border-[var(--accent-amber1)]/50 hover:text-[var(--accent-amber1)] hover:shadow-[0_0_20px_rgba(245,158,11,0.15)]"
           >
             View Skills
             <svg

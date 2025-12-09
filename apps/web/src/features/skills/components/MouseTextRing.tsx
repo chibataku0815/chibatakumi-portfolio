@@ -19,17 +19,16 @@ interface MouseTextRingProps {
 export function MouseTextRing({ text, accentColor, isVisible }: MouseTextRingProps) {
   const ringRef = useRef<HTMLDivElement>(null);
   const [pos, setPos] = useState({ x: -200, y: -200 });
-  const [isTouch, setIsTouch] = useState(false);
   const [showMobileRing, setShowMobileRing] = useState(false);
   const mobileTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  // デバイス判定
-  useEffect(() => {
-    setIsTouch(!window.matchMedia("(pointer: fine)").matches);
-  }, []);
+  const isTouchRef = useRef(false);
 
   // デスクトップ: マウス追従（スムーズ補間）
   useEffect(() => {
+    // 初期化時にデバイス判定
+    const isTouch = !window.matchMedia("(pointer: fine)").matches;
+    isTouchRef.current = isTouch;
+
     if (isTouch) return;
 
     let targetX = -200;
@@ -57,12 +56,10 @@ export function MouseTextRing({ text, accentColor, isVisible }: MouseTextRingPro
       document.removeEventListener("mousemove", handleMouseMove);
       cancelAnimationFrame(rafId);
     };
-  }, [isTouch]);
+  }, []);
 
   // モバイル: タップで出現
   useEffect(() => {
-    if (!isTouch) return;
-
     const handleTouchStart = (e: TouchEvent) => {
       const touch = e.touches[0];
       if (!touch) return;
@@ -89,10 +86,12 @@ export function MouseTextRing({ text, accentColor, isVisible }: MouseTextRingPro
         clearTimeout(mobileTimeoutRef.current);
       }
     };
-  }, [isTouch]);
+  }, []);
 
   // 出現/消滅アニメーション
-  const shouldShow = isTouch ? showMobileRing : isVisible;
+  // モバイル: showMobileRingで制御、デスクトップ: isVisibleで制御
+  // タッチデバイスでも常にshowMobileRingを優先（タップ時に表示）
+  const shouldShow = showMobileRing || isVisible;
 
   useEffect(() => {
     if (!ringRef.current) return;
@@ -131,9 +130,9 @@ export function MouseTextRing({ text, accentColor, isVisible }: MouseTextRingPro
   const particleCount = 8;
   const particles = Array.from({ length: particleCount }, (_, i) => i);
 
-  // モバイル用のデフォルトテキスト
-  const displayText = isTouch && !text ? "Touch" : text;
-  const displayColor = isTouch ? (accentColor ?? "#e8a85a") : accentColor;
+  // モバイル用のデフォルトテキスト・色
+  const displayText = showMobileRing && !text ? "Touch" : (text || "Touch");
+  const displayColor = accentColor ?? "#e8a85a";
 
   return (
     <div
