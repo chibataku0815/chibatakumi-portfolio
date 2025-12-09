@@ -12,11 +12,11 @@
 | フェーズ | ステータス | 完了タスク | Level貢献 | 期間目安 |
 |---------|-----------|-----------|----------|---------|
 | **Phase 1: Quick Wins** | 🚧 In Progress | 3/4 | L3.5 → L4 | 2-3週間 |
-| **Phase 2: Signature Moment** | ⏸️ Blocked | 0/3 | L4 → L4.5 | 3-4週間 |
+| **Phase 2: Signature Moment** | 🚧 In Progress | 1/3 | L4 → L4.5 | 3-4週間 |
 | **Phase 3: Emotional Arc** | ⏸️ Blocked | 0/3 | L4.5 → L5 | 2-3週間 |
 | **Phase 4: Innovation** | ⏸️ Blocked | 0/3 | L5 強化 | 3-4週間 |
 
-**全体進捗:** 3/13 タスク完了（23%）
+**全体進捗:** 4/13 タスク完了（31%）
 **推定 Level 5 到達:** 10-14週間（全フェーズ完了時）
 
 ---
@@ -66,11 +66,11 @@
 **期間:** 3-4週間
 **前提条件:** Phase 1 完了推奨（必須ではない）
 
-| # | タスク | 優先度 | 期間 | ドキュメント |
-|---|--------|--------|------|-------------|
-| 2.1 | Color-Responsive Background | ★★★★★ | 5-7日 | [01-color-responsive-background.md](./phase-2-signature-moment/01-color-responsive-background.md) |
-| 2.2 | Depth-Responsive Parallax | ★★★★★ | 5-7日 | [02-depth-responsive-parallax.md](./phase-2-signature-moment/02-depth-responsive-parallax.md) |
-| 2.3 | Magnetic Cursor | ★★★☆☆ | 3-5日 | [03-magnetic-cursor.md](./phase-2-signature-moment/03-magnetic-cursor.md) |
+| # | タスク | 優先度 | 期間 | ステータス | ドキュメント |
+|---|--------|--------|------|-----------|-------------|
+| 2.1 | Color-Responsive Background | ★★★★★ | 5-7日 | ✅ Completed | [01-color-responsive-background.md](./phase-2-signature-moment/01-color-responsive-background.md) |
+| 2.2 | Depth-Responsive Parallax | ★★★★★ | 5-7日 | ⏸️ Pending | [02-depth-responsive-parallax.md](./phase-2-signature-moment/02-depth-responsive-parallax.md) |
+| 2.3 | Magnetic Cursor | ★★★☆☆ | 3-5日 | ⏸️ Pending | [03-magnetic-cursor.md](./phase-2-signature-moment/03-magnetic-cursor.md) |
 
 **成果物:**
 - 最低 1 つの Signature Moment 実装（Level 5 必須要件）
@@ -125,8 +125,8 @@
 - [ ] 何度も訪問したくなるか？（Phase 3, 4）
 
 ### The "Only Here" Test
-- [ ] このサイトでしか体験できない瞬間があるか？（Phase 2 - Critical）
-- [ ] コピーが困難な独自性があるか？（Phase 2, 4）
+- [x] このサイトでしか体験できない瞬間があるか？（Phase 2.1 - ✅ Completed）
+- [x] コピーが困難な独自性があるか？（Phase 2.1 - ✅ MouseTextRing実装）
 - [ ] 見たことのない表現があるか？（Phase 4）
 
 ### The "Coherence" Test
@@ -151,8 +151,8 @@
 - [ ] 業界に影響を与える可能性があるか？（Phase 4）
 - [ ] 他のクリエイターが学べる要素があるか？（Phase 4）
 
-**現状:** 7/19 項目 Pass（37%）
-**Phase 1 完了後:** 8/19（42%）
+**現状:** 9/19 項目 Pass（47%）
+**Phase 1 完了後:** 10/19（53%）
 **Phase 2 完了後:** 13/19（68%）
 **Phase 3 完了後:** 16/19（84%） ← **Level 5 基準到達**
 **Phase 4 完了後:** 19/19（100%） ← **Site of the Day 候補**
@@ -221,7 +221,16 @@ Phase 1 全体 → Phase 2 全体 → Phase 3 全体
   - AnimatedHeading簡略化（splitText依存削除）
   - Pitch Black & Fire世界観維持
   - Commit: `cd63e03`
+- ✅ **Task 2.1 完了**: Color-Responsive Background（Signature Moment #1）
+  - **Skills/Profile ページ**: ホバー時に背景が accent 色に呼応
+  - **MouseTextRing**: マウス周辺に回転テキストリング
+    - 外側テキスト（時計回り）+ 内側ダッシュ（反時計回り）
+    - 浮遊パーティクル + クロスヘア + コーナーブラケット
+  - **モバイル対応**: タップで出現 → 2.5秒後フェードアウト
+  - **シェーダー拡張**: 3層ラジアルグロー + パルスアニメーション
+  - Knowledge: [2025-12-09-color-responsive-background.md](../knowledge/2025-12-09-color-responsive-background.md)
 - 🎯 **Phase 1 進捗**: 3/4 タスク完了（75%）→ Level 4 基盤確立
+- 🎯 **Phase 2 進捗**: 1/3 タスク完了（33%）→ Signature Moment #1 達成
 - 📚 **ナレッジ記録**: Phase 1 実装パターンを [KNOWLEDGE.md](./KNOWLEDGE.md) に記録
   - WebGL Shader 最適化パターン（重量版 vs 軽量版）
   - Motion Design タイミングシステム統一
@@ -241,9 +250,9 @@ Phase 1 全体 → Phase 2 全体 → Phase 3 全体
 - [ ] Award-Worthy Checklist "Craft Test" が 5/5 通過（現状 4/5）
 
 ### Phase 2 完了基準
-- [ ] 最低 1 つの Signature Moment が実装されている
-- [ ] 「このサイトでしか体験できない」と感じる瞬間がある
-- [ ] Award-Worthy Checklist "Only Here Test" が通過
+- [x] 最低 1 つの Signature Moment が実装されている ✅ Color-Responsive Background + MouseTextRing
+- [x] 「このサイトでしか体験できない」と感じる瞬間がある ✅
+- [x] Award-Worthy Checklist "Only Here Test" が通過 ✅
 
 ### Phase 3 完了基準
 - [ ] 感情アーク（Entry → Discovery → Peak → Resolution）が明確

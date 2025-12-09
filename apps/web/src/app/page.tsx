@@ -4,7 +4,7 @@ import {
 } from "@/features/fluid-gradient";
 import { HeroText } from "@/features/hero/components";
 import { SectionScrollManager } from "@/features/scroll-manager";
-import { MagneticButton } from "@/shared/components";
+import { GlowButton } from "@/shared/components";
 
 export default function Home() {
   return (
@@ -17,11 +17,10 @@ export default function Home() {
         <HeroText />
 
         <div className="absolute bottom-16 left-0 right-0 flex justify-center">
-          <MagneticButton
+          <GlowButton
             href="/skills"
             data-transition="true"
-            strength={0.3}
-            className="group inline-flex items-center gap-2 rounded-full border border-[var(--text-base-20)] px-6 py-3 text-sm font-medium uppercase tracking-[0.12em] text-[var(--text-base)] transition-all duration-300 hover:border-[var(--accent-amber1)]/50 hover:text-[var(--accent-amber1)] hover:shadow-[0_0_20px_rgba(245,158,11,0.15)]"
+            className="text-sm font-medium uppercase tracking-[0.12em] text-[var(--text-base)] transition-colors duration-300 hover:text-[var(--accent-amber1)]"
           >
             View Skills
             <svg
@@ -37,7 +36,7 @@ export default function Home() {
                 d="M14 5l7 7m0 0l-7 7m7-7H3"
               />
             </svg>
-          </MagneticButton>
+          </GlowButton>
         </div>
       </section>
     </main>
