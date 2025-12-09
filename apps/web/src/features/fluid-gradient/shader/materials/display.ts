@@ -50,9 +50,10 @@ export const displayShader = /* glsl */ `
     col = mix(col, uColor3, mixer2);
     col = mix(col, uColor4, mixer3 * 0.4);
 
-    // Color-Responsive: accent色の微妙なブレンド（Signature Moment）
-    vec3 accentedColor2 = mix(uColor2, uAccentColor, uAccentMix * 0.3);
-    col = mix(col, accentedColor2, mixer2 * uAccentMix * 0.15);
+    // Color-Responsive: accent色のブレンド（Signature Moment）
+    // uColor2（中間トーン）をaccent色に向けて遷移させ、全体に影響を与える
+    vec3 accentBlend = mix(col, uAccentColor * 0.5, uAccentMix * 0.4);
+    col = mix(col, accentBlend, uAccentMix * 0.6);
 
     col *= uColorIntensity;
 

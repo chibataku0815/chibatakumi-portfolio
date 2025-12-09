@@ -230,6 +230,9 @@ export function FluidGradientBackground({ className, config: overrides, fadeIn =
 
   // Color-Responsive: accentColor変更時のGSAP tween
   useEffect(() => {
+    console.log("[FluidGradient] accentColor changed:", accentColor);
+    console.log("[FluidGradient] displayMaterialRef.current:", !!displayMaterialRef.current);
+
     if (!displayMaterialRef.current) return;
 
     // 既存tweenをkill
@@ -240,6 +243,7 @@ export function FluidGradientBackground({ className, config: overrides, fadeIn =
     if (accentColor) {
       // accent色をセット
       const [r, g, b] = hexToRgb(accentColor);
+      console.log("[FluidGradient] Setting accent color RGB:", r, g, b);
       uniforms.uAccentColor.value.set(r, g, b);
 
       // 0→1 に遷移 (1.0秒)
@@ -247,6 +251,9 @@ export function FluidGradientBackground({ className, config: overrides, fadeIn =
         value: 1.0,
         duration: 1.0,
         ease: "power2.out",
+        onUpdate: () => {
+          console.log("[FluidGradient] uAccentMix:", uniforms.uAccentMix.value);
+        },
       });
     } else {
       // 1→0 に遷移 (1.5秒)

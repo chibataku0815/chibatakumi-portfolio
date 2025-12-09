@@ -23,7 +23,7 @@ export function Nav() {
       </div>
 
       {/* Navigation Links */}
-      <div className="flex gap-4 md:gap-6">
+      <div className="flex gap-2 sm:gap-4 md:gap-6">
         {links.map(({ href, label }) => {
           const isCurrent = pathname === href;
           return (
@@ -33,7 +33,7 @@ export function Nav() {
               data-transition="true"
               aria-current={isCurrent ? "page" : undefined}
               className={`
-                font-mono text-xs uppercase tracking-[0.12em]
+                font-mono text-[10px] sm:text-xs uppercase tracking-[0.08em] sm:tracking-[0.12em]
                 transition-opacity duration-200
                 ${
                   isCurrent

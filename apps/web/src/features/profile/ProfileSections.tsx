@@ -135,12 +135,12 @@ export function StrengthSection({
         STR
       </div>
 
-      {/* Rail */}
+      {/* Rail - モバイルでは常に左側 */}
       <div
-        className={`pointer-events-none absolute inset-y-0 flex w-10 items-center justify-center sm:w-12 ${isEven ? "left-0" : "right-0"}`}
+        className={`pointer-events-none absolute inset-y-0 left-0 flex w-10 items-center justify-center sm:w-12 ${isEven ? "md:left-0" : "md:left-auto md:right-0"}`}
       >
         <div
-          className={`rail absolute inset-y-20 w-px bg-white/25 ${isEven ? "right-0" : "left-0"}`}
+          className={`rail absolute inset-y-20 w-px bg-white/25 right-0 ${isEven ? "" : "md:left-0 md:right-auto"}`}
           style={{ clipPath: "inset(0 0 100% 0)" }}
         />
         <div className="-rotate-90 whitespace-nowrap text-[9px] font-semibold uppercase tracking-[0.36em] text-[var(--text-base-40)]">
@@ -148,9 +148,9 @@ export function StrengthSection({
         </div>
       </div>
 
-      {/* Content */}
+      {/* Content - モバイルでは常に左マージン */}
       <div
-        className={`profile-content mx-auto max-w-5xl ${isEven ? "pr-12 sm:pr-14 md:pr-0" : "pl-12 sm:pl-14 md:pl-0"}`}
+        className={`profile-content mx-auto max-w-5xl pl-12 sm:pl-14 ${isEven ? "md:pl-0 md:pr-0" : "md:pl-0 md:pr-0"}`}
       >
         <div
           className={`grid gap-6 md:gap-10 md:grid-cols-[1fr,1.5fr] ${isEven ? "" : "md:grid-cols-[1.5fr,1fr]"}`}
@@ -172,10 +172,10 @@ export function StrengthSection({
                 style={{ display: "inline-block" }}
               >
                 <div
-                  className="band-text text-[clamp(2.2rem,5vw,3.4rem)] font-semibold leading-[1] tracking-[-0.02em] text-[var(--text-base)]"
+                  className="band-text text-[clamp(1.5rem,4vw,3.4rem)] font-semibold leading-[1.1] tracking-[-0.02em] text-[var(--text-base)]"
                   style={{
                     display: "inline-block",
-                    padding: "0.25em 0.45em",
+                    padding: "0.2em 0.3em",
                   }}
                 >
                   {strength.title}
