@@ -11,23 +11,26 @@ interface MouseTextRingProps {
 
 /**
  * MouseTextRing
- * - マウスに追従する回転テキストリング
+ * - マウスに追従する回転テキストリング（デスクトップ）
+ * - タップで出現する回転テキストリング（モバイル）
  * - 複数レイヤーのギミック（内外リング、パーティクル）
  * - Signature Moment: 視覚的インパクト強化
  */
 export function MouseTextRing({ text, accentColor, isVisible }: MouseTextRingProps) {
   const ringRef = useRef<HTMLDivElement>(null);
-  const [mousePos, setMousePos] = useState({ x: -200, y: -200 });
-  const [canHover, setCanHover] = useState(true);
+  const [pos, setPos] = useState({ x: -200, y: -200 });
+  const [isTouch, setIsTouch] = useState(false);
+  const [showMobileRing, setShowMobileRing] = useState(false);
+  const mobileTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // モバイル判定
+  // デバイス判定
   useEffect(() => {
-    setCanHover(window.matchMedia("(pointer: fine)").matches);
+    setIsTouch(!window.matchMedia("(pointer: fine)").matches);
   }, []);
 
-  // マウス追従（スムーズ補間）
+  // デスクトップ: マウス追従（スムーズ補間）
   useEffect(() => {
-    if (!canHover) return;
+    if (isTouch) return;
 
     let targetX = -200;
     let targetY = -200;
@@ -41,10 +44,9 @@ export function MouseTextRing({ text, accentColor, isVisible }: MouseTextRingPro
     };
 
     const animate = () => {
-      // スムーズ補間（遅延追従）
       currentX += (targetX - currentX) * 0.15;
       currentY += (targetY - currentY) * 0.15;
-      setMousePos({ x: currentX, y: currentY });
+      setPos({ x: currentX, y: currentY });
       rafId = requestAnimationFrame(animate);
     };
 
@@ -55,13 +57,47 @@ export function MouseTextRing({ text, accentColor, isVisible }: MouseTextRingPro
       document.removeEventListener("mousemove", handleMouseMove);
       cancelAnimationFrame(rafId);
     };
-  }, [canHover]);
+  }, [isTouch]);
+
+  // モバイル: タップで出現
+  useEffect(() => {
+    if (!isTouch) return;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      const touch = e.touches[0];
+      if (!touch) return;
+
+      setPos({ x: touch.clientX, y: touch.clientY });
+      setShowMobileRing(true);
+
+      // 既存タイマーをクリア
+      if (mobileTimeoutRef.current) {
+        clearTimeout(mobileTimeoutRef.current);
+      }
+
+      // 2.5秒後にフェードアウト
+      mobileTimeoutRef.current = setTimeout(() => {
+        setShowMobileRing(false);
+      }, 2500);
+    };
+
+    document.addEventListener("touchstart", handleTouchStart, { passive: true });
+
+    return () => {
+      document.removeEventListener("touchstart", handleTouchStart);
+      if (mobileTimeoutRef.current) {
+        clearTimeout(mobileTimeoutRef.current);
+      }
+    };
+  }, [isTouch]);
 
   // 出現/消滅アニメーション
+  const shouldShow = isTouch ? showMobileRing : isVisible;
+
   useEffect(() => {
     if (!ringRef.current) return;
 
-    if (isVisible && canHover) {
+    if (shouldShow) {
       gsap.to(ringRef.current, {
         scale: 1,
         opacity: 1,
@@ -76,9 +112,7 @@ export function MouseTextRing({ text, accentColor, isVisible }: MouseTextRingPro
         ease: "power2.in",
       });
     }
-  }, [isVisible, canHover]);
-
-  if (!canHover) return null;
+  }, [shouldShow]);
 
   // リング設定
   const outerRadius = 70;
@@ -86,7 +120,7 @@ export function MouseTextRing({ text, accentColor, isVisible }: MouseTextRingPro
   const containerSize = outerRadius * 2 + 20;
 
   // 外側テキストリング
-  const outerText = `${text} • ${text} • ${text} • `;
+  const outerText = `${displayText} • ${displayText} • ${displayText} • `;
   const outerChars = outerText.split("");
 
   // 内側装飾リング（ダッシュパターン）
@@ -97,13 +131,17 @@ export function MouseTextRing({ text, accentColor, isVisible }: MouseTextRingPro
   const particleCount = 8;
   const particles = Array.from({ length: particleCount }, (_, i) => i);
 
+  // モバイル用のデフォルトテキスト
+  const displayText = isTouch && !text ? "Touch" : text;
+  const displayColor = isTouch ? (accentColor ?? "#e8a85a") : accentColor;
+
   return (
     <div
       ref={ringRef}
       className="pointer-events-none fixed z-[9999]"
       style={{
-        left: mousePos.x,
-        top: mousePos.y,
+        left: pos.x,
+        top: pos.y,
         width: containerSize,
         height: containerSize,
         marginLeft: -containerSize / 2,
@@ -116,8 +154,8 @@ export function MouseTextRing({ text, accentColor, isVisible }: MouseTextRingPro
       <div
         className="absolute inset-0 rounded-full"
         style={{
-          boxShadow: accentColor
-            ? `0 0 40px ${accentColor}60, 0 0 80px ${accentColor}30, 0 0 120px ${accentColor}15`
+          boxShadow: displayColor
+            ? `0 0 40px ${displayColor}60, 0 0 80px ${displayColor}30, 0 0 120px ${displayColor}15`
             : "none",
         }}
       />
@@ -137,9 +175,9 @@ export function MouseTextRing({ text, accentColor, isVisible }: MouseTextRingPro
               key={`outer-${index}`}
               className="absolute left-1/2 top-1/2 font-mono text-[9px] font-bold uppercase"
               style={{
-                color: accentColor ?? "rgba(255,255,255,0.9)",
-                textShadow: accentColor
-                  ? `0 0 6px ${accentColor}, 0 0 12px ${accentColor}80`
+                color: displayColor ?? "rgba(255,255,255,0.9)",
+                textShadow: displayColor
+                  ? `0 0 6px ${displayColor}, 0 0 12px ${displayColor}80`
                   : "0 0 6px rgba(255,255,255,0.5)",
                 transform: `
                   translate(-50%, -50%)
@@ -174,9 +212,9 @@ export function MouseTextRing({ text, accentColor, isVisible }: MouseTextRingPro
               style={{
                 width: isLong ? "8px" : "4px",
                 height: "2px",
-                backgroundColor: accentColor ?? "rgba(255,255,255,0.7)",
-                boxShadow: accentColor
-                  ? `0 0 4px ${accentColor}`
+                backgroundColor: displayColor ?? "rgba(255,255,255,0.7)",
+                boxShadow: displayColor
+                  ? `0 0 4px ${displayColor}`
                   : "0 0 4px rgba(255,255,255,0.5)",
                 opacity: isLong ? 0.9 : 0.5,
                 transform: `
@@ -203,9 +241,9 @@ export function MouseTextRing({ text, accentColor, isVisible }: MouseTextRingPro
             style={{
               width: size,
               height: size,
-              backgroundColor: accentColor ?? "rgba(255,255,255,0.8)",
-              boxShadow: accentColor
-                ? `0 0 6px ${accentColor}, 0 0 12px ${accentColor}`
+              backgroundColor: displayColor ?? "rgba(255,255,255,0.8)",
+              boxShadow: displayColor
+                ? `0 0 6px ${displayColor}, 0 0 12px ${displayColor}`
                 : "0 0 6px rgba(255,255,255,0.6)",
               animationDuration: `${duration}s`,
               transform: `
@@ -227,8 +265,8 @@ export function MouseTextRing({ text, accentColor, isVisible }: MouseTextRingPro
             width: "1px",
             height: "12px",
             top: "-6px",
-            backgroundColor: accentColor ?? "rgba(255,255,255,0.8)",
-            boxShadow: accentColor ? `0 0 4px ${accentColor}` : "none",
+            backgroundColor: displayColor ?? "rgba(255,255,255,0.8)",
+            boxShadow: displayColor ? `0 0 4px ${displayColor}` : "none",
           }}
         />
         {/* 横線 */}
@@ -238,17 +276,17 @@ export function MouseTextRing({ text, accentColor, isVisible }: MouseTextRingPro
             width: "12px",
             height: "1px",
             left: "-6px",
-            backgroundColor: accentColor ?? "rgba(255,255,255,0.8)",
-            boxShadow: accentColor ? `0 0 4px ${accentColor}` : "none",
+            backgroundColor: displayColor ?? "rgba(255,255,255,0.8)",
+            boxShadow: displayColor ? `0 0 4px ${displayColor}` : "none",
           }}
         />
         {/* 中央ドット */}
         <div
           className="absolute left-1/2 top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full"
           style={{
-            backgroundColor: accentColor ?? "rgba(255,255,255,0.9)",
-            boxShadow: accentColor
-              ? `0 0 8px ${accentColor}, 0 0 16px ${accentColor}, 0 0 24px ${accentColor}80`
+            backgroundColor: displayColor ?? "rgba(255,255,255,0.9)",
+            boxShadow: displayColor
+              ? `0 0 8px ${displayColor}, 0 0 16px ${displayColor}, 0 0 24px ${displayColor}80`
               : "0 0 8px rgba(255,255,255,0.8)",
           }}
         />
@@ -267,8 +305,8 @@ export function MouseTextRing({ text, accentColor, isVisible }: MouseTextRingPro
             style={{
               width: "6px",
               height: "1px",
-              backgroundColor: accentColor ?? "rgba(255,255,255,0.6)",
-              boxShadow: accentColor ? `0 0 3px ${accentColor}` : "none",
+              backgroundColor: displayColor ?? "rgba(255,255,255,0.6)",
+              boxShadow: displayColor ? `0 0 3px ${displayColor}` : "none",
             }}
           />
         </div>
