@@ -2,64 +2,51 @@
 
 import { useEffect, useRef, type ReactNode } from "react";
 import gsap from "gsap";
-import { splitText } from "@/shared/utils/splitText";
 
 interface AnimatedHeadingProps {
   children: ReactNode;
   as?: "h1" | "h2" | "h3";
   className?: string;
   delay?: number;
-  splitType?: "chars" | "words";
 }
 
 /**
- * Client component for animated headings using splitText
- * Use this to wrap headings in server components to enable GSAP animations
+ * AnimatedHeading - Award-Worthy Text Animation
+ *
+ * Motion Design: 600ms、cubic-bezier(0.22, 1, 0.36, 1) - 自信ある登場
+ * Simplified version without text splitting for better performance
  */
 export function AnimatedHeading({
   children,
   as: Tag = "h1",
   className = "",
-  delay = 0.3,
-  splitType = "chars",
+  delay = 0.4,
 }: AnimatedHeadingProps) {
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
     if (!headingRef.current) return;
 
-    const ctx = gsap.context(() => {
-      document.fonts.ready.then(() => {
-        if (!headingRef.current) return;
+    const heading = headingRef.current;
 
-        const split = splitText(headingRef.current, splitType);
-        const elements = splitType === "chars" ? split.chars : split.words;
-
-        gsap.set(elements, {
-          opacity: 0,
-          y: 16,
-          filter: "blur(4px)",
-        });
-
-        gsap.to(elements, {
-          opacity: 1,
-          y: 0,
-          filter: "blur(0px)",
-          duration: 0.6,
-          stagger: splitType === "chars" ? 0.03 : 0.05,
-          ease: "power2.out",
-          delay,
-          clearProps: "filter",
-        });
-
-        return () => {
-          split.revert();
-        };
-      });
+    // Initial state
+    gsap.set(heading, {
+      opacity: 0,
+      y: 24,
+      filter: "blur(8px)",
     });
 
-    return () => ctx.revert();
-  }, [delay, splitType]);
+    // Animate to final state
+    gsap.to(heading, {
+      opacity: 1,
+      y: 0,
+      filter: "blur(0px)",
+      duration: 0.6, // Motion Design: 600ms
+      ease: "cubic-bezier(0.22, 1, 0.36, 1)", // 自信ある登場
+      delay,
+      clearProps: "filter",
+    });
+  }, [delay]);
 
   return (
     <Tag ref={headingRef} className={className}>
