@@ -77,10 +77,10 @@ export function SkillsIntro() {
           </div>
           <div className="flex flex-col justify-end">
             <p className="max-w-xl text-[clamp(1.1rem,1.5vw,1.4rem)] leading-relaxed text-[var(--text-base-80)]">
-              写真・映像・コード・モーション。
+              Code. Design. Lens. Motion. Brew.
               <br />
               <span className="text-[var(--text-base-60)]">
-                すべてが一人の視点で繋がるとき、翻訳ロスは消え、意図だけが残る。
+                One mind. Complete output.
               </span>
             </p>
           </div>
