@@ -44,6 +44,7 @@ Commit to a cohesive color aesthetic. Use CSS variables for consistency.
 - Consider the psychological and cultural implications of your color choices
 - Dark themes, light themes, and unusual palettes all work when executed with intention
 - Don't default to gradients unless they serve the design concept
+- **For deep color system design** (palette architecture, oklch tokens, gradients, accessibility audits), invoke `color-visual-styling` skill first to obtain the color specification, then implement
 
 ### Motion & Animation
 

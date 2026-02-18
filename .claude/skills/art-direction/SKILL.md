@@ -446,6 +446,31 @@ Level 5 のコントラスト:
 
 ## Integration Protocols
 
+### To Color Visual Styling
+
+```markdown
+## [Color] アートディレクションからの指針
+
+### ムードキーワード
+- Temperature: [Cold/Hot/Mix]
+- Density: [Light/Dense/Varies]
+- Tension: [Relaxed/Taut/Dynamic]
+
+### 色彩翻訳ガイド
+- 「静謐」→ 低 Chroma、深い Lightness、寒色寄り
+- 「緊張」→ 高コントラスト、補色的配置、彩度の急変
+- 「深淵」→ oklch L: 0.10-0.15、微妙な色相差での深度
+- 「熱」→ 琥珀域 Hue 60-80、Chroma 0.12-0.20
+- 「余韻」→ Chroma の漸減、Lightness の微増
+
+### Signature Moment への色彩的要件
+[この瞬間に色がどう変化すべきか]
+
+### 禁止事項
+- ムードに合わない派手な色使い
+- 根拠なき彩度の追加
+```
+
 ### To Motion Design
 
 ```markdown
@@ -557,6 +582,7 @@ Level 5 のコントラスト:
 - [決定待ち事項リスト]
 
 ### Team Handoffs
+- Color Visual Styling: [ステータス]
 - Motion Design: [ステータス]
 - WebGL/Shader: [ステータス]
 - Frontend: [ステータス]

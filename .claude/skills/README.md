@@ -39,6 +39,7 @@ Level 1: Functional（機能的）
 |--------|------|-----------|------------|
 | [**art-direction**](./art-direction/SKILL.md) | **ビジュアルコンセプト** | **ムード設計, ナラティブ, 参照分析** | **✅ 完了** |
 | [**motion-design**](./motion-design/SKILL.md) | **動きの芸術性** | **タイミング, リズム, トランジション** | **✅ 完了** |
+| [**color-visual-styling**](./color-visual-styling/SKILL.md) | **色彩設計・ビジュアルスタイリング** | **パレット, oklch, グラデーション, アクセシビリティ** | **✅ 完了** |
 | [visual-composition](./visual-composition/SKILL.md) | 構図・空間設計 | グリッド, 黄金比, 視線誘導 | 🔄 近日 |
 | [typography](./typography/SKILL.md) | タイポグラフィ | 書体の性格, 階層, 和欧混植 | 🔄 近日 |
 
@@ -75,12 +76,13 @@ Level 1: Functional（機能的）
 │     (戦略層)         │      │  (クリエイティブ層)   │      │      (実装層)        │
 ├─────────────────────┤      ├─────────────────────┤      ├─────────────────────┤
 │ • brand-strategy    │ ───▶ │ • art-direction ⭐   │ ───▶ │ • frontend-dev      │
-│ • copywriting       │      │ • visual-composition│      │ • frontend-design   │
-│ • user-journey      │      │ • motion-design ⭐   │      │ • webgl-shader ⭐   │
-│                     │      │ • typography        │      │ • backend-dev       │
+│ • copywriting       │      │ • color-visual-styling ⭐│   │ • frontend-design   │
+│ • user-journey      │      │ • visual-composition│      │ • webgl-shader ⭐   │
+│                     │      │ • motion-design ⭐   │      │ • backend-dev       │
+│                     │      │ • typography        │      │                     │
 └─────────────────────┘      └─────────────────────┘      └─────────────────────┘
 
-⭐ = Level 5 対応完了
+⭐ = Level 5 対応完了 (art-direction, motion-design, color-visual-styling, webgl-shader)
 ```
 
 ---
@@ -114,6 +116,28 @@ Level 1: Functional（機能的）
 - Aristide Benoist（ページ遷移）
 - Locomotive（スクロール連動）
 - Linear（マイクロインタラクション）
+
+---
+
+### color-visual-styling（色彩設計・ビジュアルスタイリング）
+
+**新機能:**
+- Award-Worthy Color Reference Library（Stripe, Linear, Vercel, Apple等）
+- oklch ベースのパレットアーキテクチャ（5層構造 + 60-30-10 ルール）
+- Level 5 Signature Techniques（Color Narrative, Unexpected Harmony, Color Breathing, Chromatic Signature）
+- 6軸 Award-Worthy Color Quality Checklist
+- 5スキル連携 Integration Protocol（art-direction, frontend-dev, webgl-shader, typography, motion-design）
+
+**色彩理論:**
+- oklch 知覚均一カラースペース
+- APCA 次世代コントラスト指標
+- Wide Gamut (P3) 対応
+- color-mix(), relative color syntax, @property 活用
+
+**Pitch Black & Fire 固有:**
+- Heat Tokens パターン（subtle/medium/intense）
+- 漆黒の深度レイヤー設計
+- 琥珀のカラーナラティブ（起承転結）
 
 ---
 
@@ -287,6 +311,14 @@ Signature Moment: [このサイトでしか体験できない瞬間]
 - **Award-Worthy Reference 分析**
 - ビジュアルナラティブの設計
 
+#### color-visual-styling ⭐ Level 5
+- **oklch ベースのパレットアーキテクチャ**
+- **セマンティックトークン設計（Heat Tokens 拡張）**
+- **グラデーション・サーフェスエフェクト設計**
+- **色彩アクセシビリティ（WCAG AA + APCA）**
+- **Color Narrative（色の物語設計）**
+- **Chromatic Signature（色彩の署名）**
+
 #### motion-design ⭐ Level 5
 - **モーションボキャブラリーの確立**
 - **感情のオーケストレーション**
@@ -386,6 +418,7 @@ Signature Moment: [このサイトでしか体験できない瞬間]
 ┌───────────────────────────────────────────────┐
 │ 1. クリエイティブ観点が必要？                    │
 │    • ビジュアル方向性 → art-direction ⭐        │
+│    • 色彩設計 → color-visual-styling ⭐       │
 │    • 動きの設計 → motion-design ⭐             │
 │    • 構図・レイアウト → visual-composition     │
 │    • 文字の設計 → typography                  │
@@ -441,6 +474,8 @@ Signature Moment: [このサイトでしか体験できない瞬間]
 │ # Creative Layer ⭐
 ├── art-direction/               # ⭐ Level 5 対応完了
 │   └── SKILL.md
+├── color-visual-styling/        # ⭐ Level 5 対応完了
+│   └── SKILL.md
 ├── visual-composition/
 │   └── SKILL.md
 ├── motion-design/               # ⭐ Level 5 対応完了
@@ -475,5 +510,5 @@ Signature Moment: [このサイトでしか体験できない瞬間]
 
 ---
 
-**最終更新**: 2025-12-09
-**次のマイルストーン**: frontend-design の Level 5 対応
+**最終更新**: 2026-02-18
+**次のマイルストーン**: visual-composition / typography の Level 5 対応

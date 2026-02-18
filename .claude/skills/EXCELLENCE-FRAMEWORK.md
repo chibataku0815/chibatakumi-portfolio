@@ -286,6 +286,7 @@ Level 1: Functional（機能的）
 | スキル | 主要な評価次元 |
 |--------|---------------|
 | art-direction | Conceptual, Visual |
+| color-visual-styling | Visual, Emotional |
 | motion-design | Motion, Emotional |
 | frontend-design | Visual, Technical |
 | webgl-shader | Technical, Visual |
