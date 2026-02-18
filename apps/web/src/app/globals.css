@@ -112,6 +112,7 @@
 
   /* ==========================================================================
      Heat Tokens (Amber アクセント階層 - Pitch Black & Fire)
+     現在未使用。将来のコンポーネントリファクタリングで活用予定。
      ========================================================================== */
   --heat-subtle: color-mix(in oklch, var(--accent-amber1) 30%, transparent);
   --heat-medium: var(--accent-amber1);
@@ -302,13 +303,3 @@ body {
   }
 }
 
-@keyframes amber-pulse {
-  0%, 100% {
-    opacity: 0.4;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.2);
-  }
-}

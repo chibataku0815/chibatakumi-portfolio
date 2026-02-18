@@ -116,18 +116,18 @@ export default function NotFound() {
           style={{
             borderColor: "var(--text-base-20)",
             color: "var(--text-base)",
-            boxShadow: "0 0 0 rgba(255, 191, 73, 0)",
+            boxShadow: "0 0 0 rgba(255, 197, 61, 0)",
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.borderColor = "var(--accent-amber1)";
             e.currentTarget.style.color = "var(--accent-amber1)";
             e.currentTarget.style.boxShadow =
-              "0 0 24px rgba(255, 191, 73, 0.4), 0 0 48px rgba(255, 191, 73, 0.2)";
+              "0 0 24px rgba(255, 197, 61, 0.4), 0 0 48px rgba(255, 197, 61, 0.2)";
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.borderColor = "var(--text-base-20)";
             e.currentTarget.style.color = "var(--text-base)";
-            e.currentTarget.style.boxShadow = "0 0 0 rgba(255, 191, 73, 0)";
+            e.currentTarget.style.boxShadow = "0 0 0 rgba(255, 197, 61, 0)";
           }}
         >
           <svg

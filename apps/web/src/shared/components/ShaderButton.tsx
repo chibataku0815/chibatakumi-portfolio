@@ -195,7 +195,7 @@ export function ShaderButton({
   const boundingRef = useRef<DOMRect | null>(null);
 
   // Amber color from CSS variable
-  const amberColor = useMemo(() => new THREE.Color("#f59e0b"), []);
+  const amberColor = useMemo(() => new THREE.Color("#ffc53d"), []);
 
   // Update dimensions on mount and resize
   useEffect(() => {

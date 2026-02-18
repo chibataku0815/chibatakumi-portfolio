@@ -34,15 +34,15 @@ export default function Loading() {
         {/* Dot Indicator - Motion Design: stagger with 0.2s delay */}
         <div className="flex gap-2" aria-hidden="true">
           <div
-            className="h-2 w-2 rounded-full bg-[#ffbf49] animate-pulse"
+            className="h-2 w-2 rounded-full bg-[#ffc53d] animate-pulse"
             style={{ animationDelay: "0s", animationDuration: "1.5s" }}
           />
           <div
-            className="h-2 w-2 rounded-full bg-[#ffbf49] animate-pulse"
+            className="h-2 w-2 rounded-full bg-[#ffc53d] animate-pulse"
             style={{ animationDelay: "0.2s", animationDuration: "1.5s" }}
           />
           <div
-            className="h-2 w-2 rounded-full bg-[#ffbf49] animate-pulse"
+            className="h-2 w-2 rounded-full bg-[#ffc53d] animate-pulse"
             style={{ animationDelay: "0.4s", animationDuration: "1.5s" }}
           />
         </div>

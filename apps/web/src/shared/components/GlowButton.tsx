@@ -147,7 +147,7 @@ export function GlowButton({
           className="pointer-events-none absolute inset-[-8px] rounded-full"
           style={{
             background:
-              "radial-gradient(ellipse at center, rgba(245, 158, 11, 0.25) 0%, transparent 70%)",
+              "radial-gradient(ellipse at center, rgba(255, 197, 61, 0.25) 0%, transparent 70%)",
             animation: "glowButtonPulse 2.5s ease-in-out infinite",
           }}
         />
@@ -162,9 +162,9 @@ export function GlowButton({
                 from 0deg,
                 transparent 0%,
                 transparent 15%,
-                rgba(245, 158, 11, 0.4) 20%,
-                rgba(245, 158, 11, 1) 25%,
-                rgba(245, 158, 11, 0.4) 30%,
+                rgba(255, 197, 61, 0.4) 20%,
+                rgba(255, 197, 61, 1) 25%,
+                rgba(255, 197, 61, 0.4) 30%,
                 transparent 35%,
                 transparent 100%
               )`,
@@ -190,7 +190,7 @@ export function GlowButton({
           className="pointer-events-none absolute inset-[-4px] rounded-full transition-opacity duration-300"
           style={{
             boxShadow:
-              "0 0 25px rgba(245, 158, 11, 0.4), 0 0 50px rgba(245, 158, 11, 0.2)",
+              "0 0 25px rgba(255, 197, 61, 0.4), 0 0 50px rgba(255, 197, 61, 0.2)",
             opacity: isHovered ? 1 : 0,
           }}
         />

@@ -48,7 +48,7 @@ export function CursorLight() {
         width: "min(800px, 80vw)",
         height: "min(800px, 80vw)",
         background:
-          "radial-gradient(circle, rgba(255, 191, 73, 0.18) 0%, rgba(255, 191, 73, 0.08) 30%, transparent 70%)",
+          "radial-gradient(circle, rgba(255, 197, 61, 0.18) 0%, rgba(255, 197, 61, 0.08) 30%, transparent 70%)",
         filter: "blur(80px)",
         mixBlendMode: "screen",
       }}

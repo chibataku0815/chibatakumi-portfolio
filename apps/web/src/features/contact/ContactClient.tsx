@@ -119,7 +119,7 @@ export default function ContactClient({ contact }: ContactClientProps) {
         tl.to(
           validLetters,
           {
-            textShadow: "0 0 40px rgba(242, 184, 105, 0.8), 0 0 80px rgba(242, 184, 105, 0.4)",
+            textShadow: "0 0 40px rgba(255, 197, 61, 0.8), 0 0 80px rgba(255, 197, 61, 0.4)",
             duration: 0.5,
             ease: "power2.out",
           },
@@ -235,7 +235,7 @@ export default function ContactClient({ contact }: ContactClientProps) {
           <div className="form-field">
             <label className="mb-4 block text-sm font-medium uppercase tracking-wider text-[var(--text-base-60)]">
               ご相談内容
-              <span className="ml-1 text-[var(--accent-amber1)]">*</span>
+              <span className="ml-1 text-[var(--text-base-40)]">*</span>
             </label>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               {INQUIRY_OPTIONS.map((option) => (
@@ -411,7 +411,7 @@ function FloatingLabelField({
         }`}
       >
         {label}
-        {required && <span className="ml-1 text-[var(--accent-amber1)]">*</span>}
+        {required && <span className="ml-1 text-[var(--text-base-40)]">*</span>}
       </label>
 
       <div className="relative">
@@ -480,7 +480,7 @@ function FloatingLabelTextarea({
         }`}
       >
         {label}
-        {required && <span className="ml-1 text-[var(--accent-amber1)]">*</span>}
+        {required && <span className="ml-1 text-[var(--text-base-40)]">*</span>}
       </label>
 
       <div className="relative">
@@ -530,7 +530,7 @@ function InquiryOption({ value, label }: InquiryOptionProps) {
       />
       <span className="relative flex items-center justify-center overflow-hidden rounded-lg border border-[var(--text-base-20)] bg-transparent px-4 py-3 text-sm text-[var(--text-base-60)] transition-all duration-300 peer-checked:border-[var(--accent-amber1)] peer-checked:text-[var(--accent-amber1)] peer-focus-visible:ring-2 peer-focus-visible:ring-[var(--accent-amber1)] peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-[var(--bg-dark)] hover:border-[var(--text-base-40)] hover:text-[var(--text-base)]">
         {/* Hover fill effect */}
-        <span className="absolute inset-0 origin-bottom scale-y-0 bg-[var(--accent-amber1)]/5 transition-transform duration-300 peer-checked:group-[]/radio:scale-y-100 group-hover/radio:scale-y-100" />
+        <span className="absolute inset-0 origin-bottom scale-y-0 bg-[var(--accent-amber1)]/10 transition-transform duration-300 peer-checked:group-[]/radio:scale-y-100 group-hover/radio:scale-y-100" />
         <span className="relative">{label}</span>
       </span>
     </label>
@@ -621,7 +621,7 @@ function SubmitButton({ isPending }: SubmitButtonProps) {
           className="pointer-events-none absolute inset-[-8px] rounded-full"
           style={{
             background:
-              "radial-gradient(ellipse at center, rgba(245, 158, 11, 0.2) 0%, transparent 70%)",
+              "radial-gradient(ellipse at center, rgba(255, 197, 61, 0.2) 0%, transparent 70%)",
             animation: isPending ? "none" : "contactButtonPulse 2.5s ease-in-out infinite",
           }}
         />
@@ -636,9 +636,9 @@ function SubmitButton({ isPending }: SubmitButtonProps) {
                 from 0deg,
                 transparent 0%,
                 transparent 15%,
-                rgba(245, 158, 11, 0.4) 20%,
-                rgba(245, 158, 11, 1) 25%,
-                rgba(245, 158, 11, 0.4) 30%,
+                rgba(255, 197, 61, 0.4) 20%,
+                rgba(255, 197, 61, 1) 25%,
+                rgba(255, 197, 61, 0.4) 30%,
                 transparent 35%,
                 transparent 100%
               )`,

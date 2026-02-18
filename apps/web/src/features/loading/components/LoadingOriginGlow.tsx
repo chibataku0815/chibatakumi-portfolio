@@ -61,7 +61,7 @@ export function LoadingOriginGlow() {
     const material = new THREE.ShaderMaterial({
       uniforms: {
         uTime: { value: 0 },
-        uAmberColor: { value: new THREE.Color(0xffbf49) }, // var(--accent-amber1)
+        uAmberColor: { value: new THREE.Color(0xffc53d) }, // var(--accent-amber1)
         uPulseSpeed: { value: prefersReducedMotion ? 0 : 1.5 }, // 1.5秒周期
         uPulseAmount: { value: prefersReducedMotion ? 0 : 0.2 }, // 控えめな脈動
       },
