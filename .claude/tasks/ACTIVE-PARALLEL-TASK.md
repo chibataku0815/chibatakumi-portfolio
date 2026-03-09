@@ -8,6 +8,18 @@
 
 ## 直近の完了タスク
 
+### ✅ Photography Gallery Re-Edit — 個人印象の抑制 (2026-03-09)
+- **Agent:** Codex CLI
+- **開始:** 2026-03-09T20:20:29+0900 (JST)
+- **完了:** 2026-03-09T20:24:00+0900 (JST)
+- **Status:** 完了
+- **Files:**
+  - `apps/web/src/features/photography/sections/GallerySection.tsx` (編集)
+  - `apps/web/messages/ja.json` (編集)
+  - `apps/web/messages/en.json` (編集)
+  - `.claude/tasks/ACTIVE-PARALLEL-TASK.md` (編集)
+- **Notes:** `cafe-cursor-04.jpg` をギャラリー配列から除外し、件数を11に更新。3枚目featuredのクリック参照を配列追従に修正し、ja/enの関連文言を中立化。
+
 ### ✅ Photography LP Design Polish — Award-Worthy 5/5 仕上げ (2026-03-09)
 - **Agent:** Claude Code (Opus 4.6)
 - **開始:** 2026-03-09T20:00:00+0900 (JST)

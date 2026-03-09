@@ -19,7 +19,6 @@ export const GALLERY_IMAGES: GalleryImage[] = [
   { src: "/photography/cafe-cursor-01.jpg", altKey: "01", labelKey: "01", featured: true },
   { src: "/photography/cafe-cursor-02.jpg", altKey: "02", labelKey: "02" },
   { src: "/photography/cafe-cursor-03.jpg", altKey: "03", labelKey: "03" },
-  { src: "/photography/cafe-cursor-04.jpg", altKey: "04", labelKey: "04" },
   { src: "/photography/cafe-cursor-05.jpg", altKey: "05", labelKey: "05" },
   { src: "/photography/cafe-cursor-06.jpg", altKey: "06", labelKey: "06", featured: true },
   { src: "/photography/cafe-cursor-07.jpg", altKey: "07", labelKey: "07" },
@@ -39,6 +38,7 @@ export default function GallerySection({ onImageClick }: GallerySectionProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const featuredImages = GALLERY_IMAGES.filter((image) => image.featured);
   const contactSheetImages = GALLERY_IMAGES.filter((image) => !image.featured);
+  const thirdFeaturedIndex = GALLERY_IMAGES.findIndex((image) => image.src === featuredImages[2]?.src);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -110,7 +110,7 @@ export default function GallerySection({ onImageClick }: GallerySectionProps) {
               <span className="font-mono text-[11px] uppercase tracking-[0.24em] text-[var(--text-base-40)]">
                 {t("sheetLabel")}
               </span>
-              <span className="text-xs text-[var(--text-base-40)]">12</span>
+              <span className="text-xs text-[var(--text-base-40)]">{GALLERY_IMAGES.length}</span>
             </div>
             <p className="mt-3 max-w-sm text-sm leading-relaxed text-[var(--text-muted)]">
               {t("sheetNote")}
@@ -155,7 +155,7 @@ export default function GallerySection({ onImageClick }: GallerySectionProps) {
 
             <button
               type="button"
-              onClick={() => onImageClick(10)}
+              onClick={() => onImageClick(thirdFeaturedIndex)}
               className="gallery-featured group relative overflow-hidden rounded-[1.8rem] border border-[var(--text-base-20)] bg-[var(--bg-darker)] text-left"
             >
               <div className="relative h-full min-h-[22rem] overflow-hidden">
