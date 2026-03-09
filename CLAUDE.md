@@ -118,3 +118,60 @@
 - 簡潔・行動志向
 - ファイルパスはバッククォートで明示
 - 逐語列挙や長文化は避ける
+
+---
+
+## Agent Teams 並列実行
+
+### トリガーキーワード
+
+ユーザーが以下のキーワードを含む指示をした場合、Agent Teams モードで実行する:
+- 「並列で」
+- 「Agent Teamsで」
+
+### 実行手順（キーワード検出時に必ず実行）
+
+1. タスクを独立ストリームに分解（各ストリームの成果物を明確化）
+2. TeamCreate でチームを作成
+3. TaskCreate で各ストリームのタスクを登録
+4. Task ツール（subagent_type: general-purpose, mode: delegate, model: haiku）で各 Teammate を並列 spawn（run_in_background: true, team_name 指定）
+5. TaskList で進捗を監視
+6. 全 Teammate 完了後、成果物を統合してユーザーに報告
+7. SendMessage(type: shutdown_request) で全 Teammate を終了
+8. TeamDelete でクリーンアップ
+
+### Spawn Prompt テンプレート
+
+Teammate の Spawn Prompt には以下の情報を含める:
+
+```
+あなたは{役割名}です。
+
+## スコープ
+{担当範囲。スコープ外の作業は禁止}
+
+## 成果物
+{期待する出力形式・内容}
+
+## 手順
+1. {具体的なステップ}
+
+## 制約
+- スコープ外の作業は行わない
+- 他の Teammate のタスクに影響するファイルを編集しない
+
+完了したら TaskUpdate で該当タスクを completed にしてください。
+```
+
+### 判定基準
+
+- 独立ストリーム 4 以上 → Agent Teams
+- 3 以下 → Sequential（オーバーヘッド > 並列効果）
+- 迷ったら Sequential（安全側）
+
+### 制約事項
+
+- Teammate は最大 5 セッション
+- CLAUDE.md は各 Teammate に自動読み込み
+- Teammate はスコープ外のタスクを生成してはならない
+- 既存の `.ai/parallel-work.md` の協調プロトコルも遵守

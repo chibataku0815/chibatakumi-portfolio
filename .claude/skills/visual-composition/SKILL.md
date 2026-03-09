@@ -450,6 +450,23 @@ Tablet → Mobile:
   - 視線フロー → 上→下のシンプルなフロー
 ```
 
+## Cross-Skill References
+
+### Color Visual Styling との協調
+
+```
+構図と色彩の連携ポイント:
+
+- 視線誘導にアクセントカラーを使う → color-visual-styling §5.1 (60-30-10)
+- ネガティブスペースの色温度 → color-visual-styling §8.1 (ダークモード深度)
+- セクション間の色によるウェイファインディング → color-visual-styling §11.5
+- オーバーレイ戦略（画像上のテキスト表示） → color-visual-styling §11.5
+
+原則:
+  構図の焦点 = 色のアクセント配置
+  余白の色 ≠ 無色。暗い余白には oklch L の微妙な差で奥行きを作る
+```
+
 ## Handoff Protocol
 
 ### To Frontend Team

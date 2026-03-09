@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__figma__get_metadata",
+      "mcp__figma__get_screenshot",
+      "Bash(lsof:*)",
+      "mcp__figma__generate_figma_design",
+      "Bash(open:*)"
+    ]
+  }
+}

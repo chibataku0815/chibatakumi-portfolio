@@ -276,13 +276,13 @@ export const portfolioData: PortfolioData = {
   // ---------------------------------------------------------------------------
   site: {
     title: "Takumi Chiba - Portfolio",
-    description: "Creative developer portfolio",
-    siteUrl: "https://takumichiba.com",
+    description: "Creative developer & event photographer in Tokyo. Code, Capture, Craft.",
+    siteUrl: "https://www.chibatakumi.studio",
     locale: "ja",
     author: {
       name: "Takumi Chiba",
       email: "hello@takumichiba.com",
-      role: "Software Engineer",
+      role: "Software Engineer & Photographer",
     },
   },
 
@@ -307,6 +307,7 @@ export const portfolioData: PortfolioData = {
     links: [
       { href: "/", label: "Index" },
       { href: "/skills", label: "Skills" },
+      { href: "/photography", label: "Photography" },
       { href: "/profile", label: "Profile" },
       { href: "/contact", label: "Contact" },
     ],

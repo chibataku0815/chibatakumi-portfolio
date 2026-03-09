@@ -290,6 +290,25 @@ Japanese:
 - UNIQLO
 ```
 
+## Cross-Skill References
+
+### Color Visual Styling との協調
+
+```
+タイポグラフィと色彩は不可分。以下の場面で color-visual-styling スキルを参照:
+
+- テキスト色の階層設計 → color-visual-styling §13.4
+- コントラスト比の検証 → color-visual-styling §9.1 (WCAG), §9.2 (APCA)
+- ダークモードでの書体の見え方 → color-visual-styling §8.1
+- アクセント色テキストの使用条件 → color-visual-styling §14.1 (コントラスト比表)
+- ::selection の色指定 → color-visual-styling §10.8
+
+原則:
+  テキストサイズが小さいほど高いコントラスト比が必要
+  Weight と Color の組み合わせでダブル階層化が可能
+  --text-muted は 16px 以上での使用を推奨
+```
+
 ## Handoff Protocol
 
 ### Frontend への依頼

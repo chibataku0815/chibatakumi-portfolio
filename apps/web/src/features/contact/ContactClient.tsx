@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useRef, useState, useCallback } from "react";
 import gsap from "gsap";
-import { submitContactForm, type ContactFormState } from "@/app/contact/actions";
+import { submitContactForm, type ContactFormState } from "./actions";
 import { AnimatedHeading } from "@/shared/components";
 import type { ContactPageContent } from "@/shared/data/portfolio";
 

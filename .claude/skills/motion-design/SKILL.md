@@ -616,6 +616,35 @@ GPU-Friendly Properties:
   - Total duration: [ms]
 ```
 
+### From Color Visual Styling
+
+```markdown
+## [Motion] Color Visual Styling からの色変化パラメータ
+
+色変化を伴うモーションを設計する際、color-visual-styling から
+以下のパラメータを受け取る:
+
+### 受信パラメータ
+| パラメータ | 説明 | 例 |
+|-----------|------|-----|
+| from_color | 開始色（oklch 値 or トークン名） | --bg-dark |
+| to_color | 終了色 | --heat-medium |
+| chroma_range | 彩度の変化幅 | 0.01 → 0.16 |
+| hue_direction | 色相補間方向 | shorter / longer |
+| contrast_floor | 最低コントラスト比（WCAG AA） | 4.5:1 |
+
+### 色変化とモーションの同期ルール
+1. 色変化の duration は動きの 1.2-1.5 倍に設定
+2. 色変化は動きの後を追う（delay 100-200ms）
+3. oklch の L/C/H を個別にアニメーション → @property で型定義必須
+4. Chroma dip（oklch 補間時の彩度低下）に注意
+
+### 禁止
+- 100ms 以下の色遷移（フリッカーリスク）
+- WCAG AA を下回るコントラスト状態への遷移
+- 色変化単体での意味伝達（動き/テキストで補完）
+```
+
 ### To WebGL Specialist
 
 ```markdown

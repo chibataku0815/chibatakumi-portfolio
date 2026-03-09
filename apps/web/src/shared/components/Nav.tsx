@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
 import { portfolioData } from "@/shared/data/portfolio";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
 export function Nav() {
   const pathname = usePathname();
@@ -22,8 +22,8 @@ export function Nav() {
         </Link>
       </div>
 
-      {/* Navigation Links */}
-      <div className="flex gap-2 sm:gap-4 md:gap-6">
+      {/* Navigation Links + Language Switcher */}
+      <div className="flex items-center gap-2 sm:gap-4 md:gap-6">
         {links.map(({ href, label }) => {
           const isCurrent = pathname === href;
           return (
@@ -46,6 +46,7 @@ export function Nav() {
             </Link>
           );
         })}
+        <LanguageSwitcher />
       </div>
     </nav>
   );

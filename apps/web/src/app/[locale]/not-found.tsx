@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { HeroShaderBackground } from "@/features/hero/components";
 import { CursorLight } from "@/features/error-pages/components";
 import { AnimatedHeading } from "@/shared/components";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import gsap from "gsap";
 
 /**
