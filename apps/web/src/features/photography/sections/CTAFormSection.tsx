@@ -26,7 +26,7 @@ export function CTAFormSection() {
   );
 
   const notes = useMemo(
-    () => ["reply", "deliverables", "eventScope"] as const,
+    () => ["reply", "englishSupport", "deliverables", "eventScope"] as const,
     []
   );
 

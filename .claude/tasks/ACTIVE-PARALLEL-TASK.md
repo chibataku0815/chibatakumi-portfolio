@@ -2,18 +2,52 @@
 
 ## 現在アクティブなタスク
 
-### 🚧 Photography LP 再定位 — 東京訴求縮小 + text-first English (2026-03-09)
+現在アクティブなタスクはありません。
+
+---
+
+## 直近の完了タスク
+
+### ✅ Photography LP Design Polish — Award-Worthy 5/5 仕上げ (2026-03-09)
+- **Agent:** Claude Code (Opus 4.6)
+- **開始:** 2026-03-09T20:00:00+0900 (JST)
+- **完了:** 2026-03-09T20:30:00+0900 (JST)
+- **Status:** 完了
+- **Files:**
+  - `apps/web/src/features/photography/components/VideoHeroBackground.tsx` (pointerleave heat reset)
+  - `apps/web/src/features/photography/shader/config.ts` (fallback color統一)
+  - `apps/web/src/features/photography/sections/AboutSection.tsx` (scroll-driven reveal + card-settle)
+  - `apps/web/src/features/photography/sections/CTAFormSection.tsx` (form reveal + submit glow + DatePicker)
+  - `apps/web/src/features/photography/sections/TestimonialSection.tsx` (counter ignition + amber stats)
+  - `apps/web/src/features/photography/sections/ServicesSection.tsx` (card-settle rotateX + icon pop)
+  - `apps/web/src/features/photography/sections/LightboxDialog.tsx` (crossfade transition)
+  - `apps/web/src/features/photography/PhotographyClient.tsx` (section divider)
+  - `apps/web/src/shared/components/ui/calendar.tsx` (新規: カスタムCalendar)
+  - `apps/web/src/shared/components/ui/date-picker.tsx` (新規: DatePicker統合)
+  - `apps/web/src/shared/components/ui/popover.tsx` (新規: Radix Popover)
+  - `apps/web/src/app/globals.css` (calendar dark theme + heat tokens)
+  - `apps/web/messages/ja.json` (eventDatePlaceholder)
+  - `apps/web/messages/en.json` (eventDatePlaceholder)
+  - `apps/web/package.json` (date-fns, @radix-ui/react-popover)
+- **Notes:** 8セクション全てにGSAPモーション完備、Lightbox crossfade、カスタムCalendar UI、heat tokens統一
+- **Commits:**
+  - `608f043` feat: Photography LP design polish — motion, lightbox transition, calendar UI
+  - `32e9ab2` fix: remove react-day-picker CSS import causing Vercel lightningcss error
+  - `e9c3951` feat: replace react-day-picker with custom calendar UI
+
+### ✅ Photography LP 再定位 — 東京訴求縮小 + text-first English (2026-03-09)
 - **Agent:** Claude Code
 - **開始:** 2026-03-09T19:30:00+0900 (JST)
-- **Status:** 進行中
+- **完了:** 2026-03-09T19:45:00+0900 (JST)
+- **Status:** 完了
 - **Files:**
   - `apps/web/messages/en.json` (編集)
   - `apps/web/messages/ja.json` (編集)
   - `apps/web/src/app/[locale]/photography/page.tsx` (編集)
   - `apps/web/src/features/photography/sections/CTAFormSection.tsx` (編集)
-- **Notes:** Hero/About/CTA のコピー修正、SEO/JSON-LD 修正、build 検証
+- **Notes:** Hero/About/CTA のコピー修正、SEO/JSON-LD 修正、build 成功確認済み
 
-### 🚧 Vercel Build Fix - Bun Lockfile Unification (2026-03-09)
+### ✅ Vercel Build Fix - Bun Lockfile Unification (2026-03-09)
 - **Agent:** Codex CLI
 - **開始:** 2026-03-09T19:10:00+0900 (JST)
 - **完了:** 2026-03-09T19:12:00+0900 (JST)
@@ -28,7 +62,7 @@
   - `apps/web/node_modules` (検証用再構築)
 - **Notes:** Vercel の `lightningcss` native optional package 解決失敗を、Bun 正本化で修正。`bun run build` をクリーン状態から 2 回成功、`npm run build` も単独成功
 
-### 🚧 Photography LP Level 4.5+ Redesign (2026-03-09)
+### ✅ Photography LP Level 4.5+ Redesign (2026-03-09)
 - **Agent:** Codex CLI
 - **開始:** 2026-03-09T17:59:19+0900 (JST)
 - **完了:** 2026-03-09T18:11:28+0900 (JST)
@@ -65,10 +99,6 @@
   - `.claude/prompts/2025-12-10-skills-reorder.md` - 実装プロンプト（Haiku 4.5向け）
 - **変更ファイル:**
   - `apps/web/src/shared/data/portfolio.ts` - multiskillItems配列の順序変更+コーヒー追加
-
----
-
-## 直近の完了タスク
 
 ### ✅ Skills Upgrade 2025: Excellence Framework Level 5 (2025-12-09)
 - **開始:** 2025-12-09T21:00:00+0900 (Asia/Tokyo)
@@ -253,6 +283,12 @@
 
 以下は完了済みタスクのアーカイブ参照:
 
+### 2026-03-09
+- `archive/2026-03-09-photography-lp-design-polish.md` - Photography LP Design Polish
+- `archive/2026-03-09-photography-lp-redesign.md` - Photography LP Level 4.5+ Redesign
+- `archive/2026-03-09-vercel-build-fix.md` - Vercel Build Fix
+- `archive/2026-03-09-photography-lp-repositioning.md` - Photography LP 再定位
+
 ### 2025-12-09
 - `archive/2025-12-09-skills-profile-quality-enhancement.md` - Skills/Profile品質向上
 
@@ -286,4 +322,4 @@
 
 ---
 
-最終更新: 2025-12-10T00:51:33+0900 (Asia/Tokyo)
+最終更新: 2026-03-09T20:30:00+0900 (JST)

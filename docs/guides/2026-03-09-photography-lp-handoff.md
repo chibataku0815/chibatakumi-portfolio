@@ -198,3 +198,55 @@ Takumi Chiba
 ⬇️ Portfolio & Booking
 www.chibatakumi.studio/photography
 ```
+
+---
+
+## Design Polish (2026-03-09 追記)
+
+### 新規UIコンポーネント
+
+| Component | Path | 用途 |
+|-----------|------|------|
+| Calendar | `src/shared/components/ui/calendar.tsx` | date-fnsベースのカスタムカレンダー（ダークテーマ） |
+| DatePicker | `src/shared/components/ui/date-picker.tsx` | Calendar + dropdown統合、i18n対応 |
+| Popover | `src/shared/components/ui/popover.tsx` | Radix Popover ラッパー |
+
+### 追加パッケージ
+- `date-fns` — 日付計算・locale
+- `@radix-ui/react-popover` — Popover primitive
+
+### GSAPモーション追加
+
+| Section | Animation | Trigger |
+|---------|-----------|---------|
+| About | scroll-driven opacity (0.3→1.0) + card-settle rotateX stagger | scroll scrub / top 80% |
+| CTA | form card reveal + submit button breathing amber glow | top 60% / 常時 |
+| Testimonial | counter ignition (0→target + bounce) | top 70% |
+| Services | card-settle rotateX:8 + icon pop bounce ease | top 75% / top 65% |
+
+### Lightbox 改善
+- 画像切替: slide crossfade transition（x:±60px + opacity）
+- `isAnimating` ref guard で連打防止
+- `isOpen` state で img 要素の条件レンダリング（空src警告解消）
+
+### セクション間 Divider
+- Gallery → Services 間に `h-px w-24` の装飾線
+- `scaleX: 0→1` line-draw animation（`cubic-bezier(0.33, 1, 0.68, 1)`）
+
+### CTA DatePicker
+- `<input type="date">` → カスタム DatePicker に置換
+- react-day-picker v9 → **自前実装**に変更（Vercel lightningcss互換性のため）
+- ja/en locale対応（date-fns locale切替）
+
+### Heat Tokens統一
+- inline `rgba(255,196,61,N)` → `var(--heat-subtle)` に置換
+- 対象: CTAFormSection, ServicesSection
+
+### 技術修正
+- VideoHeroBackground: pointerleave時のheat reset追加
+- shader/config.ts: fallbackColor `#0a0a0a` → `#070707`（globals.css背景と統一）
+
+### コミット
+- `608f043` feat: Photography LP design polish — motion, lightbox transition, calendar UI
+- `32e9ab2` fix: remove react-day-picker CSS import causing Vercel lightningcss error
+- `e9c3951` feat: replace react-day-picker with custom calendar UI

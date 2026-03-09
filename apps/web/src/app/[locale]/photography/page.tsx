@@ -59,8 +59,8 @@ function getJsonLd(locale: string) {
         "@type": "ProfessionalService",
         name: "Takumi Chiba Photography",
         description: isJa
-          ? "東京拠点のバイリンガルイベントフォトグラファー。当日プレビュー、72時間以内に全データ納品。"
-          : "Bilingual event photographer in Tokyo. Same-day previews, full delivery in 72 hours.",
+          ? "東京拠点のイベントフォトグラファー。当日プレビュー、72時間以内に全データ納品。英語テキスト対応。"
+          : "Editorial event photographer in Tokyo. Same-day previews, full delivery in 72 hours. Text-based English support.",
         url: isJa
           ? `${BASE_URL}/photography`
           : `${BASE_URL}/en/photography`,
