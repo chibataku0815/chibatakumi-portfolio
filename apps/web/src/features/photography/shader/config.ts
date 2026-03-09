@@ -37,7 +37,7 @@ export const videoShaderConfig = {
   heatScrollBoost: 0.2,
 
   // === Fallback ===
-  fallbackColor: "#0a0a0a",
+  fallbackColor: "#070707",
 } as const;
 
 export type VideoShaderConfig = typeof videoShaderConfig;

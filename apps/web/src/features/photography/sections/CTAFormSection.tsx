@@ -1,11 +1,16 @@
 "use client";
 
-import { useActionState, useMemo } from "react";
+import { useActionState, useEffect, useMemo, useRef } from "react";
 import { useTranslations, useLocale } from "next-intl";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
   submitPhotographyInquiry,
   type PhotographyFormState,
 } from "@/features/photography/actions";
+import { DatePicker } from "@/shared/components/ui/date-picker";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const initialState: PhotographyFormState = {
   success: false,
@@ -14,6 +19,7 @@ const initialState: PhotographyFormState = {
 export function CTAFormSection() {
   const t = useTranslations("photography.form");
   const locale = useLocale();
+  const sectionRef = useRef<HTMLElement>(null);
   const [state, formAction, isPending] = useActionState(
     submitPhotographyInquiry,
     initialState
@@ -23,6 +29,45 @@ export function CTAFormSection() {
     () => ["reply", "deliverables", "eventScope"] as const,
     []
   );
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const ctx = gsap.context(() => {
+      // Form card scroll reveal
+      gsap.fromTo(
+        ".cta-form-card",
+        { opacity: 0, y: 40 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          ease: "cubic-bezier(0.22, 1, 0.36, 1)",
+          scrollTrigger: {
+            trigger: section,
+            start: "top 60%",
+            once: true,
+          },
+        }
+      );
+
+      // Submit button breathing glow
+      gsap.fromTo(
+        ".cta-submit-glow",
+        { boxShadow: "0 0 0px rgba(255, 197, 61, 0)" },
+        {
+          boxShadow: "0 0 20px rgba(255, 197, 61, 0.25)",
+          duration: 2.0,
+          ease: "sine.inOut",
+          yoyo: true,
+          repeat: -1,
+        }
+      );
+    }, section);
+
+    return () => ctx.revert();
+  }, []);
 
   if (state.success) {
     return (
@@ -46,10 +91,10 @@ export function CTAFormSection() {
   }
 
   return (
-    <section className="px-6 py-24 sm:py-28">
-      <div className="mx-auto grid max-w-7xl overflow-hidden rounded-[2.2rem] border border-[var(--text-base-20)] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--slate-2)_90%,transparent),color-mix(in_srgb,var(--slate-1)_80%,transparent))] lg:grid-cols-[minmax(18rem,0.82fr)_minmax(0,1.18fr)]">
+    <section ref={sectionRef} className="px-6 py-24 sm:py-28">
+      <div className="cta-form-card mx-auto grid max-w-7xl overflow-hidden rounded-[2.2rem] border border-[var(--text-base-20)] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--slate-2)_90%,transparent),color-mix(in_srgb,var(--slate-1)_80%,transparent))] lg:grid-cols-[minmax(18rem,0.82fr)_minmax(0,1.18fr)]">
         <div className="relative border-b border-[var(--text-base-20)] p-8 sm:p-10 lg:border-b-0 lg:border-r">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,196,61,0.14),transparent_34%)]" />
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,var(--heat-subtle),transparent_34%)]" />
           <div className="relative z-10">
             <p className="mb-4 font-mono text-[11px] uppercase tracking-[0.28em] text-[var(--accent-amber1)]">
               {t("eyebrow")}
@@ -183,11 +228,10 @@ export function CTAFormSection() {
                 >
                   {t("eventDateLabel")}
                 </label>
-                <input
-                  type="date"
-                  id="eventDate"
+                <DatePicker
                   name="eventDate"
-                  className="w-full rounded-[1rem] border border-[var(--text-base-20)] bg-[color-mix(in_srgb,var(--slate-2)_48%,transparent)] px-4 py-3 text-[var(--text-base)] transition-colors focus:border-[var(--accent-amber1)] focus:outline-none"
+                  locale={locale}
+                  placeholder={t("eventDatePlaceholder")}
                 />
               </div>
             </div>
@@ -234,7 +278,7 @@ export function CTAFormSection() {
             <button
               type="submit"
               disabled={isPending}
-              className="w-full rounded-full border border-[var(--accent-amber1)] bg-[color-mix(in_srgb,var(--accent-amber1)_10%,transparent)] px-6 py-3 font-medium text-[var(--text-base)] transition-colors hover:bg-[var(--accent-amber1)] hover:text-[var(--bg-darker)] disabled:opacity-50"
+              className="cta-submit-glow w-full rounded-full border border-[var(--accent-amber1)] bg-[color-mix(in_srgb,var(--accent-amber1)_10%,transparent)] px-6 py-3 font-medium text-[var(--text-base)] transition-colors hover:bg-[var(--accent-amber1)] hover:text-[var(--bg-darker)] disabled:opacity-50"
             >
               {isPending ? t("submitting") : t("submit")}
             </button>

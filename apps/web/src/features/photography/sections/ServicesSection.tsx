@@ -40,18 +40,38 @@ export default function ServicesSection() {
     if (!section) return;
 
     const ctx = gsap.context(() => {
+      // Card-settle with 3D tilt
       gsap.fromTo(
         ".service-panel",
-        { opacity: 0, y: 44 },
+        { opacity: 0, y: 50, rotateX: 8 },
         {
           opacity: 1,
           y: 0,
-          duration: 0.72,
-          stagger: 0.12,
-          ease: "power3.out",
+          rotateX: 0,
+          duration: 0.8,
+          stagger: { each: 0.15, from: "start" },
+          ease: "cubic-bezier(0.22, 1, 0.36, 1)",
           scrollTrigger: {
             trigger: section,
-            start: "top 80%",
+            start: "top 75%",
+            once: true,
+          },
+        }
+      );
+
+      // Icon pop with bounce ease — delayed after cards
+      gsap.fromTo(
+        ".service-icon",
+        { opacity: 0, scale: 0.5 },
+        {
+          opacity: 1,
+          scale: 1,
+          duration: 0.5,
+          stagger: 0.2,
+          ease: "cubic-bezier(0.34, 1.56, 0.64, 1)",
+          scrollTrigger: {
+            trigger: section,
+            start: "top 65%",
             once: true,
           },
         }
@@ -62,7 +82,7 @@ export default function ServicesSection() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="px-6 py-24 sm:py-28">
+    <section ref={sectionRef} className="px-6 py-24 sm:py-28" style={{ perspective: "1000px" }}>
       <div className="mx-auto max-w-7xl">
         <div className="grid gap-8 lg:grid-cols-[minmax(0,0.76fr)_minmax(0,1.24fr)] lg:items-end">
           <div>
@@ -84,9 +104,9 @@ export default function ServicesSection() {
               key={key}
               className="service-panel group relative overflow-hidden rounded-[1.8rem] border border-[var(--text-base-20)] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--slate-2)_88%,transparent),color-mix(in_srgb,var(--slate-1)_72%,transparent))] p-6 transition-transform duration-300 hover:-translate-y-1"
             >
-              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,196,61,0.16),transparent_28%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,var(--heat-subtle),transparent_28%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
               <div className="relative z-10">
-                <div className="inline-flex rounded-2xl border border-[var(--text-base-20)] bg-[color-mix(in_srgb,var(--slate-3)_72%,transparent)] p-3 text-[var(--accent-amber1)]">
+                <div className="service-icon inline-flex rounded-2xl border border-[var(--text-base-20)] bg-[color-mix(in_srgb,var(--slate-3)_72%,transparent)] p-3 text-[var(--accent-amber1)]">
                   {icon}
                 </div>
 

@@ -1,19 +1,68 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useTranslations } from "next-intl";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 export default function AboutSection() {
   const t = useTranslations("photography.about");
+  const sectionRef = useRef<HTMLElement>(null);
 
   const points = useMemo(
     () => ["community", "bilingual", "delivery"] as const,
     []
   );
 
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const ctx = gsap.context(() => {
+      // Text block: scroll-driven opacity reveal
+      gsap.fromTo(
+        ".about-text-block",
+        { opacity: 0.3 },
+        {
+          opacity: 1,
+          ease: "none",
+          scrollTrigger: {
+            trigger: section,
+            start: "top 70%",
+            end: "center center",
+            scrub: 0.5,
+          },
+        }
+      );
+
+      // Point cards: card-settle stagger with 3D tilt
+      gsap.fromTo(
+        ".about-point",
+        { opacity: 0, y: 36, rotateX: 6 },
+        {
+          opacity: 1,
+          y: 0,
+          rotateX: 0,
+          duration: 0.8,
+          stagger: 0.15,
+          ease: "cubic-bezier(0.22, 1, 0.36, 1)",
+          scrollTrigger: {
+            trigger: ".about-points",
+            start: "top 80%",
+            once: true,
+          },
+        }
+      );
+    }, section);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <section className="px-6 py-24 sm:py-28">
-      <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-start">
+    <section ref={sectionRef} className="px-6 py-24 sm:py-28">
+      <div className="about-text-block mx-auto grid max-w-7xl gap-10 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-start">
         <div>
           <p className="mb-4 font-mono text-[11px] uppercase tracking-[0.28em] text-[var(--accent-amber1)]">
             {t("label")}
@@ -30,11 +79,11 @@ export default function AboutSection() {
             {t("body")}
           </p>
 
-          <div className="mt-10 grid gap-4 md:grid-cols-3">
+          <div className="about-points mt-10 grid gap-4 md:grid-cols-3" style={{ perspective: "800px" }}>
             {points.map((point, index) => (
               <article
                 key={point}
-                className="rounded-[1.5rem] border border-[var(--text-base-20)] bg-[color-mix(in_srgb,var(--slate-2)_72%,transparent)] p-5"
+                className="about-point rounded-[1.5rem] border border-[var(--text-base-20)] bg-[color-mix(in_srgb,var(--slate-2)_72%,transparent)] p-5"
               >
                 <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--text-base-40)]">
                   0{index + 1}

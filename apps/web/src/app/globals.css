@@ -112,7 +112,6 @@
 
   /* ==========================================================================
      Heat Tokens (Amber アクセント階層 - Pitch Black & Fire)
-     現在未使用。将来のコンポーネントリファクタリングで活用予定。
      ========================================================================== */
   --heat-subtle: color-mix(in oklch, var(--accent-amber1) 30%, transparent);
   --heat-medium: var(--accent-amber1);
@@ -265,6 +264,55 @@ body:has(.photography-page) {
 .photography-page main {
   position: relative;
   z-index: 1;
+}
+
+/* === Photography Calendar (react-day-picker) Dark Theme === */
+.photography-calendar {
+  --rdp-accent-color: var(--accent-amber1);
+  --rdp-accent-background-color: color-mix(in oklch, var(--accent-amber1) 20%, transparent);
+  padding: 0.75rem;
+}
+
+.photography-calendar .rdp-month_caption {
+  color: var(--text-base);
+  font-weight: 600;
+}
+
+.photography-calendar .rdp-weekday {
+  color: var(--text-base-40);
+  font-size: 0.75rem;
+}
+
+.photography-calendar .rdp-day button {
+  color: var(--text-base-60);
+  border-radius: 0.5rem;
+}
+
+.photography-calendar .rdp-day button:hover {
+  background-color: color-mix(in oklch, var(--accent-amber1) 15%, transparent);
+  color: var(--text-base);
+}
+
+.photography-calendar .rdp-selected .rdp-day_button {
+  background-color: var(--accent-amber1);
+  color: var(--bg-dark);
+}
+
+.photography-calendar .rdp-today:not(.rdp-selected) .rdp-day_button {
+  border: 1px solid var(--text-base-20);
+  color: var(--text-base);
+}
+
+.photography-calendar .rdp-disabled .rdp-day_button {
+  color: var(--text-base-20);
+}
+
+.photography-calendar .rdp-nav button {
+  color: var(--text-muted);
+}
+
+.photography-calendar .rdp-nav button:hover {
+  color: var(--text-base);
 }
 
 @keyframes progressHeadPulse {

@@ -26,6 +26,8 @@ const LightboxDialog = forwardRef<LightboxHandle, LightboxDialogProps>(
     const dialogRef = useRef<HTMLDialogElement>(null);
     const imgRef = useRef<HTMLImageElement>(null);
     const [currentIndex, setCurrentIndex] = useState(0);
+    const [isOpen, setIsOpen] = useState(false);
+    const isAnimating = useRef(false);
 
     const updateImage = useCallback(
       (index: number) => {
@@ -43,19 +45,50 @@ const LightboxDialog = forwardRef<LightboxHandle, LightboxDialogProps>(
         opacity: 0,
         duration: 0.2,
         ease: "power2.in",
-        onComplete: () => dialogRef.current?.close(),
+        onComplete: () => {
+          dialogRef.current?.close();
+          setIsOpen(false);
+        },
       });
     }, []);
 
-    const goNext = useCallback(() => {
-      const next = (currentIndex + 1) % images.length;
-      updateImage(next);
-    }, [currentIndex, images.length, updateImage]);
+    const navigateImage = useCallback(
+      (direction: "next" | "prev") => {
+        if (isAnimating.current || !imgRef.current) return;
+        isAnimating.current = true;
 
-    const goPrev = useCallback(() => {
-      const prev = (currentIndex - 1 + images.length) % images.length;
-      updateImage(prev);
-    }, [currentIndex, images.length, updateImage]);
+        const newIndex =
+          direction === "next"
+            ? (currentIndex + 1) % images.length
+            : (currentIndex - 1 + images.length) % images.length;
+
+        const slideDir = direction === "next" ? -1 : 1;
+
+        gsap.to(imgRef.current, {
+          x: slideDir * 60,
+          opacity: 0,
+          duration: 0.25,
+          ease: "power2.in",
+          onComplete: () => {
+            updateImage(newIndex);
+            gsap.set(imgRef.current, { x: -slideDir * 60, opacity: 0 });
+            gsap.to(imgRef.current, {
+              x: 0,
+              opacity: 1,
+              duration: 0.3,
+              ease: "power2.out",
+              onComplete: () => {
+                isAnimating.current = false;
+              },
+            });
+          },
+        });
+      },
+      [currentIndex, images.length, updateImage]
+    );
+
+    const goNext = useCallback(() => navigateImage("next"), [navigateImage]);
+    const goPrev = useCallback(() => navigateImage("prev"), [navigateImage]);
 
     useEffect(() => {
       const handleKeyDown = (e: KeyboardEvent) => {
@@ -81,6 +114,7 @@ const LightboxDialog = forwardRef<LightboxHandle, LightboxDialogProps>(
     useImperativeHandle(ref, () => ({
       open(index: number) {
         if (!dialogRef.current) return;
+        setIsOpen(true);
         updateImage(index);
         dialogRef.current.showModal();
         gsap.fromTo(
@@ -103,13 +137,15 @@ const LightboxDialog = forwardRef<LightboxHandle, LightboxDialogProps>(
             onClick={(e) => e.stopPropagation()}
           >
             <div className="relative aspect-[16/10] max-h-[78vh] overflow-hidden rounded-[1.4rem] bg-black">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                ref={imgRef}
-                src=""
-                alt=""
-                className="h-full w-full object-contain"
-              />
+              {isOpen && (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  ref={imgRef}
+                  src={images[currentIndex]?.src ?? undefined}
+                  alt=""
+                  className="h-full w-full object-contain"
+                />
+              )}
             </div>
 
             <div className="mt-4 flex items-center justify-between gap-4 px-2">

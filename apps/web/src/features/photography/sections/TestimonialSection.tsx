@@ -16,6 +16,7 @@ export function TestimonialSection() {
     if (!section) return;
 
     const ctx = gsap.context(() => {
+      // Case entries stagger reveal
       gsap.fromTo(
         ".case-entry",
         { opacity: 0, y: 36 },
@@ -32,6 +33,47 @@ export function TestimonialSection() {
           },
         }
       );
+
+      // Stats counter ignition
+      const statEls = section.querySelectorAll(".stat-value");
+      statEls.forEach((el, i) => {
+        const text = (el as HTMLElement).textContent || "";
+        const numericMatch = text.match(/(\d+)/);
+        if (!numericMatch) return;
+
+        const target = parseInt(numericMatch[1]);
+        const suffix = text.replace(/\d+/, "");
+        const prefix = text.substring(0, text.indexOf(numericMatch[1]));
+        const obj = { val: 0 };
+
+        gsap.to(obj, {
+          val: target,
+          duration: 1.6,
+          ease: "power2.out",
+          delay: 0.5 + i * 0.15,
+          onUpdate: () => {
+            (el as HTMLElement).textContent = prefix + Math.floor(obj.val) + suffix;
+          },
+          onComplete: () => {
+            gsap.fromTo(
+              el,
+              { scale: 1 },
+              {
+                scale: 1.12,
+                duration: 0.15,
+                ease: "power2.out",
+                yoyo: true,
+                repeat: 1,
+              }
+            );
+          },
+          scrollTrigger: {
+            trigger: section,
+            start: "top 70%",
+            once: true,
+          },
+        });
+      });
     }, section);
 
     return () => ctx.revert();
@@ -99,7 +141,7 @@ export function TestimonialSection() {
                   key={stat.label}
                   className="rounded-[1.4rem] border border-[var(--text-base-20)] bg-[color-mix(in_srgb,var(--slate-2)_72%,transparent)] p-5"
                 >
-                  <p className="text-3xl font-semibold tracking-[var(--tracking-tight)] text-[var(--text-base)]">
+                  <p className="stat-value inline-block text-3xl font-semibold tracking-[var(--tracking-tight)] text-[var(--accent-amber1)]">
                     {stat.value}
                   </p>
                   <p className="mt-2 text-sm leading-relaxed text-[var(--text-muted)]">

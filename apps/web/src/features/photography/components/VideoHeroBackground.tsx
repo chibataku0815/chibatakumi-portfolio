@@ -139,6 +139,12 @@ export function VideoHeroBackground({
       }, 320);
     };
 
+    // Pointer leave — reset heat to resting value
+    const handlePointerLeave = () => {
+      if (heatResetTimeout) window.clearTimeout(heatResetTimeout);
+      targetHeat = 0.18;
+    };
+
     // Scroll handler
     const handleScroll = () => {
       if (!material) return;
@@ -191,6 +197,7 @@ export function VideoHeroBackground({
       window.addEventListener("pointermove", handlePointer, { passive: true });
       window.addEventListener("scroll", handleScroll, { passive: true });
       window.addEventListener("resize", handleResize);
+      renderer.domElement.addEventListener("pointerleave", handlePointerLeave);
       introTimeout = window.setTimeout(() => {
         targetHeat = 0.45;
       }, 280);
@@ -226,6 +233,7 @@ export function VideoHeroBackground({
       window.removeEventListener("pointermove", handlePointer);
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleResize);
+      renderer.domElement.removeEventListener("pointerleave", handlePointerLeave);
       video.pause();
       video.removeAttribute("src");
       video.load();
