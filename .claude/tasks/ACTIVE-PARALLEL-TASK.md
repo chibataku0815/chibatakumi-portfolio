@@ -2,6 +2,32 @@
 
 ## 現在アクティブなタスク
 
+### 🚧 Photography LP 再定位 — 東京訴求縮小 + text-first English (2026-03-09)
+- **Agent:** Claude Code
+- **開始:** 2026-03-09T19:30:00+0900 (JST)
+- **Status:** 進行中
+- **Files:**
+  - `apps/web/messages/en.json` (編集)
+  - `apps/web/messages/ja.json` (編集)
+  - `apps/web/src/app/[locale]/photography/page.tsx` (編集)
+  - `apps/web/src/features/photography/sections/CTAFormSection.tsx` (編集)
+- **Notes:** Hero/About/CTA のコピー修正、SEO/JSON-LD 修正、build 検証
+
+### 🚧 Vercel Build Fix - Bun Lockfile Unification (2026-03-09)
+- **Agent:** Codex CLI
+- **開始:** 2026-03-09T19:10:00+0900 (JST)
+- **完了:** 2026-03-09T19:12:00+0900 (JST)
+- **Status:** 完了
+- **Files:**
+  - `apps/web/package.json` (編集)
+  - `apps/web/README.md` (編集)
+  - `apps/web/package-lock.json` (削除)
+  - `.claude/tasks/ACTIVE-PARALLEL-TASK.md` (編集)
+  - `apps/web/bun.lock` (検証)
+  - `apps/web/.next` (検証用削除)
+  - `apps/web/node_modules` (検証用再構築)
+- **Notes:** Vercel の `lightningcss` native optional package 解決失敗を、Bun 正本化で修正。`bun run build` をクリーン状態から 2 回成功、`npm run build` も単独成功
+
 ### 🚧 Photography LP Level 4.5+ Redesign (2026-03-09)
 - **Agent:** Codex CLI
 - **開始:** 2026-03-09T17:59:19+0900 (JST)
