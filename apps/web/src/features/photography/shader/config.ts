@@ -31,6 +31,11 @@ export const videoShaderConfig = {
   warmShift: 0.02,
   contrast: 1.05,
 
+  // === Signature Heat ===
+  heatStrength: 0.16,
+  heatRadius: 3.0,
+  heatScrollBoost: 0.2,
+
   // === Fallback ===
   fallbackColor: "#0a0a0a",
 } as const;

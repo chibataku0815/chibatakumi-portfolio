@@ -34,6 +34,7 @@ uniform vec2 uTextureSize;
 uniform float uTime;
 uniform vec2 uPointer;
 uniform float uScroll;
+uniform float uHeat;
 
 // Hash without sine (Dave Hoskins) — stable on mobile GPUs
 float hash13(vec3 p3) {
@@ -107,6 +108,12 @@ void main() {
 
   // === Cursor highlight ===
   color += vec3(cursorInfluence * ${cfg.cursorHighlight.toFixed(3)});
+
+  // === Signature heat response ===
+  float heatMask = exp(-dist * ${cfg.heatRadius.toFixed(1)});
+  heatMask += smoothstep(0.18, 0.62, 1.0 - abs(centerUv.y)) * uScroll * ${cfg.heatScrollBoost.toFixed(2)};
+  vec3 ember = vec3(1.0, 0.62, 0.18) * heatMask * uHeat * ${cfg.heatStrength.toFixed(2)};
+  color += ember;
 
   // === Scroll fade ===
   float scrollFade = 1.0 - smoothstep(0.0, 0.5, uScroll);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useTranslations } from "next-intl";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -24,53 +24,109 @@ const SERVICE_ICONS = [
 
 export default function ServicesSection() {
   const t = useTranslations("photography.services");
-  const servicesRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+
+  const cards = useMemo(
+    () =>
+      SERVICE_KEYS.map((key, index) => ({
+        key,
+        icon: SERVICE_ICONS[index],
+      })),
+    []
+  );
 
   useEffect(() => {
-    if (!servicesRef.current) return;
+    const section = sectionRef.current;
+    if (!section) return;
 
-    const cards = servicesRef.current.querySelectorAll(".service-card");
     const ctx = gsap.context(() => {
       gsap.fromTo(
-        cards,
-        { opacity: 0, y: 40 },
+        ".service-panel",
+        { opacity: 0, y: 44 },
         {
           opacity: 1,
           y: 0,
-          duration: 0.6,
+          duration: 0.72,
           stagger: 0.12,
           ease: "power3.out",
           scrollTrigger: {
-            trigger: servicesRef.current,
+            trigger: section,
             start: "top 80%",
             once: true,
           },
         }
       );
-    });
+    }, section);
 
     return () => ctx.revert();
   }, []);
 
   return (
-    <section className="px-6 py-24">
-      <div ref={servicesRef} className="mx-auto grid max-w-5xl gap-8 md:grid-cols-3">
-        {SERVICE_KEYS.map((key, i) => (
-          <div
-            key={key}
-            className="service-card rounded-2xl border border-[var(--text-base-20)] bg-[var(--bg-darker)] p-8 transition-all duration-300 hover:border-[var(--accent-amber1)]/40"
-          >
-            <div className="mb-4 inline-flex rounded-xl bg-[var(--accent-amber1)]/10 p-3 text-[var(--accent-amber1)]">
-              {SERVICE_ICONS[i]}
-            </div>
-            <h3 className="mb-2 text-lg font-semibold text-[var(--text-base)]">
-              {t(`${key}.title`)}
-            </h3>
-            <p className="text-sm leading-relaxed text-[var(--text-muted)]">
-              {t(`${key}.description`)}
+    <section ref={sectionRef} className="px-6 py-24 sm:py-28">
+      <div className="mx-auto max-w-7xl">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,0.76fr)_minmax(0,1.24fr)] lg:items-end">
+          <div>
+            <p className="mb-4 font-mono text-[11px] uppercase tracking-[0.28em] text-[var(--accent-amber1)]">
+              {t("label")}
             </p>
+            <h2 className="max-w-xl text-[clamp(2rem,4.8vw,4rem)] font-semibold leading-[0.96] tracking-[var(--tracking-tighter)] text-[var(--text-base)]">
+              {t("title")}
+            </h2>
           </div>
-        ))}
+          <p className="max-w-2xl text-sm leading-relaxed text-[var(--text-muted)] sm:text-base">
+            {t("intro")}
+          </p>
+        </div>
+
+        <div className="mt-12 grid gap-4 xl:grid-cols-3">
+          {cards.map(({ key, icon }) => (
+            <article
+              key={key}
+              className="service-panel group relative overflow-hidden rounded-[1.8rem] border border-[var(--text-base-20)] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--slate-2)_88%,transparent),color-mix(in_srgb,var(--slate-1)_72%,transparent))] p-6 transition-transform duration-300 hover:-translate-y-1"
+            >
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,196,61,0.16),transparent_28%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+              <div className="relative z-10">
+                <div className="inline-flex rounded-2xl border border-[var(--text-base-20)] bg-[color-mix(in_srgb,var(--slate-3)_72%,transparent)] p-3 text-[var(--accent-amber1)]">
+                  {icon}
+                </div>
+
+                <h3 className="mt-6 text-2xl font-semibold tracking-[var(--tracking-tight)] text-[var(--text-base)]">
+                  {t(`${key}.title`)}
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-[var(--text-muted)]">
+                  {t(`${key}.description`)}
+                </p>
+
+                <dl className="mt-8 grid gap-4 border-t border-[var(--text-base-20)] pt-5 text-sm">
+                  <div className="grid grid-cols-[7rem_1fr] gap-3">
+                    <dt className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--text-base-40)]">
+                      {t(`${key}.deliverableLabel`)}
+                    </dt>
+                    <dd className="text-[var(--text-base)]">
+                      {t(`${key}.deliverableValue`)}
+                    </dd>
+                  </div>
+                  <div className="grid grid-cols-[7rem_1fr] gap-3">
+                    <dt className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--text-base-40)]">
+                      {t(`${key}.timingLabel`)}
+                    </dt>
+                    <dd className="text-[var(--text-base)]">
+                      {t(`${key}.timingValue`)}
+                    </dd>
+                  </div>
+                  <div className="grid grid-cols-[7rem_1fr] gap-3">
+                    <dt className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--text-base-40)]">
+                      {t(`${key}.focusLabel`)}
+                    </dt>
+                    <dd className="text-[var(--text-base)]">
+                      {t(`${key}.focusValue`)}
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+            </article>
+          ))}
+        </div>
       </div>
     </section>
   );

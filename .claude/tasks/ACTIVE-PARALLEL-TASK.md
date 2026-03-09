@@ -2,6 +2,28 @@
 
 ## 現在アクティブなタスク
 
+### 🚧 Photography LP Level 4.5+ Redesign (2026-03-09)
+- **Agent:** Codex CLI
+- **開始:** 2026-03-09T17:59:19+0900 (JST)
+- **完了:** 2026-03-09T18:11:28+0900 (JST)
+- **Status:** 完了
+- **Files:**
+  - `apps/web/src/features/photography/PhotographyClient.tsx` (編集)
+  - `apps/web/src/features/photography/components/VideoHeroBackground.tsx` (編集)
+  - `apps/web/src/features/photography/sections/HeroSection.tsx` (編集)
+  - `apps/web/src/features/photography/sections/GallerySection.tsx` (編集)
+  - `apps/web/src/features/photography/sections/ServicesSection.tsx` (編集)
+  - `apps/web/src/features/photography/sections/TestimonialSection.tsx` (編集)
+  - `apps/web/src/features/photography/sections/AboutSection.tsx` (編集)
+  - `apps/web/src/features/photography/sections/CTAFormSection.tsx` (編集)
+  - `apps/web/src/features/photography/sections/LightboxDialog.tsx` (編集)
+  - `apps/web/src/features/photography/shader/config.ts` (編集)
+  - `apps/web/src/features/photography/shader/materials.ts` (編集)
+  - `apps/web/src/app/globals.css` (編集)
+  - `apps/web/messages/en.json` (編集)
+  - `apps/web/messages/ja.json` (編集)
+- **Notes:** Hero構図、Gallery再編集、Services/Testimonial/About/CTA再設計、翻訳更新、ビルド成功
+
 ### ✅ Skills表示順序変更 (2025-12-10)
 - **開始:** 2025-12-10T00:51:33+0900 (Asia/Tokyo)
 - **完了:** 2025-12-10T00:55:00+0900 (Asia/Tokyo)

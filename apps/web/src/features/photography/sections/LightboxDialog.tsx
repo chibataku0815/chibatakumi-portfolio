@@ -8,26 +8,21 @@ import {
   useImperativeHandle,
   forwardRef,
 } from "react";
+import { useTranslations } from "next-intl";
 import gsap from "gsap";
-
-// =============================================================================
-// Types
-// =============================================================================
+import type { GalleryImage } from "./GallerySection";
 
 export interface LightboxHandle {
   open: (index: number) => void;
 }
 
 interface LightboxDialogProps {
-  images: Array<{ src: string; alt: string }>;
+  images: GalleryImage[];
 }
-
-// =============================================================================
-// Component
-// =============================================================================
 
 const LightboxDialog = forwardRef<LightboxHandle, LightboxDialogProps>(
   function LightboxDialog({ images }, ref) {
+    const t = useTranslations("photography.gallery");
     const dialogRef = useRef<HTMLDialogElement>(null);
     const imgRef = useRef<HTMLImageElement>(null);
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -36,10 +31,10 @@ const LightboxDialog = forwardRef<LightboxHandle, LightboxDialogProps>(
       (index: number) => {
         if (!imgRef.current || !images[index]) return;
         imgRef.current.src = images[index].src;
-        imgRef.current.alt = images[index].alt;
+        imgRef.current.alt = t(`images.${images[index].altKey}`);
         setCurrentIndex(index);
       },
-      [images]
+      [images, t]
     );
 
     const closeLightbox = useCallback(() => {
@@ -62,7 +57,6 @@ const LightboxDialog = forwardRef<LightboxHandle, LightboxDialogProps>(
       updateImage(prev);
     }, [currentIndex, images.length, updateImage]);
 
-    // Keyboard navigation
     useEffect(() => {
       const handleKeyDown = (e: KeyboardEvent) => {
         if (!dialogRef.current?.open) return;
@@ -84,7 +78,6 @@ const LightboxDialog = forwardRef<LightboxHandle, LightboxDialogProps>(
       return () => window.removeEventListener("keydown", handleKeyDown);
     }, [goNext, goPrev, closeLightbox]);
 
-    // Expose open method via ref
     useImperativeHandle(ref, () => ({
       open(index: number) {
         if (!dialogRef.current) return;
@@ -102,20 +95,39 @@ const LightboxDialog = forwardRef<LightboxHandle, LightboxDialogProps>(
       <dialog
         ref={dialogRef}
         onClick={closeLightbox}
-        className="fixed inset-0 z-[100] m-0 h-full max-h-full w-full max-w-full bg-black/90 p-4 backdrop:bg-transparent md:p-12"
+        className="fixed inset-0 z-[100] m-0 h-full max-h-full w-full max-w-full bg-black/92 p-4 backdrop:bg-transparent md:p-12"
       >
-        <div className="flex h-full items-center justify-center">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            ref={imgRef}
-            src=""
-            alt=""
-            className="max-h-full max-w-full object-contain"
+        <div className="mx-auto flex h-full max-w-6xl items-center justify-center">
+          <div
+            className="relative w-full overflow-hidden rounded-[2rem] border border-[var(--text-base-20)] bg-[color-mix(in_srgb,var(--slate-2)_86%,transparent)] p-3 sm:p-5"
             onClick={(e) => e.stopPropagation()}
-          />
+          >
+            <div className="relative aspect-[16/10] max-h-[78vh] overflow-hidden rounded-[1.4rem] bg-black">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                ref={imgRef}
+                src=""
+                alt=""
+                className="h-full w-full object-contain"
+              />
+            </div>
+
+            <div className="mt-4 flex items-center justify-between gap-4 px-2">
+              <div>
+                <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-[var(--accent-amber1)]">
+                  {t("sheetLabel")}
+                </p>
+                <p className="mt-1 text-sm text-[var(--text-base-60)]">
+                  {t(`labels.${images[currentIndex]?.labelKey}`)}
+                </p>
+              </div>
+              <div className="font-mono text-xs text-[var(--text-base-40)]">
+                {currentIndex + 1} / {images.length}
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Navigation: Previous */}
         <button
           type="button"
           onClick={(e) => {
@@ -130,7 +142,6 @@ const LightboxDialog = forwardRef<LightboxHandle, LightboxDialogProps>(
           </svg>
         </button>
 
-        {/* Navigation: Next */}
         <button
           type="button"
           onClick={(e) => {
@@ -145,7 +156,6 @@ const LightboxDialog = forwardRef<LightboxHandle, LightboxDialogProps>(
           </svg>
         </button>
 
-        {/* Close button */}
         <button
           type="button"
           onClick={closeLightbox}
@@ -156,11 +166,6 @@ const LightboxDialog = forwardRef<LightboxHandle, LightboxDialogProps>(
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
-
-        {/* Image counter */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 font-mono text-xs text-[var(--text-base-40)]">
-          {currentIndex + 1} / {images.length}
-        </div>
       </dialog>
     );
   }

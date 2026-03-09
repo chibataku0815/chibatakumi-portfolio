@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import gsap from "gsap";
@@ -21,24 +21,52 @@ export function HeroSection({
   const t = useTranslations("photography.hero");
   const sectionRef = useRef<HTMLElement>(null);
 
+  const proofItems = useMemo(
+    () => ["sameDay", "gallery", "bilingual", "coverage"] as const,
+    []
+  );
+
   useEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
 
     const ctx = gsap.context(() => {
-      // Text stagger fade-in
       gsap.fromTo(
-        ".hero-entry",
-        { opacity: 0, y: 40 },
+        ".hero-block",
+        { opacity: 0, y: 56 },
         {
           opacity: 1,
           y: 0,
-          duration: 0.8,
-          stagger: 0.15,
+          duration: 0.95,
+          stagger: 0.12,
           ease: "power3.out",
-          delay: 0.3,
+          delay: 0.18,
         }
       );
+
+      gsap.fromTo(
+        ".hero-proof-item",
+        { opacity: 0, y: 24 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          stagger: 0.08,
+          ease: "power3.out",
+          delay: 0.65,
+        }
+      );
+
+      gsap.to(".hero-float", {
+        yPercent: -10,
+        ease: "none",
+        scrollTrigger: {
+          trigger: section,
+          start: "top top",
+          end: "bottom top",
+          scrub: 0.8,
+        },
+      });
     }, section);
 
     return () => ctx.revert();
@@ -47,71 +75,133 @@ export function HeroSection({
   return (
     <section
       ref={sectionRef}
-      className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden"
+      className="relative isolate flex min-h-screen items-end overflow-hidden px-6 pb-8 pt-32 sm:pb-12"
     >
-      {/* Three.js Video Shader Background */}
       <VideoHeroBackground src={videoSrc} fallbackImage={fallbackImage} />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_24%,rgba(255,196,61,0.18),transparent_26%),linear-gradient(180deg,rgba(0,0,0,0.12),rgba(0,0,0,0.56)_38%,rgba(0,0,0,0.88))]" />
+      <div className="absolute inset-0 opacity-[0.08] mix-blend-screen [background-image:var(--noise-texture)]" />
 
-      {/* Dark gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-black/70" />
+      <div className="relative z-10 mx-auto grid w-full max-w-7xl gap-12 lg:grid-cols-[minmax(0,1.08fr)_minmax(20rem,0.72fr)] lg:items-end">
+        <div className="max-w-4xl">
+          <p className="hero-block mb-5 font-mono text-[11px] uppercase tracking-[0.3em] text-[var(--accent-amber1)]">
+            {t("label")}
+          </p>
 
-      {/* Content */}
-      <div className="relative z-10 flex flex-col items-center px-6 text-center">
-        <p className="hero-entry mb-4 font-mono text-xs uppercase tracking-[0.2em] text-white/60">
-          {t("label")}
-        </p>
+          <h1 className="hero-block max-w-5xl text-[clamp(3.4rem,10vw,8.4rem)] font-semibold leading-[0.88] tracking-[var(--tracking-ultra-tight)] text-[var(--text-base)]">
+            {t("title")}
+            <br />
+            <span className="text-[color-mix(in_srgb,var(--text-base)_76%,var(--accent-amber1))]">
+              {t("titleAccent")}
+            </span>
+          </h1>
 
-        <h1 className="hero-entry mb-6 text-[clamp(2.5rem,8vw,5rem)] font-semibold leading-tight tracking-[-0.02em] text-white">
-          {t("title")}
-          <br />
-          <span className="text-[var(--accent-amber1)]">{t("titleAccent")}</span>
-        </h1>
+          <p className="hero-block mt-6 max-w-2xl text-[15px] leading-relaxed text-[var(--text-base-80)] sm:text-lg">
+            {t("subtext")}
+          </p>
 
-        <p className="hero-entry mx-auto max-w-xl text-lg leading-relaxed text-white/70">
-          {t("subtext")}
-        </p>
-
-        <div className="hero-entry mt-10 flex flex-wrap items-center justify-center gap-4">
-          <Link
-            href="/contact"
-            data-transition="true"
-            className="group inline-flex items-center gap-2 rounded-full border border-[var(--accent-amber1)] px-8 py-3 text-sm font-medium text-[var(--accent-amber1)] transition-all duration-300 hover:bg-[var(--accent-amber1)] hover:text-[var(--bg-dark)]"
-          >
-            {t("ctaBook")}
-            <svg
-              className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
+          <div className="hero-block mt-10 flex flex-wrap items-center gap-4">
+            <Link
+              href="/contact"
+              data-transition="true"
+              className="group inline-flex items-center gap-3 rounded-full border border-[var(--accent-amber1)] bg-[color-mix(in_srgb,var(--accent-amber1)_10%,transparent)] px-7 py-3 text-sm font-medium text-[var(--text-base)] transition-all duration-300 hover:border-[var(--accent-amber2)] hover:bg-[var(--accent-amber1)] hover:text-[var(--bg-dark)]"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M14 5l7 7m0 0l-7 7m7-7H3"
-              />
-            </svg>
-          </Link>
-          <a
-            href="#gallery"
-            className="inline-flex items-center gap-2 text-sm text-white/60 transition-colors hover:text-white"
-          >
-            {t("ctaPortfolio")}
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
+              {t("ctaBook")}
+              <svg
+                className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M14 5l7 7m0 0l-7 7m7-7H3"
+                />
+              </svg>
+            </Link>
+            <a
+              href="#gallery"
+              className="inline-flex items-center gap-3 rounded-full border border-[var(--text-base-20)] px-6 py-3 text-sm text-[var(--text-base-60)] transition-colors duration-300 hover:border-[var(--text-base-40)] hover:text-[var(--text-base)]"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M19 14l-7 7m0 0l-7-7m7 7V3"
-              />
-            </svg>
-          </a>
+              {t("ctaPortfolio")}
+            </a>
+          </div>
+
+          <div className="hero-block mt-16">
+            <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--text-base-40)]">
+              {t("proofLabel")}
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              {proofItems.map((item) => (
+                <div
+                  key={item}
+                  className="hero-proof-item rounded-[1.35rem] border border-[var(--text-base-20)] bg-[color-mix(in_srgb,var(--slate-2)_78%,transparent)] px-4 py-4 backdrop-blur-sm"
+                >
+                  <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-[var(--text-base-40)]">
+                    {t(`proofItems.${item}.title`)}
+                  </p>
+                  <p className="mt-2 text-sm text-[var(--text-base)]">
+                    {t(`proofItems.${item}.value`)}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
+
+        <div className="hero-block hero-float lg:pb-5">
+          <div className="relative overflow-hidden rounded-[2rem] border border-[var(--text-base-20)] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--slate-2)_88%,transparent),color-mix(in_srgb,var(--slate-1)_76%,transparent))] p-6 backdrop-blur-sm">
+            <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-[var(--accent-amber1)] to-transparent opacity-70" />
+            <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-[var(--accent-amber1)]">
+              {t("sideKicker")}
+            </p>
+            <h2 className="mt-4 text-3xl font-semibold tracking-[var(--tracking-tight)] text-[var(--text-base)]">
+              {t("sideTitle")}
+            </h2>
+            <p className="mt-4 text-sm leading-relaxed text-[var(--text-muted)]">
+              {t("sideBody")}
+            </p>
+            <div className="mt-8 grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
+              <div className="border-t border-[var(--text-base-20)] pt-4">
+                <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-[var(--text-base-40)]">
+                  {t("sideMeta.whenLabel")}
+                </p>
+                <p className="mt-2 text-sm text-[var(--text-base)]">
+                  {t("sideMeta.whenValue")}
+                </p>
+              </div>
+              <div className="border-t border-[var(--text-base-20)] pt-4">
+                <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-[var(--text-base-40)]">
+                  {t("sideMeta.whereLabel")}
+                </p>
+                <p className="mt-2 text-sm text-[var(--text-base)]">
+                  {t("sideMeta.whereValue")}
+                </p>
+              </div>
+              <div className="border-t border-[var(--text-base-20)] pt-4">
+                <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-[var(--text-base-40)]">
+                  {t("sideMeta.roleLabel")}
+                </p>
+                <p className="mt-2 text-sm text-[var(--text-base)]">
+                  {t("sideMeta.roleValue")}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="absolute bottom-4 left-1/2 z-10 hidden -translate-x-1/2 md:block">
+        <a
+          href="#gallery"
+          className="inline-flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--text-base-40)] transition-colors hover:text-[var(--text-base)]"
+        >
+          <span>{t("scrollLabel")}</span>
+          <span className="inline-flex h-8 w-5 items-start justify-center rounded-full border border-[var(--text-base-20)] p-1">
+            <span className="animate-scroll-dot h-1.5 w-1.5 rounded-full bg-[var(--accent-amber1)]" />
+          </span>
+        </a>
       </div>
     </section>
   );

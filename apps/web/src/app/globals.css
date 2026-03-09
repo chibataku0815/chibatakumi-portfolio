@@ -236,6 +236,37 @@ body {
   animation: progressFlash 0.6s ease-out;
 }
 
+/* Hide shader background on photography page (uses its own full-bleed hero image) */
+body:has(.photography-page) .hero-shader-bg {
+  display: none !important;
+}
+
+body:has(.photography-page) {
+  background:
+    radial-gradient(circle at top, rgba(255, 196, 61, 0.06), transparent 28%),
+    linear-gradient(180deg, #070707 0%, #050505 100%);
+}
+
+.photography-page {
+  position: relative;
+}
+
+.photography-page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: var(--noise-texture);
+  opacity: 0.02;
+  mix-blend-mode: screen;
+  z-index: 0;
+}
+
+.photography-page main {
+  position: relative;
+  z-index: 1;
+}
+
 @keyframes progressHeadPulse {
   0%, 100% {
     transform: translateX(50%) translateY(-50%) scale(1);
@@ -302,4 +333,3 @@ body {
     opacity: 1;
   }
 }
-

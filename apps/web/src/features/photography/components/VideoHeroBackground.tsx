@@ -106,6 +106,10 @@ export function VideoHeroBackground({
     const startTime = performance.now();
     const targetPointer = { x: 0.5, y: 0.5 };
     const currentPointer = { x: 0.5, y: 0.5 };
+    let targetHeat = 0.2;
+    let currentHeat = 0.2;
+    let heatResetTimeout: number | null = null;
+    let introTimeout: number | null = null;
 
     // Animation loop
     const animate = (now: number) => {
@@ -113,10 +117,12 @@ export function VideoHeroBackground({
         material.uniforms.uTime.value = (now - startTime) / 1000;
         currentPointer.x += (targetPointer.x - currentPointer.x) * 0.08;
         currentPointer.y += (targetPointer.y - currentPointer.y) * 0.08;
+        currentHeat += (targetHeat - currentHeat) * 0.06;
         material.uniforms.uPointer.value.set(
           currentPointer.x,
           currentPointer.y
         );
+        material.uniforms.uHeat.value = currentHeat;
       }
       renderer.render(scene, camera);
       animationFrameId = requestAnimationFrame(animate);
@@ -126,6 +132,11 @@ export function VideoHeroBackground({
     const handlePointer = (e: PointerEvent) => {
       targetPointer.x = e.clientX / window.innerWidth;
       targetPointer.y = 1 - e.clientY / window.innerHeight;
+      targetHeat = 1.0;
+      if (heatResetTimeout) window.clearTimeout(heatResetTimeout);
+      heatResetTimeout = window.setTimeout(() => {
+        targetHeat = 0.42;
+      }, 320);
     };
 
     // Scroll handler
@@ -133,8 +144,10 @@ export function VideoHeroBackground({
       if (!material) return;
       const maxScroll =
         document.documentElement.scrollHeight - window.innerHeight;
-      material.uniforms.uScroll.value =
+      const scrollProgress =
         maxScroll > 0 ? window.scrollY / maxScroll : 0;
+      material.uniforms.uScroll.value = scrollProgress;
+      targetHeat = Math.max(0.18, 0.48 - scrollProgress * 0.4);
     };
 
     // Resize handler
@@ -162,6 +175,7 @@ export function VideoHeroBackground({
         uTime: { value: 0 },
         uPointer: { value: new THREE.Vector2(0.5, 0.5) },
         uScroll: { value: 0 },
+        uHeat: { value: currentHeat },
       };
 
       material = new THREE.ShaderMaterial({
@@ -177,6 +191,9 @@ export function VideoHeroBackground({
       window.addEventListener("pointermove", handlePointer, { passive: true });
       window.addEventListener("scroll", handleScroll, { passive: true });
       window.addEventListener("resize", handleResize);
+      introTimeout = window.setTimeout(() => {
+        targetHeat = 0.45;
+      }, 280);
     };
 
     // Start video playback
@@ -204,6 +221,8 @@ export function VideoHeroBackground({
     return () => {
       observer.disconnect();
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      if (heatResetTimeout) window.clearTimeout(heatResetTimeout);
+      if (introTimeout) window.clearTimeout(introTimeout);
       window.removeEventListener("pointermove", handlePointer);
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleResize);
