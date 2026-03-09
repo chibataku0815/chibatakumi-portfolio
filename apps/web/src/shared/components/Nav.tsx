@@ -2,6 +2,7 @@
 
 import { Link, usePathname } from "@/i18n/navigation";
 import { portfolioData } from "@/shared/data/portfolio";
+import { BrandWordmark } from "./BrandWordmark";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 
 export function Nav() {
@@ -16,9 +17,10 @@ export function Nav() {
         <Link
           href="/"
           data-transition="true"
-          className="font-semibold text-[var(--text-base)] tracking-tight text-lg hover:opacity-80 transition-opacity"
+          aria-label={navBrand}
+          className="transition-opacity hover:opacity-80"
         >
-          {navBrand}
+          <BrandWordmark compact />
         </Link>
       </div>
 

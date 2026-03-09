@@ -8,6 +8,30 @@
 
 ## 直近の完了タスク
 
+### ✅ Logo / Favicon Brand System Refresh (2026-03-09)
+- **Agent:** Codex CLI
+- **開始:** 2026-03-09T20:56:20+0900 (JST)
+- **完了:** 2026-03-09T21:04:00+0900 (JST)
+- **Status:** 完了
+- **Files:**
+  - `apps/web/src/shared/data/portfolio.ts` (編集)
+  - `apps/web/src/shared/data/content.ts` (編集)
+  - `apps/web/src/shared/components/Nav.tsx` (編集)
+  - `apps/web/src/shared/components/index.ts` (編集)
+  - `apps/web/src/shared/components/BrandMark.tsx` (新規)
+  - `apps/web/src/shared/components/BrandWordmark.tsx` (新規)
+  - `apps/web/src/shared/transitions/Logo.tsx` (編集)
+  - `apps/web/src/app/[locale]/layout.tsx` (編集)
+  - `apps/web/src/app/icon.svg` (新規)
+  - `apps/web/src/app/apple-icon.png` (新規)
+  - `apps/web/src/app/favicon.ico` (編集)
+  - `apps/web/public/brand/logo-mark.svg` (新規)
+  - `apps/web/public/brand/logo-mark-512.png` (新規)
+  - `apps/web/public/brand/logo-wordmark.svg` (新規)
+  - `apps/web/public/brand/logo-lockup.svg` (新規)
+  - `docs/brand-identity-mini-guide.md` (新規)
+- **Notes:** `Takumi Chiba` を主軸にした text-first wordmark と `TC / 工` 補助シンボルを導入。transition mark、favicon、apple icon、SVG アセット、簡易ブランドガイドを整備し、`bun run build` 成功確認済み。
+
 ### ✅ Photography Gallery Re-Edit — 個人印象の抑制 (2026-03-09)
 - **Agent:** Codex CLI
 - **開始:** 2026-03-09T20:20:29+0900 (JST)

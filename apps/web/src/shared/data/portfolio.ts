@@ -20,8 +20,18 @@ export interface LogoConfig {
   viewBox: string;
   width: number;
   height: number;
+  strokeWidth: number;
+  minSize: number;
+  clearSpace: number;
   /** 単一パスに結合してgetTotalLength()対応 */
   paths: string[];
+}
+
+export interface WordmarkConfig {
+  full: string;
+  firstName: string;
+  lastName: string;
+  ariaLabel: string;
 }
 
 // === Work Items ===
@@ -81,6 +91,7 @@ export interface SiteConfig {
 
 export interface BrandingConfig {
   navBrand: string;
+  wordmark: WordmarkConfig;
   logo: LogoConfig;
 }
 
@@ -276,7 +287,8 @@ export const portfolioData: PortfolioData = {
   // ---------------------------------------------------------------------------
   site: {
     title: "Takumi Chiba - Portfolio",
-    description: "Creative developer & event photographer in Tokyo. Code, Capture, Craft.",
+    description:
+      "Integrated creative partner blending code, visual direction, and editorial restraint. Code, Capture, Craft.",
     siteUrl: "https://www.chibatakumi.studio",
     locale: "ja",
     author: {
@@ -290,13 +302,22 @@ export const portfolioData: PortfolioData = {
   // Branding
   // ---------------------------------------------------------------------------
   branding: {
-    navBrand: "TC",
+    navBrand: "Takumi Chiba",
+    wordmark: {
+      full: "Takumi Chiba",
+      firstName: "Takumi",
+      lastName: "Chiba",
+      ariaLabel: "Takumi Chiba home",
+    },
     logo: {
       viewBox: "0 0 80 80",
       width: 80,
       height: 80,
-      // Abstract "TC" monoline mark - 後で差し替え可能
-      paths: ["M16 20 L64 20 M40 20 L40 60 M20 60 L60 60 M20 40 L35 40"],
+      strokeWidth: 5,
+      minSize: 16,
+      clearSpace: 12,
+      // Abstract "TC / 工" monoline mark tuned for favicon and stroke animation.
+      paths: ["M62 16H20V64H62M40 16V64M20 40H50"],
     },
   },
 

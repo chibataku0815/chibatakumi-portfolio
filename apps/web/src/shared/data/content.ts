@@ -123,9 +123,10 @@ export const siteContent: SiteContent = {
   },
   logo_notes: {
     concept:
-      "「工」の字をモチーフにしたモノグラム。職人性と構造の両義性。単純な形状の中に複数の読みを持たせる。",
-    stroke_color: "#ededed",
-    fill_color: "transparent",
-    path_hint: "単一パス。ストロークアニメーション対応。stroke-dasharray/dashoffsetでドローイング表現。",
+      "Takumi Chiba を主役に据えたロゴタイプを支える、`TC / 工` の三重読みによる補助シンボル。静かな緊張感と構造の記憶を残す。",
+    stroke_color: "#f5f5f5",
+    fill_color: "#050505",
+    path_hint:
+      "右側を開放した単一ストローク構成。favicon で潰れず、stroke-dasharray / dashoffset で描画アニメーション可能。",
   },
 };

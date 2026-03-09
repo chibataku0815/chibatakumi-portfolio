@@ -30,6 +30,13 @@ export async function generateMetadata({
     },
     description: portfolioData.site.description,
     metadataBase: new URL(baseUrl),
+    icons: {
+      icon: [
+        { url: "/favicon.ico", sizes: "any" },
+        { url: "/icon.svg", type: "image/svg+xml" },
+      ],
+      apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
+    },
     openGraph: {
       title: portfolioData.site.title,
       description: portfolioData.site.description,
