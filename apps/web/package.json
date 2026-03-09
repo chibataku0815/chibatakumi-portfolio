@@ -19,7 +19,6 @@
     "next": "16.0.7",
     "next-intl": "^4.8.3",
     "react": "19.2.1",
-    "react-day-picker": "9",
     "react-dom": "19.2.1",
     "three": "^0.181.2"
   },
