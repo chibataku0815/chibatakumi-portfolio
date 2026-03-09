@@ -750,7 +750,7 @@ nav.*
 | label | About | About |
 | title | I understand tech events | テックイベントを理解できるのは |
 | titleSub | because I'm part of the community. | コミュニティの一員だから。 |
-| body | Full-stack engineer turned event photographer... | フルスタックエンジニアからイベントフォトグラファーへ... |
+| body | I am both a full-stack engineer and an event photographer... | エンジニアでもあり、イベントフォトグラファーでもあるからこそ... |
 
 #### photography.form
 
