@@ -104,27 +104,40 @@ export interface NavigationConfig {
   links: NavLink[];
 }
 
+export interface ShaderPreset {
+  focusX: number;
+  focusY: number;
+  accentMix: number;
+  distortionBoost: number;
+}
+
 export interface HeroContent {
   title: string;
-  eyebrow: string;
-  description: string;
+  eyebrow?: string;
+  description?: string;
   primaryCta: {
     label: string;
     href: string;
   };
-  secondaryCta: {
+  secondaryCta?: {
     label: string;
     href: string;
   };
+  socialLinks?: Array<{
+    label: string;
+    href: string;
+    icon: "github" | "x" | "instagram";
+  }>;
   domains: Array<{
     id: string;
     label: string;
-    title: string;
-    description: string;
+    title?: string;
+    description?: string;
     proof: string;
     href: string;
     accent: string;
     glow: string;
+    shaderPreset: ShaderPreset;
   }>;
   scrollText: string;
 }
@@ -397,53 +410,45 @@ export const portfolioData: PortfolioData = {
   // ---------------------------------------------------------------------------
   hero: {
     title: "Takumi Chiba",
-    eyebrow: "Integrated Digital Craft",
-    description:
-      "Integrated creative partner across code, photography, and brand systems, shaped with editorial restraint and production-ready execution.",
     primaryCta: {
       label: "View Skills",
       href: "/skills",
     },
-    secondaryCta: {
-      label: "Start a Project",
-      href: "/contact",
-    },
+    socialLinks: [
+      { label: "GitHub", href: "https://github.com/chibataku0815", icon: "github" },
+      { label: "X", href: "https://x.com/forestone0901", icon: "x" },
+      { label: "Instagram", href: "https://www.instagram.com/chiba__takumi/", icon: "instagram" },
+    ],
     domains: [
       {
         id: "code",
         label: "Code",
-        title: "Interaction systems with production depth.",
-        description:
-          "Next.js, design systems, animation, and implementation that survive real delivery constraints.",
-        proof: "From concept framing to shipped interface, the same logic stays intact.",
+        proof: "Concept to shipped interface — same logic intact.",
         href: "/skills",
         accent: "#f0b25a",
         glow:
           "radial-gradient(circle at 28% 30%, color-mix(in srgb, var(--accent-amber1) 34%, transparent) 0%, transparent 34%), radial-gradient(circle at 74% 72%, rgba(84, 186, 255, 0.14) 0%, transparent 28%)",
+        shaderPreset: { focusX: 0.28, focusY: 0.3, accentMix: 0.6, distortionBoost: 1.2 },
       },
       {
         id: "capture",
         label: "Capture",
-        title: "Visual direction that keeps heat and context.",
-        description:
-          "Photography and image editing tuned for narrative, atmosphere, and downstream usability on the web.",
-        proof: "Frames are treated as decision-making assets, not decorative leftovers.",
+        proof: "Frames as decision-making assets, not decoration.",
         href: "/photography",
         accent: "#f5c36d",
         glow:
           "radial-gradient(circle at 72% 24%, rgba(255, 196, 61, 0.28) 0%, transparent 32%), radial-gradient(circle at 24% 76%, rgba(255, 120, 76, 0.12) 0%, transparent 24%)",
+        shaderPreset: { focusX: 0.72, focusY: 0.24, accentMix: 0.8, distortionBoost: 0.8 },
       },
       {
         id: "craft",
         label: "Craft",
-        title: "Brand, layout, and execution aligned as one output.",
-        description:
-          "A single point of view that connects structure, editing, communication, and finish quality.",
-        proof: "The goal is not variety for its own sake, but one coherent standard across mediums.",
+        proof: "One coherent standard across mediums.",
         href: "/profile",
         accent: "#ecd7b5",
         glow:
           "radial-gradient(circle at 58% 38%, rgba(236, 215, 181, 0.2) 0%, transparent 26%), radial-gradient(circle at 22% 82%, rgba(255, 181, 77, 0.12) 0%, transparent 20%)",
+        shaderPreset: { focusX: 0.58, focusY: 0.38, accentMix: 0.5, distortionBoost: 0.6 },
       },
     ],
     scrollText: "Scroll",

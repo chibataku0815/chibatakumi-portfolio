@@ -11,6 +11,7 @@ import {
 import { heroShaderConfig } from "../shader/config";
 import { heroVertexShader, createHeroFragmentShader } from "../shader/materials";
 import type { HeroMaskSet, HeroShaderUniforms } from "../shader/types";
+import type { ShaderPreset } from "@/shared/data/portfolio";
 
 const cfg = heroShaderConfig;
 const rendererCfg = getRendererConfig();
@@ -18,16 +19,25 @@ const MAX_LINE_RECTS = 6;
 
 interface HomeHeroLightLayerProps {
   maskSet: HeroMaskSet;
+  accentColor?: string;
+  shaderPreset?: ShaderPreset;
 }
 
 function createEmptyRects(): THREE.Vector4[] {
   return Array.from({ length: MAX_LINE_RECTS }, () => new THREE.Vector4(0, 0, 0, 0));
 }
 
-export function HomeHeroLightLayer({ maskSet }: HomeHeroLightLayerProps) {
+function hexToVec3(hex: string): THREE.Vector3 {
+  const c = new THREE.Color(hex);
+  return new THREE.Vector3(c.r, c.g, c.b);
+}
+
+export function HomeHeroLightLayer({ maskSet, accentColor, shaderPreset }: HomeHeroLightLayerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const materialRef = useRef<THREE.ShaderMaterial | null>(null);
   const maskSetRef = useRef(maskSet);
+  const targetAccentRef = useRef(hexToVec3(accentColor ?? "#f0b25a"));
+  const targetPresetRef = useRef(shaderPreset ?? { focusX: 0.5, focusY: 0.5, accentMix: 0.5, distortionBoost: 1.0 });
 
   useEffect(() => {
     maskSetRef.current = maskSet;
@@ -50,6 +60,16 @@ export function HomeHeroLightLayer({ maskSet }: HomeHeroLightLayerProps) {
       maskSet.anchorRect?.height ?? 0
     );
   }, [maskSet]);
+
+  // Smoothly update accent color and shader preset when domain changes
+  useEffect(() => {
+    if (accentColor) {
+      targetAccentRef.current = hexToVec3(accentColor);
+    }
+    if (shaderPreset) {
+      targetPresetRef.current = shaderPreset;
+    }
+  }, [accentColor, shaderPreset]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -94,6 +114,12 @@ export function HomeHeroLightLayer({ maskSet }: HomeHeroLightLayerProps) {
       material.uniforms.uScroll.value = progress;
     };
 
+    // Smooth interpolation state for domain transitions
+    const currentAccent = { x: targetAccentRef.current.x, y: targetAccentRef.current.y, z: targetAccentRef.current.z };
+    const currentFocus = { x: targetPresetRef.current.focusX, y: targetPresetRef.current.focusY };
+    let currentAccentMix = targetPresetRef.current.accentMix;
+    let currentDistortionBoost = targetPresetRef.current.distortionBoost;
+
     const animate = (now: number) => {
       if (material) {
         material.uniforms.uTime.value = (now - startTime) / 1000;
@@ -102,6 +128,23 @@ export function HomeHeroLightLayer({ maskSet }: HomeHeroLightLayerProps) {
         currentInteraction += (targetInteraction - currentInteraction) * 0.06;
         material.uniforms.uPointer.value.set(currentPointer.x, currentPointer.y);
         material.uniforms.uInteraction.value = currentInteraction;
+
+        // Smoothly lerp accent color and preset uniforms
+        const lerpRate = 0.05;
+        const ta = targetAccentRef.current;
+        currentAccent.x += (ta.x - currentAccent.x) * lerpRate;
+        currentAccent.y += (ta.y - currentAccent.y) * lerpRate;
+        currentAccent.z += (ta.z - currentAccent.z) * lerpRate;
+        material.uniforms.uAccentColor.value.set(currentAccent.x, currentAccent.y, currentAccent.z);
+
+        const tp = targetPresetRef.current;
+        currentFocus.x += (tp.focusX - currentFocus.x) * lerpRate;
+        currentFocus.y += (tp.focusY - currentFocus.y) * lerpRate;
+        currentAccentMix += (tp.accentMix - currentAccentMix) * lerpRate;
+        currentDistortionBoost += (tp.distortionBoost - currentDistortionBoost) * lerpRate;
+        material.uniforms.uFocusPoint.value.set(currentFocus.x, currentFocus.y);
+        material.uniforms.uAccentMix.value = currentAccentMix;
+        material.uniforms.uDistortionBoost.value = currentDistortionBoost;
 
         if (!maskSetRef.current.interactionEnabled || now - lastPointerMove > 420) {
           targetInteraction = Math.max(cfg.idleHeat, targetInteraction * 0.94);
@@ -138,6 +181,8 @@ export function HomeHeroLightLayer({ maskSet }: HomeHeroLightLayerProps) {
       .then(({ texture: loadedTexture, width: texWidth, height: texHeight }) => {
         texture = loadedTexture;
 
+        const initialAccent = targetAccentRef.current;
+        const initialPreset = targetPresetRef.current;
         const uniforms: HeroShaderUniforms = {
           uTexture: { value: texture },
           uResolution: { value: new THREE.Vector2(initialSize.width, initialSize.height) },
@@ -149,6 +194,10 @@ export function HomeHeroLightLayer({ maskSet }: HomeHeroLightLayerProps) {
           uLineCount: { value: 0 },
           uLineRects: { value: createEmptyRects() },
           uAnchorRect: { value: new THREE.Vector4(0, 0, 0, 0) },
+          uAccentColor: { value: new THREE.Vector3(initialAccent.x, initialAccent.y, initialAccent.z) },
+          uFocusPoint: { value: new THREE.Vector2(initialPreset.focusX, initialPreset.focusY) },
+          uAccentMix: { value: initialPreset.accentMix },
+          uDistortionBoost: { value: initialPreset.distortionBoost },
         };
 
         material = new THREE.ShaderMaterial({

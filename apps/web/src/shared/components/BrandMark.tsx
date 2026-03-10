@@ -18,7 +18,7 @@ export function BrandMark({ className, size = 20 }: BrandMarkProps) {
       className={className}
     >
       <path
-        d={logo.paths.join(" ")}
+        d={logo.path}
         stroke="currentColor"
         strokeWidth={logo.strokeWidth}
         strokeLinecap="round"

@@ -36,8 +36,30 @@ uniform float uInteraction;
 uniform int uLineCount;
 uniform vec4 uLineRects[6];
 uniform vec4 uAnchorRect;
+uniform vec3 uAccentColor;
+uniform vec2 uFocusPoint;
+uniform float uAccentMix;
+uniform float uDistortionBoost;
 
 ${noiseGlsl}
+
+// === Spectral Dispersion Helper ===
+// Maps t (0-1) to approximate visible spectrum RGB
+vec3 spectralWeight(float t) {
+  // Attempt to reproduce a smooth visible spectrum: violet → blue → cyan → green → yellow → red
+  vec3 c;
+  t = clamp(t, 0.0, 1.0);
+  if (t < 0.25) {
+    c = mix(vec3(0.36, 0.0, 0.72), vec3(0.0, 0.2, 1.0), t / 0.25);
+  } else if (t < 0.5) {
+    c = mix(vec3(0.0, 0.2, 1.0), vec3(0.0, 0.9, 0.3), (t - 0.25) / 0.25);
+  } else if (t < 0.75) {
+    c = mix(vec3(0.0, 0.9, 0.3), vec3(1.0, 0.9, 0.0), (t - 0.5) / 0.25);
+  } else {
+    c = mix(vec3(1.0, 0.9, 0.0), vec3(1.0, 0.15, 0.0), (t - 0.75) / 0.25);
+  }
+  return c;
+}
 
 // 平均暗部色をサンプリング
 vec3 sampleAverageColor(sampler2D tex) {
@@ -122,14 +144,26 @@ float rectFillField(vec2 uv, vec4 rect, float feather) {
 void main() {
   vec2 uv = vUv;
 
+  // === Scroll Cascade Phases ===
+  float scrollNorm = clamp(uScroll, 0.0, 1.0);
+  float scrollEased = smoothstep(0.0, 1.0, scrollNorm);
+  // Phase intensities for cascade
+  float phaseFullIntensity = 1.0 - smoothstep(0.0, 0.15, scrollNorm);
+  float phaseFlare = 1.0 - smoothstep(0.15, 0.4, scrollNorm);
+  float phaseGrainBoost = smoothstep(0.4, 0.7, scrollNorm);
+  float phaseDarkDissolve = smoothstep(0.7, 1.0, scrollNorm);
+
   // === アニメーション計算 ===
-  // 呼吸する光
   float breathe = sin(uTime * ${cfg.breathFrequency.toFixed(2)}) * 0.5 + 0.5;
 
   // カーソル影響 (radial falloff)
   vec2 pointerDist = uv - uPointer;
   float dist = length(pointerDist);
   float cursorInfluence = exp(-dist * ${cfg.cursorDistortionRadius.toFixed(2)});
+
+  // フォーカスポイント影響
+  float focusDist = length(uv - uFocusPoint);
+  float focusInfluence = exp(-focusDist * 2.4);
 
   float lineField = 0.0;
   float lineFill = 0.0;
@@ -154,17 +188,31 @@ void main() {
   float heatState = mix(${cfg.idleHeat.toFixed(2)}, ${cfg.activeHeat.toFixed(2)}, uInteraction);
   float lineHeat = structuralEnergy * heatState;
 
-  // カーソルUVワープ (写真にも影響するレンズ歪み効果)
+  // === Heat Distortion (FBM-based UV shimmer near structure lines) ===
+  float heatMask = lineHeat * focusInfluence * uDistortionBoost;
+  float heatDisplaceX = fbm(vec2(
+    uv.x * ${cfg.heatFrequencyX.toFixed(1)} + uTime * ${cfg.heatSpeed.toFixed(2)},
+    uv.y * ${cfg.heatFrequencyY.toFixed(1)} - uTime * ${cfg.heatSpeed.toFixed(2)} * 1.3
+  )) - 0.5;
+  float heatDisplaceY = fbm(vec2(
+    uv.y * ${cfg.heatFrequencyY.toFixed(1)} + uTime * ${cfg.heatSpeed.toFixed(2)} * 0.7,
+    uv.x * ${cfg.heatFrequencyX.toFixed(1)} + uTime * ${cfg.heatSpeed.toFixed(2)} * 0.9
+  )) - 0.5;
+  vec2 heatOffset = vec2(heatDisplaceX, heatDisplaceY) * ${cfg.heatDistortionStrength.toFixed(4)} * heatMask * phaseFlare;
+
+  // カーソルUVワープ (写真にも影響するレンズ歪み効果) + heat distortion
   vec2 warpDir = normalize(pointerDist + vec2(0.001));
   float warpAmount =
     cursorInfluence * ${cfg.cursorWarpStrength.toFixed(3)} +
     lineHeat * ${cfg.refractionAmount.toFixed(3)};
-  vec2 warpedUv = uv - warpDir * warpAmount;
+  vec2 warpedUv = uv - warpDir * warpAmount + heatOffset;
 
-  // スクロールによる粒度変調
-  float scrollNorm = clamp(uScroll, 0.0, 1.0);
-  float scrollEased = smoothstep(0.0, 1.0, scrollNorm);
-  float grainScaleMod = mix(${cfg.scrollGrainScaleMin.toFixed(2)}, ${cfg.scrollGrainScaleMax.toFixed(2)}, scrollEased);
+  // スクロールによる粒度変調 (Phase 3: grain boost)
+  float grainScaleMod = mix(
+    ${cfg.scrollGrainScaleMin.toFixed(2)},
+    ${cfg.scrollGrainScaleMax.toFixed(2)},
+    mix(scrollEased, 1.0, phaseGrainBoost * 0.5)
+  );
 
   // ノイズ流動用オフセット
   vec2 noiseOffset = vec2(uTime * ${cfg.noiseFlowSpeed.toFixed(2)}, uTime * ${cfg.noiseFlowSpeed.toFixed(2)} * 0.7);
@@ -174,30 +222,36 @@ void main() {
   float imageAspect = uTextureSize.x / uTextureSize.y;
   vec2 photoScale;
   if (screenAspect > imageAspect) {
-    photoScale = vec2(imageAspect / screenAspect, 1.0);
-  } else {
     photoScale = vec2(1.0, screenAspect / imageAspect);
+  } else {
+    photoScale = vec2(imageAspect / screenAspect, 1.0);
   }
   vec2 photoOffset = (vec2(1.0) - photoScale) * 0.5;
   vec2 photoUv = (warpedUv - photoOffset) / photoScale;
   vec2 clampedUv = clamp(photoUv, vec2(0.0), vec2(1.0));
 
-  // === Chromatic Aberration (カーソル近接時 + 構造線近傍) ===
-  vec2 chromaticDir = normalize(pointerDist + vec2(0.001));
-  float chromaticAmount =
-    cursorInfluence * ${cfg.chromaticStrength.toFixed(4)} +
-    lineHeat * ${cfg.chromaticStrength.toFixed(4)} * 0.42;
+  // === Prismatic Dispersion (spectral chromatic aberration) ===
+  vec2 dispDir = normalize(pointerDist + vec2(0.001));
+  float dispAmount =
+    cursorInfluence * ${cfg.chromaticStrength.toFixed(4)} * ${cfg.dispersionSpread.toFixed(1)} +
+    lineHeat * ${cfg.chromaticStrength.toFixed(4)} * 0.42 * ${cfg.dispersionSpread.toFixed(1)};
+  // Scale dispersion with scroll cascade
+  dispAmount *= mix(1.0, 0.3, 1.0 - phaseFlare);
 
-  // RGB各チャンネルを異なるUVでサンプリング
-  vec2 uvR = clampedUv + chromaticDir * chromaticAmount;
-  vec2 uvB = clampedUv - chromaticDir * chromaticAmount;
-
-  // 写真色 (Chromatic Aberration適用)
-  vec3 photoColor = vec3(
-    texture2D(uTexture, clamp(uvR, vec2(0.0), vec2(1.0))).r,
-    texture2D(uTexture, clampedUv).g,
-    texture2D(uTexture, clamp(uvB, vec2(0.0), vec2(1.0))).b
-  );
+  vec3 photoColor = vec3(0.0);
+  vec3 weightSum = vec3(0.0);
+  // 7-sample spectral dispersion
+  for (int si = 0; si < ${cfg.dispersionSamples}; si++) {
+    float t = float(si) / float(${cfg.dispersionSamples} - 1);
+    float offsetT = t - 0.5; // -0.5 to 0.5
+    vec2 sampleOffset = dispDir * dispAmount * offsetT;
+    vec2 sUv = clamp(clampedUv + sampleOffset, vec2(0.0), vec2(1.0));
+    vec3 sColor = texture2D(uTexture, sUv).rgb;
+    vec3 w = spectralWeight(t);
+    photoColor += sColor * w;
+    weightSum += w;
+  }
+  photoColor /= max(weightSum, vec3(0.001));
 
   // 背景基調色
   vec3 baseColor = sampleAverageColor(uTexture);
@@ -235,6 +289,8 @@ void main() {
     ${cfg.grainMin.toFixed(3)},
     ${cfg.grainMax.toFixed(3)}
   );
+  // Scroll Phase 3: boost grain
+  grainAmp *= (1.0 + phaseGrainBoost * 1.5);
 
   // 粗い＋細かいノイズ (スクロールで粒度変化 + 時間で流動)
   float coarse = noise(uv * uResolution * ${cfg.coarseScale.toFixed(2)} * grainScaleMod + noiseOffset) * grainAmp * ${cfg.coarseAmplitude.toFixed(2)};
@@ -250,8 +306,13 @@ void main() {
   edgeMask *= smoothstep(0.0, edgeFade, photoUv.y);
   edgeMask *= smoothstep(0.0, edgeFade, 1.0 - photoUv.y);
 
-  // 最終合成（ノイズは背景側で一度だけ加算済み）
-  vec3 color = mix(bgColor, photoColor, edgeMask);
+  // Scroll Phase 2: desaturate photo slightly
+  vec3 desatPhoto = photoColor;
+  float photoLuma = dot(photoColor, vec3(0.299, 0.587, 0.114));
+  desatPhoto = mix(photoColor, vec3(photoLuma), (1.0 - phaseFlare) * 0.3);
+
+  // 最終合成
+  vec3 color = mix(bgColor, desatPhoto, edgeMask);
 
   // 呼吸は全画面ではなく、構造線まわりに集中させる
   float restrainedBreath = mix(
@@ -264,7 +325,9 @@ void main() {
   float scrollFade = 1.0 - smoothstep(0.0, 0.72, uScroll);
   float lineGlow = lineField * ${cfg.lineGlowStrength.toFixed(2)} * mix(0.8, 1.35, uInteraction) * scrollFade;
   float lineShadow = lineFill * ${cfg.lineShadowDepth.toFixed(2)} * mix(1.0, 0.35, uScroll);
-  vec3 ember = vec3(1.0, 0.64, 0.24) * lineGlow;
+  // Ember tinted with accent color
+  vec3 accentEmber = mix(vec3(1.0, 0.64, 0.24), uAccentColor, uAccentMix * 0.6);
+  vec3 ember = accentEmber * lineGlow;
   vec3 coolShadow = vec3(0.02, 0.02, 0.03) * lineShadow;
 
   // カーソル周辺ハイライトは anchor 近傍だけ強める
@@ -272,6 +335,42 @@ void main() {
   color += ember;
   color -= coolShadow;
   color = mix(color, color * 0.92, uScroll * lineFill * 0.6);
+
+  // === Anamorphic Lens Flare ===
+  // Detect luminance hotspots and create horizontal streak
+  float colorLuma = dot(color, vec3(0.299, 0.587, 0.114));
+  float flareSource = smoothstep(${cfg.flareThreshold.toFixed(2)}, 1.0, colorLuma);
+  // Also glow near focus point
+  flareSource = max(flareSource, focusInfluence * 0.4 * lineHeat);
+
+  // Horizontal streak with pointer-influenced angle
+  float flareAngle = (uPointer.x - 0.5) * 0.12; // subtle rotation
+  vec2 flareDir = vec2(cos(flareAngle), sin(flareAngle));
+
+  vec3 flareAccum = vec3(0.0);
+  float flareTotal = 0.0;
+  for (int fi = 0; fi < ${cfg.flareSamples}; fi++) {
+    float offset = float(fi) - float(${cfg.flareSamples}) * 0.5;
+    float falloff = exp(-abs(offset) * ${cfg.flareDecay.toFixed(3)});
+    vec2 samplePos = uv + flareDir * offset * 0.012;
+    // Sample the luminance at this position
+    float sLuma = dot(
+      texture2D(uTexture, clamp((samplePos - photoOffset) / photoScale, vec2(0.0), vec2(1.0))).rgb,
+      vec3(0.299, 0.587, 0.114)
+    );
+    float hotspot = smoothstep(${cfg.flareThreshold.toFixed(2)}, 1.0, sLuma);
+    flareAccum += mix(vec3(1.0, 0.9, 0.7), uAccentColor, ${cfg.flareTint.toFixed(2)} * uAccentMix) * hotspot * falloff;
+    flareTotal += falloff;
+  }
+  flareAccum /= max(flareTotal, 1.0);
+
+  // Apply flare with scroll phase fadeout
+  float flareIntensity = ${cfg.flareStrength.toFixed(2)} * phaseFlare * mix(0.6, 1.0, phaseFullIntensity);
+  color += flareAccum * flareIntensity;
+
+  // === Scroll Phase 4: Dark ambient dissolve ===
+  color = mix(color, color * vec3(0.08, 0.07, 0.06), phaseDarkDissolve * 0.85);
+
   color = clamp(color, 0.0, 1.0);
 
   gl_FragColor = vec4(color, 1.0);

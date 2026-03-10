@@ -34,6 +34,10 @@ export interface HeroShaderUniforms {
   uLineCount: { value: number };
   uLineRects: { value: Vector4[] };
   uAnchorRect: { value: Vector4 };
+  uAccentColor: { value: import("three").Vector3 };
+  uFocusPoint: { value: Vector2 };
+  uAccentMix: { value: number };
+  uDistortionBoost: { value: number };
 }
 
 /**

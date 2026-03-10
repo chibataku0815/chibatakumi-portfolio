@@ -25,8 +25,8 @@ export function Nav() {
 
   return (
     <>
-      <nav className="fixed left-0 top-0 z-50 w-full px-4 pt-4 sm:px-6 md:px-8">
-        <div className="mx-auto flex h-[var(--nav-height)] max-w-7xl items-center justify-between rounded-full border border-[var(--stroke-subtle)] bg-[var(--surface-1)] px-4 shadow-[var(--shadow-elev-1)] backdrop-blur-xl sm:px-5">
+      <nav className="fixed left-0 top-0 z-50 w-full">
+        <div className="mx-auto flex h-[var(--nav-height)] max-w-7xl items-center justify-between px-5 sm:px-8 lg:px-12">
           <Link
             href="/"
             data-transition="true"

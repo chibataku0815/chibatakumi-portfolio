@@ -7,6 +7,8 @@ interface BrandWordmarkProps {
 
 export function BrandWordmark({ compact = false }: BrandWordmarkProps) {
   const { wordmark } = portfolioData.branding;
+  const [firstName, ...rest] = wordmark.full.split(" ");
+  const lastName = rest.join(" ");
 
   return (
     <span
@@ -27,7 +29,7 @@ export function BrandWordmark({ compact = false }: BrandWordmarkProps) {
               : "text-[12px] tracking-[0.16em] sm:text-[13px]"
           }`}
         >
-          {wordmark.firstName}
+          {firstName}
         </span>
         <span
           style={{ fontFamily: "var(--font-family-sans)" }}
@@ -37,7 +39,7 @@ export function BrandWordmark({ compact = false }: BrandWordmarkProps) {
               : "text-[12px] tracking-[0.15em] sm:text-[13px]"
           }`}
         >
-          {wordmark.lastName}
+          {lastName}
         </span>
       </span>
     </span>

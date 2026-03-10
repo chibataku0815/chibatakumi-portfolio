@@ -13,7 +13,7 @@ interface LogoProps {
  * Path data from portfolioData.branding.logo (replaceable)
  */
 const Logo = forwardRef<SVGSVGElement, LogoProps>(({ className }, ref) => {
-  const { viewBox, width, height, paths, strokeWidth } = portfolioData.branding.logo;
+  const { viewBox, width, height, path, strokeWidth } = portfolioData.branding.logo;
 
   return (
     <svg
@@ -25,7 +25,7 @@ const Logo = forwardRef<SVGSVGElement, LogoProps>(({ className }, ref) => {
       className={className}
     >
       <path
-        d={paths.join(" ")}
+        d={path}
         fill="none"
         stroke="var(--logo-stroke)"
         strokeWidth={strokeWidth}

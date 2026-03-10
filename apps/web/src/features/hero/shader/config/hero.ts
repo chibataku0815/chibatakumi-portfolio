@@ -6,23 +6,23 @@
 export const heroShaderConfig = {
   // === 暗部・明度設定 ===
   // baseColorDarken: 平均暗部色の暗化係数 (0-1, 小さいほど暗い)
-  baseColorDarken: 0.55,
+  baseColorDarken: 0.72,
   // edgeColorDarken: エッジブラー色の暗化係数
-  edgeColorDarken: 0.6,
+  edgeColorDarken: 0.78,
   // saturationRetain: 彩度維持率 (0-1)
-  saturationRetain: 0.6,
+  saturationRetain: 0.78,
   // minBrightness: 最低明度 (黒潰れ防止)
-  minBrightness: 0.06,
+  minBrightness: 0.03,
 
   // === フェード・ブレンド設定 ===
   // edgeFade: 写真エッジのフェード幅 (0-1)
-  edgeFade: 0.18,
+  edgeFade: 0.08,
   // blendToBaseDistance: 背景がbaseColorに完全移行する距離
-  blendToBaseDistance: 0.32,
+  blendToBaseDistance: 0.18,
   // edgeInset: エッジサンプリング時の内側オフセット
-  edgeInset: 0.08,
+  edgeInset: 0.04,
   // blurRadius: エッジブラーの半径
-  blurRadius: 0.05,
+  blurRadius: 0.03,
 
   // === FBM設定 ===
   // fbmScale: FBMのUVスケール
@@ -103,6 +103,23 @@ export const heroShaderConfig = {
   lineThickness: 0.006,
   lineSoftness: 0.02,
   anchorFocus: 0.22,
+
+  // === Anamorphic Flare ===
+  flareSamples: 12,
+  flareDecay: 0.15,
+  flareThreshold: 0.72,
+  flareStrength: 0.25,
+  flareTint: 0.6,
+
+  // === Heat Distortion ===
+  heatDistortionStrength: 0.004,
+  heatFrequencyX: 8.0,
+  heatFrequencyY: 12.0,
+  heatSpeed: 0.6,
+
+  // === Prismatic Dispersion ===
+  dispersionSamples: 7,
+  dispersionSpread: 1.8,
 } as const;
 
 export type HeroShaderConfig = typeof heroShaderConfig;
