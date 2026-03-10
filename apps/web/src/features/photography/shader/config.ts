@@ -36,6 +36,12 @@ export const videoShaderConfig = {
   heatRadius: 3.0,
   heatScrollBoost: 0.2,
 
+  // === Editorial Light Table ===
+  glassRefraction: 0.012,
+  surfaceShadow: 0.2,
+  accentSweep: 0.16,
+  pointerHotspot: 0.92,
+
   // === Fallback ===
   fallbackColor: "#070707",
 } as const;

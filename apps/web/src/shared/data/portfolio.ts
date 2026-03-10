@@ -23,15 +23,19 @@ export interface LogoConfig {
   strokeWidth: number;
   minSize: number;
   clearSpace: number;
-  /** 単一パスに結合してgetTotalLength()対応 */
-  paths: string[];
+  /** 単一パスに結合して getTotalLength() と fill transition に対応 */
+  path: string;
 }
 
 export interface WordmarkConfig {
   full: string;
-  firstName: string;
-  lastName: string;
   ariaLabel: string;
+  viewBox: string;
+  width: number;
+  height: number;
+  strokeWidth: number;
+  primaryPaths: string[];
+  secondaryPaths: string[];
 }
 
 // === Work Items ===
@@ -46,6 +50,7 @@ export interface WorkItem {
   tags?: string[];
   background?: string;
   accent?: string;
+  bridge?: string;
 }
 
 export interface MotionShowcase {
@@ -101,9 +106,27 @@ export interface NavigationConfig {
 
 export interface HeroContent {
   title: string;
-  tagline: string | { lines: string[] };
+  eyebrow: string;
+  description: string;
+  primaryCta: {
+    label: string;
+    href: string;
+  };
+  secondaryCta: {
+    label: string;
+    href: string;
+  };
+  domains: Array<{
+    id: string;
+    label: string;
+    title: string;
+    description: string;
+    proof: string;
+    href: string;
+    accent: string;
+    glow: string;
+  }>;
   scrollText: string;
-  subTagline?: string;
 }
 
 export interface WorksSection {
@@ -216,70 +239,97 @@ export interface PortfolioData {
 // 実データ（プレースホルダー → ユーザー提供データで差し替え）
 // =============================================================================
 
-// Works/Skills 共通で使うマルチスキル項目
-// 順序: 1.開発 2.デザイン 3.写真 4.映像 5.コーヒー
-const multiskillItems: WorkItem[] = [
+// Skills: 領域の全体像と接続価値を見せる
+const skillItems: WorkItem[] = [
   {
     id: "02",
     title: "Code & Interaction Systems",
     description:
-      "Next.js / TypeScript / Three.js を軸に、インタラクションとパフォーマンスを両立。デザインシステムとモーションを同じ視点で実装し、データ接続も担う。",
+      "Next.js / TypeScript / Three.js を軸に、体験設計をそのまま実装まで持ち込む領域。見た目だけでなく、触れたときの速度・密度・挙動まで含めて一つの設計として仕上げる。",
     meta: "Code & Interaction",
     role: "Frontend / Creative Coding",
     tags: ["Next.js", "Three.js", "GSAP", "Design Systems"],
     media: { type: "image", src: "/spotlight/img_4.jpg", alt: "Interactive" },
     background: "#0c0c0c",
     accent: "#e8a85a",
+    bridge:
+      "ブランドの声や撮影で決めたトーンを、実装段階で崩さず体験へ変換する土台。",
   },
   {
     id: "04",
     title: "Identity & Systems",
     description:
-      "写真・映像・UIが同じ声で鳴るようにデザインシステムを構築。ブランドトーンと実装ルールをセットで定義し、運用まで伴走する。",
+      "写真・映像・UIが別々に見えないよう、ブランドの声と判断基準を先に揃える領域。見た目の整合ではなく、作るたびに迷わないルールを設計する。",
     meta: "Identity & Systems",
     role: "Design System / Frontend Lead",
     tags: ["Brand Voice", "Component Library", "Figma", "Guideline"],
     media: { type: "image", src: "/spotlight/img_10.jpg", alt: "Identity Systems" },
     background: "#0d0d0d",
     accent: "#f0b25a",
+    bridge:
+      "UI とビジュアルの基準を一本化し、コード・写真・運用の判断を同じ軸で進める結節点。",
   },
   {
     id: "01",
     title: "Visual & Photo Direction",
     description:
-      "スタジオ/ロケ撮影からカラー設計、Web/誌面での再現までをワンストップ。光とトーンを先に決め、実装時の再現性まで見据えて仕上げる。",
+      "撮影そのものではなく、光・色・距離感を先に決めて体験全体の温度を揃える領域。スタジオでもWebでも、見せたい空気を再現可能な状態まで詰める。",
     meta: "Visual & Photo",
     role: "Photography / Color Science",
     tags: ["Lighting Design", "Color Grading", "Retouch & Delivery", "Film & Stills"],
     media: { type: "image", src: "/spotlight/img_1.jpg", alt: "Visual Direction" },
     background: "#0b0b0b",
     accent: "#f2b869",
+    bridge:
+      "撮影段階でトーンを決め切ることで、Web や motion の再現精度を上げ、全体の声色を安定させる。",
   },
   {
     id: "03",
     title: "Motion & Sound Layering",
     description:
-      "タイポとサウンドを同期させたモーショングラフィック。スクロールや入力に応じたダイナミクスを設計し、Web再生向けに軽量化する。",
+      "静止画やUIに時間軸を与え、理解と余韻を同時に作る領域。視線の流れ、速度、音との同期まで設計し、Web 再生に耐える軽さへ落とし込む。",
     meta: "Motion & Sound",
     role: "Motion / Sound Design",
     tags: ["Kinetic Type", "Sound Reactive", "After Effects", "Web Playback"],
     media: { type: "image", src: "/spotlight/img_7.jpg", alt: "Motion and Sound" },
     background: "#0b0b0b",
     accent: "#e19246",
+    bridge:
+      "写真やUIに『いつ動くべきか』を与え、伝達力と記憶への残り方を引き上げる時間設計。",
   },
   {
     id: "05",
     title: "Coffee & Hospitality",
     description:
-      "スペシャルティコーヒーの焙煎・抽出から、空間演出としてのサービス設計まで。一杯を通じて体験全体をデザインする視点を持つ。",
+      "一杯のコーヒーを通じて、接客導線・空間の空気・所作の解像度を磨く領域。現場で人の反応を観察しながら、体験の細部を設計へ戻していく。",
     meta: "Coffee & Hospitality",
     role: "Barista / Coffee Consultant",
     tags: ["Specialty Coffee", "Roasting", "Extraction", "Hospitality"],
     media: { type: "image", src: "/spotlight/img_5.jpg", alt: "Coffee" },
     background: "#0b0b0b",
     accent: "#c4a574",
+    bridge:
+      "現場での観察と接客の所作が、Web やブランド設計に必要な『居心地』の感覚を支える。",
   },
 ];
+
+// Works: case-study 読みの要約を別データとして保持する
+const workItems: WorkItem[] = skillItems.map((item) => ({
+  ...item,
+  description:
+    {
+      "02":
+        "Next.js / TypeScript / Three.js を軸に、複数レイヤーの体験をブラウザ上で成立させるケーススタディ群。設計・UI・実装・アニメーションを一気通貫で扱う。",
+      "04":
+        "ブランドの声を UI・写真・実装ルールに展開した設計事例。アウトプット単体ではなく、運用のぶれを減らすシステムとして組み立てる。",
+      "01":
+        "撮影からカラー設計、Web での再現までを一続きで扱うビジュアル事例。写真を素材ではなく体験の主旋律として扱う。",
+      "03":
+        "タイポ・映像・サウンドを同期させ、時間軸ごと設計したモーション事例。視線誘導と情報理解を両立させる構成を得意とする。",
+      "05":
+        "スペシャルティコーヒーと接客設計を通じて、空間の印象と人の振る舞いを整える実践。サービス体験をデザインの検証場として扱う。",
+    }[item.id] ?? item.description,
+}));
 
 export const portfolioData: PortfolioData = {
   // ---------------------------------------------------------------------------
@@ -305,19 +355,27 @@ export const portfolioData: PortfolioData = {
     navBrand: "Takumi Chiba",
     wordmark: {
       full: "Takumi Chiba",
-      firstName: "Takumi",
-      lastName: "Chiba",
       ariaLabel: "Takumi Chiba home",
+      viewBox: "0 0 260 36",
+      width: 260,
+      height: 36,
+      strokeWidth: 4.5,
+      primaryPaths: [
+        "M2 4H20 M11 4V32 M29 32L35 4L41 32 M31.5 20H38.5 M49 4V32 M49 18L61 4 M49 18L63 32 M72 4V24L76 32H86L90 24V4 M100 32V4L110 18L120 4V32 M130 4V32",
+      ],
+      secondaryPaths: [
+        "M146 8L152 4H164 M146 8V28L152 32H164 M174 4V32 M190 4V32 M174 18H190 M200 4V32 M212 4V32 M212 4H224L230 10V14L224 18H212 M212 18H224L230 22V26L224 32H212 M238 32L244 4L250 32 M240.5 20H247.5",
+      ],
     },
     logo: {
-      viewBox: "0 0 80 80",
-      width: 80,
-      height: 80,
-      strokeWidth: 5,
+      viewBox: "0 0 72 72",
+      width: 72,
+      height: 72,
+      strokeWidth: 3.5,
       minSize: 16,
       clearSpace: 12,
-      // Abstract "TC / 工" monoline mark tuned for favicon and stroke animation.
-      paths: ["M62 16H20V64H62M40 16V64M20 40H50"],
+      // Compact TC initial derived from the same structural geometry as the wordmark.
+      path: "M10 10H62V18H18V54H62V62H10Z M28 10H62V18H49V62H39V18H28Z",
     },
   },
 
@@ -339,10 +397,55 @@ export const portfolioData: PortfolioData = {
   // ---------------------------------------------------------------------------
   hero: {
     title: "Takumi Chiba",
-    tagline: {
-      lines: ["Code.", "Capture.", "Craft."],
+    eyebrow: "Integrated Digital Craft",
+    description:
+      "Integrated creative partner across code, photography, and brand systems, shaped with editorial restraint and production-ready execution.",
+    primaryCta: {
+      label: "View Skills",
+      href: "/skills",
     },
-    subTagline: "One point of view. One integrated output.",
+    secondaryCta: {
+      label: "Start a Project",
+      href: "/contact",
+    },
+    domains: [
+      {
+        id: "code",
+        label: "Code",
+        title: "Interaction systems with production depth.",
+        description:
+          "Next.js, design systems, animation, and implementation that survive real delivery constraints.",
+        proof: "From concept framing to shipped interface, the same logic stays intact.",
+        href: "/skills",
+        accent: "#f0b25a",
+        glow:
+          "radial-gradient(circle at 28% 30%, color-mix(in srgb, var(--accent-amber1) 34%, transparent) 0%, transparent 34%), radial-gradient(circle at 74% 72%, rgba(84, 186, 255, 0.14) 0%, transparent 28%)",
+      },
+      {
+        id: "capture",
+        label: "Capture",
+        title: "Visual direction that keeps heat and context.",
+        description:
+          "Photography and image editing tuned for narrative, atmosphere, and downstream usability on the web.",
+        proof: "Frames are treated as decision-making assets, not decorative leftovers.",
+        href: "/photography",
+        accent: "#f5c36d",
+        glow:
+          "radial-gradient(circle at 72% 24%, rgba(255, 196, 61, 0.28) 0%, transparent 32%), radial-gradient(circle at 24% 76%, rgba(255, 120, 76, 0.12) 0%, transparent 24%)",
+      },
+      {
+        id: "craft",
+        label: "Craft",
+        title: "Brand, layout, and execution aligned as one output.",
+        description:
+          "A single point of view that connects structure, editing, communication, and finish quality.",
+        proof: "The goal is not variety for its own sake, but one coherent standard across mediums.",
+        href: "/profile",
+        accent: "#ecd7b5",
+        glow:
+          "radial-gradient(circle at 58% 38%, rgba(236, 215, 181, 0.2) 0%, transparent 26%), radial-gradient(circle at 22% 82%, rgba(255, 181, 77, 0.12) 0%, transparent 20%)",
+      },
+    ],
     scrollText: "Scroll",
   },
 
@@ -350,14 +453,14 @@ export const portfolioData: PortfolioData = {
   // Horizontal Works
   // ---------------------------------------------------------------------------
   works: {
-    items: multiskillItems,
+    items: workItems,
   },
 
   // ---------------------------------------------------------------------------
   // Skills (Multi-skill showcase)
   // ---------------------------------------------------------------------------
   skills: {
-    items: multiskillItems,
+    items: skillItems,
   },
 
   // ---------------------------------------------------------------------------
@@ -495,9 +598,9 @@ export const portfolioData: PortfolioData = {
     // Profile Page
     profile: {
       header: {
-        title: "Experience & Skills",
+        title: "信頼の理由",
         subtitle:
-          "デザイン、実装、映像制作。一人の作り手が全工程を担当することで、意図した通りのアウトプットを形にします。",
+          "設計・実装・撮影・編集までをまたいでも、判断軸を一つに保ち続ける。ここではその人物像と、任せられる根拠をまとめています。",
       },
       strengths: [
         {

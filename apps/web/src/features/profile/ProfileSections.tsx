@@ -1,13 +1,21 @@
 "use client";
 
+import { Link } from "@/i18n/navigation";
+import type { ProfilePageContent, ProfileTechCategory } from "@/shared/data/portfolio";
 import { AnimatedHeading } from "@/shared/components";
 import {
   FluidGradientBackground,
   fluidConfigMonochrome,
 } from "@/features/fluid-gradient";
-import { ReactNode, useCallback, useEffect, useState } from "react";
+import { ReactNode, useCallback, useState } from "react";
 
 const BASE_BG = "#0b0b0b";
+
+function getCanHover() {
+  return typeof window === "undefined"
+    ? true
+    : window.matchMedia("(pointer: fine)").matches;
+}
 
 export interface Strength {
   id: string;
@@ -49,29 +57,56 @@ interface ProfileBackgroundProps {
   accentColor?: string | null;
 }
 
-export function ProfileIntro() {
+export function ProfileIntro({ header }: { header: ProfilePageContent["header"] }) {
   return (
     <section className="relative z-10 flex min-h-[40vh] items-end px-4 pb-12 sm:min-h-[50vh] sm:px-6 sm:pb-16 md:min-h-[60vh] md:px-10 md:pb-20">
       <div className="mx-auto w-full max-w-6xl">
         <div className="grid gap-6 md:gap-8 md:grid-cols-[1.2fr,1fr]">
-          <div>
+          <div className="space-y-5">
+            <div className="inline-flex items-center gap-3 rounded-full border border-[var(--stroke-subtle)] bg-[var(--surface-2)] px-4 py-2 text-[11px] font-mono uppercase tracking-[0.24em] text-[var(--text-base-50)] shadow-[var(--shadow-elev-1)]">
+              Profile
+            </div>
             <AnimatedHeading
               as="h1"
-              className="text-balance mb-4 max-w-[7ch] text-[var(--type-display-hero)] font-[200] leading-[0.85] tracking-[var(--tracking-ultra-tight)] text-[var(--text-base)]"
+              className="mb-4 max-w-[4.5ch] text-[clamp(2.2rem,4.4vw,4.25rem)] font-medium leading-[0.94] tracking-[var(--tracking-tight)] text-[var(--text-base)]"
             >
-              Profile
+              {header.title}
             </AnimatedHeading>
           </div>
           <div className="flex items-end">
             <p className="max-w-md text-[clamp(1rem,1.4vw,1.3rem)] leading-relaxed text-[var(--text-base-70)]">
-              デザイン・コード・映像を一人で統合し、
-              <span className="text-[var(--text-base)]">意図通りのアウトプット</span>
-              を作る。
+              {header.subtitle}
             </p>
           </div>
         </div>
       </div>
     </section>
+  );
+}
+
+export function ProfileSectionLead({
+  eyebrow,
+  title,
+  description,
+}: {
+  eyebrow: string;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="relative z-10 px-6 pb-10 sm:px-10">
+      <div className="mx-auto max-w-5xl">
+        <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-[var(--text-base-40)]">
+          {eyebrow}
+        </p>
+        <h2 className="mt-3 text-[clamp(1.8rem,4vw,2.8rem)] font-semibold tracking-[-0.02em] text-[var(--text-base)]">
+          {title}
+        </h2>
+        <p className="mt-3 max-w-3xl text-[clamp(0.95rem,1.2vw,1.05rem)] leading-relaxed text-[var(--text-base-60)]">
+          {description}
+        </p>
+      </div>
+    </div>
   );
 }
 
@@ -113,11 +148,7 @@ export function StrengthSection({
   // 非対称配置: 偶数は左寄り、奇数は右寄り
   const isEven = index % 2 === 0;
 
-  // モバイル判定
-  const [canHover, setCanHover] = useState(true);
-  useEffect(() => {
-    setCanHover(window.matchMedia("(pointer: fine)").matches);
-  }, []);
+  const [canHover] = useState(getCanHover);
 
   const handleMouseEnter = useCallback(() => {
     if (canHover && onHoverStart) {
@@ -260,11 +291,7 @@ export function TimelineSection({
   const depth = index;
   const isDeepest = index === total - 1;
 
-  // モバイル判定
-  const [canHover, setCanHover] = useState(true);
-  useEffect(() => {
-    setCanHover(window.matchMedia("(pointer: fine)").matches);
-  }, []);
+  const [canHover] = useState(getCanHover);
 
   const handleMouseEnter = useCallback(() => {
     if (canHover && onHoverStart) {
@@ -423,5 +450,101 @@ export function TimelineSection({
 }
 
 export function ProfileLayout({ children }: { children: ReactNode }) {
-  return <main className="relative min-h-screen text-[var(--text-base)]">{children}</main>;
+  return (
+    <main className="relative min-h-screen overflow-x-hidden pt-[calc(var(--nav-height)+1.5rem)] text-[var(--text-base)] sm:pt-[calc(var(--nav-height)+1.75rem)]">
+      {children}
+    </main>
+  );
+}
+
+export function TechStackSection({
+  categories,
+}: {
+  categories: ProfileTechCategory[];
+}) {
+  return (
+    <section className="relative z-10 px-4 py-8 sm:px-6 md:px-10">
+      <div className="mx-auto grid max-w-6xl gap-4 md:grid-cols-2">
+        {categories.map((category) => (
+          <article
+            key={category.category}
+            className="rounded-[var(--radius-panel)] border border-[var(--stroke-subtle)] bg-[var(--surface-2)] p-5 shadow-[var(--shadow-elev-2)] sm:p-6"
+          >
+            <div className="mb-5 flex items-center justify-between gap-4 border-b border-[var(--stroke-subtle)] pb-4">
+              <h3 className="text-lg font-semibold text-[var(--text-base)]">
+                {category.category}
+              </h3>
+              <span className="font-mono text-[10px] uppercase tracking-[0.24em] text-[var(--text-base-40)]">
+                {String(category.items.length).padStart(2, "0")} items
+              </span>
+            </div>
+
+            <ul className="space-y-3">
+              {category.items.map((item) => (
+                <li
+                  key={`${category.category}-${item.name}`}
+                  className="flex items-start justify-between gap-4 border-b border-[var(--stroke-subtle)]/60 pb-3 last:border-b-0 last:pb-0"
+                >
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-[var(--text-base)]">{item.name}</p>
+                    {item.context ? (
+                      <p className="mt-1 text-xs leading-relaxed text-[var(--text-base-50)]">
+                        {item.context}
+                      </p>
+                    ) : null}
+                  </div>
+                  <span
+                    className={`rounded-full border px-2.5 py-1 text-[10px] font-mono uppercase tracking-[0.18em] ${
+                      item.level === "primary"
+                        ? "border-[var(--stroke-strong)] bg-[var(--surface-1)] text-[var(--text-base)]"
+                        : "border-[var(--stroke-subtle)] bg-[var(--surface-3)] text-[var(--text-base-50)]"
+                    }`}
+                  >
+                    {item.level}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+export function ProfileCtaSection({
+  cta,
+}: {
+  cta: ProfilePageContent["cta"];
+}) {
+  return (
+    <section className="relative z-10 px-4 py-8 sm:px-6 md:px-10">
+      <div className="mx-auto grid max-w-6xl gap-8 rounded-[var(--radius-panel)] border border-[var(--stroke-strong)] bg-[var(--surface-1)] p-6 shadow-[var(--shadow-elev-2)] md:grid-cols-[1.4fr,1fr] md:p-8">
+        <div className="space-y-4">
+          <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-[var(--text-base-40)]">
+            Contact
+          </p>
+          <h2 className="text-balance max-w-[14ch] text-[clamp(1.8rem,4vw,3rem)] font-semibold leading-[1.02] tracking-[var(--tracking-tight)] text-[var(--text-base)]">
+            {cta.headline}
+          </h2>
+          <p className="max-w-xl whitespace-pre-line text-[clamp(1rem,1.2vw,1.1rem)] leading-relaxed text-[var(--text-base-70)]">
+            {cta.subtext}
+          </p>
+        </div>
+
+        <div className="flex items-center justify-start md:justify-end">
+          <Link
+            href="/contact"
+            data-transition="true"
+            className="inline-flex min-w-[13rem] items-center justify-between rounded-full border border-[var(--stroke-strong)] bg-[var(--surface-2)] px-5 py-4 text-[var(--text-base)] shadow-[var(--shadow-elev-1)] transition-transform duration-200 hover:-translate-y-1"
+          >
+            <span className="text-base font-medium">{cta.buttonLabel}</span>
+            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--text-base-40)]">
+              /contact
+            </span>
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
 }

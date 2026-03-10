@@ -2,6 +2,93 @@
 
 ## 現在アクティブなタスク
 
+## Home Hero Redesign Implementation (2026-03-10)
+- **Agent:** Codex CLI (`orchestrator-director` 相当)
+- **Started:** 2026-03-10T19:23:18+0900 (JST)
+- **Status:** 進行中
+- **Files:**
+  - `.claude/tasks/ACTIVE-PARALLEL-TASK.md` (編集)
+  - `apps/web/src/features/hero/components/HomeHero.tsx` (編集予定)
+  - `apps/web/src/features/hero/components/HomeHeroLightLayer.tsx` (編集予定)
+  - `apps/web/src/shared/data/portfolio.ts` (編集の可能性)
+  - `apps/web/src/app/globals.css` (編集の可能性)
+- **Notes:** トップHeroを `名前 + 一文の価値提案 + CTA + domain selector` へ再編する実装。背景・モーションは補助へ後退させ、CTA を first viewport 内へ戻す。別ストリームの差分は維持し、競合時は停止する。
+
+## Home Top Redesign Research + Agent Team Plan (2026-03-10)
+- **Agent:** Codex CLI (`orchestrator-director` 相当)
+- **Started:** 2026-03-10T19:12:26+0900 (JST)
+- **Completed:** 2026-03-10T19:20:00+0900 (JST)
+- **Status:** 完了
+- **Files:**
+  - `.claude/tasks/ACTIVE-PARALLEL-TASK.md` (編集)
+  - `docs/guides/2026-03-10-skills-profile-nav-handoff.md` (編集)
+- **Notes:** トップページの「見づらさ」と「クリエイティブ不足」を、現行 `HomeHero` 実装監査、ローカル画面計測、Awwwards / NNGroup / Apple HIG / WCAG の一次情報調査、repo 内 skill 群の方針確認で再診断。`Agent Teams` 前提で 8 専門家ロールの診断、推奨方向、段階実装計画を同一ガイドに追記。`orchestrator-director` 実体は環境に存在しないため、統括ロールで代替運用。
+
+## Logo Reconsideration Research + Agent Team Plan (2026-03-10)
+- **Agent:** Codex CLI (`orchestrator-director` 相当)
+- **Started:** 2026-03-10T19:04:19+0900 (JST)
+- **Completed:** 2026-03-10T19:12:15+0900 (JST)
+- **Status:** 完了
+- **Files:**
+  - `.claude/tasks/ACTIVE-PARALLEL-TASK.md` (編集)
+  - `docs/brand/logo-reconsideration-2026-03-10.md` (新規)
+- **Notes:** 現行ロゴを監査し、Pentagram 事例とポートフォリオ参照を踏まえて「symbol を先に救う」のではなく「wordmark を primary に再設計する」方針を確定。6専門家体制の評価、推奨方向、実装フェーズを文書化。`orchestrator-director` 実体は環境に存在しないため、統括ロールで代替運用。
+
+## Skills/Profile 再分離 + Global Nav 表示保証 (2026-03-10)
+- **Agent:** Codex CLI (`orchestrator-director` 相当)
+- **Started:** 2026-03-10T18:28:43+0900 (JST)
+- **Completed:** 2026-03-10T18:35:21+0900 (JST)
+- **Status:** 完了
+- **Files:**
+  - `apps/web/src/shared/data/portfolio.ts` (編集)
+  - `apps/web/src/shared/components/Nav.tsx` (編集)
+  - `apps/web/src/features/skills/SkillsSections.tsx` (編集)
+  - `apps/web/src/features/skills/SkillsClient.tsx` (編集)
+  - `apps/web/src/features/profile/ProfileClient.tsx` (編集)
+  - `apps/web/src/features/profile/ProfileSections.tsx` (編集)
+- **Notes:** `Skills=領域`, `Profile=人物` に責務を再分離し、`skills/profile` の nav 常時表示・視認性・導線を保証。`Profile` で `header/techStack/cta` を消費する構成へ変更。局所 `eslint` は通過、dev 上で `nav z-index=120` を確認。`bun run build` は別ストリーム由来の `apps/web/src/features/hero/components/HomeHeroLightLayer.tsx` 型エラーで未通過。
+
+## Home / Photography Hero UI完全分離リプラン実装 (2026-03-10)
+- **Agent:** Codex CLI
+- **Started:** 2026-03-10T17:20:00+0900 (JST)
+- **完了:** 2026-03-10T18:44:48+0900 (JST)
+- **Status:** 完了
+- **Files:**
+  - `apps/web/src/app/[locale]/layout.tsx` (編集)
+  - `apps/web/src/app/[locale]/page.tsx` (編集)
+  - `apps/web/src/app/[locale]/not-found.tsx` (編集)
+  - `apps/web/src/app/globals.css` (編集)
+  - `apps/web/src/features/error-pages/components/ErrorDisplay.tsx` (編集)
+  - `apps/web/src/features/hero/components/index.ts` (編集)
+  - `apps/web/src/features/hero/components/HeroShaderBackground.tsx` (編集)
+  - `apps/web/src/features/hero/components/HomeHero.tsx` (新規)
+  - `apps/web/src/features/hero/components/HomeHeroLightLayer.tsx` (新規)
+  - `apps/web/src/features/hero/shader/types.ts` (編集)
+  - `apps/web/src/features/photography/components/PhotographyHeroLightLayer.tsx` (新規)
+  - `apps/web/src/features/photography/components/VideoHeroBackground.tsx` (編集)
+  - `apps/web/src/features/photography/sections/HeroSection.tsx` (編集)
+  - `apps/web/src/shared/hooks/useHeroFrameMetrics.ts` (新規)
+- **Notes:** Home Hero と Photography Hero を UI 完全分離。共有は type/hook/tokens/shader props shape のみに限定し、global line-aware background を layout から除去。`HomeHero` / `HomeHeroLightLayer` と `PhotographyHeroLightLayer` を route-local に導入し、`useHeroFrameMetrics` で mask 計測を統一。`bun run build` は成功、Home の title bbox は `614.75px` まで復旧して 2 行構造を維持。
+
+## WebGL Art Direction Replan for Line + Shadow (2026-03-10)
+- **Agent:** Codex CLI
+- **Started:** 2026-03-10T16:35:00+0900 (JST)
+- **Completed:** 2026-03-10T16:49:00+0900 (JST)
+- **Status:** 完了
+- **Files:**
+  - `apps/web/src/app/globals.css` (編集)
+  - `apps/web/src/shared/components/Nav.tsx` (編集)
+  - `apps/web/src/features/hero/components/HeroText.tsx` (編集)
+  - `apps/web/src/features/hero/components/HeroShaderBackground.tsx` (編集)
+  - `apps/web/src/features/hero/shader/config/hero.ts` (編集)
+  - `apps/web/src/features/hero/shader/materials/hero.ts` (編集)
+  - `apps/web/src/features/hero/shader/types.ts` (編集)
+  - `apps/web/src/features/photography/components/VideoHeroBackground.tsx` (編集)
+  - `apps/web/src/features/photography/sections/HeroSection.tsx` (編集)
+  - `apps/web/src/features/photography/shader/config.ts` (編集)
+  - `apps/web/src/features/photography/shader/materials.ts` (編集)
+- **Notes:** Home Hero と Photography Hero を「DOM 骨格線 + WebGL 照明レイヤー」に再設計。構造線トークン、anchor/mask 連携、局所 refraction / line glow / inset shadow を追加し、`bun run build` 成功確認済み。
+
 ## Mobile Layout + Sitewide Design Brush-Up (2026-03-10)
 - **Agent:** Codex CLI
 - **Started:** 2026-03-10T15:56:15+0900 (JST)

@@ -7,10 +7,11 @@ import {
   ProfileBackground,
   ProfileIntro,
   ProfileLayout,
+  ProfileSectionLead,
   StrengthSection,
+  TechStackSection,
   TimelineSection,
-  Strength,
-  Experience,
+  ProfileCtaSection,
 } from "./ProfileSections";
 import {
   setupStrengthEntry,
@@ -18,23 +19,21 @@ import {
   setupProfileParallax,
 } from "./ProfileAnimations";
 import { MouseTextRing } from "@/features/skills/components";
+import type { ProfilePageContent } from "@/shared/data/portfolio";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
 interface ProfileClientProps {
-  profile: {
-    strengths: Strength[];
-    experience: Experience[];
-  };
+  profile: ProfilePageContent;
 }
 
 // Profile用のアクセント色（アンバー系）
 const PROFILE_ACCENT = "#e8a85a";
 
 export default function ProfileClient({ profile }: ProfileClientProps) {
-  const { strengths, experience } = profile;
+  const { header, strengths, experience, techStack, cta } = profile;
 
   const strengthRefs = useRef<(HTMLElement | null)[]>([]);
   const timelineRefs = useRef<(HTMLElement | null)[]>([]);
@@ -63,9 +62,13 @@ export default function ProfileClient({ profile }: ProfileClientProps) {
   }, []);
 
   useEffect(() => {
-    document.fonts.ready.then(() => {
-      const ctx = gsap.context(() => {
-        // Strengths
+    let isMounted = true;
+    let ctx: gsap.Context | null = null;
+
+    void document.fonts.ready.then(() => {
+      if (!isMounted) return;
+
+      ctx = gsap.context(() => {
         for (const [index, el] of strengthRefs.current.entries()) {
           if (!el) continue;
           setupStrengthEntry(el, index, strengths.length);
@@ -73,7 +76,6 @@ export default function ProfileClient({ profile }: ProfileClientProps) {
           triggersRef.current.push(trigger);
         }
 
-        // Timeline
         for (const [index, el] of timelineRefs.current.entries()) {
           if (!el) continue;
           setupTimelineEntry(el, index, experience.length);
@@ -81,21 +83,22 @@ export default function ProfileClient({ profile }: ProfileClientProps) {
           triggersRef.current.push(trigger);
         }
       });
-
-      return () => {
-        ctx.revert();
-        for (const trigger of triggersRef.current) {
-          trigger.kill();
-        }
-        triggersRef.current = [];
-      };
     });
+
+    return () => {
+      isMounted = false;
+      ctx?.revert();
+      for (const trigger of triggersRef.current) {
+        trigger.kill();
+      }
+      triggersRef.current = [];
+    };
   }, [strengths.length, experience.length]);
 
   return (
     <ProfileLayout>
       <ProfileBackground accentColor={isHovered ? PROFILE_ACCENT : null} />
-      <ProfileIntro />
+      <ProfileIntro header={header} />
       <MouseTextRing
         text={hoveredTitle ?? ""}
         accentColor={isHovered ? PROFILE_ACCENT : null}
@@ -105,19 +108,12 @@ export default function ProfileClient({ profile }: ProfileClientProps) {
       {/* Breathing Zone (Golden Ratio - レスポンシブ) */}
       <div className="h-[25vh] sm:h-[35vh] md:h-[50vh]" aria-hidden="true" />
 
-      {/* Strengths Section Header */}
-      <div className="relative z-10 px-6 pb-10 sm:px-10">
-        <div className="mx-auto max-w-5xl">
-          <h2 className="text-[clamp(1.8rem,4vw,2.8rem)] font-semibold tracking-[-0.02em] text-[var(--text-base)]">
-            Strengths
-          </h2>
-          <p className="mt-2 text-[var(--text-base-60)]">
-            これらが一人の中で統合されるとき
-          </p>
-        </div>
-      </div>
+      <ProfileSectionLead
+        eyebrow="Strengths"
+        title="判断軸としての強み"
+        description="肩書きの列挙ではなく、どういう基準で設計し、どの役割まで自分で引き受けるかを整理しています。"
+      />
 
-      {/* Strengths */}
       <div className="relative z-10">
         {strengths.map((strength, index) => (
           <StrengthSection
@@ -135,19 +131,12 @@ export default function ProfileClient({ profile }: ProfileClientProps) {
       {/* Breathing Zone (Golden Ratio - レスポンシブ) */}
       <div className="h-[25vh] sm:h-[40vh] md:h-[var(--breath-md)]" aria-hidden="true" />
 
-      {/* Timeline Section Header */}
-      <div className="relative z-10 px-6 pb-10 sm:px-10">
-        <div className="mx-auto max-w-5xl">
-          <h2 className="text-[clamp(1.8rem,4vw,2.8rem)] font-semibold tracking-[-0.02em] text-[var(--text-base)]">
-            Timeline
-          </h2>
-          <p className="mt-2 text-[var(--text-base-60)]">
-            深く掘るほど、根源に近づく
-          </p>
-        </div>
-      </div>
+      <ProfileSectionLead
+        eyebrow="Experience"
+        title="信頼の根拠になる積層"
+        description="長く関わった案件、役割の変化、扱ってきた責任範囲を時系列で辿れるようにしています。"
+      />
 
-      {/* Timeline */}
       <div className="relative z-10">
         {experience.map((exp, index) => (
           <TimelineSection
@@ -162,7 +151,20 @@ export default function ProfileClient({ profile }: ProfileClientProps) {
         ))}
       </div>
 
-      {/* Breathing Zone (Golden Ratio - レスポンシブ) */}
+      <div className="h-[22vh] sm:h-[32vh] md:h-[42vh]" aria-hidden="true" />
+
+      <ProfileSectionLead
+        eyebrow="Tech Stack"
+        title="再現性を支える道具立て"
+        description="技術選定、設計、デザイン、撮影後処理まで、実務で継続的に使っているものだけを整理しています。"
+      />
+
+      <TechStackSection categories={techStack} />
+
+      <div className="h-[18vh] sm:h-[24vh] md:h-[30vh]" aria-hidden="true" />
+
+      <ProfileCtaSection cta={cta} />
+
       <div className="h-[30vh] sm:h-[50vh] md:h-[var(--breath-lg)]" aria-hidden="true" />
     </ProfileLayout>
   );

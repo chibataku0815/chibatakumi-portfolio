@@ -29,10 +29,13 @@ varying vec2 vUv;
 uniform sampler2D uTexture;
 uniform vec2 uResolution;
 uniform vec2 uTextureSize;
-// Animation uniforms
 uniform float uTime;
 uniform vec2 uPointer;
 uniform float uScroll;
+uniform float uInteraction;
+uniform int uLineCount;
+uniform vec4 uLineRects[6];
+uniform vec4 uAnchorRect;
 
 ${noiseGlsl}
 
@@ -89,6 +92,33 @@ float sampleGrainVariance(sampler2D tex, vec2 center, float radius) {
   return max(mean2 - mean * mean, 0.0);
 }
 
+float rectEdgeField(vec2 uv, vec4 rect, float thickness, float softness) {
+  vec2 minEdge = rect.xy;
+  vec2 maxEdge = rect.xy + rect.zw;
+  vec2 inside = step(minEdge, uv) * step(uv, maxEdge);
+  float inMask = inside.x * inside.y;
+  if (inMask < 0.5) {
+    return 0.0;
+  }
+
+  float left = abs(uv.x - minEdge.x);
+  float right = abs(maxEdge.x - uv.x);
+  float top = abs(uv.y - minEdge.y);
+  float bottom = abs(maxEdge.y - uv.y);
+  float edgeDist = min(min(left, right), min(top, bottom));
+  return 1.0 - smoothstep(thickness, thickness + softness, edgeDist);
+}
+
+float rectFillField(vec2 uv, vec4 rect, float feather) {
+  vec2 center = rect.xy + rect.zw * 0.5;
+  vec2 halfSize = max(rect.zw * 0.5, vec2(0.001));
+  vec2 delta = abs(uv - center) - halfSize;
+  float outside = length(max(delta, 0.0));
+  float inside = min(max(delta.x, delta.y), 0.0);
+  float sdf = outside + inside;
+  return 1.0 - smoothstep(0.0, feather, sdf);
+}
+
 void main() {
   vec2 uv = vUv;
 
@@ -101,9 +131,34 @@ void main() {
   float dist = length(pointerDist);
   float cursorInfluence = exp(-dist * ${cfg.cursorDistortionRadius.toFixed(2)});
 
+  float lineField = 0.0;
+  float lineFill = 0.0;
+  for (int i = 0; i < 6; i++) {
+    if (i >= uLineCount) {
+      continue;
+    }
+    lineField = max(
+      lineField,
+      rectEdgeField(
+        uv,
+        uLineRects[i],
+        ${cfg.lineThickness.toFixed(3)},
+        ${cfg.lineSoftness.toFixed(3)}
+      )
+    );
+    lineFill = max(lineFill, rectFillField(uv, uLineRects[i], 0.03));
+  }
+
+  float anchorField = rectFillField(uv, uAnchorRect, ${cfg.anchorFocus.toFixed(2)});
+  float structuralEnergy = clamp(max(lineField, anchorField * 0.8), 0.0, 1.0);
+  float heatState = mix(${cfg.idleHeat.toFixed(2)}, ${cfg.activeHeat.toFixed(2)}, uInteraction);
+  float lineHeat = structuralEnergy * heatState;
+
   // カーソルUVワープ (写真にも影響するレンズ歪み効果)
   vec2 warpDir = normalize(pointerDist + vec2(0.001));
-  float warpAmount = cursorInfluence * ${cfg.cursorWarpStrength.toFixed(3)};
+  float warpAmount =
+    cursorInfluence * ${cfg.cursorWarpStrength.toFixed(3)} +
+    lineHeat * ${cfg.refractionAmount.toFixed(3)};
   vec2 warpedUv = uv - warpDir * warpAmount;
 
   // スクロールによる粒度変調
@@ -127,9 +182,11 @@ void main() {
   vec2 photoUv = (warpedUv - photoOffset) / photoScale;
   vec2 clampedUv = clamp(photoUv, vec2(0.0), vec2(1.0));
 
-  // === Chromatic Aberration (カーソル近接時) ===
+  // === Chromatic Aberration (カーソル近接時 + 構造線近傍) ===
   vec2 chromaticDir = normalize(pointerDist + vec2(0.001));
-  float chromaticAmount = cursorInfluence * ${cfg.chromaticStrength.toFixed(4)};
+  float chromaticAmount =
+    cursorInfluence * ${cfg.chromaticStrength.toFixed(4)} +
+    lineHeat * ${cfg.chromaticStrength.toFixed(4)} * 0.42;
 
   // RGB各チャンネルを異なるUVでサンプリング
   vec2 uvR = clampedUv + chromaticDir * chromaticAmount;
@@ -196,11 +253,26 @@ void main() {
   // 最終合成（ノイズは背景側で一度だけ加算済み）
   vec3 color = mix(bgColor, photoColor, edgeMask);
 
-  // 全画面breathing (写真含む)
-  color *= mix(1.0 - ${cfg.breathIntensity.toFixed(3)}, 1.0 + ${cfg.breathIntensity.toFixed(3)}, breathe);
+  // 呼吸は全画面ではなく、構造線まわりに集中させる
+  float restrainedBreath = mix(
+    1.0,
+    mix(1.0 - ${cfg.breathIntensity.toFixed(3)} * 0.3, 1.0 + ${cfg.breathIntensity.toFixed(3)} * 0.5, breathe),
+    clamp(lineFill * 0.65 + anchorField * 0.45, 0.0, 1.0)
+  );
+  color *= restrainedBreath;
 
-  // カーソル周辺ハイライト
-  color += vec3(cursorInfluence * ${cfg.cursorHighlight.toFixed(3)});
+  float scrollFade = 1.0 - smoothstep(0.0, 0.72, uScroll);
+  float lineGlow = lineField * ${cfg.lineGlowStrength.toFixed(2)} * mix(0.8, 1.35, uInteraction) * scrollFade;
+  float lineShadow = lineFill * ${cfg.lineShadowDepth.toFixed(2)} * mix(1.0, 0.35, uScroll);
+  vec3 ember = vec3(1.0, 0.64, 0.24) * lineGlow;
+  vec3 coolShadow = vec3(0.02, 0.02, 0.03) * lineShadow;
+
+  // カーソル周辺ハイライトは anchor 近傍だけ強める
+  color += vec3(cursorInfluence * ${cfg.cursorHighlight.toFixed(3)} * max(anchorField, lineField * 0.6));
+  color += ember;
+  color -= coolShadow;
+  color = mix(color, color * 0.92, uScroll * lineFill * 0.6);
+  color = clamp(color, 0.0, 1.0);
 
   gl_FragColor = vec4(color, 1.0);
 }

@@ -1,4 +1,3 @@
-import { HeroShaderBackground } from "@/features/hero/components";
 import { PageTransition } from "@/shared/transitions";
 import { Nav } from "@/shared/components";
 import { portfolioData } from "@/shared/data/portfolio";
@@ -133,7 +132,6 @@ export default async function LocaleLayout({
           <Suspense fallback={null}>
             <AnalyticsPageTracker />
           </Suspense>
-          <HeroShaderBackground />
           <PageTransition>
             <Nav />
             {children}

@@ -35,6 +35,36 @@ uniform float uTime;
 uniform vec2 uPointer;
 uniform float uScroll;
 uniform float uHeat;
+uniform int uMaskCount;
+uniform vec4 uMaskRects[6];
+uniform vec4 uAnchorRect;
+
+float rectEdgeField(vec2 uv, vec4 rect, float thickness, float softness) {
+  vec2 minEdge = rect.xy;
+  vec2 maxEdge = rect.xy + rect.zw;
+  vec2 inside = step(minEdge, uv) * step(uv, maxEdge);
+  float inMask = inside.x * inside.y;
+  if (inMask < 0.5) {
+    return 0.0;
+  }
+
+  float left = abs(uv.x - minEdge.x);
+  float right = abs(maxEdge.x - uv.x);
+  float top = abs(uv.y - minEdge.y);
+  float bottom = abs(maxEdge.y - uv.y);
+  float edgeDist = min(min(left, right), min(top, bottom));
+  return 1.0 - smoothstep(thickness, thickness + softness, edgeDist);
+}
+
+float rectFillField(vec2 uv, vec4 rect, float feather) {
+  vec2 center = rect.xy + rect.zw * 0.5;
+  vec2 halfSize = max(rect.zw * 0.5, vec2(0.001));
+  vec2 delta = abs(uv - center) - halfSize;
+  float outside = length(max(delta, 0.0));
+  float inside = min(max(delta.x, delta.y), 0.0);
+  float sdf = outside + inside;
+  return 1.0 - smoothstep(0.0, feather, sdf);
+}
 
 // Hash without sine (Dave Hoskins) — stable on mobile GPUs
 float hash13(vec3 p3) {
@@ -46,6 +76,17 @@ float hash13(vec3 p3) {
 void main() {
   vec2 uv = vUv;
   vec2 centerUv = uv - 0.5;
+  float maskEdge = 0.0;
+  float maskFill = 0.0;
+  for (int i = 0; i < 6; i++) {
+    if (i >= uMaskCount) {
+      continue;
+    }
+    maskEdge = max(maskEdge, rectEdgeField(uv, uMaskRects[i], 0.004, 0.018));
+    maskFill = max(maskFill, rectFillField(uv, uMaskRects[i], 0.05));
+  }
+  float anchorField = rectFillField(uv, uAnchorRect, 0.06);
+  float panelField = clamp(max(maskEdge, anchorField * 0.8), 0.0, 1.0);
 
   // === Object-fit: cover ===
   float screenAspect = uResolution.x / uResolution.y;
@@ -63,17 +104,20 @@ void main() {
   vec2 pointerDist = uv - uPointer;
   float dist = length(pointerDist);
   float cursorInfluence = exp(-dist * ${cfg.cursorRadius.toFixed(1)});
+  float pointerHotspot = max(cursorInfluence, anchorField * ${cfg.pointerHotspot.toFixed(2)});
 
   // Lens warp near cursor
   vec2 warpDir = normalize(pointerDist + vec2(0.001));
-  float warpAmount = cursorInfluence * ${cfg.cursorWarpStrength.toFixed(3)};
+  float warpAmount =
+    cursorInfluence * ${cfg.cursorWarpStrength.toFixed(3)} +
+    panelField * uHeat * ${cfg.glassRefraction.toFixed(3)};
   vec2 warpedUv = coverUv - warpDir * warpAmount;
 
   // === Chromatic Aberration ===
   // Edge-based (lens barrel dispersion) + cursor-boosted
   float distSq = dot(centerUv, centerUv);
   float edgeChroma = distSq * ${cfg.chromaticStrength.toFixed(4)};
-  float cursorChroma = cursorInfluence * ${cfg.cursorChromaticBoost.toFixed(4)};
+  float cursorChroma = pointerHotspot * ${cfg.cursorChromaticBoost.toFixed(4)};
   vec2 chromaDir = normalize(centerUv + vec2(0.001));
   vec2 chromaOffset = chromaDir * (edgeChroma + cursorChroma);
 
@@ -104,16 +148,26 @@ void main() {
 
   // === Breathing ===
   float breathe = sin(uTime * ${cfg.breathFrequency.toFixed(2)}) * 0.5 + 0.5;
-  color *= mix(1.0 - ${cfg.breathIntensity.toFixed(3)}, 1.0 + ${cfg.breathIntensity.toFixed(3)}, breathe);
+  color *= mix(
+    1.0,
+    mix(1.0 - ${cfg.breathIntensity.toFixed(3)} * 0.45, 1.0 + ${cfg.breathIntensity.toFixed(3)} * 0.55, breathe),
+    clamp(maskFill * 0.72 + anchorField * 0.4, 0.0, 1.0)
+  );
 
   // === Cursor highlight ===
-  color += vec3(cursorInfluence * ${cfg.cursorHighlight.toFixed(3)});
+  color += vec3(pointerHotspot * ${cfg.cursorHighlight.toFixed(3)} * max(panelField, 0.25));
 
   // === Signature heat response ===
   float heatMask = exp(-dist * ${cfg.heatRadius.toFixed(1)});
   heatMask += smoothstep(0.18, 0.62, 1.0 - abs(centerUv.y)) * uScroll * ${cfg.heatScrollBoost.toFixed(2)};
   vec3 ember = vec3(1.0, 0.62, 0.18) * heatMask * uHeat * ${cfg.heatStrength.toFixed(2)};
   color += ember;
+
+  float surfaceShadow = maskFill * ${cfg.surfaceShadow.toFixed(2)} * mix(1.0, 0.45, uScroll);
+  float sweep = smoothstep(-0.2, 0.95, uv.x + uv.y * 0.22 + sin(uTime * 0.7) * 0.08);
+  float sweepMask = panelField * pointerHotspot * sweep * ${cfg.accentSweep.toFixed(2)};
+  color += vec3(1.0, 0.68, 0.26) * sweepMask;
+  color -= vec3(0.02, 0.02, 0.03) * surfaceShadow;
 
   // === Scroll fade ===
   float scrollFade = 1.0 - smoothstep(0.0, 0.5, uScroll);

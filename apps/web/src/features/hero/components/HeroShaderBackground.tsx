@@ -1,177 +1,21 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import * as THREE from "three";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
-import {
-  isWebGLSupported,
-  getOptimalPixelRatio,
-  getRendererConfig,
-  loadTexture,
-} from "@/shared/gl";
 import { heroShaderConfig } from "../shader/config";
-import { heroVertexShader, createHeroFragmentShader } from "../shader/materials";
-import type { HeroShaderUniforms } from "../shader/types";
 
 const cfg = heroShaderConfig;
-const rendererCfg = getRendererConfig();
 
-/**
- * HeroShaderBackground
- * - 画像を中央にcontain配置（シェーダ内で描画）
- * - 画像外は平均暗部色 + FBM + ノイズで補完
- * - パラメータは lib/shaders/config/hero.ts で調整
- */
 export function HeroShaderBackground() {
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!containerRef.current || !isWebGLSupported()) return;
-
-    const container = containerRef.current;
-    const width = window.innerWidth;
-    const height = window.innerHeight;
-
-    const scene = new THREE.Scene();
-    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 10);
-    camera.position.z = 1;
-
-    const renderer = new THREE.WebGLRenderer({
-      antialias: rendererCfg.antialias,
-      alpha: rendererCfg.alpha,
-      powerPreference: rendererCfg.powerPreference,
-    });
-    renderer.setSize(width, height);
-    renderer.setPixelRatio(getOptimalPixelRatio(rendererCfg.maxPixelRatio));
-    container.appendChild(renderer.domElement);
-
-    const geometry = new THREE.PlaneGeometry(2, 2);
-
-    let material: THREE.ShaderMaterial | null = null;
-    let texture: THREE.Texture | null = null;
-    let animationFrameId: number | null = null;
-    const startTime = performance.now();
-    const targetPointer = { x: 0.5, y: 0.5 };
-    const currentPointer = { x: 0.5, y: 0.5 };
-
-    // Animation loop
-    const animate = (now: number) => {
-      if (material) {
-        material.uniforms.uTime.value = (now - startTime) / 1000;
-        // Lerp pointer for smooth following
-        currentPointer.x += (targetPointer.x - currentPointer.x) * 0.08;
-        currentPointer.y += (targetPointer.y - currentPointer.y) * 0.08;
-        material.uniforms.uPointer.value.set(currentPointer.x, currentPointer.y);
-      }
-      renderer.render(scene, camera);
-      animationFrameId = requestAnimationFrame(animate);
-    };
-
-    // Pointer handler
-    const handlePointer = (e: PointerEvent) => {
-      targetPointer.x = e.clientX / window.innerWidth;
-      targetPointer.y = 1 - e.clientY / window.innerHeight;
-    };
-
-    // Scroll handler
-    const handleScroll = () => {
-      if (!material) return;
-      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      material.uniforms.uScroll.value = maxScroll > 0 ? window.scrollY / maxScroll : 0;
-    };
-
-    // Resize handler
-    const handleResize = () => {
-      const w = window.innerWidth;
-      const h = window.innerHeight;
-      renderer.setSize(w, h);
-      if (material) {
-        material.uniforms.uResolution.value.set(w, h);
-      }
-    };
-
-    loadTexture("/hero.jpg")
-      .then(({ texture: loadedTexture, width: texWidth, height: texHeight }) => {
-        texture = loadedTexture;
-
-        const uniforms: HeroShaderUniforms = {
-          uTexture: { value: texture },
-          uResolution: { value: new THREE.Vector2(width, height) },
-          uTextureSize: { value: new THREE.Vector2(texWidth, texHeight) },
-          uTime: { value: 0 },
-          uPointer: { value: new THREE.Vector2(0.5, 0.5) },
-          uScroll: { value: 0 },
-        };
-
-        material = new THREE.ShaderMaterial({
-          uniforms: uniforms as unknown as Record<string, THREE.IUniform>,
-          vertexShader: heroVertexShader,
-          fragmentShader: createHeroFragmentShader(),
-        });
-
-        const mesh = new THREE.Mesh(geometry, material);
-        scene.add(mesh);
-
-        // Start animation loop
-        animationFrameId = requestAnimationFrame(animate);
-
-        // Add event listeners
-        window.addEventListener("pointermove", handlePointer, { passive: true });
-        window.addEventListener("scroll", handleScroll, { passive: true });
-        window.addEventListener("resize", handleResize);
-
-        // HeroShader fade-out on scroll
-        const heroFadeOutTrigger = ScrollTrigger.create({
-          trigger: "body",
-          start: "top top",
-          end: () => `+=${window.innerHeight * 0.8}`,
-          scrub: 0.5,
-          onUpdate: (self) => {
-            // 0→1 の progress を 1→0 の opacity に
-            const opacity = 1 - self.progress;
-            container.style.opacity = String(opacity);
-          },
-        });
-
-        // Store trigger for cleanup
-        (container as HTMLDivElement & { _heroFadeOutTrigger?: ScrollTrigger })._heroFadeOutTrigger = heroFadeOutTrigger;
-      })
-      .catch((err) => console.error("Failed to load hero texture", err));
-
-    return () => {
-      // Cleanup ScrollTrigger
-      const trigger = (container as HTMLDivElement & { _heroFadeOutTrigger?: ScrollTrigger })._heroFadeOutTrigger;
-      if (trigger) trigger.kill();
-      if (animationFrameId) cancelAnimationFrame(animationFrameId);
-      window.removeEventListener("pointermove", handlePointer);
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("resize", handleResize);
-      geometry.dispose();
-      if (material) {
-        material.dispose();
-      }
-      if (texture) {
-        texture.dispose();
-      }
-      renderer.dispose();
-      if (container.contains(renderer.domElement)) {
-        container.removeChild(renderer.domElement);
-      }
-    };
-  }, []);
-
   return (
     <div
-      ref={containerRef}
-      className="hero-shader-bg fixed inset-0 -z-10 pointer-events-none"
+      className="hero-shader-bg fixed inset-0 -z-10 pointer-events-none overflow-hidden"
       style={{ background: cfg.fallbackColor }}
       aria-hidden="true"
-    />
+    >
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_28%,rgba(255,171,77,0.16),transparent_22%),radial-gradient(circle_at_24%_72%,rgba(114,164,255,0.08),transparent_26%),linear-gradient(140deg,rgba(8,8,10,0.96),rgba(14,14,16,0.84)_48%,rgba(28,18,12,0.82))]" />
+      <div className="absolute inset-0 opacity-[0.08] mix-blend-screen [background-image:var(--noise-texture)]" />
+      <div className="absolute inset-x-[10%] top-[18%] h-px bg-[var(--hairline-gradient)] opacity-40" />
+      <div className="absolute bottom-[14%] right-[10%] h-[28%] w-px bg-[linear-gradient(180deg,transparent,var(--frame-line-secondary),transparent)] opacity-30" />
+    </div>
   );
 }
 

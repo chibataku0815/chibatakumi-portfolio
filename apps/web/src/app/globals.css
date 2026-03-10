@@ -63,6 +63,7 @@
      ========================================================================== */
   --text-base-90: color-mix(in srgb, var(--slate-12) 90%, transparent);
   --text-base-80: color-mix(in srgb, var(--slate-12) 80%, transparent);
+  --text-base-70: color-mix(in srgb, var(--slate-12) 70%, transparent);
   --text-base-60: color-mix(in srgb, var(--slate-12) 60%, transparent);
   --text-base-50: color-mix(in srgb, var(--slate-12) 50%, transparent);
   --text-base-40: color-mix(in srgb, var(--slate-12) 40%, transparent);
@@ -80,9 +81,17 @@
   --stroke-subtle: color-mix(in srgb, var(--slate-12) 12%, transparent);
   --stroke-strong: color-mix(in srgb, var(--slate-12) 22%, transparent);
   --stroke-heat: color-mix(in srgb, var(--accent-amber1) 55%, transparent);
+  --frame-line-primary: color-mix(in srgb, var(--slate-12) 26%, transparent);
+  --frame-line-secondary: color-mix(in srgb, var(--accent-amber1) 34%, transparent);
   --surface-1: color-mix(in srgb, var(--slate-1) 84%, transparent);
   --surface-2: color-mix(in srgb, var(--slate-2) 90%, transparent);
   --surface-3: color-mix(in srgb, var(--slate-3) 72%, transparent);
+  --surface-glass-dark: color-mix(in srgb, var(--slate-2) 74%, transparent);
+  --surface-editorial-panel: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--slate-2) 92%, transparent),
+    color-mix(in srgb, var(--slate-1) 86%, transparent)
+  );
   --hairline-gradient: linear-gradient(
     90deg,
     transparent 0%,
@@ -117,6 +126,16 @@
     0 28px 72px rgba(0, 0, 0, 0.42),
     0 0 0 1px rgba(255, 255, 255, 0.06),
     var(--shadow-directional);
+  --shadow-contact: 0 24px 54px rgba(0, 0, 0, 0.34);
+  --shadow-inset-film:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    inset 0 -18px 42px rgba(0, 0, 0, 0.22);
+  --shadow-heat-reflect: 0 0 28px rgba(255, 183, 77, 0.1);
+  --shadow-frame-glass: var(--shadow-contact), var(--shadow-inset-film);
+  --shadow-frame-panel:
+    var(--shadow-contact),
+    var(--shadow-inset-film),
+    var(--shadow-heat-reflect);
   --shadow-glow-sm: 0 0 8px rgba(250, 250, 250, 0.6);
   --shadow-glow-md: 0 0 12px rgba(250, 250, 250, 0.6);
   --shadow-glow-lg: 0 0 8px rgba(250, 250, 250, 0.6), 0 0 20px rgba(250, 250, 250, 0.3);
@@ -179,6 +198,7 @@
   --color-accent-amber1: var(--accent-amber1);
   --color-accent-amber2: var(--accent-amber2);
   --color-text-base-60: var(--text-base-60);
+  --color-text-base-70: var(--text-base-70);
   --color-text-base-50: var(--text-base-50);
   --color-text-base-40: var(--text-base-40);
   --color-text-base-30: var(--text-base-30);
@@ -248,6 +268,71 @@ nav {
   border-radius: var(--radius-pill);
   background: var(--surface-2);
   box-shadow: var(--shadow-elev-1);
+}
+
+.frame-surface {
+  position: relative;
+}
+
+.frame-panel-editorial {
+  border-radius: calc(var(--radius-panel) * 0.95);
+  background: var(--surface-editorial-panel);
+  box-shadow: var(--shadow-frame-panel);
+}
+
+.frame-line-primary,
+.frame-line-secondary {
+  pointer-events: none;
+  position: absolute;
+}
+
+.frame-line-primary {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--frame-line-primary) 16%,
+    color-mix(in srgb, var(--frame-line-primary) 72%, white) 50%,
+    var(--frame-line-primary) 84%,
+    transparent 100%
+  );
+  box-shadow: 0 0 24px color-mix(in srgb, var(--frame-line-primary) 20%, transparent);
+}
+
+.frame-line-secondary {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--frame-line-secondary) 22%,
+    color-mix(in srgb, var(--frame-line-secondary) 80%, white) 52%,
+    var(--frame-line-secondary) 78%,
+    transparent 100%
+  );
+  box-shadow: 0 0 22px color-mix(in srgb, var(--frame-line-secondary) 18%, transparent);
+}
+
+.frame-line-primary.w-px,
+.frame-line-secondary.w-px {
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    currentColor 22%,
+    color-mix(in srgb, currentColor 80%, white) 52%,
+    currentColor 78%,
+    transparent 100%
+  );
+}
+
+.frame-line-primary.w-px {
+  color: var(--frame-line-primary);
+}
+
+.frame-line-secondary.w-px {
+  color: var(--frame-line-secondary);
+}
+
+.frame-line-primary.h-px,
+.frame-line-secondary.h-px {
+  color: transparent;
 }
 
 /* Scroll indicator dot animation */

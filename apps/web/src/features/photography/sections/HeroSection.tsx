@@ -3,9 +3,10 @@
 import { useEffect, useMemo, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import { useHeroFrameMetrics } from "@/shared/hooks/useHeroFrameMetrics";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { VideoHeroBackground } from "../components/VideoHeroBackground";
+import { PhotographyHeroLightLayer } from "../components/PhotographyHeroLightLayer";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -20,11 +21,28 @@ export function HeroSection({
 }: HeroSectionProps) {
   const t = useTranslations("photography.hero");
   const sectionRef = useRef<HTMLElement>(null);
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const frameTopRef = useRef<HTMLDivElement>(null);
+  const frameSideRef = useRef<HTMLDivElement>(null);
+  const accentRailRef = useRef<HTMLDivElement>(null);
+  const ctaRailRef = useRef<HTMLDivElement>(null);
+  const proofPanelRef = useRef<HTMLDivElement>(null);
+  const sidePanelRef = useRef<HTMLDivElement>(null);
 
   const proofItems = useMemo(
     () => ["sameDay", "gallery", "bilingual", "coverage"] as const,
     []
   );
+
+  const maskRefs = useMemo(
+    () => [frameTopRef, frameSideRef, accentRailRef, ctaRailRef, proofPanelRef, sidePanelRef],
+    []
+  );
+
+  const maskSet = useHeroFrameMetrics({
+    anchorRef: headingRef,
+    maskRefs,
+  });
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -77,9 +95,27 @@ export function HeroSection({
       ref={sectionRef}
       className="relative isolate flex min-h-screen items-end overflow-hidden px-5 pb-8 pt-[calc(var(--nav-height)+3.5rem)] sm:px-6 sm:pb-12 sm:pt-32"
     >
-      <VideoHeroBackground src={videoSrc} fallbackImage={fallbackImage} />
+      <PhotographyHeroLightLayer
+        src={videoSrc}
+        fallbackImage={fallbackImage}
+        maskSet={maskSet}
+      />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_24%,rgba(255,196,61,0.18),transparent_26%),linear-gradient(180deg,rgba(0,0,0,0.12),rgba(0,0,0,0.56)_38%,rgba(0,0,0,0.88))]" />
       <div className="absolute inset-0 opacity-[0.08] mix-blend-screen [background-image:var(--noise-texture)]" />
+      <div className="pointer-events-none absolute inset-x-4 inset-y-5 sm:inset-x-6 sm:inset-y-6 lg:inset-x-8">
+        <div
+          ref={frameTopRef}
+          className="frame-line-primary absolute left-[2%] right-[18%] top-[5%] h-px"
+        />
+        <div
+          ref={frameSideRef}
+          className="frame-line-primary absolute left-[2%] top-[5%] bottom-[16%] w-px"
+        />
+        <div
+          ref={accentRailRef}
+          className="frame-line-secondary absolute right-[8%] top-[22%] h-[16%] w-px"
+        />
+      </div>
 
       <div className="relative z-10 mx-auto grid w-full max-w-7xl gap-12 lg:grid-cols-[minmax(0,1.08fr)_minmax(20rem,0.72fr)] lg:items-end">
         <div className="max-w-4xl">
@@ -87,7 +123,10 @@ export function HeroSection({
             {t("label")}
           </p>
 
-          <h1 className="hero-block text-balance max-w-[11ch] text-[clamp(2.9rem,10.2vw,8.4rem)] font-semibold leading-[0.95] tracking-[var(--tracking-tighter)] text-[var(--text-base)] sm:max-w-[9ch] sm:leading-[0.9] sm:tracking-[var(--tracking-ultra-tight)]">
+          <h1
+            ref={headingRef}
+            className="hero-block text-balance max-w-[11ch] text-[clamp(2.9rem,10.2vw,8.4rem)] font-semibold leading-[0.95] tracking-[var(--tracking-tighter)] text-[var(--text-base)] sm:max-w-[9ch] sm:leading-[0.9] sm:tracking-[var(--tracking-ultra-tight)]"
+          >
             <span className="block">{t("title")}</span>
             <br />
             <span className="block text-[color-mix(in_srgb,var(--text-base)_76%,var(--accent-amber1))]">
@@ -99,11 +138,12 @@ export function HeroSection({
             {t("subtext")}
           </p>
 
-          <div className="hero-block mt-10 flex flex-wrap items-center gap-4">
+          <div className="hero-block frame-surface relative mt-10 flex flex-wrap items-center gap-4 pt-5">
+            <div ref={ctaRailRef} className="frame-line-secondary absolute left-0 top-0 h-px w-[46%]" />
             <Link
               href="/contact"
               data-transition="true"
-              className="group inline-flex items-center gap-3 rounded-full border border-[var(--stroke-heat)] bg-[var(--surface-2)] px-7 py-3 text-sm font-medium text-[var(--text-base)] shadow-[var(--shadow-elev-2)] transition-all duration-300 hover:border-[var(--accent-amber2)] hover:text-[var(--accent-amber1)]"
+              className="group inline-flex items-center gap-3 rounded-full border border-[var(--frame-line-secondary)] bg-[var(--surface-glass-dark)] px-7 py-3 text-sm font-medium text-[var(--text-base)] shadow-[var(--shadow-frame-panel)] transition-all duration-300 hover:border-[var(--accent-amber2)] hover:text-[var(--accent-amber1)]"
             >
               {t("ctaBook")}
               <svg
@@ -122,13 +162,19 @@ export function HeroSection({
             </Link>
             <a
               href="#gallery"
-              className="inline-flex items-center gap-3 rounded-full border border-[var(--stroke-subtle)] bg-[var(--surface-2)] px-6 py-3 text-sm text-[var(--text-base-60)] shadow-[var(--shadow-elev-1)] transition-colors duration-300 hover:border-[var(--stroke-strong)] hover:text-[var(--text-base)]"
+              className="inline-flex items-center gap-3 rounded-full border border-[var(--frame-line-primary)] bg-[var(--surface-glass-dark)] px-6 py-3 text-sm text-[var(--text-base-60)] shadow-[var(--shadow-frame-glass)] transition-colors duration-300 hover:border-[var(--stroke-strong)] hover:text-[var(--text-base)]"
             >
               {t("ctaPortfolio")}
             </a>
           </div>
 
-          <div className="hero-block mt-16">
+          <div
+            ref={proofPanelRef}
+            className="hero-block frame-panel-editorial relative mt-16 rounded-[1.6rem] border border-[var(--frame-line-primary)] px-4 py-5 sm:px-5"
+          >
+            <div
+              className="frame-line-primary absolute inset-x-5 top-0 h-px"
+            />
             <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--text-base-40)]">
               {t("proofLabel")}
             </p>
@@ -136,7 +182,7 @@ export function HeroSection({
               {proofItems.map((item) => (
                 <div
                   key={item}
-                  className="hero-proof-item rounded-[1.35rem] border border-[var(--stroke-subtle)] bg-[var(--surface-2)] px-4 py-4 shadow-[var(--shadow-elev-1)] backdrop-blur-sm"
+                  className="hero-proof-item rounded-[1.35rem] border border-[var(--frame-line-primary)] bg-[var(--surface-glass-dark)] px-4 py-4 shadow-[var(--shadow-frame-glass)] backdrop-blur-sm"
                 >
                   <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-[var(--text-base-40)]">
                     {t(`proofItems.${item}.title`)}
@@ -151,8 +197,13 @@ export function HeroSection({
         </div>
 
         <div className="hero-block hero-float lg:pb-5">
-          <div className="relative overflow-hidden rounded-[2rem] border border-[var(--stroke-subtle)] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--slate-2)_88%,transparent),color-mix(in_srgb,var(--slate-1)_76%,transparent))] p-6 shadow-[var(--shadow-elev-2)] backdrop-blur-sm">
-            <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-[var(--accent-amber1)] to-transparent opacity-70" />
+          <div
+            ref={sidePanelRef}
+            className="frame-panel-editorial relative overflow-hidden rounded-[2rem] border border-[var(--frame-line-primary)] p-6 backdrop-blur-sm"
+          >
+            <div
+              className="frame-line-secondary absolute inset-x-8 top-0 h-px opacity-80"
+            />
             <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-[var(--accent-amber1)]">
               {t("sideKicker")}
             </p>

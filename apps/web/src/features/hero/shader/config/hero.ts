@@ -93,6 +93,16 @@ export const heroShaderConfig = {
   chromaticStrength: 0.035,
   // chromaticFalloff: カーソルからの減衰率 (高いほど局所的)
   chromaticFalloff: 1.5,
+
+  // === Line + Shadow Art Direction ===
+  lineGlowStrength: 0.18,
+  lineShadowDepth: 0.24,
+  refractionAmount: 0.02,
+  idleHeat: 0.12,
+  activeHeat: 0.95,
+  lineThickness: 0.006,
+  lineSoftness: 0.02,
+  anchorFocus: 0.22,
 } as const;
 
 export type HeroShaderConfig = typeof heroShaderConfig;
