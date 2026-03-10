@@ -110,7 +110,7 @@ export function CTAFormSection() {
   }
 
   return (
-    <section ref={sectionRef} className="px-6 py-24 sm:py-28">
+    <section id="inquiry" ref={sectionRef} className="px-6 py-24 sm:py-28">
       <div className="cta-form-card mx-auto grid max-w-7xl overflow-hidden rounded-[2.2rem] border border-[var(--text-base-20)] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--slate-2)_90%,transparent),color-mix(in_srgb,var(--slate-1)_80%,transparent))] lg:grid-cols-[minmax(18rem,0.82fr)_minmax(0,1.18fr)]">
         <div className="relative border-b border-[var(--text-base-20)] p-8 sm:p-10 lg:border-b-0 lg:border-r">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,var(--heat-subtle),transparent_34%)]" />

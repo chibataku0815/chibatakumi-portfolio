@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useRef } from "react";
 import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/navigation";
 import { useHeroFrameMetrics } from "@/shared/hooks/useHeroFrameMetrics";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -140,9 +139,8 @@ export function HeroSection({
 
           <div className="hero-block frame-surface relative mt-10 flex flex-wrap items-center gap-4 pt-5">
             <div ref={ctaRailRef} className="frame-line-secondary absolute left-0 top-0 h-px w-[46%]" />
-            <Link
-              href="/contact"
-              data-transition="true"
+            <a
+              href="#inquiry"
               className="group inline-flex items-center gap-3 rounded-full border border-[var(--frame-line-secondary)] bg-[var(--surface-glass-dark)] px-7 py-3 text-sm font-medium text-[var(--text-base)] shadow-[var(--shadow-frame-panel)] transition-all duration-300 hover:border-[var(--accent-amber2)] hover:text-[var(--accent-amber1)]"
             >
               {t("ctaBook")}
@@ -159,7 +157,7 @@ export function HeroSection({
                   d="M14 5l7 7m0 0l-7 7m7-7H3"
                 />
               </svg>
-            </Link>
+            </a>
             <a
               href="#gallery"
               className="inline-flex items-center gap-3 rounded-full border border-[var(--frame-line-primary)] bg-[var(--surface-glass-dark)] px-6 py-3 text-sm text-[var(--text-base-60)] shadow-[var(--shadow-frame-glass)] transition-colors duration-300 hover:border-[var(--stroke-strong)] hover:text-[var(--text-base)]"
