@@ -34,7 +34,7 @@ export default function PhotographyClient() {
         {
           scaleX: 1,
           duration: 1.2,
-          ease: "cubic-bezier(0.33, 1, 0.68, 1)",
+          ease: "power2.out",
           scrollTrigger: {
             trigger: ".section-divider",
             start: "top 80%",

@@ -47,7 +47,7 @@ export default function AboutSection() {
           rotateX: 0,
           duration: 0.8,
           stagger: 0.15,
-          ease: "cubic-bezier(0.22, 1, 0.36, 1)",
+          ease: "expo.out",
           scrollTrigger: {
             trigger: ".about-points",
             start: "top 80%",

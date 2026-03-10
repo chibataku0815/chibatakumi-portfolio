@@ -125,7 +125,7 @@ export function HeroSection({
 
           <h1
             ref={headingRef}
-            className="hero-block text-balance max-w-[11ch] text-[clamp(2.9rem,10.2vw,8.4rem)] font-semibold leading-[0.95] tracking-[var(--tracking-tighter)] text-[var(--text-base)] sm:max-w-[9ch] sm:leading-[0.9] sm:tracking-[var(--tracking-ultra-tight)]"
+            className="hero-block text-[clamp(2.9rem,10.2vw,8.4rem)] font-semibold leading-[0.95] tracking-[var(--tracking-tighter)] text-[var(--text-base)] [word-break:auto-phrase] sm:leading-[0.9] sm:tracking-[var(--tracking-ultra-tight)]"
           >
             <span className="block">{t("title")}</span>
             <br />

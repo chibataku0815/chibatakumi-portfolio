@@ -48,7 +48,7 @@ export function CTAFormSection() {
           opacity: 1,
           y: 0,
           duration: 0.8,
-          ease: "cubic-bezier(0.22, 1, 0.36, 1)",
+          ease: "expo.out",
           scrollTrigger: {
             trigger: section,
             start: "top 60%",

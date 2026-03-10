@@ -7,8 +7,9 @@ interface BrandWordmarkProps {
 
 export function BrandWordmark({ compact = false }: BrandWordmarkProps) {
   const { wordmark } = portfolioData.branding;
-  const [firstName, ...rest] = wordmark.full.split(" ");
-  const lastName = rest.join(" ");
+  const height = compact ? 14 : 18;
+  const aspectRatio = wordmark.width / wordmark.height;
+  const width = Math.round(height * aspectRatio);
 
   return (
     <span
@@ -20,28 +21,26 @@ export function BrandWordmark({ compact = false }: BrandWordmarkProps) {
         size={compact ? 18 : 22}
         className="shrink-0 text-[var(--text-base)]"
       />
-      <span className="inline-flex min-w-0 items-baseline gap-1.5 leading-none whitespace-nowrap">
-        <span
-          style={{ fontFamily: "var(--font-family-sans)" }}
-          className={`uppercase font-light ${
-            compact
-              ? "text-[10px] tracking-[0.14em] sm:text-[11px]"
-              : "text-[12px] tracking-[0.16em] sm:text-[13px]"
-          }`}
-        >
-          {firstName}
-        </span>
-        <span
-          style={{ fontFamily: "var(--font-family-sans)" }}
-          className={`uppercase font-medium text-[var(--text-base-80)] ${
-            compact
-              ? "text-[10px] tracking-[0.13em] sm:text-[11px]"
-              : "text-[12px] tracking-[0.15em] sm:text-[13px]"
-          }`}
-        >
-          {lastName}
-        </span>
-      </span>
+      <svg
+        viewBox={wordmark.viewBox}
+        width={width}
+        height={height}
+        fill="none"
+        aria-label={wordmark.ariaLabel}
+        role="img"
+        className="shrink-0"
+      >
+        <g fill="var(--text-base)">
+          {wordmark.primaryPaths.map((d, i) => (
+            <path key={`p-${i}`} d={d} />
+          ))}
+        </g>
+        <g fill="var(--text-base)">
+          {wordmark.secondaryPaths.map((d, i) => (
+            <path key={`s-${i}`} d={d} />
+          ))}
+        </g>
+      </svg>
     </span>
   );
 }

@@ -37,14 +37,17 @@ export function TestimonialSection() {
       // Stats counter ignition
       const statEls = section.querySelectorAll(".stat-value");
       statEls.forEach((el, i) => {
-        const text = (el as HTMLElement).textContent || "";
-        const numericMatch = text.match(/(\d+)/);
+        const raw = (el as HTMLElement).dataset.value || "";
+        const numericMatch = raw.match(/(\d+)/);
         if (!numericMatch) return;
 
         const target = parseInt(numericMatch[1]);
-        const suffix = text.replace(/\d+/, "");
-        const prefix = text.substring(0, text.indexOf(numericMatch[1]));
+        const suffix = raw.replace(/\d+/, "");
+        const prefix = raw.substring(0, raw.indexOf(numericMatch[1]));
         const obj = { val: 0 };
+
+        // Reset textContent so animation visually starts from 0
+        (el as HTMLElement).textContent = prefix + "0" + suffix;
 
         gsap.to(obj, {
           val: target,
@@ -141,7 +144,7 @@ export function TestimonialSection() {
                   key={stat.label}
                   className="rounded-[1.4rem] border border-[var(--text-base-20)] bg-[color-mix(in_srgb,var(--slate-2)_72%,transparent)] p-5"
                 >
-                  <p className="stat-value inline-block text-3xl font-semibold tracking-[var(--tracking-tight)] text-[var(--accent-amber1)]">
+                  <p className="stat-value inline-block text-3xl font-semibold tracking-[var(--tracking-tight)] text-[var(--accent-amber1)]" data-value={stat.value}>
                     {stat.value}
                   </p>
                   <p className="mt-2 text-sm leading-relaxed text-[var(--text-muted)]">

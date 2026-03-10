@@ -49,7 +49,8 @@ export function HomeHero() {
   const titleCapRef = useRef<HTMLDivElement>(null);
   const socialRailRef = useRef<HTMLDivElement>(null);
 
-  const { title, domains, socialLinks } = portfolioData.hero;
+  const { domains, socialLinks } = portfolioData.hero;
+  const { wordmark } = portfolioData.branding;
   const [activeDomainId, setActiveDomainId] = useState(domains[0]?.id ?? "");
 
   const activeDomain = useMemo(
@@ -169,13 +170,27 @@ export function HomeHero() {
           <h1
             ref={titleRef}
             data-home-reveal="title"
-            className="text-balance relative z-10 max-w-[10ch] text-[clamp(3.6rem,14vw,9.8rem)] font-semibold leading-[0.9] tracking-[var(--tracking-ultra-tight)] text-[var(--text-base)]"
-            style={{ textShadow: "0 2px 28px rgba(0,0,0,0.45), 0 0 80px rgba(0,0,0,0.25)" }}
+            className="relative z-10"
+            style={{ filter: "drop-shadow(0 2px 28px rgba(0,0,0,0.45)) drop-shadow(0 0 80px rgba(0,0,0,0.25))" }}
           >
-            <span className="block">{title.split(" ")[0]}</span>
-            <span className="block text-[color-mix(in_srgb,var(--text-base)_78%,var(--accent-amber1))]">
-              {title.split(" ").slice(1).join(" ")}
-            </span>
+            <svg
+              viewBox={wordmark.viewBox}
+              fill="none"
+              aria-label={wordmark.ariaLabel}
+              role="img"
+              className="h-auto w-full max-w-[52rem]"
+            >
+              <g fill="var(--text-base)">
+                {wordmark.primaryPaths.map((d, i) => (
+                  <path key={`hp-${i}`} d={d} />
+                ))}
+              </g>
+              <g fill="color-mix(in srgb, var(--text-base) 78%, var(--accent-amber1))">
+                {wordmark.secondaryPaths.map((d, i) => (
+                  <path key={`hs-${i}`} d={d} />
+                ))}
+              </g>
+            </svg>
           </h1>
         </div>
 

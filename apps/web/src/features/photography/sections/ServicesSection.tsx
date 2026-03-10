@@ -50,7 +50,7 @@ export default function ServicesSection() {
           rotateX: 0,
           duration: 0.8,
           stagger: { each: 0.15, from: "start" },
-          ease: "cubic-bezier(0.22, 1, 0.36, 1)",
+          ease: "expo.out",
           scrollTrigger: {
             trigger: section,
             start: "top 75%",
@@ -68,7 +68,7 @@ export default function ServicesSection() {
           scale: 1,
           duration: 0.5,
           stagger: 0.2,
-          ease: "cubic-bezier(0.34, 1.56, 0.64, 1)",
+          ease: "back.out(1.56)",
           scrollTrigger: {
             trigger: section,
             start: "top 65%",
