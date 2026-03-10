@@ -57,7 +57,7 @@ export function ProfileIntro() {
           <div>
             <AnimatedHeading
               as="h1"
-              className="mb-4 text-[var(--type-display-hero)] font-[200] leading-[0.85] tracking-[var(--tracking-ultra-tight)] text-[var(--text-base)]"
+              className="text-balance mb-4 max-w-[7ch] text-[var(--type-display-hero)] font-[200] leading-[0.85] tracking-[var(--tracking-ultra-tight)] text-[var(--text-base)]"
             >
               Profile
             </AnimatedHeading>
@@ -193,7 +193,7 @@ export function StrengthSection({
               <span className="font-mono text-[10px] uppercase tracking-[0.24em]">
                 Core Strength
               </span>
-              <span className="h-px w-10 bg-white/20" />
+              <span className="h-px w-10 ui-hairline" />
             </div>
 
             {/* Title */}
@@ -203,7 +203,7 @@ export function StrengthSection({
                 style={{ display: "inline-block" }}
               >
                 <div
-                  className="band-text text-[clamp(1.5rem,4vw,3.4rem)] font-semibold leading-[1.1] tracking-[-0.02em] text-[var(--text-base)]"
+                  className="text-balance band-text max-w-[12ch] text-[clamp(1.5rem,4vw,3.4rem)] font-semibold leading-[1.1] tracking-[-0.02em] text-[var(--text-base)]"
                   style={{
                     display: "inline-block",
                     padding: "0.2em 0.3em",
@@ -228,7 +228,7 @@ export function StrengthSection({
               {strength.keywords.map((keyword) => (
                 <span
                   key={`${strength.id}-${keyword}`}
-                  className="keyword rounded border border-white/10 bg-white/5 px-3 py-1.5 text-[12px] uppercase tracking-[0.1em] text-[var(--text-base-60)] transition-all duration-200 hover:border-white/20 hover:bg-white/10"
+                  className="keyword rounded border border-[var(--stroke-subtle)] bg-[var(--surface-3)] px-3 py-1.5 text-[12px] uppercase tracking-[0.1em] text-[var(--text-base-60)] shadow-[var(--shadow-elev-1)] transition-all duration-200 hover:border-[var(--stroke-strong)]"
                 >
                   {keyword}
                 </span>
@@ -345,11 +345,11 @@ export function TimelineSection({
               <span className="meta-item text-[15px] italic tracking-wide text-[var(--text-base-60)]">
                 {exp.period}
               </span>
-              <span className="meta-item inline-block bg-white/10 px-3 py-1 text-[24px] font-semibold leading-none text-[var(--text-base)]">
+                <span className="meta-item inline-block border border-[var(--stroke-subtle)] bg-[var(--surface-2)] px-3 py-1 text-[24px] font-semibold leading-none text-[var(--text-base)] shadow-[var(--shadow-elev-1)]">
                 {exp.type}
               </span>
               {exp.teamSize && (
-                <span className="meta-item rounded border border-white/12 bg-white/5 px-2.5 py-1 text-xs text-[var(--text-base-60)]">
+                <span className="meta-item rounded border border-[var(--stroke-subtle)] bg-[var(--surface-3)] px-2.5 py-1 text-xs text-[var(--text-base-60)] shadow-[var(--shadow-elev-1)]">
                   {exp.teamSize}
                 </span>
               )}
@@ -358,7 +358,7 @@ export function TimelineSection({
             {/* Title */}
             <div className="relative">
               <div
-                className="band inline-block text-[clamp(2rem,5vw,3.2rem)] font-semibold leading-[1.05] tracking-[-0.02em] text-[var(--text-base)]"
+                className="text-balance band inline-block max-w-[12ch] text-[clamp(2rem,5vw,3.2rem)] font-semibold leading-[1.05] tracking-[-0.02em] text-[var(--text-base)]"
                 style={{
                   padding: "0.22em 0.4em",
                 }}
@@ -383,7 +383,7 @@ export function TimelineSection({
                   className="achievement-item flex items-start gap-3 text-sm text-[var(--text-base-70)]"
                   style={{ transformOrigin: "left center" }}
                 >
-                  <span className="mt-1.5 h-0.5 w-5 flex-shrink-0 bg-white/20" />
+                  <span className="mt-1.5 h-0.5 w-5 flex-shrink-0 ui-hairline" />
                   <span>{achievement}</span>
                 </li>
               ))}
@@ -394,7 +394,7 @@ export function TimelineSection({
               {exp.techStack.map((tech) => (
                 <span
                   key={tech}
-                  className="tag rounded border border-white/12 bg-white/6 px-3 py-1.5 text-[12px] text-[var(--text-base-70)] transition-all duration-200 hover:border-white/20 hover:bg-white/10"
+                  className="tag rounded border border-[var(--stroke-subtle)] bg-[var(--surface-3)] px-3 py-1.5 text-[12px] text-[var(--text-base-70)] shadow-[var(--shadow-elev-1)] transition-all duration-200 hover:border-[var(--stroke-strong)]"
                 >
                   {tech}
                 </span>

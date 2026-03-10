@@ -1,7 +1,3 @@
-import {
-  FluidGradientBackground,
-  fluidConfigMonochrome,
-} from "@/features/fluid-gradient";
 import { HeroText } from "@/features/hero/components";
 import { SectionScrollManager } from "@/features/scroll-manager";
 import { GlowButton } from "@/shared/components";
@@ -16,7 +12,7 @@ export default function Home() {
       <section className="relative min-h-screen overflow-hidden">
         <HeroText />
 
-        <div className="absolute bottom-16 left-0 right-0 flex justify-center overflow-visible">
+        <div className="absolute bottom-8 left-0 right-0 flex justify-center overflow-visible sm:bottom-16">
           <GlowButton
             href="/skills"
             data-transition="true"

@@ -29,10 +29,10 @@ export function HeroText() {
   const titleCharsRef = useRef<HTMLSpanElement[]>([]);
   const mouseRef = useRef({ x: 0.5, y: 0.5 });
   const rafRef = useRef<number | undefined>(undefined);
-  const [isHoveringTitle, setIsHoveringTitle] = useState(false);
   const [revealedLines, setRevealedLines] = useState<number>(0);
   const [currentCharIndex, setCurrentCharIndex] = useState<number>(0);
   const [showCursor, setShowCursor] = useState(true);
+  const [canHover, setCanHover] = useState(false);
 
   const { scrollText, tagline, subTagline } = portfolioData.hero;
   const baseTaglineLines =
@@ -45,6 +45,10 @@ export function HeroText() {
     () => (subTagline ? [...baseTaglineLines, subTagline] : baseTaglineLines),
     [baseTaglineLines, subTagline]
   );
+
+  useEffect(() => {
+    setCanHover(window.matchMedia("(pointer: fine)").matches);
+  }, []);
 
   // Mouse tracking for title parallax
   const handleMouseMove = useCallback((e: MouseEvent) => {
@@ -245,7 +249,7 @@ export function HeroText() {
 
   // Glitch effect on hover
   const handleTitleMouseEnter = () => {
-    setIsHoveringTitle(true);
+    if (!canHover) return;
     titleCharsRef.current.forEach((char, i) => {
       if (!char) return;
       // Random glitch offset
@@ -264,7 +268,7 @@ export function HeroText() {
   };
 
   const handleTitleMouseLeave = () => {
-    setIsHoveringTitle(false);
+    if (!canHover) return;
     titleCharsRef.current.forEach((char) => {
       if (!char) return;
       gsap.to(char, {
@@ -293,15 +297,15 @@ export function HeroText() {
   return (
     <div
       ref={containerRef}
-      className="relative flex min-h-[85vh] min-h-[700px] flex-col justify-center px-0"
+      className="relative flex min-h-[calc(100svh-2rem)] flex-col justify-center px-0 pb-28 pt-[calc(var(--nav-height)+3.5rem)] sm:min-h-[85vh] sm:pb-32 sm:pt-[calc(var(--nav-height)+4.5rem)]"
     >
       {/* Title - Right aligned with hover interaction */}
-      <div className="flex w-full flex-col items-end pr-8 md:pr-16 lg:pr-24">
+      <div className="flex w-full flex-col items-start px-5 sm:items-end sm:pr-10 sm:pl-8 md:pr-16 lg:pr-24">
         <h1
           ref={titleRef}
           onMouseEnter={handleTitleMouseEnter}
           onMouseLeave={handleTitleMouseLeave}
-          className="cursor-default text-right text-[clamp(4rem,15vw,12rem)] font-semibold leading-[0.9] tracking-[-0.04em] text-[var(--text-base)] transition-colors duration-300"
+          className="text-balance max-w-[5.5ch] cursor-default text-left text-[clamp(3.4rem,18vw,12rem)] font-semibold leading-[0.88] tracking-[var(--tracking-tighter)] text-[var(--text-base)] transition-colors duration-300 sm:text-right"
         >
           <span className="block">Takumi</span>
           <span className="block">Chiba</span>
@@ -311,7 +315,7 @@ export function HeroText() {
       {/* Tagline - Left aligned with typewriter effect (infinite loop) */}
       <div
         ref={taglineRef}
-        className="mt-16 flex w-full flex-col items-start pl-8 md:pl-16 lg:pl-24"
+        className="mt-10 flex w-full flex-col items-start px-5 sm:mt-14 sm:pl-8 md:pl-16 lg:pl-24"
       >
         {allLines.map((line, index) => {
           const isSubTagline = subTagline && index === allLines.length - 1;
@@ -322,9 +326,9 @@ export function HeroText() {
                 index > 0 ? (isSubTagline ? "mt-4" : "mt-2") : ""
               } ${
                 isSubTagline
-                  ? "text-[clamp(0.95rem,2vw,1.15rem)] font-medium tracking-[0.04em]"
-                  : "text-[clamp(1.125rem,2.5vw,1.5rem)] font-normal tracking-[0.05em]"
-              } text-[var(--text-base-60)]`}
+                  ? "max-w-[28ch] text-[clamp(0.95rem,3.8vw,1.15rem)] font-medium tracking-[0.02em] text-[var(--text-base-70)]"
+                  : "text-[clamp(1rem,4.6vw,1.45rem)] font-normal tracking-[0.03em] text-[var(--text-base-80)]"
+              } text-balance`}
               style={{
                 minHeight: isSubTagline ? "1.3em" : "1.5em", // Prevent layout shift
               }}

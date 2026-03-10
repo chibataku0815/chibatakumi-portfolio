@@ -2,11 +2,41 @@
 
 ## 現在アクティブなタスク
 
-現在アクティブなタスクはありません。
+## Mobile Layout + Sitewide Design Brush-Up (2026-03-10)
+- **Agent:** Codex CLI
+- **Started:** 2026-03-10T15:56:15+0900 (JST)
+- **Completed:** 2026-03-10T16:12:00+0900 (JST)
+- **Status:** 完了
+- **Files:**
+  - `apps/web/src/app/globals.css` (編集)
+  - `apps/web/src/shared/components/Nav.tsx` (編集)
+  - `apps/web/src/shared/components/LanguageSwitcher.tsx` (編集)
+  - `apps/web/src/shared/components/BrandWordmark.tsx` (編集)
+  - `apps/web/src/shared/components/GlowButton.tsx` (編集)
+  - `apps/web/src/app/[locale]/layout.tsx` (編集)
+  - `apps/web/src/features/hero/components/HeroText.tsx` (編集)
+  - `apps/web/src/features/skills/SkillsSections.tsx` (編集)
+  - `apps/web/src/features/profile/ProfileClient.tsx` (編集)
+  - `apps/web/src/features/profile/ProfileSections.tsx` (編集)
+  - `apps/web/src/features/photography/PhotographyClient.tsx` (編集)
+  - `apps/web/src/features/photography/sections/HeroSection.tsx` (編集)
+- **Notes:** モバイルナビをドロワー化し、固定ナビのはみ出しと重なりを解消。共通 stroke/shadow/surface トークンを追加し、Home Hero・CTA・Skills/Profile/Photography の見出しとカードを mobile first で整形。`bun run build` 成功確認済み。
 
 ---
 
 ## 直近の完了タスク
+
+### ✅ Cafe Cursor Tokyo Instagram Ads Execution Pack (2026-03-10)
+- **Agent:** Codex CLI
+- **開始:** 2026-03-10T10:23:35+0900 (JST)
+- **完了:** 2026-03-10T10:26:00+0900 (JST)
+- **Status:** 完了
+- **Files:**
+  - `.claude/tasks/ACTIVE-PARALLEL-TASK.md` (編集)
+  - `docs/marketing/2026-03-10-cafe-cursor-instagram-ads-brief.md` (新規)
+  - `docs/marketing/2026-03-10-cafe-cursor-instagram-ads-creative.md` (新規)
+  - `docs/marketing/2026-03-10-cafe-cursor-instagram-ads-analytics.md` (新規)
+- **Notes:** `Cafe Cursor Tokyo` 向けに、6専門家体制の広告実行ブリーフ、Meta画面入力値、カルーセルA/B順序、キャプション/Bio/Highlight案、Day 2/4/7 の分析テンプレートを整備。
 
 ### ✅ Logo / Favicon Brand System Refresh (2026-03-09)
 - **Agent:** Codex CLI

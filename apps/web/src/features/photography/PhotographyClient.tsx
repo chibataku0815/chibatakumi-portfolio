@@ -54,7 +54,7 @@ export default function PhotographyClient() {
 
       {/* Gallery → Services breathing divider */}
       <div className="flex justify-center py-16">
-        <div className="section-divider h-px w-24 origin-center bg-[var(--text-base-20)]" />
+        <div className="section-divider h-px w-28 origin-center bg-[var(--text-base-20)] [background-image:var(--section-divider-strong)]" />
       </div>
 
       <ServicesSection />

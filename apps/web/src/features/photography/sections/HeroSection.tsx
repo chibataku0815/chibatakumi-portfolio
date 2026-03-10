@@ -75,7 +75,7 @@ export function HeroSection({
   return (
     <section
       ref={sectionRef}
-      className="relative isolate flex min-h-screen items-end overflow-hidden px-6 pb-8 pt-32 sm:pb-12"
+      className="relative isolate flex min-h-screen items-end overflow-hidden px-5 pb-8 pt-[calc(var(--nav-height)+3.5rem)] sm:px-6 sm:pb-12 sm:pt-32"
     >
       <VideoHeroBackground src={videoSrc} fallbackImage={fallbackImage} />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_24%,rgba(255,196,61,0.18),transparent_26%),linear-gradient(180deg,rgba(0,0,0,0.12),rgba(0,0,0,0.56)_38%,rgba(0,0,0,0.88))]" />
@@ -87,10 +87,10 @@ export function HeroSection({
             {t("label")}
           </p>
 
-          <h1 className="hero-block max-w-5xl text-[clamp(3.4rem,10vw,8.4rem)] font-semibold leading-[0.88] tracking-[var(--tracking-ultra-tight)] text-[var(--text-base)]">
-            {t("title")}
+          <h1 className="hero-block text-balance max-w-[11ch] text-[clamp(2.9rem,10.2vw,8.4rem)] font-semibold leading-[0.95] tracking-[var(--tracking-tighter)] text-[var(--text-base)] sm:max-w-[9ch] sm:leading-[0.9] sm:tracking-[var(--tracking-ultra-tight)]">
+            <span className="block">{t("title")}</span>
             <br />
-            <span className="text-[color-mix(in_srgb,var(--text-base)_76%,var(--accent-amber1))]">
+            <span className="block text-[color-mix(in_srgb,var(--text-base)_76%,var(--accent-amber1))]">
               {t("titleAccent")}
             </span>
           </h1>
@@ -103,7 +103,7 @@ export function HeroSection({
             <Link
               href="/contact"
               data-transition="true"
-              className="group inline-flex items-center gap-3 rounded-full border border-[var(--accent-amber1)] bg-[color-mix(in_srgb,var(--accent-amber1)_10%,transparent)] px-7 py-3 text-sm font-medium text-[var(--text-base)] transition-all duration-300 hover:border-[var(--accent-amber2)] hover:bg-[var(--accent-amber1)] hover:text-[var(--bg-dark)]"
+              className="group inline-flex items-center gap-3 rounded-full border border-[var(--stroke-heat)] bg-[var(--surface-2)] px-7 py-3 text-sm font-medium text-[var(--text-base)] shadow-[var(--shadow-elev-2)] transition-all duration-300 hover:border-[var(--accent-amber2)] hover:text-[var(--accent-amber1)]"
             >
               {t("ctaBook")}
               <svg
@@ -122,7 +122,7 @@ export function HeroSection({
             </Link>
             <a
               href="#gallery"
-              className="inline-flex items-center gap-3 rounded-full border border-[var(--text-base-20)] px-6 py-3 text-sm text-[var(--text-base-60)] transition-colors duration-300 hover:border-[var(--text-base-40)] hover:text-[var(--text-base)]"
+              className="inline-flex items-center gap-3 rounded-full border border-[var(--stroke-subtle)] bg-[var(--surface-2)] px-6 py-3 text-sm text-[var(--text-base-60)] shadow-[var(--shadow-elev-1)] transition-colors duration-300 hover:border-[var(--stroke-strong)] hover:text-[var(--text-base)]"
             >
               {t("ctaPortfolio")}
             </a>
@@ -136,7 +136,7 @@ export function HeroSection({
               {proofItems.map((item) => (
                 <div
                   key={item}
-                  className="hero-proof-item rounded-[1.35rem] border border-[var(--text-base-20)] bg-[color-mix(in_srgb,var(--slate-2)_78%,transparent)] px-4 py-4 backdrop-blur-sm"
+                  className="hero-proof-item rounded-[1.35rem] border border-[var(--stroke-subtle)] bg-[var(--surface-2)] px-4 py-4 shadow-[var(--shadow-elev-1)] backdrop-blur-sm"
                 >
                   <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-[var(--text-base-40)]">
                     {t(`proofItems.${item}.title`)}
@@ -151,12 +151,12 @@ export function HeroSection({
         </div>
 
         <div className="hero-block hero-float lg:pb-5">
-          <div className="relative overflow-hidden rounded-[2rem] border border-[var(--text-base-20)] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--slate-2)_88%,transparent),color-mix(in_srgb,var(--slate-1)_76%,transparent))] p-6 backdrop-blur-sm">
+          <div className="relative overflow-hidden rounded-[2rem] border border-[var(--stroke-subtle)] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--slate-2)_88%,transparent),color-mix(in_srgb,var(--slate-1)_76%,transparent))] p-6 shadow-[var(--shadow-elev-2)] backdrop-blur-sm">
             <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-[var(--accent-amber1)] to-transparent opacity-70" />
             <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-[var(--accent-amber1)]">
               {t("sideKicker")}
             </p>
-            <h2 className="mt-4 text-3xl font-semibold tracking-[var(--tracking-tight)] text-[var(--text-base)]">
+            <h2 className="text-balance mt-4 max-w-[12ch] text-3xl font-semibold tracking-[var(--tracking-tight)] text-[var(--text-base)]">
               {t("sideTitle")}
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-[var(--text-muted)]">

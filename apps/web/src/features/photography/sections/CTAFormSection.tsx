@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useMemo, useRef } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -8,6 +9,7 @@ import {
   submitPhotographyInquiry,
   type PhotographyFormState,
 } from "@/features/photography/actions";
+import { trackPhotographyLead } from "@/shared/analytics";
 import { DatePicker } from "@/shared/components/ui/date-picker";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -19,7 +21,10 @@ const initialState: PhotographyFormState = {
 export function CTAFormSection() {
   const t = useTranslations("photography.form");
   const locale = useLocale();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const sectionRef = useRef<HTMLElement>(null);
+  const hasTrackedSuccessRef = useRef(false);
   const [state, formAction, isPending] = useActionState(
     submitPhotographyInquiry,
     initialState
@@ -68,6 +73,20 @@ export function CTAFormSection() {
 
     return () => ctx.revert();
   }, []);
+
+  useEffect(() => {
+    if (!state.success || hasTrackedSuccessRef.current) return;
+
+    const eventType = searchParams.get("eventType") || "";
+    trackPhotographyLead({ locale, eventType });
+    hasTrackedSuccessRef.current = true;
+  }, [locale, searchParams, state.success]);
+
+  const utmSource = searchParams.get("utm_source") || "";
+  const utmMedium = searchParams.get("utm_medium") || "";
+  const utmCampaign = searchParams.get("utm_campaign") || "";
+  const utmContent = searchParams.get("utm_content") || "";
+  const utmTerm = searchParams.get("utm_term") || "";
 
   if (state.success) {
     return (
@@ -143,6 +162,12 @@ export function CTAFormSection() {
           <form action={formAction} className="space-y-6">
             <input type="hidden" name="source" value="photography" />
             <input type="hidden" name="locale" value={locale} />
+            <input type="hidden" name="pagePath" value={pathname} />
+            <input type="hidden" name="utmSource" value={utmSource} />
+            <input type="hidden" name="utmMedium" value={utmMedium} />
+            <input type="hidden" name="utmCampaign" value={utmCampaign} />
+            <input type="hidden" name="utmContent" value={utmContent} />
+            <input type="hidden" name="utmTerm" value={utmTerm} />
 
             <div className="grid gap-6 md:grid-cols-2">
               <div>

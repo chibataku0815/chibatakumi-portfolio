@@ -24,6 +24,12 @@ interface PhotographyFormData {
   details: string;
   source: string;
   locale: string;
+  pagePath: string;
+  utmSource: string;
+  utmMedium: string;
+  utmCampaign: string;
+  utmContent: string;
+  utmTerm: string;
 }
 
 function isValidEmail(email: string): boolean {
@@ -115,9 +121,50 @@ function formatSlackMessage(data: PhotographyFormData): object {
           type: "mrkdwn",
           text: `*Locale*\n${data.locale}`,
         },
+        {
+          type: "mrkdwn",
+          text: `*Page*\n${data.pagePath || "/photography"}`,
+        },
       ],
     },
   ];
+
+  if (
+    data.utmSource ||
+    data.utmMedium ||
+    data.utmCampaign ||
+    data.utmContent ||
+    data.utmTerm
+  ) {
+    blocks.push(
+      { type: "divider" },
+      {
+        type: "section",
+        fields: [
+          {
+            type: "mrkdwn",
+            text: `*UTM Source*\n${data.utmSource || "-"}`,
+          },
+          {
+            type: "mrkdwn",
+            text: `*UTM Medium*\n${data.utmMedium || "-"}`,
+          },
+          {
+            type: "mrkdwn",
+            text: `*UTM Campaign*\n${data.utmCampaign || "-"}`,
+          },
+          {
+            type: "mrkdwn",
+            text: `*UTM Content*\n${data.utmContent || "-"}`,
+          },
+          {
+            type: "mrkdwn",
+            text: `*UTM Term*\n${data.utmTerm || "-"}`,
+          },
+        ],
+      }
+    );
+  }
 
   if (data.details) {
     blocks.push(
@@ -158,6 +205,12 @@ export async function submitPhotographyInquiry(
     details: (formData.get("details") as string) || "",
     source: (formData.get("source") as string) || "photography",
     locale: (formData.get("locale") as string) || "ja",
+    pagePath: (formData.get("pagePath") as string) || "",
+    utmSource: (formData.get("utmSource") as string) || "",
+    utmMedium: (formData.get("utmMedium") as string) || "",
+    utmCampaign: (formData.get("utmCampaign") as string) || "",
+    utmContent: (formData.get("utmContent") as string) || "",
+    utmTerm: (formData.get("utmTerm") as string) || "",
   };
 
   const msgs = ERROR_MESSAGES[data.locale === "ja" ? "ja" : "en"];

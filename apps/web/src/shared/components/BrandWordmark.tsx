@@ -10,7 +10,7 @@ export function BrandWordmark({ compact = false }: BrandWordmarkProps) {
 
   return (
     <span
-      className={`inline-flex items-center whitespace-nowrap text-[var(--text-base)] ${
+      className={`inline-flex max-w-full items-center whitespace-nowrap text-[var(--text-base)] ${
         compact ? "gap-2" : "gap-2.5"
       }`}
     >
@@ -18,19 +18,23 @@ export function BrandWordmark({ compact = false }: BrandWordmarkProps) {
         size={compact ? 18 : 22}
         className="shrink-0 text-[var(--text-base)]"
       />
-      <span className="inline-flex items-baseline gap-1.5 leading-none">
+      <span className="inline-flex min-w-0 items-baseline gap-1.5 leading-none whitespace-nowrap">
         <span
           style={{ fontFamily: "var(--font-family-sans)" }}
-          className={`uppercase font-light tracking-[0.18em] ${
-            compact ? "text-[11px] sm:text-[12px]" : "text-[12px] sm:text-[13px]"
+          className={`uppercase font-light ${
+            compact
+              ? "text-[10px] tracking-[0.14em] sm:text-[11px]"
+              : "text-[12px] tracking-[0.16em] sm:text-[13px]"
           }`}
         >
           {wordmark.firstName}
         </span>
         <span
           style={{ fontFamily: "var(--font-family-sans)" }}
-          className={`uppercase font-medium tracking-[0.16em] text-[var(--text-base-80)] ${
-            compact ? "text-[11px] sm:text-[12px]" : "text-[12px] sm:text-[13px]"
+          className={`uppercase font-medium text-[var(--text-base-80)] ${
+            compact
+              ? "text-[10px] tracking-[0.13em] sm:text-[11px]"
+              : "text-[12px] tracking-[0.15em] sm:text-[13px]"
           }`}
         >
           {wordmark.lastName}

@@ -65,12 +65,12 @@ export function SkillsIntro() {
       <div className="mx-auto w-full max-w-7xl">
         <div className="grid gap-6 md:gap-8 md:grid-cols-[1fr,1.618fr]">
           <div className="space-y-6">
-            <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[11px] font-mono uppercase tracking-[0.24em] text-[var(--text-muted)]">
+            <div className="inline-flex items-center gap-3 rounded-full border border-[var(--stroke-subtle)] bg-[var(--surface-2)] px-4 py-2 text-[11px] font-mono uppercase tracking-[0.24em] text-[var(--text-muted)] shadow-[var(--shadow-elev-1)]">
               Hybrid Skillset
             </div>
             <AnimatedHeading
               as="h1"
-              className="text-[var(--type-display-hero)] font-[200] leading-[0.9] tracking-[var(--tracking-ultra-tight)] text-[var(--text-base)]"
+              className="text-balance max-w-[7ch] text-[var(--type-display-hero)] font-[200] leading-[0.9] tracking-[var(--tracking-ultra-tight)] text-[var(--text-base)]"
             >
               Skills
             </AnimatedHeading>
@@ -179,14 +179,14 @@ function PatternA({ skill }: { skill: WorkItem }) {
             <span className="font-mono text-xs uppercase tracking-[0.2em]">
               {skill.meta}
             </span>
-            <span className="h-px w-16 bg-white/20" />
+            <span className="h-px w-16 ui-hairline" />
             <span className="text-xs">Since 2011</span>
           </div>
 
           {/* Title */}
           <div className="relative">
             <h2
-              className="relative inline-block text-[var(--type-display-xl)] font-[800] leading-[1] tracking-[var(--tracking-ultra-tight)] text-[var(--text-base)]"
+              className="text-balance relative inline-block max-w-[10ch] text-[var(--type-display-xl)] font-[800] leading-[0.96] tracking-[var(--tracking-ultra-tight)] text-[var(--text-base)]"
               style={{
                 padding: "0.3em 0.5em",
               }}
@@ -206,7 +206,7 @@ function PatternA({ skill }: { skill: WorkItem }) {
           {skill.tags?.map((tag) => (
             <span
               key={`${skill.id}-${tag}`}
-              className="tag rounded-full border border-white/12 bg-white/6 px-4 py-2 text-[13px] font-medium text-[var(--text-base-70)] transition-all duration-200 hover:-translate-y-1 hover:border-white/20 hover:bg-white/10"
+              className="tag rounded-full border border-[var(--stroke-subtle)] bg-[var(--surface-3)] px-4 py-2 text-[13px] font-medium text-[var(--text-base-70)] shadow-[var(--shadow-elev-1)] transition-all duration-200 hover:-translate-y-1 hover:border-[var(--stroke-strong)]"
             >
               {tag}
             </span>
@@ -216,7 +216,7 @@ function PatternA({ skill }: { skill: WorkItem }) {
 
       {/* Right: Image */}
       {skill.media?.type === "image" && (
-        <div className="skill-image relative aspect-[4/5] overflow-hidden rounded-2xl">
+        <div className="skill-image relative aspect-[4/5] overflow-hidden rounded-[var(--radius-panel)] border border-[var(--stroke-subtle)] shadow-[var(--shadow-elev-2)]">
           <img
             src={skill.media.src}
             alt={skill.media.alt ?? skill.title}
@@ -237,7 +237,7 @@ function PatternB({ skill }: { skill: WorkItem }) {
     <div className="grid min-h-[50vh] items-center gap-6 md:min-h-[70vh] md:gap-12 md:grid-cols-[1fr,1.618fr]">
       {/* Left: Image */}
       {skill.media?.type === "image" && (
-        <div className="skill-image relative aspect-[4/5] overflow-hidden rounded-2xl">
+        <div className="skill-image relative aspect-[4/5] overflow-hidden rounded-[var(--radius-panel)] border border-[var(--stroke-subtle)] shadow-[var(--shadow-elev-2)]">
           <img
             src={skill.media.src}
             alt={skill.media.alt ?? skill.title}
@@ -255,7 +255,7 @@ function PatternB({ skill }: { skill: WorkItem }) {
           {/* Meta line */}
           <div className="accent-element flex items-center justify-end gap-4 text-[var(--text-base-60)]">
             <span className="text-xs">Since 2011</span>
-            <span className="h-px w-16 bg-white/20" />
+            <span className="h-px w-16 ui-hairline" />
             <span className="font-mono text-xs uppercase tracking-[0.2em]">
               {skill.meta}
             </span>
@@ -264,7 +264,7 @@ function PatternB({ skill }: { skill: WorkItem }) {
           {/* Title */}
           <div className="relative text-right">
             <h2
-              className="relative inline-block text-[var(--type-display-xl)] font-[800] leading-[1] tracking-[var(--tracking-ultra-tight)] text-[var(--text-base)]"
+              className="text-balance relative inline-block max-w-[10ch] text-[var(--type-display-xl)] font-[800] leading-[0.96] tracking-[var(--tracking-ultra-tight)] text-[var(--text-base)]"
               style={{
                 padding: "0.3em 0.5em",
               }}
@@ -284,7 +284,7 @@ function PatternB({ skill }: { skill: WorkItem }) {
           {skill.tags?.map((tag) => (
             <span
               key={`${skill.id}-${tag}`}
-              className="tag rounded-full border border-white/12 bg-white/6 px-4 py-2 text-[13px] font-medium text-[var(--text-base-70)] transition-all duration-200 hover:-translate-y-1 hover:border-white/20 hover:bg-white/10"
+              className="tag rounded-full border border-[var(--stroke-subtle)] bg-[var(--surface-3)] px-4 py-2 text-[13px] font-medium text-[var(--text-base-70)] shadow-[var(--shadow-elev-1)] transition-all duration-200 hover:-translate-y-1 hover:border-[var(--stroke-strong)]"
             >
               {tag}
             </span>
@@ -302,7 +302,7 @@ function PatternC({ skill }: { skill: WorkItem }) {
       {/* Title (Center) */}
       <div className="relative text-center">
         <h2
-          className="relative inline-block text-[var(--type-display-xl)] font-[800] leading-[1] tracking-[var(--tracking-ultra-tight)] text-[var(--text-base)]"
+          className="text-balance relative inline-block max-w-[10ch] text-[var(--type-display-xl)] font-[800] leading-[0.96] tracking-[var(--tracking-ultra-tight)] text-[var(--text-base)]"
           style={{
             padding: "0.3em 0.6em",
           }}
@@ -315,7 +315,7 @@ function PatternC({ skill }: { skill: WorkItem }) {
       <div className="grid w-full max-w-5xl gap-6 md:gap-8 md:grid-cols-[1fr,1.618fr]">
         {/* Left: Image */}
         {skill.media?.type === "image" && (
-          <div className="skill-image relative aspect-square overflow-hidden rounded-2xl">
+          <div className="skill-image relative aspect-square overflow-hidden rounded-[var(--radius-panel)] border border-[var(--stroke-subtle)] shadow-[var(--shadow-elev-2)]">
             <img
               src={skill.media.src}
               alt={skill.media.alt ?? skill.title}
@@ -331,7 +331,7 @@ function PatternC({ skill }: { skill: WorkItem }) {
             <span className="font-mono text-xs uppercase tracking-[0.2em]">
               {skill.meta}
             </span>
-            <span className="h-px flex-1 bg-white/20" />
+            <span className="h-px flex-1 ui-hairline" />
           </div>
 
           {/* Description */}
@@ -344,7 +344,7 @@ function PatternC({ skill }: { skill: WorkItem }) {
             {skill.tags?.map((tag) => (
               <span
                 key={`${skill.id}-${tag}`}
-                className="tag rounded-full border border-white/12 bg-white/6 px-4 py-2 text-[13px] font-medium text-[var(--text-base-70)] transition-all duration-200 hover:-translate-y-1 hover:border-white/20 hover:bg-white/10"
+                className="tag rounded-full border border-[var(--stroke-subtle)] bg-[var(--surface-3)] px-4 py-2 text-[13px] font-medium text-[var(--text-base-70)] shadow-[var(--shadow-elev-1)] transition-all duration-200 hover:-translate-y-1 hover:border-[var(--stroke-strong)]"
               >
                 {tag}
               </span>
