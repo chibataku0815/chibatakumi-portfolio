@@ -37,7 +37,7 @@
 ### Weight Hierarchy
 
 - **CHIBA** (primary): Geist Medium 500, `var(--text-base)` = `#F5F5F5`
-- **TAKUMI** (secondary): Geist Light 300, `var(--text-base-80)` = 80% opacity
+- **TAKUMI** (secondary): Geist Medium 500, `var(--text-base)` = `#F5F5F5`
 
 ### Minimum Size
 
@@ -54,8 +54,9 @@
 ## Color
 
 - Background: `#050505`
-- Foreground: `#F5F5F5`
-- Secondary wordmark tone: 80% opacity of foreground
+- Foreground: `#F5F5F5` (both CHIBA and TAKUMI use `var(--text-base)`)
+- Hero secondary tone: `color-mix(in srgb, var(--text-base) 78%, var(--accent-amber1))` (amber tint for TAKUMI in Hero section)
+- Navigation: both sections use `var(--text-base)` without modification
 - Accent context only: existing site amber tokens
 
 ## Clear Space and Size

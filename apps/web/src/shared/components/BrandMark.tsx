@@ -14,16 +14,12 @@ export function BrandMark({ className, size = 20 }: BrandMarkProps) {
       width={size}
       height={size}
       viewBox={logo.viewBox}
-      fill="none"
+      fill="currentColor"
       className={className}
     >
-      <path
-        d={logo.path}
-        stroke="currentColor"
-        strokeWidth={logo.strokeWidth}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      {logo.primaryPaths.map((d, i) => (
+        <path key={i} d={d} />
+      ))}
     </svg>
   );
 }

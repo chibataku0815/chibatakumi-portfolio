@@ -15,15 +15,24 @@ export interface NavLink {
   label: string;
 }
 
-/** ロゴ設定（ストロークアニメーション用） */
+/** ロゴ設定 — fill ベース + stroke-draw アニメーション対応 */
 export interface LogoConfig {
   viewBox: string;
   width: number;
   height: number;
-  strokeWidth: number;
   minSize: number;
   clearSpace: number;
-  /** 単一パスに結合して getTotalLength() と fill transition に対応 */
+  /** Fill-based primary paths for static rendering */
+  primaryPaths: string[];
+  /** Stroke-draw animation centerline paths */
+  animationPaths?: string[];
+  /** Stroke width for animation paths */
+  animationStrokeWidth?: number;
+  /** Simplified path for favicon (16-32px) */
+  faviconPath?: string;
+  /** @deprecated Legacy stroke path — used by Logo.tsx transition */
+  strokeWidth: number;
+  /** @deprecated Legacy single path — used by Logo.tsx transition */
   path: string;
 }
 
@@ -390,14 +399,31 @@ export const portfolioData: PortfolioData = {
       ],
     },
     logo: {
-      viewBox: "0 0 72 72",
-      width: 72,
-      height: 72,
-      strokeWidth: 3.5,
+      viewBox: "0 0 80 80",
+      width: 80,
+      height: 80,
       minSize: 16,
       clearSpace: 12,
-      // Compact TC initial derived from the same structural geometry as the wordmark.
-      path: "M10 10H62V18H18V54H62V62H10Z M28 10H62V18H49V62H39V18H28Z",
+      // Modern Kamon: 工 (craft) with C-arc frame — superellipse n≈2.5, 30° terminals
+      primaryPaths: [
+        // C-arc frame: top bar + left superellipse arc + bottom bar, 30° terminal cuts
+        "M70 10L40 10C19.4 10 10 19.4 10 40C10 60.6 19.4 70 40 70L70 70L63 58L40 58C27.6 58 22 52.4 22 40C22 27.6 27.6 22 40 22L63 22Z",
+        // Vertical stem — silver ratio (1+√2) split of inner space → center x=46
+        // Left/right margins 18:11 ≈ φ (golden ratio resonance)
+        "M40 22L52 22L52 58L40 58Z",
+      ],
+      animationPaths: [
+        // C-arc centerline for stroke-draw
+        "M66.5 16L40 16C23 16 16 23 16 40C16 57 23 64 40 64L66.5 64",
+        // Vertical stem centerline
+        "M46 22L46 58",
+      ],
+      animationStrokeWidth: 12,
+      faviconPath:
+        "M70 10L40 10C20 10 10 20 10 40C10 60 20 70 40 70L70 70L70 58L40 58C28 58 22 52 22 40C22 28 28 22 40 22L70 22Z M40 22L52 22L52 58L40 58Z",
+      // Legacy stroke path for Logo.tsx page transition
+      strokeWidth: 3.5,
+      path: "M70 10L40 10C19.4 10 10 19.4 10 40C10 60.6 19.4 70 40 70L70 70L63 58L40 58C27.6 58 22 52.4 22 40C22 27.6 27.6 22 40 22L63 22Z M40 22L52 22L52 58L40 58Z",
     },
   },
 

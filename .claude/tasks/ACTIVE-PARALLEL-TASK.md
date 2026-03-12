@@ -2,17 +2,34 @@
 
 ## 現在アクティブなタスク
 
-## Home Hero Redesign Implementation (2026-03-10)
-- **Agent:** Codex CLI (`orchestrator-director` 相当)
-- **Started:** 2026-03-10T19:23:18+0900 (JST)
-- **Status:** 進行中
+---
+
+## 直近の完了タスク
+
+## Photography Page Fixes (2026-03-10)
+- **Agent:** Claude Code (Opus 4.6)
+- **Started:** 2026-03-10T21:30:00+0900 (JST)
+- **Completed:** 2026-03-10T21:45:00+0900 (JST)
+- **Status:** 完了
 - **Files:**
-  - `.claude/tasks/ACTIVE-PARALLEL-TASK.md` (編集)
-  - `apps/web/src/features/hero/components/HomeHero.tsx` (編集予定)
-  - `apps/web/src/features/hero/components/HomeHeroLightLayer.tsx` (編集予定)
-  - `apps/web/src/shared/data/portfolio.ts` (編集の可能性)
-  - `apps/web/src/app/globals.css` (編集の可能性)
-- **Notes:** トップHeroを `名前 + 一文の価値提案 + CTA + domain selector` へ再編する実装。背景・モーションは補助へ後退させ、CTA を first viewport 内へ戻す。別ストリームの差分は維持し、競合時は停止する。
+  - `apps/web/src/features/photography/sections/TestimonialSection.tsx` (編集)
+  - `apps/web/src/features/photography/sections/HeroSection.tsx` (編集)
+  - `apps/web/src/features/photography/sections/ServicesSection.tsx` (編集)
+  - `apps/web/src/features/photography/sections/AboutSection.tsx` (編集)
+  - `apps/web/src/features/photography/sections/CTAFormSection.tsx` (編集)
+  - `apps/web/src/features/photography/PhotographyClient.tsx` (編集)
+- **Notes:** カウンターアニメーション(data-value属性)、ヒーローCJK改行(text-balance削除+auto-phrase)、GSAP ease構文修正(5箇所)
+
+### ✅ CHIBA TAKUMI Logotype Design & Implementation (2026-03-10)
+- **Agent:** Claude Code (Opus 4.6)
+- **開始:** 2026-03-10T18:00:00+0900 (JST)
+- **完了:** 2026-03-10T20:15:00+0900 (JST)
+- **Status:** 完了
+- **Files:**
+  - `apps/web/src/shared/components/BrandWordmark.tsx` (inline SVG化)
+  - `apps/web/src/features/hero/components/HomeHero.tsx` (適用)
+  - `docs/brand-identity-mini-guide.md` (ガイド更新)
+- **Notes:** opentype.js でグリフ抽出 → 字形改変 → SVG パス出力。BrandWordmark.tsx を inline SVG 化。Hero セクションにロゴタイプ適用（レスポンシブ対応）。ブランドガイド更新。
 
 ## Home Top Redesign Research + Agent Team Plan (2026-03-10)
 - **Agent:** Codex CLI (`orchestrator-director` 相当)
@@ -436,6 +453,9 @@
 
 以下は完了済みタスクのアーカイブ参照:
 
+### 2026-03-10
+- `archive/2026-03-10-photography-page-fixes.md` - Photography Page Fixes
+
 ### 2026-03-09
 - `archive/2026-03-09-photography-lp-design-polish.md` - Photography LP Design Polish
 - `archive/2026-03-09-photography-lp-redesign.md` - Photography LP Level 4.5+ Redesign
@@ -475,4 +495,4 @@
 
 ---
 
-最終更新: 2026-03-09T20:30:00+0900 (JST)
+最終更新: 2026-03-10T21:45:00+0900 (JST)
