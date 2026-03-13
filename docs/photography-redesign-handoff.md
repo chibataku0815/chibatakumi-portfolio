@@ -129,7 +129,7 @@
   - アイコン依存で訴求が浅い
 
 - `TestimonialSection`
-  - バッジ + 説明 + stats + quote の単一島
+  - 案件名 / 日付 + case study 3カードの構成
   - ケースとしての説得構造が薄い
 
 - `AboutSection`
@@ -242,14 +242,14 @@ Lightbox も変更:
 
 ---
 
-### 7.5 Testimonial を Case Highlight 化
+### 7.5 Testimonial を Case Study 化
 
 変更点:
 
-- ラベルを `Case Highlight` に変更
-- 引用だけでなく、案件背景・必要条件・結果を分解
-- stats は別島にして読みやすく再配置
-- quote は最終的な証言として残した
+- ラベルを `Case Study` に変更
+- 数字や testimonial に頼らず、案件の見せ方を case study へ再構成
+- 右カラムを `Coverage Focus` / `Deliverables` / `Editorial Approach` の3カードに整理
+- 左カラムは案件名と日付だけを残す
 
 対象ファイル:
 

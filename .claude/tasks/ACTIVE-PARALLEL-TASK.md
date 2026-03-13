@@ -6,6 +6,24 @@
 
 ## 直近の完了タスク
 
+## Photography Evidence Reframe (2026-03-13)
+- **Agent:** Codex CLI (`orchestrator-director` 相当)
+- **Started:** 2026-03-13T22:57:24+0900 (JST)
+- **Completed:** 2026-03-13T23:01:37+0900 (JST)
+- **Status:** 完了
+- **Files:**
+  - `apps/web/messages/ja.json` (編集)
+  - `apps/web/messages/en.json` (編集)
+  - `apps/web/src/features/photography/sections/TestimonialSection.tsx` (編集)
+  - `apps/web/src/app/[locale]/photography/page.tsx` (編集)
+  - `docs/photography-i18n-handoff.md` (編集)
+  - `docs/photography-redesign-handoff.md` (編集)
+  - `docs/marketing/2026-03-10-photography-lp-conversion-handoff.md` (編集)
+  - `docs/marketing/2026-03-10-cafe-cursor-instagram-ads-creative.md` (編集)
+  - `docs/guides/2026-03-09-photography-lp-handoff.md` (編集)
+  - `.claude/tasks/ACTIVE-PARALLEL-TASK.md` (編集)
+- **Notes:** `Anysphere` / 公式表現 / 数字 / testimonial を撤去し、`Cafe Cursor Tokyo` を中立な case study 表現へ再構成。`bun run build` 成功、変更ファイル対象の `eslint` 成功、`/photography` と `/en/photography` の HTML で禁止表現 0 件を確認。Playwright はブラウザ未導入で未実施。
+
 ## Photography Page Fixes (2026-03-10)
 - **Agent:** Claude Code (Opus 4.6)
 - **Started:** 2026-03-10T21:30:00+0900 (JST)

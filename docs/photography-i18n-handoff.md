@@ -361,8 +361,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 ### 7.5 TestimonialSection.tsx
 
 - **i18n:** `useTranslations("photography.testimonial")`
-- **キー:** `badge`, `event`, `description`, `stats.*`, `quote`, `quoteAuthor`, `quoteRole`
-- **Stats:** 翻訳キーから動的取得 (attendees, coverage, delivery)
+- **キー:** `event`, `date`, `focusTitle/body`, `deliverablesTitle/body`, `approachTitle/body`
+- **構成:** 左に案件名と日付、右に case study 3カード
 - **アニメーション:** ScrollTrigger stagger: duration 0.7s, stagger 0.12s
 
 ### 7.6 AboutSection.tsx
@@ -619,7 +619,7 @@ alternates: {
 - name: Cafe Cursor Tokyo — March 2026
 - description: locale 動的
 - inLanguage: locale 動的
-- about: Cursor Tokyo Meetup Event
+- about: Cafe Cursor Tokyo Event
 
 ### 10.4 robots.ts
 
@@ -712,7 +712,7 @@ nav.*
 |-----|-----|-----|
 | label | Featured Work | 撮影実績 |
 | title | Cafe Cursor Tokyo | Cafe Cursor Tokyo |
-| subtitle | Cursor (by Anysphere) official Tokyo meetup — March 2026 | Cursor（Anysphere）公式東京ミートアップ — 2026年3月 |
+| subtitle | Scenes from Cafe Cursor Tokyo, a developer meetup in Tokyo. | 東京の開発者コミュニティイベント「Cafe Cursor Tokyo」より。 |
 | images.01-12 | (各画像のalt英語) | (各画像のalt日本語) |
 
 #### photography.services
@@ -730,18 +730,13 @@ nav.*
 
 | キー | EN | JA |
 |-----|-----|-----|
-| badge | Official Photographer | 公式フォトグラファー |
-| event | Cursor Tokyo Meetup | Cursor Tokyo Meetup |
-| description | Selected as the official photographer... | Cursor初の東京コミュニティミートアップにて... |
-| stats.attendeesValue | 200+ | 200+ |
-| stats.attendeesLabel | Attendees Captured | 名の参加者を撮影 |
-| stats.coverageValue | 3hrs | 3時間 |
-| stats.coverageLabel | Full Event Coverage | フルイベントカバレッジ |
-| stats.deliveryValue | Same Day | 当日 |
-| stats.deliveryLabel | Preview Delivery | プレビュー納品 |
-| quote | Takumi captured the energy of our community perfectly... | Takumiさんは、コミュニティのエネルギーを完璧に写し取ってくれました... |
-| quoteAuthor | Cafe Cursor Tokyo | Cafe Cursor Tokyo |
-| quoteRole | Community Event | コミュニティイベント |
+| event | Cafe Cursor Tokyo | Cafe Cursor Tokyo |
+| focusTitle | Coverage Focus | Coverage Focus |
+| focusBody | Arrival light, table conversations... | 入場時の光、会話の密度... |
+| deliverablesTitle | Deliverables | Deliverables |
+| deliverablesBody | Same-day selects, an edited gallery... | 当日共有しやすいセレクト、編集済みギャラリー... |
+| approachTitle | Editorial Approach | Editorial Approach |
+| approachBody | The sequence moves between hero frames... | 引きと寄りを往復できる並びで編集... |
 
 #### photography.about
 

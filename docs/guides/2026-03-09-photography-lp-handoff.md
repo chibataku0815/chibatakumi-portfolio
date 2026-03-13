@@ -118,7 +118,7 @@ public/photography/
 |------|------|
 | Hero全画面写真背景 | 現在はShader背景。写真をheroの背景にしてインパクト向上。LCP注意 |
 | Gallery枚数拡張 | 8枚 → 12枚。`GALLERY_IMAGES` 配列に追加するだけ |
-| Testimonial追加 | Ben Lang引用 or "Featured at Cursor Tokyo Meetup" バッジ。許諾取得後 |
+| Case Study磨き込み | 数字や testimonial に頼らず、制作意図と納品設計を見せる 3 カード構成へ更新 |
 | CTA → B2Bフォーム | 現在は /contact（汎用）へ遷移。B2B専用フィールド追加（Event Date / Attendees / Needs） |
 | LCP最適化 | Hero画像に `priority` 属性、`placeholder="blur"` + `blurDataURL` 追加 |
 

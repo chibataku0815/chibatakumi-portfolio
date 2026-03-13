@@ -97,13 +97,13 @@ function getJsonLd(locale: string) {
         "@type": "ImageGallery",
         name: "Cafe Cursor Tokyo — March 2026",
         description: isJa
-          ? "Cursor（Anysphere）初の東京コミュニティミートアップの公式撮影。"
-          : "Official photography from the first Cursor (by Anysphere) Tokyo community meetup.",
+          ? "東京で開催された開発者コミュニティイベント「Cafe Cursor Tokyo」の撮影事例。"
+          : "Photography from Cafe Cursor Tokyo, a developer meetup in Tokyo.",
         inLanguage: isJa ? "ja" : "en",
         dateCreated: "2026-03-05",
         about: {
           "@type": "Event",
-          name: "Cursor Tokyo Meetup",
+          name: "Cafe Cursor Tokyo",
           startDate: "2026-03-05",
           location: {
             "@type": "Place",
@@ -114,7 +114,6 @@ function getJsonLd(locale: string) {
               addressCountry: "JP",
             },
           },
-          organizer: { "@type": "Organization", name: "Anysphere" },
         },
       },
     ],

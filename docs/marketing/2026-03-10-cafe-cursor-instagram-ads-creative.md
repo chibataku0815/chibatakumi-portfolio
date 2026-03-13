@@ -83,7 +83,7 @@
 今後の開催や空気感はプロフィールから。
 
 ### Short English support line
-- `Official photography for Cursor Tokyo Meetup.`
+- `Event photography from Cafe Cursor Tokyo.`
 - `More event atmosphere on profile.`
 
 ## 5. Profile Funnel Copy

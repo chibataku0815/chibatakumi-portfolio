@@ -125,9 +125,9 @@ Instagram広告の機械学習期間（3〜7日）中であれば自然加速す
 └────────────────────────────────────────────────┘
 ┌─ TestimonialSection ───────────────────────────┐
 │  Cafe Cursor Tokyo case study                   │
-│  統計カウンター: 200+名 / 3時間 / 当日納品       │
-│  GSAP: counter animation + bounce               │
-│  お客様の声（引用）                              │
+│  3カード: Focus / Deliverables / Approach      │
+│  GSAP: case card stagger reveal                │
+│  数字・引用に頼らない案件導線                    │
 └────────────────────────────────────────────────┘
 ┌─ AboutSection ─────────────────────────────────┐
 │  「Why Me」— エンジニア背景の差別化              │
