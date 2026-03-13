@@ -147,6 +147,15 @@
   --timing-reveal: 0.9s;
   --timing-stagger: 0.06s;
   --timing-scrub: 0.8;
+  --motion-duration-xs: 0.34s;
+  --motion-duration-sm: 0.58s;
+  --motion-duration-md: 0.88s;
+  --motion-duration-lg: 1.12s;
+  --motion-stagger-tight: 0.05s;
+  --motion-stagger-md: 0.09s;
+  --motion-ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-ease-drift: cubic-bezier(0.19, 1, 0.22, 1);
+  --motion-ease-ambient: cubic-bezier(0.37, 0, 0.18, 1);
 
   /* ==========================================================================
      Ghost Opacity Levels
@@ -442,6 +451,216 @@ body:has(.photography-page) {
   z-index: 1;
 }
 
+.photography-grain-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: var(--noise-texture);
+  mix-blend-mode: screen;
+  opacity: 0.045;
+}
+
+@keyframes photography-ambient-breathe {
+  0%, 100% {
+    opacity: 0.18;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    opacity: 0.34;
+    transform: translate3d(0, -18px, 0) scale(1.06);
+  }
+}
+
+@keyframes photography-line-breathe {
+  0%, 100% {
+    opacity: 0.32;
+    filter: blur(0px);
+  }
+  50% {
+    opacity: 0.72;
+    filter: blur(1px);
+  }
+}
+
+.photography-ambient-orb {
+  pointer-events: none;
+  position: absolute;
+  border-radius: 999px;
+  background:
+    radial-gradient(
+      circle at center,
+      color-mix(in srgb, var(--accent-amber1) 28%, transparent) 0%,
+      transparent 68%
+    );
+  filter: blur(8px);
+  animation: photography-ambient-breathe 8.5s var(--motion-ease-ambient) infinite;
+  will-change: transform, opacity;
+}
+
+.photography-line-breathe {
+  animation: photography-line-breathe 5.6s var(--motion-ease-ambient) infinite;
+}
+
+.photography-panel {
+  position: relative;
+  isolation: isolate;
+  transition:
+    transform var(--motion-duration-md) var(--motion-ease-soft),
+    border-color var(--motion-duration-sm) ease,
+    box-shadow var(--motion-duration-sm) ease,
+    background var(--motion-duration-sm) ease;
+  will-change: transform;
+}
+
+.photography-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--accent-amber1) 10%, transparent),
+      transparent 34%
+    );
+  opacity: 0;
+  transition: opacity var(--motion-duration-sm) ease;
+}
+
+.photography-panel-edge {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid color-mix(in srgb, var(--accent-amber1) 22%, transparent);
+  opacity: 0;
+  transform: scale(0.985);
+  transition:
+    opacity var(--motion-duration-sm) ease,
+    transform var(--motion-duration-sm) var(--motion-ease-soft);
+}
+
+.photography-hover-lift {
+  transition: transform var(--motion-duration-md) var(--motion-ease-soft);
+  will-change: transform;
+}
+
+.photography-hover-meta {
+  transition:
+    transform var(--motion-duration-sm) var(--motion-ease-soft),
+    opacity var(--motion-duration-sm) ease,
+    border-color var(--motion-duration-sm) ease;
+}
+
+.photography-media-overlay {
+  transition:
+    opacity var(--motion-duration-sm) ease,
+    background var(--motion-duration-sm) ease;
+}
+
+.photography-media-scale {
+  transition:
+    transform 1.15s var(--motion-ease-drift),
+    filter var(--motion-duration-md) ease;
+  will-change: transform;
+}
+
+.photography-handoff {
+  position: relative;
+  overflow: hidden;
+}
+
+.photography-handoff::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      180deg,
+      transparent 0%,
+      color-mix(in srgb, var(--accent-amber1) 5%, transparent) 50%,
+      transparent 100%
+    );
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+.photography-handoff-core {
+  position: relative;
+  height: 1px;
+  width: min(11rem, 36vw);
+  background-image: var(--section-divider-strong);
+  transform-origin: center;
+}
+
+.photography-handoff-core::before,
+.photography-handoff-core::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 1.7rem;
+  height: 1px;
+  background-image: var(--hairline-gradient);
+  transform: translateY(-50%);
+  opacity: 0.7;
+}
+
+.photography-handoff-core::before {
+  right: calc(100% + 0.85rem);
+}
+
+.photography-handoff-core::after {
+  left: calc(100% + 0.85rem);
+}
+
+.photography-handoff-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent-amber1) 82%, white);
+  box-shadow: var(--heat-glow-md);
+  transform: translate(-50%, -50%);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .photography-panel:hover {
+    transform: translateY(-6px);
+    border-color: color-mix(in srgb, var(--accent-amber1) 22%, var(--slate-12) 12%);
+    box-shadow: var(--shadow-elev-3);
+  }
+
+  .photography-panel:hover::before {
+    opacity: 1;
+  }
+
+  .photography-panel:hover .photography-panel-edge {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .photography-panel:hover .photography-hover-lift {
+    transform: translateY(-4px);
+  }
+
+  .photography-panel:hover .photography-hover-meta {
+    transform: translateY(-2px);
+    opacity: 1;
+    border-color: color-mix(in srgb, var(--accent-amber1) 24%, transparent);
+  }
+
+  .photography-panel:hover .photography-media-scale {
+    transform: scale(1.045);
+  }
+
+  .photography-panel:hover .photography-media-overlay {
+    opacity: 0.96;
+  }
+}
+
 /* === Photography Calendar — Custom Dark Theme === */
 @keyframes calendar-enter {
   from {
@@ -522,6 +741,22 @@ body:has(.photography-page) {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-scroll-dot,
+  .photography-ambient-orb,
+  .photography-line-breathe {
+    animation: none !important;
+  }
+
+  .photography-panel,
+  .photography-hover-lift,
+  .photography-hover-meta,
+  .photography-media-overlay,
+  .photography-media-scale {
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* === Skeleton Screen Animations === */

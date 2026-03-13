@@ -9,6 +9,7 @@
 | `2025-12-05-global-rules-strategy.md` | パラレルワーク対応グローバルルール策定 |
 | `2025-12-03-hero-bg-unification.md` | Hero/背景統合の知見 |
 | `2025-12-03-next-webgl-handoff.md` | WebGL保守性ハンドオフ |
+| `2026-03-14-photography-motion-first-agent-teams.md` | Photography の motion-first 改修を Agent Teams で分担する知見 |
 
 ## 推奨構成
 
@@ -19,4 +20,3 @@
 
 - タスク進行で得た重要な発見のみを追加
 - 長文化（200行超）は分割を検討
-

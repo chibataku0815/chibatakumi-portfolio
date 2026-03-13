@@ -11,6 +11,10 @@ import {
 } from "@/features/photography/actions";
 import { trackPhotographyLead } from "@/shared/analytics";
 import { DatePicker } from "@/shared/components/ui/date-picker";
+import {
+  PHOTOGRAPHY_MOTION,
+  getPhotographyMotionPreferences,
+} from "../motion";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -39,36 +43,92 @@ export function CTAFormSection() {
     const section = sectionRef.current;
     if (!section) return;
 
+    const { reducedMotion } = getPhotographyMotionPreferences();
+
     const ctx = gsap.context(() => {
-      // Form card scroll reveal
       gsap.fromTo(
-        ".cta-form-card",
-        { opacity: 0, y: 40 },
+        ".cta-intro",
+        { opacity: 0, y: PHOTOGRAPHY_MOTION.offset.regular },
         {
           opacity: 1,
           y: 0,
-          duration: 0.8,
-          ease: "expo.out",
+          duration: PHOTOGRAPHY_MOTION.duration.lg,
+          stagger: PHOTOGRAPHY_MOTION.stagger.tight,
+          ease: PHOTOGRAPHY_MOTION.ease.reveal,
           scrollTrigger: {
             trigger: section,
-            start: "top 60%",
+            start: PHOTOGRAPHY_MOTION.scroll.entry,
             once: true,
           },
         }
       );
 
-      // Submit button breathing glow
       gsap.fromTo(
-        ".cta-submit-glow",
-        { boxShadow: "0 0 0px rgba(255, 197, 61, 0)" },
+        ".cta-note",
         {
-          boxShadow: "0 0 20px rgba(255, 197, 61, 0.25)",
-          duration: 2.0,
+          opacity: 0,
+          y: PHOTOGRAPHY_MOTION.offset.regular,
+          scale: PHOTOGRAPHY_MOTION.scale.card,
+        },
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: PHOTOGRAPHY_MOTION.duration.md,
+          stagger: PHOTOGRAPHY_MOTION.stagger.tight,
+          ease: PHOTOGRAPHY_MOTION.ease.reveal,
+          scrollTrigger: {
+            trigger: section,
+            start: PHOTOGRAPHY_MOTION.scroll.reveal,
+            once: true,
+          },
+        }
+      );
+
+      gsap.fromTo(
+        ".cta-field",
+        {
+          opacity: 0,
+          y: PHOTOGRAPHY_MOTION.offset.tight,
+        },
+        {
+          opacity: 1,
+          y: 0,
+          duration: reducedMotion
+            ? PHOTOGRAPHY_MOTION.duration.xs
+            : PHOTOGRAPHY_MOTION.duration.sm,
+          stagger: 0.045,
+          ease: PHOTOGRAPHY_MOTION.ease.reveal,
+          scrollTrigger: {
+            trigger: section,
+            start: PHOTOGRAPHY_MOTION.scroll.focus,
+            once: true,
+          },
+        }
+      );
+
+      if (!reducedMotion) {
+        gsap.fromTo(
+          ".cta-submit-glow",
+          { boxShadow: "0 0 0px rgba(255, 197, 61, 0)" },
+          {
+            boxShadow: "0 0 26px rgba(255, 197, 61, 0.24)",
+            duration: 2.4,
+            ease: "sine.inOut",
+            yoyo: true,
+            repeat: -1,
+          }
+        );
+
+        gsap.to(".cta-orb", {
+          yPercent: -10,
+          xPercent: 4,
+          duration: 7,
           ease: "sine.inOut",
           yoyo: true,
           repeat: -1,
-        }
-      );
+        });
+      }
     }, section);
 
     return () => ctx.revert();
@@ -91,7 +151,7 @@ export function CTAFormSection() {
   if (state.success) {
     return (
       <section className="px-6 py-24 sm:py-28">
-        <div className="mx-auto max-w-4xl rounded-[2rem] border border-[var(--text-base-20)] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--slate-2)_88%,transparent),color-mix(in_srgb,var(--slate-1)_76%,transparent))] px-8 py-14 text-center sm:px-12">
+        <div className="mx-auto max-w-4xl rounded-[2rem] border border-[var(--text-base-20)] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--slate-2)_88%,transparent),color-mix(in_srgb,var(--slate-1)_76%,transparent))] px-8 py-14 text-center shadow-[var(--shadow-elev-2)] sm:px-12">
           <p className="mb-4 font-mono text-[11px] uppercase tracking-[0.28em] text-[var(--accent-amber1)]">
             {t("eyebrow")}
           </p>
@@ -110,25 +170,32 @@ export function CTAFormSection() {
   }
 
   return (
-    <section id="inquiry" ref={sectionRef} className="px-6 py-24 sm:py-28">
-      <div className="cta-form-card mx-auto grid max-w-7xl overflow-hidden rounded-[2.2rem] border border-[var(--text-base-20)] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--slate-2)_90%,transparent),color-mix(in_srgb,var(--slate-1)_80%,transparent))] lg:grid-cols-[minmax(18rem,0.82fr)_minmax(0,1.18fr)]">
+    <section id="inquiry" ref={sectionRef} className="relative px-6 py-24 sm:py-28">
+      <div className="cta-orb photography-ambient-orb right-[8%] top-[10%] h-56 w-56 opacity-60" />
+      <div className="mx-auto grid max-w-7xl overflow-hidden rounded-[2.2rem] border border-[var(--text-base-20)] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--slate-2)_90%,transparent),color-mix(in_srgb,var(--slate-1)_80%,transparent))] shadow-[var(--shadow-elev-2)] lg:grid-cols-[minmax(18rem,0.82fr)_minmax(0,1.18fr)]">
         <div className="relative border-b border-[var(--text-base-20)] p-8 sm:p-10 lg:border-b-0 lg:border-r">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,var(--heat-subtle),transparent_34%)]" />
           <div className="relative z-10">
-            <p className="mb-4 font-mono text-[11px] uppercase tracking-[0.28em] text-[var(--accent-amber1)]">
+            <p className="cta-intro mb-4 font-mono text-[11px] uppercase tracking-[0.28em] text-[var(--accent-amber1)]">
               {t("eyebrow")}
             </p>
-            <h2 className="text-[clamp(2rem,4.2vw,3.6rem)] font-semibold leading-[0.97] tracking-[var(--tracking-tighter)] text-[var(--text-base)]">
+            <h2 className="cta-intro text-[clamp(2rem,4.2vw,3.6rem)] font-semibold leading-[0.97] tracking-[var(--tracking-tighter)] text-[var(--text-base)]">
               {t("heading")}
             </h2>
-            <p className="mt-5 text-sm leading-relaxed text-[var(--text-muted)] sm:text-base">
+            <p className="cta-intro mt-5 text-sm leading-relaxed text-[var(--text-muted)] sm:text-base">
               {t("subheading")}
             </p>
 
-            <div className="mt-8 rounded-[1.5rem] border border-[var(--text-base-20)] bg-[color-mix(in_srgb,var(--slate-2)_68%,transparent)] p-5">
-              <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-[var(--text-base-40)]">
-                {t("asideTitle")}
-              </p>
+            <div className="cta-intro photography-panel mt-8 rounded-[1.5rem] border border-[var(--text-base-20)] bg-[color-mix(in_srgb,var(--slate-2)_68%,transparent)] p-5">
+              <span className="photography-panel-edge" />
+              <div className="flex items-center justify-between gap-3">
+                <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-[var(--text-base-40)]">
+                  {t("asideTitle")}
+                </p>
+                <span className="photography-hover-meta rounded-full border border-[var(--text-base-20)] px-3 py-1 font-mono text-[9px] uppercase tracking-[0.24em] text-[var(--text-base-40)]">
+                  {t("asideMeta")}
+                </span>
+              </div>
               <p className="mt-3 text-sm leading-relaxed text-[var(--text-base-60)]">
                 {t("asideBody")}
               </p>
@@ -138,8 +205,9 @@ export function CTAFormSection() {
               {notes.map((note) => (
                 <div
                   key={note}
-                  className="rounded-[1.4rem] border border-[var(--text-base-20)] bg-[color-mix(in_srgb,var(--slate-2)_60%,transparent)] p-5"
+                  className="cta-note photography-panel rounded-[1.4rem] border border-[var(--text-base-20)] bg-[color-mix(in_srgb,var(--slate-2)_60%,transparent)] p-5"
                 >
+                  <span className="photography-panel-edge" />
                   <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--text-base-40)]">
                     {t(`notes.${note}Title`)}
                   </p>
@@ -170,7 +238,7 @@ export function CTAFormSection() {
             <input type="hidden" name="utmTerm" value={utmTerm} />
 
             <div className="grid gap-6 md:grid-cols-2">
-              <div>
+              <div className="cta-field">
                 <label
                   htmlFor="name"
                   className="mb-2 block text-sm font-medium text-[var(--text-base-60)]"
@@ -182,17 +250,15 @@ export function CTAFormSection() {
                   id="name"
                   name="name"
                   required
-                  className="w-full rounded-[1rem] border border-[var(--text-base-20)] bg-[color-mix(in_srgb,var(--slate-2)_48%,transparent)] px-4 py-3 text-[var(--text-base)] placeholder:text-[var(--text-base-30)] transition-colors focus:border-[var(--accent-amber1)] focus:outline-none"
+                  className="w-full rounded-[1rem] border border-[var(--text-base-20)] bg-[color-mix(in_srgb,var(--slate-2)_48%,transparent)] px-4 py-3 text-[var(--text-base)] placeholder:text-[var(--text-base-30)] transition-[border-color,box-shadow,background] focus:border-[var(--accent-amber1)] focus:bg-[color-mix(in_srgb,var(--slate-2)_58%,transparent)] focus:outline-none focus:shadow-[0_0_0_1px_color-mix(in_srgb,var(--accent-amber1)_16%,transparent),0_0_24px_color-mix(in_srgb,var(--accent-amber1)_10%,transparent)]"
                   placeholder={t("namePlaceholder")}
                 />
                 {state.fieldErrors?.name && (
-                  <p className="mt-1 text-sm text-red-400">
-                    {state.fieldErrors.name}
-                  </p>
+                  <p className="mt-1 text-sm text-red-400">{state.fieldErrors.name}</p>
                 )}
               </div>
 
-              <div>
+              <div className="cta-field">
                 <label
                   htmlFor="email"
                   className="mb-2 block text-sm font-medium text-[var(--text-base-60)]"
@@ -204,19 +270,17 @@ export function CTAFormSection() {
                   id="email"
                   name="email"
                   required
-                  className="w-full rounded-[1rem] border border-[var(--text-base-20)] bg-[color-mix(in_srgb,var(--slate-2)_48%,transparent)] px-4 py-3 text-[var(--text-base)] placeholder:text-[var(--text-base-30)] transition-colors focus:border-[var(--accent-amber1)] focus:outline-none"
+                  className="w-full rounded-[1rem] border border-[var(--text-base-20)] bg-[color-mix(in_srgb,var(--slate-2)_48%,transparent)] px-4 py-3 text-[var(--text-base)] placeholder:text-[var(--text-base-30)] transition-[border-color,box-shadow,background] focus:border-[var(--accent-amber1)] focus:bg-[color-mix(in_srgb,var(--slate-2)_58%,transparent)] focus:outline-none focus:shadow-[0_0_0_1px_color-mix(in_srgb,var(--accent-amber1)_16%,transparent),0_0_24px_color-mix(in_srgb,var(--accent-amber1)_10%,transparent)]"
                   placeholder={t("emailPlaceholder")}
                 />
                 {state.fieldErrors?.email && (
-                  <p className="mt-1 text-sm text-red-400">
-                    {state.fieldErrors.email}
-                  </p>
+                  <p className="mt-1 text-sm text-red-400">{state.fieldErrors.email}</p>
                 )}
               </div>
             </div>
 
             <div className="grid gap-6 md:grid-cols-2">
-              <div>
+              <div className="cta-field">
                 <label
                   htmlFor="eventType"
                   className="mb-2 block text-sm font-medium text-[var(--text-base-60)]"
@@ -228,15 +292,19 @@ export function CTAFormSection() {
                   name="eventType"
                   required
                   defaultValue=""
-                  className="w-full appearance-none rounded-[1rem] border border-[var(--text-base-20)] bg-[color-mix(in_srgb,var(--slate-2)_48%,transparent)] bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20fill%3D%22%23888%22%20d%3D%22M6%208L1%203h10z%22%2F%3E%3C%2Fsvg%3E')] bg-[position:right_16px_center] bg-no-repeat px-4 py-3 pr-10 text-[var(--text-base)] transition-colors focus:border-[var(--accent-amber1)] focus:outline-none"
+                  className="w-full appearance-none rounded-[1rem] border border-[var(--text-base-20)] bg-[color-mix(in_srgb,var(--slate-2)_48%,transparent)] bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20fill%3D%22%23888%22%20d%3D%22M6%208L1%203h10z%22%2F%3E%3C%2Fsvg%3E')] bg-[position:right_16px_center] bg-no-repeat px-4 py-3 pr-10 text-[var(--text-base)] transition-[border-color,box-shadow,background] focus:border-[var(--accent-amber1)] focus:bg-[color-mix(in_srgb,var(--slate-2)_58%,transparent)] focus:outline-none focus:shadow-[0_0_0_1px_color-mix(in_srgb,var(--accent-amber1)_16%,transparent),0_0_24px_color-mix(in_srgb,var(--accent-amber1)_10%,transparent)]"
                 >
                   <option value="" disabled>
                     {t("eventTypePlaceholder")}
                   </option>
                   <option value="Tech Meetup">{t("eventTypeOptions.techMeetup")}</option>
-                  <option value="Corporate Event">{t("eventTypeOptions.corporateEvent")}</option>
+                  <option value="Corporate Event">
+                    {t("eventTypeOptions.corporateEvent")}
+                  </option>
                   <option value="Conference">{t("eventTypeOptions.conference")}</option>
-                  <option value="Community Gathering">{t("eventTypeOptions.communityGathering")}</option>
+                  <option value="Community Gathering">
+                    {t("eventTypeOptions.communityGathering")}
+                  </option>
                   <option value="Other">{t("eventTypeOptions.other")}</option>
                 </select>
                 {state.fieldErrors?.eventType && (
@@ -246,7 +314,7 @@ export function CTAFormSection() {
                 )}
               </div>
 
-              <div>
+              <div className="cta-field">
                 <label
                   htmlFor="eventDate"
                   className="mb-2 block text-sm font-medium text-[var(--text-base-60)]"
@@ -261,7 +329,7 @@ export function CTAFormSection() {
               </div>
             </div>
 
-            <div>
+            <div className="cta-field">
               <label
                 htmlFor="attendees"
                 className="mb-2 block text-sm font-medium text-[var(--text-base-60)]"
@@ -272,7 +340,7 @@ export function CTAFormSection() {
                 id="attendees"
                 name="attendees"
                 defaultValue=""
-                className="w-full appearance-none rounded-[1rem] border border-[var(--text-base-20)] bg-[color-mix(in_srgb,var(--slate-2)_48%,transparent)] bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20fill%3D%22%23888%22%20d%3D%22M6%208L1%203h10z%22%2F%3E%3C%2Fsvg%3E')] bg-[position:right_16px_center] bg-no-repeat px-4 py-3 pr-10 text-[var(--text-base)] transition-colors focus:border-[var(--accent-amber1)] focus:outline-none"
+                className="w-full appearance-none rounded-[1rem] border border-[var(--text-base-20)] bg-[color-mix(in_srgb,var(--slate-2)_48%,transparent)] bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20fill%3D%22%23888%22%20d%3D%22M6%208L1%203h10z%22%2F%3E%3C%2Fsvg%3E')] bg-[position:right_16px_center] bg-no-repeat px-4 py-3 pr-10 text-[var(--text-base)] transition-[border-color,box-shadow,background] focus:border-[var(--accent-amber1)] focus:bg-[color-mix(in_srgb,var(--slate-2)_58%,transparent)] focus:outline-none focus:shadow-[0_0_0_1px_color-mix(in_srgb,var(--accent-amber1)_16%,transparent),0_0_24px_color-mix(in_srgb,var(--accent-amber1)_10%,transparent)]"
               >
                 <option value="">{t("attendeesPlaceholder")}</option>
                 <option value="Under 50">{t("attendeesOptions.under50")}</option>
@@ -283,7 +351,7 @@ export function CTAFormSection() {
               </select>
             </div>
 
-            <div>
+            <div className="cta-field">
               <label
                 htmlFor="details"
                 className="mb-2 block text-sm font-medium text-[var(--text-base-60)]"
@@ -294,7 +362,7 @@ export function CTAFormSection() {
                 id="details"
                 name="details"
                 rows={5}
-                className="w-full resize-y rounded-[1rem] border border-[var(--text-base-20)] bg-[color-mix(in_srgb,var(--slate-2)_48%,transparent)] px-4 py-3 text-[var(--text-base)] placeholder:text-[var(--text-base-30)] transition-colors focus:border-[var(--accent-amber1)] focus:outline-none"
+                className="w-full resize-y rounded-[1rem] border border-[var(--text-base-20)] bg-[color-mix(in_srgb,var(--slate-2)_48%,transparent)] px-4 py-3 text-[var(--text-base)] placeholder:text-[var(--text-base-30)] transition-[border-color,box-shadow,background] focus:border-[var(--accent-amber1)] focus:bg-[color-mix(in_srgb,var(--slate-2)_58%,transparent)] focus:outline-none focus:shadow-[0_0_0_1px_color-mix(in_srgb,var(--accent-amber1)_16%,transparent),0_0_24px_color-mix(in_srgb,var(--accent-amber1)_10%,transparent)]"
                 style={{ minHeight: "160px" }}
                 placeholder={t("detailsPlaceholder")}
               />
@@ -303,7 +371,7 @@ export function CTAFormSection() {
             <button
               type="submit"
               disabled={isPending}
-              className="cta-submit-glow w-full rounded-full border border-[var(--accent-amber1)] bg-[color-mix(in_srgb,var(--accent-amber1)_10%,transparent)] px-6 py-3 font-medium text-[var(--text-base)] transition-colors hover:bg-[var(--accent-amber1)] hover:text-[var(--bg-darker)] disabled:opacity-50"
+              className="cta-field cta-submit-glow w-full rounded-full border border-[var(--accent-amber1)] bg-[color-mix(in_srgb,var(--accent-amber1)_10%,transparent)] px-6 py-3 font-medium text-[var(--text-base)] transition-colors hover:bg-[var(--accent-amber1)] hover:text-[var(--bg-darker)] disabled:opacity-50"
             >
               {isPending ? t("submitting") : t("submit")}
             </button>

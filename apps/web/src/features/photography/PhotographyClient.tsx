@@ -10,13 +10,22 @@ import { TestimonialSection } from "./sections/TestimonialSection";
 import AboutSection from "./sections/AboutSection";
 import { CTAFormSection } from "./sections/CTAFormSection";
 import LightboxDialog, { type LightboxHandle } from "./sections/LightboxDialog";
+import {
+  PHOTOGRAPHY_MOTION,
+  getPhotographyMotionPreferences,
+} from "./motion";
 
 gsap.registerPlugin(ScrollTrigger);
 
-// =============================================================================
-// Photography LP — Integrated Client Component
-// Section Order: Hero → Gallery → Services → Testimonial → About → CTAForm
-// =============================================================================
+function SectionHandoff() {
+  return (
+    <div className="photography-handoff flex justify-center py-10 sm:py-14">
+      <div className="section-handoff-core photography-handoff-core photography-line-breathe">
+        <span className="section-handoff-dot photography-handoff-dot" />
+      </div>
+    </div>
+  );
+}
 
 export default function PhotographyClient() {
   const lightboxRef = useRef<LightboxHandle>(null);
@@ -26,40 +35,96 @@ export default function PhotographyClient() {
     const main = mainRef.current;
     if (!main) return;
 
+    const { reducedMotion } = getPhotographyMotionPreferences();
+
     const ctx = gsap.context(() => {
-      // Section divider line-draw animation
-      gsap.fromTo(
-        ".section-divider",
-        { scaleX: 0 },
-        {
-          scaleX: 1,
-          duration: 1.2,
-          ease: "power2.out",
-          scrollTrigger: {
-            trigger: ".section-divider",
-            start: "top 80%",
-            once: true,
+      gsap.utils.toArray<HTMLElement>(".photography-handoff").forEach((handoff) => {
+        const core = handoff.querySelector(".section-handoff-core");
+        const dot = handoff.querySelector(".section-handoff-dot");
+        if (!core || !dot) return;
+
+        gsap.fromTo(
+          core,
+          {
+            opacity: 0,
+            scaleX: 0.38,
           },
-        }
-      );
+          {
+            opacity: 1,
+            scaleX: 1,
+            duration: reducedMotion
+              ? PHOTOGRAPHY_MOTION.duration.xs
+              : PHOTOGRAPHY_MOTION.duration.lg,
+            ease: PHOTOGRAPHY_MOTION.ease.handoff,
+            scrollTrigger: {
+              trigger: handoff,
+              start: PHOTOGRAPHY_MOTION.scroll.entry,
+              once: true,
+            },
+          }
+        );
+
+        gsap.fromTo(
+          dot,
+          {
+            opacity: 0,
+            scale: 0.5,
+          },
+          {
+            opacity: 1,
+            scale: 1,
+            duration: reducedMotion
+              ? PHOTOGRAPHY_MOTION.duration.xs
+              : PHOTOGRAPHY_MOTION.duration.sm,
+            ease: PHOTOGRAPHY_MOTION.ease.reveal,
+            delay: reducedMotion ? 0 : 0.08,
+            scrollTrigger: {
+              trigger: handoff,
+              start: PHOTOGRAPHY_MOTION.scroll.reveal,
+              once: true,
+            },
+          }
+        );
+      });
+
+      if (!reducedMotion) {
+        gsap.utils.toArray<HTMLElement>(".section-atmosphere").forEach((orb, index) => {
+          gsap.to(orb, {
+            yPercent: index % 2 === 0 ? -14 : 12,
+            xPercent: index % 2 === 0 ? 6 : -4,
+            ease: "none",
+            scrollTrigger: {
+              trigger: main,
+              start: "top top",
+              end: "bottom bottom",
+              scrub: 1,
+            },
+          });
+        });
+      }
     }, main);
 
     return () => ctx.revert();
   }, []);
 
   return (
-    <main ref={mainRef} className="min-h-screen">
-      <HeroSection />
-      <GallerySection onImageClick={(i) => lightboxRef.current?.open(i)} />
-
-      {/* Gallery → Services breathing divider */}
-      <div className="flex justify-center py-16">
-        <div className="section-divider h-px w-28 origin-center bg-[var(--text-base-20)] [background-image:var(--section-divider-strong)]" />
+    <main ref={mainRef} className="min-h-screen overflow-hidden">
+      <div className="pointer-events-none absolute inset-0">
+        <div className="photography-grain-layer" />
+        <div className="photography-ambient-orb section-atmosphere left-[4%] top-[24rem] h-52 w-52 opacity-70" />
+        <div className="photography-ambient-orb section-atmosphere right-[7%] top-[74rem] h-64 w-64 opacity-60" />
+        <div className="photography-ambient-orb section-atmosphere left-[12%] top-[162rem] h-72 w-72 opacity-55" />
+        <div className="photography-ambient-orb section-atmosphere right-[10%] top-[248rem] h-60 w-60 opacity-55" />
       </div>
 
+      <HeroSection />
+      <SectionHandoff />
+      <GallerySection onImageClick={(i) => lightboxRef.current?.open(i)} />
+      <SectionHandoff />
       <ServicesSection />
       <TestimonialSection />
       <AboutSection />
+      <SectionHandoff />
       <CTAFormSection />
       <LightboxDialog ref={lightboxRef} images={GALLERY_IMAGES} />
     </main>

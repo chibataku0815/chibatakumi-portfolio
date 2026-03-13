@@ -140,6 +140,13 @@
 7. SendMessage(type: shutdown_request) で全 Teammate を終了
 8. TeamDelete でクリーンアップ
 
+### 実務補足
+
+- `orchestrator-director` / TeamCreate 系ツールが実環境に無い場合は、`orchestrator-director 相当の統括ロール` として単独で代替してよい
+- その場合でも、専門家ロールと stream 分割は最初に明示し、`.claude/tasks/ACTIVE-PARALLEL-TASK.md` に統括ロール相当として記録する
+- motion/UI ブラッシュアップ系は `構造単位` より `責務単位`（motion grammar / Hero+Gallery / mid sections / CTA+QA）で分けた方が破綻しにくい
+- 完了後は `.claude/tasks/archive/` に成果を移し、再利用可能な判断だけを `.claude/knowledge/` へ抽出する
+
 ### Spawn Prompt テンプレート
 
 Teammate の Spawn Prompt には以下の情報を含める:
