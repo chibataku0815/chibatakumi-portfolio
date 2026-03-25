@@ -1,119 +1,206 @@
 /**
- * @fileoverview 02-atmos メインエントリポイント
+ * @fileoverview 02-atmos: スクロール駆動3Dフライトシーン
  *
- * Atmos シーンの初期化・レンダリングループを管理する。
- * 環境設定は `scene/Environment.ts` に委譲し、
- * このファイルは Three.js の最小構成（Scene / Camera / Renderer / Loop）のみを担う。
+ * ## Phase A+B 統合: CameraPath + ScrollTrigger + theme.ts
  *
- * ## 学習ポイント
- * - `@shared/theme` から色・スペーシングを import して使う流れ
- * - `setupEnvironment` / `setupCamera` による関心の分離
- * - `responsive()` ユーティリティによるレスポンシブ対応
+ * - CameraPath: CatmullRomCurve3 でスクロールに連動したカメラ移動
+ * - Environment: theme.ts の Radix-inspired colors で5セクション補間
+ * - lil-gui: 制御点・パラメータのリアルタイム調整
  *
- * @see apps/webgl-study/shared/theme.ts
- * @see apps/webgl-study/02-atmos/src/scene/Environment.ts
+ * @see apps/webgl-study/shared/theme.ts — Radix テーマシステム
  */
 
-import * as THREE from 'three';
-import { responsive, container } from '@shared/theme';
-import { setupEnvironment, setupCamera } from './scene/Environment';
+import * as THREE from "three";
+import GUI from "lil-gui";
+import { colors } from "../../shared/theme";
+import { CameraPath } from "./scene/CameraPath";
+import { Environment } from "./scene/Environment";
+import { setupScrollProgress } from "./utils/scroll-progress";
 
 // ---------------------------------------------------------------------------
-// シーン・カメラ・レンダラー初期化
+// Renderer + Camera
 // ---------------------------------------------------------------------------
 
-const canvas = document.getElementById('canvas') as HTMLCanvasElement;
+const canvas = document.getElementById("webgl") as HTMLCanvasElement;
+
+const renderer = new THREE.WebGLRenderer({
+  canvas,
+  antialias: true,
+  alpha: false,
+});
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
 
 const scene = new THREE.Scene();
 
-/** PerspectiveCamera: FOV 60° / アスペクト比は resize で更新 */
-const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.01, 100);
-setupCamera(camera);
-
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.outputColorSpace = THREE.SRGBColorSpace;
+const camera = new THREE.PerspectiveCamera(
+  60,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  200,
+);
 
 // ---------------------------------------------------------------------------
-// 環境設定（背景・fog・ライティング）
+// Camera Path + Environment (theme.ts colors)
 // ---------------------------------------------------------------------------
 
-const { mainLight } = setupEnvironment(scene);
+const cameraPath = new CameraPath();
+const environment = new Environment(scene);
 
-// ---------------------------------------------------------------------------
-// テスト用プリミティブ — 後の実装で差し替え
-// ---------------------------------------------------------------------------
+// デバッグ: カメラパスの可視化
+const debugPathMesh = cameraPath.createDebugMesh();
+scene.add(debugPathMesh);
 
-/**
- * デモ用 IcosahedronGeometry。
- * theme カラー (`colors.neutral[7]`) を MeshStandardMaterial に適用。
- * 本実装ではカスタムシェーダーやパーティクルに差し替える。
- */
-const geo = new THREE.IcosahedronGeometry(0.3, 4);
-const mat = new THREE.MeshStandardMaterial({
-  color: 0x5a7a9a, // colors.neutral[7]
-  metalness: 0.3,
-  roughness: 0.6,
-  wireframe: false,
+// 制御点をシーンに球体で可視化
+const controlPointMeshes: THREE.Mesh[] = [];
+const cpGeometry = new THREE.SphereGeometry(0.2, 8, 8);
+// theme: amber[9] for accent visibility
+const cpMaterial = new THREE.MeshBasicMaterial({
+  color: colors.amber[9].getHex(),
 });
-const mesh = new THREE.Mesh(geo, mat);
-scene.add(mesh);
+
+for (const point of cameraPath.points) {
+  const mesh = new THREE.Mesh(cpGeometry, cpMaterial);
+  mesh.position.copy(point);
+  scene.add(mesh);
+  controlPointMeshes.push(mesh);
+}
+
+// グリッドヘルパー（theme: neutral[3] / neutral[2]）
+const gridHelper = new THREE.GridHelper(
+  100,
+  50,
+  colors.neutral[3].getHex(),
+  colors.neutral[2].getHex(),
+);
+scene.add(gridHelper);
 
 // ---------------------------------------------------------------------------
-// レスポンシブ対応
+// Scroll Progress
 // ---------------------------------------------------------------------------
 
-/**
- * ウィンドウリサイズ時にカメラとレンダラーを更新。
- * `responsive()` でブレークポイントに応じたコンテナ幅を取得し、
- * canvas を適切なサイズに保つ。
- */
+let currentProgress = 0;
+
+setupScrollProgress({
+  trigger: ".scroll-container",
+  scrub: 1.5,
+  onUpdate: (progress) => {
+    currentProgress = progress;
+  },
+});
+
+// ---------------------------------------------------------------------------
+// Section Visibility
+// ---------------------------------------------------------------------------
+
+const sections = document.querySelectorAll<HTMLElement>(".section");
+
+function updateSectionVisibility(progress: number): void {
+  const sectionCount = sections.length;
+  const activeIndex = Math.min(
+    Math.floor(progress * sectionCount),
+    sectionCount - 1,
+  );
+
+  sections.forEach((section, i) => {
+    if (i === activeIndex) {
+      section.classList.add("is-active");
+    } else {
+      section.classList.remove("is-active");
+    }
+  });
+}
+
+// ---------------------------------------------------------------------------
+// lil-gui
+// ---------------------------------------------------------------------------
+
+const gui = new GUI({ title: "Atmos Debug" });
+
+const debugParams = {
+  progress: 0,
+  showPath: true,
+  showGrid: true,
+};
+
+const progressFolder = gui.addFolder("Progress");
+progressFolder.add(debugParams, "progress", 0, 1, 0.001).listen().disable();
+
+const viewFolder = gui.addFolder("View");
+viewFolder.add(debugParams, "showPath").onChange((v: boolean) => {
+  debugPathMesh.visible = v;
+  controlPointMeshes.forEach((m) => (m.visible = v));
+});
+viewFolder.add(debugParams, "showGrid").onChange((v: boolean) => {
+  gridHelper.visible = v;
+});
+
+const cpFolder = gui.addFolder("Control Points");
+cameraPath.points.forEach((point, i) => {
+  const folder = cpFolder.addFolder(`P${i}`);
+  folder.add(point, "x", -20, 20, 0.5).onChange(() => {
+    cameraPath.rebuild();
+    controlPointMeshes[i]!.position.copy(point);
+  });
+  folder.add(point, "y", -5, 30, 0.5).onChange(() => {
+    cameraPath.rebuild();
+    controlPointMeshes[i]!.position.copy(point);
+  });
+  folder.add(point, "z", -120, 10, 1).onChange(() => {
+    cameraPath.rebuild();
+    controlPointMeshes[i]!.position.copy(point);
+  });
+  folder.close();
+});
+cpFolder.close();
+
+const fogFolder = gui.addFolder("Fog (auto)");
+const fogParams = { density: 0.04 };
+fogFolder.add(fogParams, "density", 0, 0.1, 0.001).listen().disable();
+fogFolder.close();
+
+// ---------------------------------------------------------------------------
+// Render Loop
+// ---------------------------------------------------------------------------
+
+function animate(): void {
+  requestAnimationFrame(animate);
+
+  cameraPath.applyToCamera(camera, currentProgress);
+  environment.update(currentProgress);
+  updateSectionVisibility(currentProgress);
+
+  debugParams.progress = currentProgress;
+  fogParams.density = environment.fog.density;
+
+  renderer.render(scene, camera);
+}
+
+// ---------------------------------------------------------------------------
+// Resize
+// ---------------------------------------------------------------------------
+
 function onResize(): void {
-  // ブレークポイントに応じた canvas max-width (px)
-  const maxWidth = responsive({
-    initial: container[1], // 448px (モバイル)
-    sm:      container[2], // 688px (タブレット)
-    md:      container[3], // 880px (ノート)
-    lg:      container[4], // 1136px (デスクトップ)
-  }) ?? container[4];
-
-  const w = Math.min(window.innerWidth, maxWidth);
+  const w = window.innerWidth;
   const h = window.innerHeight;
-
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
   renderer.setSize(w, h);
 }
 
-window.addEventListener('resize', onResize);
-onResize(); // 初期適用
+window.addEventListener("resize", onResize);
 
 // ---------------------------------------------------------------------------
-// アニメーションループ
+// Start
 // ---------------------------------------------------------------------------
 
-const clock = new THREE.Clock();
-
-/**
- * メインアニメーションループ。
- * - mesh をゆっくり回転させてデモとして機能させる
- * - mainLight を正弦波でゆらしてライティングに動きを出す
- */
-function animate(): void {
-  requestAnimationFrame(animate);
-
-  const elapsed = clock.getElapsedTime();
-
-  // デモ回転
-  mesh.rotation.y = elapsed * 0.3;
-  mesh.rotation.x = elapsed * 0.1;
-
-  // 光源の揺らぎ（大気感の演出）
-  mainLight.position.x = Math.sin(elapsed * 0.5) * 0.4;
-  mainLight.position.y = Math.cos(elapsed * 0.3) * 0.2 + 0.3;
-
-  renderer.render(scene, camera);
+const loader = document.getElementById("loader");
+if (loader) {
+  loader.classList.add("is-hidden");
+  setTimeout(() => loader.remove(), 800);
 }
 
 animate();

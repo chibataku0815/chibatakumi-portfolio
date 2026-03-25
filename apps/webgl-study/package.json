@@ -10,6 +10,7 @@
     "dev:03": "vite 03-opal-tadpole",
     "dev:04": "vite 04-particle-love",
     "dev:05": "vite 05-tao-tajima",
+    "dev:06": "vite 06-gltf-airplane",
     "build": "vite build",
     "lint": "oxlint .",
     "fmt": "oxfmt --write .",
@@ -21,6 +22,7 @@
   },
   "devDependencies": {
     "@types/three": "^0.183.1",
+    "lil-gui": "^0.21.0",
     "typescript": "^5.9.3",
     "vite": "^8.0.2",
     "vite-plus": "^0.1.14"

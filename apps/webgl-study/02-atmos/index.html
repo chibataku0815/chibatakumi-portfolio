@@ -1,73 +1,142 @@
 <!DOCTYPE html>
-<html lang="ja">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>02 — Atmos: Atmospheric 3D Scene</title>
-    <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      body {
-        /* theme: colors.neutral[1] = #080a0c */
-        background: #080a0c;
-        /* theme: colors.neutral[12] = #fffdf7 */
-        color: #fffdf7;
-        font-family: 'Inter', -apple-system, sans-serif;
-        overflow: hidden;
-      }
-      canvas {
-        position: fixed;
-        top: 0;
-        left: 0;
-        z-index: 1;
-      }
-      /* オーバーレイ: z-index 2 でキャンバスの前面 */
-      .overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 2;
-        pointer-events: none;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        /* container[1]〜[4] から padding を導出: 48px ≈ space[6] ≈ 0.8 × 60px */
-        padding: 40px 48px;
-      }
-      .overlay__title {
-        /* theme: colors.neutral[11] = #fef3c7 */
-        color: #fef3c7;
-        font-size: 13px;
-        font-weight: 300;
-        letter-spacing: 0.15em;
-        text-transform: uppercase;
-        opacity: 0.5;
-      }
-      .overlay__bottom {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-end;
-      }
-      .overlay__hint {
-        /* theme: colors.neutral[11] = #fef3c7 */
-        color: #fef3c7;
-        font-size: 12px;
-        font-weight: 300;
-        opacity: 0.35;
-        letter-spacing: 0.08em;
-      }
-    </style>
-  </head>
-  <body>
-    <canvas id="canvas"></canvas>
-    <div class="overlay">
-      <div class="overlay__title">02 — Atmos</div>
-      <div class="overlay__bottom">
-        <div class="overlay__hint">Atmospheric 3D Scene</div>
-        <div class="overlay__hint">WebGL Study — Takumi Chiba</div>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>02 — Atmos (Scroll-Driven 3D Flight)</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      overflow-x: hidden;
+      background: #080a0c;  /* theme: colors.neutral[1] */
+      color: #fffdf7;       /* theme: colors.neutral[12] */
+      font-family: "Inter", -apple-system, sans-serif;
+    }
+
+    canvas#webgl {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+    }
+
+    .scroll-container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 500vh;
+      pointer-events: none;
+    }
+
+    .section {
+      position: relative;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .section__inner {
+      max-width: 600px;
+      padding: 2rem;
+      text-align: center;
+      pointer-events: auto;
+    }
+
+    .section__title {
+      font-size: clamp(1.5rem, 4vw, 3rem);
+      font-weight: 300;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5em;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .section__text {
+      font-size: clamp(0.875rem, 1.5vw, 1.125rem);
+      font-weight: 300;
+      line-height: 1.6;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease 0.15s, transform 0.6s ease 0.15s;
+    }
+
+    .section.is-active .section__title,
+    .section.is-active .section__text {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Section title colors from theme */
+    .section--intro .section__title { color: #fef3c7; }   /* neutral[11] */
+    .section--ascent .section__title { color: #ffba18; }   /* amber[10] */
+    .section--flight .section__title { color: #8aadc8; }   /* neutral[8] */
+    .section--detail .section__title { color: #ffc53d; }   /* amber[9] */
+    .section--outro .section__title { color: #fef3c7; }    /* neutral[11] */
+
+    .loader {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      background: #080a0c;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      letter-spacing: 0.1em;
+      transition: opacity 0.8s ease;
+    }
+
+    .loader.is-hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="loader" id="loader">Loading…</div>
+  <canvas id="webgl"></canvas>
+
+  <div class="scroll-container">
+    <section class="section section--intro" data-section="intro">
+      <div class="section__inner">
+        <h2 class="section__title">Into the Atmosphere</h2>
+        <p class="section__text">A surreal flight through clouds and light.</p>
       </div>
-    </div>
-    <script type="module" src="./src/main.ts"></script>
-  </body>
+    </section>
+
+    <section class="section section--ascent" data-section="ascent">
+      <div class="section__inner">
+        <h2 class="section__title">Ascending</h2>
+        <p class="section__text">Breaking through the cloud layer.</p>
+      </div>
+    </section>
+
+    <section class="section section--flight" data-section="flight">
+      <div class="section__inner">
+        <h2 class="section__title">Cruising</h2>
+        <p class="section__text">Above the clouds, into the blue.</p>
+      </div>
+    </section>
+
+    <section class="section section--detail" data-section="detail">
+      <div class="section__inner">
+        <h2 class="section__title">Closer Look</h2>
+        <p class="section__text">Every rivet, every reflection.</p>
+      </div>
+    </section>
+
+    <section class="section section--outro" data-section="outro">
+      <div class="section__inner">
+        <h2 class="section__title">Into the Horizon</h2>
+        <p class="section__text">Disappearing into the mist.</p>
+      </div>
+    </section>
+  </div>
+
+  <script type="module" src="./src/main.ts"></script>
+</body>
 </html>
