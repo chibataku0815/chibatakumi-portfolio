@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>02 — Atmos: Atmospheric 3D Scene</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body {
+        /* theme: colors.neutral[1] = #080a0c */
+        background: #080a0c;
+        /* theme: colors.neutral[12] = #fffdf7 */
+        color: #fffdf7;
+        font-family: 'Inter', -apple-system, sans-serif;
+        overflow: hidden;
+      }
+      canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1;
+      }
+      /* オーバーレイ: z-index 2 でキャンバスの前面 */
+      .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 2;
+        pointer-events: none;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        /* container[1]〜[4] から padding を導出: 48px ≈ space[6] ≈ 0.8 × 60px */
+        padding: 40px 48px;
+      }
+      .overlay__title {
+        /* theme: colors.neutral[11] = #fef3c7 */
+        color: #fef3c7;
+        font-size: 13px;
+        font-weight: 300;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        opacity: 0.5;
+      }
+      .overlay__bottom {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+      }
+      .overlay__hint {
+        /* theme: colors.neutral[11] = #fef3c7 */
+        color: #fef3c7;
+        font-size: 12px;
+        font-weight: 300;
+        opacity: 0.35;
+        letter-spacing: 0.08em;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas"></canvas>
+    <div class="overlay">
+      <div class="overlay__title">02 — Atmos</div>
+      <div class="overlay__bottom">
+        <div class="overlay__hint">Atmospheric 3D Scene</div>
+        <div class="overlay__hint">WebGL Study — Takumi Chiba</div>
+      </div>
+    </div>
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>
