@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>01 — Codrops Distortion Hover</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400&display=swap');
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body {
+        background: #0a0a0a;
+        color: #fff;
+        font-family: 'Inter', sans-serif;
+        overflow: hidden;
+      }
+      canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1;
+      }
+      .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 2;
+        pointer-events: none;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 40px 48px;
+      }
+      .overlay__title {
+        font-size: 13px;
+        font-weight: 300;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        opacity: 0.5;
+      }
+      .overlay__bottom {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+      }
+      .overlay__hint {
+        font-size: 12px;
+        font-weight: 300;
+        opacity: 0.35;
+        letter-spacing: 0.08em;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas"></canvas>
+    <div class="overlay">
+      <div class="overlay__title">WebGL Distortion Hover</div>
+      <div class="overlay__bottom">
+        <div class="overlay__hint">Hover over images</div>
+        <div class="overlay__hint">Photography — Takumi Chiba</div>
+      </div>
+    </div>
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>

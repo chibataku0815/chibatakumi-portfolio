@@ -1,5 +1,6 @@
 import { AnimatedHeading } from "@/shared/components";
 import { portfolioData } from "@/shared/data/portfolio";
+import { DistortionShowcase } from "@/features/interactive/distortion-hover";
 
 export default function InteractivePage() {
   const { label, title, cards } = portfolioData.pages.interactive;
@@ -20,6 +21,9 @@ export default function InteractivePage() {
           </AnimatedHeading>
         </div>
       </section>
+
+      {/* Featured Demo: Distortion Hover */}
+      <DistortionShowcase />
 
       {/* Cards Grid */}
       <section className="px-6">

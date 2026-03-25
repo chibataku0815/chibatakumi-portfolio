@@ -1,0 +1,28 @@
+{
+  "name": "webgl-study",
+  "private": true,
+  "type": "module",
+  "packageManager": "bun@1.3.3",
+  "scripts": {
+    "dev": "vite 01-codrops-distortion",
+    "dev:01": "vite 01-codrops-distortion",
+    "dev:02": "vite 02-atmos",
+    "dev:03": "vite 03-opal-tadpole",
+    "dev:04": "vite 04-particle-love",
+    "dev:05": "vite 05-tao-tajima",
+    "build": "vite build",
+    "lint": "oxlint .",
+    "fmt": "oxfmt --write .",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "gsap": "^3.14.2",
+    "three": "^0.183.2"
+  },
+  "devDependencies": {
+    "@types/three": "^0.183.1",
+    "typescript": "^5.9.3",
+    "vite": "^8.0.2",
+    "vite-plus": "^0.1.14"
+  }
+}
