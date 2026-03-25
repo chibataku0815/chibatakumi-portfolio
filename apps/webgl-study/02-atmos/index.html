@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>02 — Atmos</title>
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0a0f; }
+      canvas { display: block; }
+      #overlay {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #eeeef0;
+        font-family: system-ui, sans-serif;
+        font-size: clamp(1.5rem, 4vw, 3rem);
+        font-weight: 300;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        pointer-events: none;
+        mix-blend-mode: screen;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="overlay">Atmos</div>
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>
