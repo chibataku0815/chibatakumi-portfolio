@@ -99,10 +99,10 @@ export class CameraPath {
   }
 
   /** デバッグ: パスを TubeGeometry で可視化 */
-  createDebugMesh(): THREE.Mesh {
+  createDebugMesh(color: number = 0x00ff88): THREE.Mesh {
     const geometry = new THREE.TubeGeometry(this.curve, 200, 0.05, 8, false);
     const material = new THREE.MeshBasicMaterial({
-      color: 0x00ff88,
+      color,
       wireframe: true,
       transparent: true,
       opacity: 0.4,

@@ -88,4 +88,4 @@ import { colors, space, themes } from '@shared/theme';
 ## 参照
 - ロードマップ: /Users/chibatakumi/Documents/life/docs/guides/2026-03-25-webgl-blender-learning-roadmap.md
 - 模写対象: /Users/chibatakumi/Documents/life/docs/guides/2026-03-25-webgl-study-targets.md
-- デザインシステム知見: /Users/chibatakumi/Documents/life/.claude/knowledge/patterns/2026-03-25-webgl-radix-themes-design-system.md
+- デザインシステム知見: /Users/chibatakumi/Documents/life/.claude/knowledge/patterns/2026-03-26-webgl-radix-themes-design-system.md

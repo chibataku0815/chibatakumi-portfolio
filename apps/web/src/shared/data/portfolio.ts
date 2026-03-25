@@ -434,6 +434,7 @@ export const portfolioData: PortfolioData = {
     links: [
       { href: "/", label: "Index" },
       { href: "/skills", label: "Skills" },
+      { href: "/interactive", label: "Interactive" },
       { href: "/photography", label: "Photography" },
       { href: "/profile", label: "Profile" },
       { href: "/contact", label: "Contact" },
