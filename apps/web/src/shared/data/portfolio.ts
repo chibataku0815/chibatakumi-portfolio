@@ -432,7 +432,7 @@ export const portfolioData: PortfolioData = {
   // ---------------------------------------------------------------------------
   navigation: {
     links: [
-      { href: "/", label: "Index" },
+      { href: "/", label: "Home" },
       { href: "/skills", label: "Skills" },
       { href: "/interactive", label: "Interactive" },
       { href: "/photography", label: "Photography" },

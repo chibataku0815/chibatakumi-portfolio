@@ -246,8 +246,7 @@ body::after {
 }
 
 main,
-section,
-nav {
+section {
   position: relative;
   z-index: 1;
 }
