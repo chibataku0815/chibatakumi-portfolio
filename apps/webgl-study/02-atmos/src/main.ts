@@ -1,21 +1,25 @@
 /**
  * @fileoverview 02-atmos: スクロール駆動3Dフライトシーン
  *
- * ## Phase A+B 統合: CameraPath + ScrollTrigger + theme.ts
+ * ## Phase B: CameraPath + ScrollTrigger + AirplaneModel + CloudField
  *
  * - CameraPath: CatmullRomCurve3 でスクロールに連動したカメラ移動
  * - Environment: theme.ts の Radix-inspired colors で5セクション補間
- * - lil-gui: 制御点・パラメータのリアルタイム調整
+ * - AirplaneModel: glTF 飛行機がカメラ前方を追従
+ * - CloudField: InstancedMesh 雲クラスター
+ * - debug-gui: #debug 条件で dynamic import（本番バンドルサイズ 0）
  *
  * @see apps/webgl-study/shared/theme.ts — Radix テーマシステム
  */
 
 import * as THREE from "three";
-import GUI from "lil-gui";
 import { colors } from "../../shared/theme";
 import { CameraPath } from "./scene/CameraPath";
 import { Environment } from "./scene/Environment";
+import { CloudField } from "./scene/CloudField";
 import { setupScrollProgress } from "./utils/scroll-progress";
+import { initBlurText } from "./utils/blur-text";
+import type { AirplaneModel } from "./scene/AirplaneModel";
 
 // ---------------------------------------------------------------------------
 // Renderer + Camera
@@ -47,6 +51,7 @@ const camera = new THREE.PerspectiveCamera(
 // Camera Path + Environment (theme.ts colors)
 // ---------------------------------------------------------------------------
 
+const clock = new THREE.Clock();
 const cameraPath = new CameraPath();
 const environment = new Environment(scene);
 
@@ -115,52 +120,68 @@ function updateSectionVisibility(progress: number): void {
 }
 
 // ---------------------------------------------------------------------------
-// lil-gui
+// Debug mesh defaults (hidden until #debug GUI toggle)
 // ---------------------------------------------------------------------------
 
-const gui = new GUI({ title: "Atmos Debug" });
+debugPathMesh.visible = false;
+controlPointMeshes.forEach((m) => (m.visible = false));
+gridHelper.visible = false;
 
-const debugParams = {
-  progress: 0,
-  showPath: true,
-  showGrid: true,
-};
+// ---------------------------------------------------------------------------
+// Phase B: CloudField (sync) + AirplaneModel (async)
+// ---------------------------------------------------------------------------
 
-const progressFolder = gui.addFolder("Progress");
-progressFolder.add(debugParams, "progress", 0, 1, 0.001).listen().disable();
+const cloudField = new CloudField(scene, cameraPath);
 
-const viewFolder = gui.addFolder("View");
-viewFolder.add(debugParams, "showPath").onChange((v: boolean) => {
-  debugPathMesh.visible = v;
-  controlPointMeshes.forEach((m) => (m.visible = v));
-});
-viewFolder.add(debugParams, "showGrid").onChange((v: boolean) => {
-  gridHelper.visible = v;
-});
+// Refs for debug-gui bridge
+const progressRef = { value: 0 };
+const fogDensityRef = { value: 0 };
+const hemiIntensityRef = { value: 0 };
+const dirIntensityRef = { value: 0 };
+const airplaneRef: { current: AirplaneModel | null } = { current: null };
+const cloudFieldRef: { current: CloudField | null } = { current: cloudField };
 
-const cpFolder = gui.addFolder("Control Points");
-cameraPath.points.forEach((point, i) => {
-  const folder = cpFolder.addFolder(`P${i}`);
-  folder.add(point, "x", -20, 20, 0.5).onChange(() => {
-    cameraPath.rebuild();
-    controlPointMeshes[i]!.position.copy(point);
+// Async airplane loading (non-blocking — scene renders immediately)
+const loader = document.getElementById("loader");
+
+import("./scene/AirplaneModel")
+  .then(async ({ AirplaneModel: AirplaneModelClass }) => {
+    const airplane = await AirplaneModelClass.create(scene);
+    airplaneRef.current = airplane;
+    if (loader) {
+      loader.classList.add("is-hidden");
+      setTimeout(() => loader.remove(), 800);
+    }
+  })
+  .catch(() => {
+    // Graceful degradation — scene works without airplane
+    if (loader) {
+      loader.classList.add("is-hidden");
+      setTimeout(() => loader.remove(), 800);
+    }
   });
-  folder.add(point, "y", -5, 30, 0.5).onChange(() => {
-    cameraPath.rebuild();
-    controlPointMeshes[i]!.position.copy(point);
-  });
-  folder.add(point, "z", -120, 10, 1).onChange(() => {
-    cameraPath.rebuild();
-    controlPointMeshes[i]!.position.copy(point);
-  });
-  folder.close();
-});
-cpFolder.close();
 
-const fogFolder = gui.addFolder("Fog (auto)");
-const fogParams = { density: 0.04 };
-fogFolder.add(fogParams, "density", 0, 0.1, 0.001).listen().disable();
-fogFolder.close();
+// ---------------------------------------------------------------------------
+// #debug conditional GUI (dynamic import — zero bytes in production)
+// ---------------------------------------------------------------------------
+
+if (location.hash === "#debug") {
+  import("./utils/debug-gui").then(({ setupDebugGUI }) => {
+    setupDebugGUI({
+      cameraPath,
+      environment,
+      debugPathMesh,
+      controlPointMeshes,
+      gridHelper,
+      progressRef,
+      fogDensityRef,
+      airplaneRef,
+      cloudFieldRef,
+      hemiIntensityRef,
+      dirIntensityRef,
+    });
+  });
+}
 
 // ---------------------------------------------------------------------------
 // Render Loop
@@ -169,12 +190,21 @@ fogFolder.close();
 function animate(): void {
   requestAnimationFrame(animate);
 
+  const elapsed = clock.getElapsedTime();
+
   cameraPath.applyToCamera(camera, currentProgress);
   environment.update(currentProgress);
   updateSectionVisibility(currentProgress);
 
-  debugParams.progress = currentProgress;
-  fogParams.density = environment.fog.density;
+  // Phase B updates
+  airplaneRef.current?.update(currentProgress, cameraPath, elapsed);
+  cloudField.update(currentProgress);
+
+  // Debug refs (cheap even when GUI absent)
+  progressRef.value = currentProgress;
+  fogDensityRef.value = environment.fog.density;
+  hemiIntensityRef.value = environment.hemisphereLight.intensity;
+  dirIntensityRef.value = environment.directionalLight.intensity;
 
   renderer.render(scene, camera);
 }
@@ -197,10 +227,5 @@ window.addEventListener("resize", onResize);
 // Start
 // ---------------------------------------------------------------------------
 
-const loader = document.getElementById("loader");
-if (loader) {
-  loader.classList.add("is-hidden");
-  setTimeout(() => loader.remove(), 800);
-}
-
 animate();
+initBlurText();

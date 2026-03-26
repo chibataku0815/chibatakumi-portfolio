@@ -27,6 +27,9 @@ interface EnvironmentKeyframe {
   bgColor: THREE.Color;
   lightIntensity: number;
   lightColor: THREE.Color;
+  hemiIntensity: number;
+  hemiSkyColor: THREE.Color;
+  hemiGroundColor: THREE.Color;
 }
 
 /**
@@ -41,6 +44,9 @@ const KEYFRAMES: EnvironmentKeyframe[] = [
     bgColor: colors.neutral[1].clone(),
     lightIntensity: 0.3,
     lightColor: colors.neutral[7].clone(),
+    hemiIntensity: 0.2,
+    hemiSkyColor: colors.neutral[7].clone(),
+    hemiGroundColor: colors.amber[3].clone(),
   },
   {
     // ascent: 霧が晴れる（amber[3] warm fog）
@@ -49,6 +55,9 @@ const KEYFRAMES: EnvironmentKeyframe[] = [
     bgColor: colors.neutral[1].clone(),
     lightIntensity: 0.8,
     lightColor: colors.amber[9].clone(),
+    hemiIntensity: 0.4,
+    hemiSkyColor: colors.neutral[7].clone(),
+    hemiGroundColor: colors.amber[3].clone(),
   },
   {
     // flight: クリア（neutral[8] 青系 fog、neutral[5] bg）
@@ -57,14 +66,20 @@ const KEYFRAMES: EnvironmentKeyframe[] = [
     bgColor: colors.neutral[5].clone(),
     lightIntensity: 1.2,
     lightColor: colors.neutral[8].clone(),
+    hemiIntensity: 0.6,
+    hemiSkyColor: colors.neutral[8].clone(),
+    hemiGroundColor: colors.amber[3].clone(),
   },
   {
-    // detail: ゴールデンアワー（amber[6] fog）
+    // detail: ゴールデンアワー（amber[6] fog）— sky も warm に
     fogDensity: 0.015,
     fogColor: colors.amber[6].clone(),
     bgColor: colors.amber[1].clone(),
     lightIntensity: 1.0,
     lightColor: colors.amber[10].clone(),
+    hemiIntensity: 0.5,
+    hemiSkyColor: colors.amber[6].clone(),
+    hemiGroundColor: colors.amber[4].clone(),
   },
   {
     // outro: 霧が戻る（neutral[3] 深い霧）
@@ -73,6 +88,9 @@ const KEYFRAMES: EnvironmentKeyframe[] = [
     bgColor: colors.neutral[1].clone(),
     lightIntensity: 0.4,
     lightColor: colors.neutral[7].clone(),
+    hemiIntensity: 0.3,
+    hemiSkyColor: colors.neutral[7].clone(),
+    hemiGroundColor: colors.amber[3].clone(),
   },
 ];
 
@@ -80,6 +98,7 @@ export class Environment {
   fog: THREE.FogExp2;
   directionalLight: THREE.DirectionalLight;
   ambientLight: THREE.AmbientLight;
+  hemisphereLight: THREE.HemisphereLight;
 
   private scene: THREE.Scene;
 
@@ -96,7 +115,7 @@ export class Environment {
       colors.neutral[7].getHex(),
       0.3,
     );
-    this.directionalLight.position.set(5, 10, 5);
+    this.directionalLight.position.set(5, 10, 7);
     scene.add(this.directionalLight);
 
     // Ambient Light
@@ -105,6 +124,14 @@ export class Environment {
       t.ambientIntensity,
     );
     scene.add(this.ambientLight);
+
+    // Hemisphere Light — warm/cool split for natural sky/ground illumination
+    this.hemisphereLight = new THREE.HemisphereLight(
+      colors.neutral[7].getHex(),
+      colors.amber[3].getHex(),
+      0.2,
+    );
+    scene.add(this.hemisphereLight);
   }
 
   /**
@@ -138,5 +165,23 @@ export class Environment {
       t,
     );
     this.directionalLight.color.copy(kf0.lightColor).lerp(kf1.lightColor, t);
+
+    // hemisphere light
+    this.hemisphereLight.intensity = THREE.MathUtils.lerp(
+      kf0.hemiIntensity,
+      kf1.hemiIntensity,
+      t,
+    );
+    this.hemisphereLight.color.copy(kf0.hemiSkyColor).lerp(kf1.hemiSkyColor, t);
+    this.hemisphereLight.groundColor
+      .copy(kf0.hemiGroundColor)
+      .lerp(kf1.hemiGroundColor, t);
+
+    // CSS custom property bridge — fog color for future HTML text-shadow sync
+    const fc = this.fog.color;
+    document.documentElement.style.setProperty(
+      '--atmos-fog-color',
+      `rgb(${(fc.r * 255) | 0}, ${(fc.g * 255) | 0}, ${(fc.b * 255) | 0})`,
+    );
   }
 }

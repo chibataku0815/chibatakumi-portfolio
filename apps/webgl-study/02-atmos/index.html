@@ -4,14 +4,19 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>02 — Atmos (Scroll-Driven 3D Flight)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@1&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     html, body {
       overflow-x: hidden;
-      background: #080a0c;  /* theme: colors.neutral[1] */
-      color: #fffdf7;       /* theme: colors.neutral[12] */
-      font-family: "Inter", -apple-system, sans-serif;
+      background: #080a0c;
+      color: #fffdf7;
+      font-family: "Barlow", -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
     canvas#webgl {
@@ -33,50 +38,171 @@
       position: relative;
       height: 100vh;
       display: flex;
-      align-items: center;
-      justify-content: center;
+      padding: clamp(3rem, 8vh, 6rem) clamp(2rem, 6vw, 5rem);
       pointer-events: none;
     }
 
     .section__inner {
-      max-width: 600px;
-      padding: 2rem;
-      text-align: center;
+      width: 100%;
       pointer-events: auto;
+      mix-blend-mode: screen;
+      -webkit-mask-image: linear-gradient(180deg, transparent 0%, black 8%, black 88%, transparent 100%);
+      mask-image: linear-gradient(180deg, transparent 0%, black 8%, black 88%, transparent 100%);
     }
 
+    /* Section-specific asymmetric layouts */
+    .section--intro   { align-items: flex-end; justify-content: center; padding-bottom: 12vh; text-align: center; }
+    .section--ascent  { align-items: flex-end; justify-content: flex-start; padding-bottom: 8vh; text-align: left; }
+    .section--flight  { align-items: center; justify-content: flex-end; text-align: right; }
+    .section--flight .section__text { margin-left: auto; }
+    .section--detail  { align-items: flex-start; justify-content: flex-start; padding-top: 12vh; text-align: left; }
+    .section--outro   { align-items: center; justify-content: center; text-align: center; }
+
+    /* --- Typography: Instrument Serif italic headings --- */
     .section__title {
-      font-size: clamp(1.5rem, 4vw, 3rem);
-      font-weight: 300;
-      letter-spacing: 0.05em;
-      margin-bottom: 0.5em;
+      font-family: "Instrument Serif", Georgia, serif;
+      font-style: italic;
+      font-size: clamp(3rem, 10vw, 8rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 0.9;
+      margin-bottom: 0.4em;
+      /* GSAP controls visibility via blur-text.ts */
       opacity: 0;
-      transform: translateY(30px);
-      transition: opacity 0.6s ease, transform 0.6s ease;
     }
 
+    /* --- Typography: Barlow light body --- */
     .section__text {
-      font-size: clamp(0.875rem, 1.5vw, 1.125rem);
+      font-family: "Barlow", -apple-system, sans-serif;
+      font-size: clamp(13px, 1.1vw, 15px);
       font-weight: 300;
-      line-height: 1.6;
+      letter-spacing: 0;
+      line-height: 1.7;
+      max-width: 28ch;
       opacity: 0;
-      transform: translateY(20px);
-      transition: opacity 0.6s ease 0.15s, transform 0.6s ease 0.15s;
     }
 
-    .section.is-active .section__title,
-    .section.is-active .section__text {
-      opacity: 1;
-      transform: translateY(0);
+    /* BlurText word spans */
+    .blur-word {
+      display: inline-block;
+      will-change: filter, opacity, transform;
     }
 
-    /* Section title colors from theme */
-    .section--intro .section__title { color: #fef3c7; }   /* neutral[11] */
-    .section--ascent .section__title { color: #ffba18; }   /* amber[10] */
-    .section--flight .section__title { color: #8aadc8; }   /* neutral[8] */
-    .section--detail .section__title { color: #ffc53d; }   /* amber[9] */
-    .section--outro .section__title { color: #fef3c7; }    /* neutral[11] */
+    @media (prefers-reduced-motion: reduce) {
+      .blur-word {
+        filter: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+      }
+    }
 
+    /* --- Section title colors + glow + chromatic aberration (serif-tuned) --- */
+    .section--intro .section__title {
+      color: #fffdf7;
+      text-shadow:
+        -0.8px 0 rgba(255, 80, 60, 0.10),
+         0.8px 0 rgba(80, 120, 255, 0.10),
+         0 0 60px rgba(254, 243, 199, 0.14),
+         0 0 120px rgba(254, 243, 199, 0.05);
+    }
+    .section--ascent .section__title {
+      color: #ffd666;
+      text-shadow:
+        -1px 0 rgba(255, 50, 0, 0.12),
+         1px 0 rgba(80, 100, 255, 0.08),
+         0 0 60px rgba(255, 214, 102, 0.20),
+         0 0 120px rgba(255, 214, 102, 0.08);
+    }
+    .section--flight .section__title {
+      color: #9bbdd8;
+      text-shadow:
+        -0.8px 0 rgba(255, 60, 60, 0.08),
+         0.8px 0 rgba(60, 120, 255, 0.12),
+         0 0 60px rgba(155, 189, 216, 0.18),
+         0 0 120px rgba(155, 189, 216, 0.06);
+    }
+    .section--detail .section__title {
+      color: #ffd866;
+      text-shadow:
+        -1px 0 rgba(255, 30, 0, 0.14),
+         1px 0 rgba(60, 80, 200, 0.08),
+         0 0 60px rgba(255, 216, 102, 0.22),
+         0 0 120px rgba(255, 216, 102, 0.08);
+    }
+    .section--outro .section__title {
+      color: #fef3c7;
+      text-shadow:
+        -0.6px 0 rgba(255, 60, 60, 0.06),
+         0.6px 0 rgba(60, 100, 255, 0.06),
+         0 0 60px rgba(254, 243, 199, 0.14),
+         0 0 120px rgba(254, 243, 199, 0.05);
+    }
+
+    /* Section body text colors (LP opacity hierarchy: 0.55) */
+    .section--intro .section__text  { color: rgba(254, 243, 199, 0.55); }
+    .section--ascent .section__text { color: rgba(255, 214, 102, 0.45); }
+    .section--flight .section__text { color: rgba(155, 189, 216, 0.55); }
+    .section--detail .section__text { color: rgba(255, 216, 102, 0.45); }
+    .section--outro .section__text  { color: rgba(254, 243, 199, 0.45); }
+
+    /* --- Liquid Glass --- */
+    .liquid-glass {
+      background: rgba(255, 255, 255, 0.01);
+      background-blend-mode: luminosity;
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      border: none;
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+    .liquid-glass::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1.4px;
+      background: linear-gradient(180deg,
+        rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.15) 20%,
+        rgba(255,255,255,0) 40%, rgba(255,255,255,0) 60%,
+        rgba(255,255,255,0.15) 80%, rgba(255,255,255,0.45) 100%);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    /* --- Section badges --- */
+    .section-badge {
+      display: inline-block;
+      padding: 0.375rem 0.875rem;
+      border-radius: 9999px;
+      font-family: "Barlow", sans-serif;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: rgba(254, 243, 199, 0.50);
+      margin-bottom: 1.5rem;
+      opacity: 0;
+    }
+
+    /* --- Section divider hairline --- */
+    .section::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(8rem, 30vw);
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(254, 243, 199, 0.10), transparent);
+      opacity: 0;
+      transition: opacity 0.8s ease;
+    }
+    .section.is-active::after { opacity: 1; }
+
+    /* --- Loader --- */
     .loader {
       position: fixed;
       inset: 0;
@@ -85,24 +211,50 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1rem;
-      letter-spacing: 0.1em;
+      font-family: "Barlow", sans-serif;
+      font-size: 0.75rem;
+      font-weight: 400;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(254, 243, 199, 0.35);
       transition: opacity 0.8s ease;
     }
-
     .loader.is-hidden {
       opacity: 0;
       pointer-events: none;
+    }
+
+    /* --- Cinematic vignette --- */
+    .atmos-vignette {
+      position: fixed;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      background: radial-gradient(ellipse 70% 60% at 50% 50%, transparent 0%, rgba(8, 10, 12, 0.4) 100%);
+    }
+
+    /* --- Film grain noise overlay --- */
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 3;
+      opacity: 0.025;
+      mix-blend-mode: screen;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
     }
   </style>
 </head>
 <body>
   <div class="loader" id="loader">Loading…</div>
+  <div class="atmos-vignette"></div>
   <canvas id="webgl"></canvas>
 
   <div class="scroll-container">
     <section class="section section--intro" data-section="intro">
       <div class="section__inner">
+        <span class="section-badge liquid-glass">Departure</span>
         <h2 class="section__title">Into the Atmosphere</h2>
         <p class="section__text">A surreal flight through clouds and light.</p>
       </div>
@@ -110,6 +262,7 @@
 
     <section class="section section--ascent" data-section="ascent">
       <div class="section__inner">
+        <span class="section-badge liquid-glass">Ascent</span>
         <h2 class="section__title">Ascending</h2>
         <p class="section__text">Breaking through the cloud layer.</p>
       </div>
@@ -117,6 +270,7 @@
 
     <section class="section section--flight" data-section="flight">
       <div class="section__inner">
+        <span class="section-badge liquid-glass">Cruise</span>
         <h2 class="section__title">Cruising</h2>
         <p class="section__text">Above the clouds, into the blue.</p>
       </div>
@@ -124,6 +278,7 @@
 
     <section class="section section--detail" data-section="detail">
       <div class="section__inner">
+        <span class="section-badge liquid-glass">Approach</span>
         <h2 class="section__title">Closer Look</h2>
         <p class="section__text">Every rivet, every reflection.</p>
       </div>
@@ -131,6 +286,7 @@
 
     <section class="section section--outro" data-section="outro">
       <div class="section__inner">
+        <span class="section-badge liquid-glass">Arrival</span>
         <h2 class="section__title">Into the Horizon</h2>
         <p class="section__text">Disappearing into the mist.</p>
       </div>
