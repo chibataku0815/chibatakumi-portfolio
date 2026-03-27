@@ -12,6 +12,7 @@
 
     html, body {
       overflow-x: hidden;
+      overscroll-behavior-y: none;
       background: #080a0c;
       color: #fffdf7;
       font-family: "Barlow", -apple-system, sans-serif;
@@ -32,6 +33,7 @@
       width: 100%;
       height: 500vh;
       pointer-events: none;
+      touch-action: pan-y;
     }
 
     .section {
@@ -96,46 +98,14 @@
       }
     }
 
-    /* --- Section title colors + glow + chromatic aberration (serif-tuned) --- */
-    .section--intro .section__title {
-      color: #fffdf7;
+    /* --- Section title colors + glow + chromatic aberration (driven by CSS custom properties from Environment.ts) --- */
+    .section__title {
+      color: var(--atmos-section-color, #fffdf7);
       text-shadow:
-        -0.8px 0 rgba(255, 80, 60, 0.10),
-         0.8px 0 rgba(80, 120, 255, 0.10),
-         0 0 60px rgba(254, 243, 199, 0.14),
-         0 0 120px rgba(254, 243, 199, 0.05);
-    }
-    .section--ascent .section__title {
-      color: #ffd666;
-      text-shadow:
-        -1px 0 rgba(255, 50, 0, 0.12),
-         1px 0 rgba(80, 100, 255, 0.08),
-         0 0 60px rgba(255, 214, 102, 0.20),
-         0 0 120px rgba(255, 214, 102, 0.08);
-    }
-    .section--flight .section__title {
-      color: #9bbdd8;
-      text-shadow:
-        -0.8px 0 rgba(255, 60, 60, 0.08),
-         0.8px 0 rgba(60, 120, 255, 0.12),
-         0 0 60px rgba(155, 189, 216, 0.18),
-         0 0 120px rgba(155, 189, 216, 0.06);
-    }
-    .section--detail .section__title {
-      color: #ffd866;
-      text-shadow:
-        -1px 0 rgba(255, 30, 0, 0.14),
-         1px 0 rgba(60, 80, 200, 0.08),
-         0 0 60px rgba(255, 216, 102, 0.22),
-         0 0 120px rgba(255, 216, 102, 0.08);
-    }
-    .section--outro .section__title {
-      color: #fef3c7;
-      text-shadow:
-        -0.6px 0 rgba(255, 60, 60, 0.06),
-         0.6px 0 rgba(60, 100, 255, 0.06),
-         0 0 60px rgba(254, 243, 199, 0.14),
-         0 0 120px rgba(254, 243, 199, 0.05);
+        calc(-1 * var(--atmos-ca-offset, 0.8px)) 0 var(--atmos-ca-warm, rgba(255,80,60,0.10)),
+        var(--atmos-ca-offset, 0.8px) 0 var(--atmos-ca-cool, rgba(80,120,255,0.10)),
+        0 0 60px rgba(var(--atmos-glow-color, 254,243,199), var(--atmos-glow-opacity, 0.14)),
+        0 0 120px rgba(var(--atmos-glow-color, 254,243,199), var(--atmos-glow-opacity-outer, 0.05));
     }
 
     /* Section body text colors (LP opacity hierarchy: 0.55) */
@@ -243,6 +213,34 @@
       opacity: 0.025;
       mix-blend-mode: screen;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+    }
+
+    /* --- Mobile responsive --- */
+    @media (max-width: 767px) {
+      .section {
+        padding: clamp(2rem, 6vh, 4rem) clamp(1rem, 4vw, 2rem);
+      }
+      .section--ascent,
+      .section--flight,
+      .section--detail {
+        justify-content: center;
+        text-align: center;
+      }
+      .section--flight .section__text {
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .section__title {
+        font-size: clamp(2.2rem, 12vw, 4rem);
+      }
+      .section__text {
+        font-size: clamp(14px, 3.5vw, 16px);
+        max-width: 36ch;
+      }
+      .section-badge {
+        font-size: 9px;
+        padding: 0.3rem 0.7rem;
+      }
     }
   </style>
 </head>

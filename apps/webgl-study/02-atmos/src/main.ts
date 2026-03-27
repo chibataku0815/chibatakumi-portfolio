@@ -19,6 +19,9 @@ import { Environment } from "./scene/Environment";
 import { CloudField } from "./scene/CloudField";
 import { setupScrollProgress } from "./utils/scroll-progress";
 import { initBlurText } from "./utils/blur-text";
+import { getResponsiveConfig } from "./utils/responsive-config";
+import { createPostProcessing } from "./utils/post-processing";
+import type { PostProcessing } from "./utils/post-processing";
 import type { AirplaneModel } from "./scene/AirplaneModel";
 
 // ---------------------------------------------------------------------------
@@ -26,14 +29,15 @@ import type { AirplaneModel } from "./scene/AirplaneModel";
 // ---------------------------------------------------------------------------
 
 const canvas = document.getElementById("webgl") as HTMLCanvasElement;
+const initialConfig = getResponsiveConfig();
 
 const renderer = new THREE.WebGLRenderer({
   canvas,
-  antialias: true,
+  antialias: false,
   alpha: false,
 });
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, initialConfig.pixelRatioCap));
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.0;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -41,11 +45,15 @@ renderer.outputColorSpace = THREE.SRGBColorSpace;
 const scene = new THREE.Scene();
 
 const camera = new THREE.PerspectiveCamera(
-  60,
+  initialConfig.cameraFOV,
   window.innerWidth / window.innerHeight,
   0.1,
   200,
 );
+
+// Post-processing (HDR bloom)
+const postProcessing = createPostProcessing(renderer, scene, camera);
+const postProcessingRef: { current: PostProcessing | null } = { current: postProcessing };
 
 // ---------------------------------------------------------------------------
 // Camera Path + Environment (theme.ts colors)
@@ -131,13 +139,23 @@ gridHelper.visible = false;
 // Phase B: CloudField (sync) + AirplaneModel (async)
 // ---------------------------------------------------------------------------
 
-const cloudField = new CloudField(scene, cameraPath);
+const cloudField = new CloudField(scene, cameraPath, {
+  maxInstances: initialConfig.cloudMaxInstances,
+  clusterCount: initialConfig.cloudClusterCount,
+});
 
 // Refs for debug-gui bridge
 const progressRef = { value: 0 };
 const fogDensityRef = { value: 0 };
 const hemiIntensityRef = { value: 0 };
 const dirIntensityRef = { value: 0 };
+const rimIntensityRef = { value: 0 };
+const cssGlowOpacityRef = { value: 0 };
+const cssCaOffsetRef = { value: 0 };
+const envCloudOpacityRef = { value: 0 };
+const bloomThresholdRef = { value: 0 };
+const bloomStrengthRef = { value: 0 };
+const bloomRadiusRef = { value: 0 };
 const airplaneRef: { current: AirplaneModel | null } = { current: null };
 const cloudFieldRef: { current: CloudField | null } = { current: cloudField };
 
@@ -177,8 +195,16 @@ if (location.hash === "#debug") {
       fogDensityRef,
       airplaneRef,
       cloudFieldRef,
+      postProcessingRef,
       hemiIntensityRef,
       dirIntensityRef,
+      rimIntensityRef,
+      cssGlowOpacityRef,
+      cssCaOffsetRef,
+      envCloudOpacityRef,
+      bloomThresholdRef,
+      bloomStrengthRef,
+      bloomRadiusRef,
     });
   });
 }
@@ -198,15 +224,32 @@ function animate(): void {
 
   // Phase B updates
   airplaneRef.current?.update(currentProgress, cameraPath, elapsed);
-  cloudField.update(currentProgress);
+  cloudField.update(currentProgress, environment.cloudParams.opacity);
 
   // Debug refs (cheap even when GUI absent)
   progressRef.value = currentProgress;
   fogDensityRef.value = environment.fog.density;
   hemiIntensityRef.value = environment.hemisphereLight.intensity;
   dirIntensityRef.value = environment.directionalLight.intensity;
+  rimIntensityRef.value = environment.rimLight.intensity;
+  envCloudOpacityRef.value = environment.cloudParams.opacity;
 
-  renderer.render(scene, camera);
+  // Section-specific bloom parameters
+  const bp = environment.bloomParams;
+  postProcessing.bloomPass.threshold = bp.threshold;
+  postProcessing.bloomPass.strength = bp.strength;
+  postProcessing.bloomPass.radius = bp.radius;
+
+  bloomThresholdRef.value = bp.threshold;
+  bloomStrengthRef.value = bp.strength;
+  bloomRadiusRef.value = bp.radius;
+
+  // CSS prop refs (parse from style for monitor accuracy)
+  const rootStyle = document.documentElement.style;
+  cssGlowOpacityRef.value = parseFloat(rootStyle.getPropertyValue('--atmos-glow-opacity')) || 0;
+  cssCaOffsetRef.value = parseFloat(rootStyle.getPropertyValue('--atmos-ca-offset')) || 0;
+
+  postProcessing.composer.render();
 }
 
 // ---------------------------------------------------------------------------
@@ -216,9 +259,13 @@ function animate(): void {
 function onResize(): void {
   const w = window.innerWidth;
   const h = window.innerHeight;
+  const config = getResponsiveConfig();
   camera.aspect = w / h;
+  camera.fov = config.cameraFOV;
   camera.updateProjectionMatrix();
   renderer.setSize(w, h);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, config.pixelRatioCap));
+  postProcessing.setSize(w, h);
 }
 
 window.addEventListener("resize", onResize);

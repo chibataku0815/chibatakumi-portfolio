@@ -7,7 +7,7 @@
  */
 
 import * as THREE from "three";
-import airplaneUrl from "../../../assets/lowpoly-airplane.glb?url";
+import airplaneUrl from "../../../assets/concorde-optimized.glb?url";
 import { loadGLTF } from "../../../shared/gltf-loader";
 import type { CameraPath } from "./CameraPath";
 
@@ -17,7 +17,7 @@ export class AirplaneModel {
 
   /** lil-gui で読み書きされるチューニングパラメータ */
   params = {
-    scale: 0.5,
+    scale: 0.06,
     offset: 0.05,
     bankStrength: 0.2,
     wobble: false,
@@ -31,13 +31,31 @@ export class AirplaneModel {
 
   /** glTF をロードし、Box3 でセンタリングしてシーンに追加 */
   static async create(scene: THREE.Scene): Promise<AirplaneModel> {
-    const gltf = await loadGLTF(airplaneUrl);
+    const gltf = await loadGLTF(airplaneUrl, true); // Draco-compressed
     const model = gltf.scene;
 
     // Auto-center using bounding box
     const box = new THREE.Box3().setFromObject(model);
     const center = box.getCenter(new THREE.Vector3());
     model.position.sub(center);
+
+    // Concorde: Blender Y-fwd exported as glTF Y-up.
+    // In Three.js the model's long axis (nose-tail) ends up along Z.
+    // Rotate 180 on Y so nose points toward +Z (path tangent direction).
+    model.rotation.set(0, Math.PI, 0);
+
+    // Material override — enforce metallic Concorde look
+    model.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        const mat = child.material as THREE.MeshStandardMaterial;
+        if (mat) {
+          mat.metalness = 0.12;
+          mat.roughness = 0.38;
+          mat.color.setRGB(0.85, 0.88, 0.92);
+          mat.needsUpdate = true;
+        }
+      }
+    });
 
     // World transform wrapper
     const group = new THREE.Group();

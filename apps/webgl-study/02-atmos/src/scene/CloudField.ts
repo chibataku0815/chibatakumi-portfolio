@@ -10,7 +10,8 @@ import * as THREE from "three";
 import { colors } from "../../../shared/theme";
 import type { CameraPath } from "./CameraPath";
 
-const MAX_INSTANCES = 75;
+const DEFAULT_MAX_INSTANCES = 75;
+const DEFAULT_CLUSTER_COUNT = 12;
 
 export class CloudField {
   private mesh: THREE.InstancedMesh;
@@ -19,7 +20,14 @@ export class CloudField {
     opacity: 0.25,
   };
 
-  constructor(scene: THREE.Scene, cameraPath: CameraPath) {
+  constructor(
+    scene: THREE.Scene,
+    cameraPath: CameraPath,
+    options?: { maxInstances?: number; clusterCount?: number },
+  ) {
+    const maxInstances = options?.maxInstances ?? DEFAULT_MAX_INSTANCES;
+    const clusterCount = options?.clusterCount ?? DEFAULT_CLUSTER_COUNT;
+
     const geometry = new THREE.SphereGeometry(1, 8, 8);
     const material = new THREE.MeshStandardMaterial({
       color: colors.neutral[5].clone(),
@@ -29,33 +37,37 @@ export class CloudField {
       roughness: 1,
     });
 
-    this.mesh = new THREE.InstancedMesh(geometry, material, MAX_INSTANCES);
+    this.mesh = new THREE.InstancedMesh(geometry, material, maxInstances);
     this.mesh.renderOrder = 1;
 
-    this.generateClusters(cameraPath);
+    this.generateClusters(cameraPath, maxInstances, clusterCount);
     scene.add(this.mesh);
   }
 
-  /** Scatter 12 clusters of 3-5 oblate spheres along the path. */
-  private generateClusters(cameraPath: CameraPath): void {
+  /** Scatter clusters of 3-5 oblate spheres along the path. */
+  private generateClusters(
+    cameraPath: CameraPath,
+    maxInstances: number,
+    clusterCount: number,
+  ): void {
     const dummy = new THREE.Object3D();
     let instanceIndex = 0;
 
-    const CLUSTER_COUNT = 12;
+    const CLUSTER_COUNT = clusterCount;
 
     for (let c = 0; c < CLUSTER_COUNT; c++) {
       // Sample a random progress in the ascent/flight range
       const clusterProgress = 0.15 + Math.random() * 0.5;
       const base = cameraPath.getPosition(clusterProgress);
 
-      // Perpendicular offset from path
-      const offsetX = (Math.random() * 12 + 3) * (Math.random() < 0.5 ? -1 : 1);
+      // Perpendicular offset from path (farther from camera path)
+      const offsetX = (Math.random() * 16 + 10) * (Math.random() < 0.5 ? -1 : 1);
       const offsetY = (Math.random() * 6 + 2) * (Math.random() < 0.5 ? -1 : 1);
 
       const sphereCount = 3 + Math.floor(Math.random() * 3); // 3-5
 
       for (let s = 0; s < sphereCount; s++) {
-        if (instanceIndex >= MAX_INSTANCES) break;
+        if (instanceIndex >= maxInstances) break;
 
         const x = base.x + offsetX + (Math.random() - 0.5) * 4;
         const y = base.y + offsetY + (Math.random() - 0.5) * 4;
@@ -64,7 +76,7 @@ export class CloudField {
         const scale = 0.5 + Math.random() * 2.0;
 
         dummy.position.set(x, y, z);
-        dummy.scale.set(scale, scale * 0.6, scale);
+        dummy.scale.set(scale, scale * 0.3, scale);
         dummy.rotation.set(
           Math.random() * Math.PI,
           Math.random() * Math.PI,
@@ -75,17 +87,17 @@ export class CloudField {
         instanceIndex++;
       }
 
-      if (instanceIndex >= MAX_INSTANCES) break;
+      if (instanceIndex >= maxInstances) break;
     }
 
     this.mesh.count = instanceIndex;
     this.mesh.instanceMatrix.needsUpdate = true;
   }
 
-  /** Sync material opacity from params for lil-gui reactivity. */
-  update(_progress: number): void {
-    (this.mesh.material as THREE.MeshStandardMaterial).opacity =
-      this.params.opacity;
+  /** Sync material opacity from params or environment-driven value. */
+  update(_progress: number, envCloudOpacity?: number): void {
+    const opacity = envCloudOpacity ?? this.params.opacity;
+    (this.mesh.material as THREE.MeshStandardMaterial).opacity = opacity;
   }
 
   dispose(): void {

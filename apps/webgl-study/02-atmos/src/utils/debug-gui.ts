@@ -18,6 +18,7 @@ import type { CameraPath } from "../scene/CameraPath";
 import type { Environment } from "../scene/Environment";
 import type { AirplaneModel } from "../scene/AirplaneModel";
 import type { CloudField } from "../scene/CloudField";
+import type { PostProcessing } from "./post-processing";
 
 export interface DebugGUIConfig {
   cameraPath: CameraPath;
@@ -29,8 +30,16 @@ export interface DebugGUIConfig {
   fogDensityRef: { value: number };
   airplaneRef: { current: AirplaneModel | null };
   cloudFieldRef: { current: CloudField | null };
+  postProcessingRef: { current: PostProcessing | null };
   hemiIntensityRef: { value: number };
   dirIntensityRef: { value: number };
+  rimIntensityRef: { value: number };
+  cssGlowOpacityRef: { value: number };
+  cssCaOffsetRef: { value: number };
+  envCloudOpacityRef: { value: number };
+  bloomThresholdRef: { value: number };
+  bloomStrengthRef: { value: number };
+  bloomRadiusRef: { value: number };
 }
 
 export function setupDebugGUI(config: DebugGUIConfig): GUI {
@@ -43,8 +52,16 @@ export function setupDebugGUI(config: DebugGUIConfig): GUI {
     fogDensityRef,
     airplaneRef,
     cloudFieldRef,
+    postProcessingRef,
     hemiIntensityRef,
     dirIntensityRef,
+    rimIntensityRef,
+    cssGlowOpacityRef,
+    cssCaOffsetRef,
+    envCloudOpacityRef,
+    bloomThresholdRef,
+    bloomStrengthRef,
+    bloomRadiusRef,
   } = config;
 
   const gui = new GUI({ title: "Atmos Debug" });
@@ -115,11 +132,54 @@ export function setupDebugGUI(config: DebugGUIConfig): GUI {
     if (cloudFieldRef.current?.params) cloudFieldRef.current.params.opacity = v;
   });
 
+  // -- Bloom ------------------------------------------------------------------
+  const bloomParams = { threshold: 0.85, strength: 0.4, radius: 0.6 };
+
+  const bloomFolder = gui.addFolder("Bloom");
+  bloomFolder.add(bloomParams, "threshold", 0.0, 1.0, 0.01).onChange((v: number) => {
+    if (postProcessingRef.current) postProcessingRef.current.bloomPass.threshold = v;
+  });
+  bloomFolder.add(bloomParams, "strength", 0.0, 3.0, 0.01).onChange((v: number) => {
+    if (postProcessingRef.current) postProcessingRef.current.bloomPass.strength = v;
+  });
+  bloomFolder.add(bloomParams, "radius", 0.0, 1.0, 0.01).onChange((v: number) => {
+    if (postProcessingRef.current) postProcessingRef.current.bloomPass.radius = v;
+  });
+
+  // -- FXAA -------------------------------------------------------------------
+  const fxaaParams = { enabled: true };
+  const fxaaFolder = gui.addFolder("FXAA");
+  fxaaFolder.add(fxaaParams, "enabled").onChange((v: boolean) => {
+    if (postProcessingRef.current) postProcessingRef.current.fxaaPass.enabled = v;
+  });
+  fxaaFolder.close();
+
+  // -- Bloom Auto (section-driven) ---------------------------------------------
+  const bloomAutoFolder = gui.addFolder("Bloom Auto");
+  bloomAutoFolder.add(bloomThresholdRef, "value").name("threshold").listen().disable();
+  bloomAutoFolder.add(bloomStrengthRef, "value").name("strength").listen().disable();
+  bloomAutoFolder.add(bloomRadiusRef, "value").name("radius").listen().disable();
+  bloomAutoFolder.close();
+
   // -- Lighting (auto) --------------------------------------------------------
   const lightingFolder = gui.addFolder("Lighting (auto)");
   lightingFolder.add(hemiIntensityRef, "value").name("hemiIntensity").listen().disable();
   lightingFolder.add(dirIntensityRef, "value").name("dirIntensity").listen().disable();
   lightingFolder.close();
+
+  // -- Rim Light (auto) -------------------------------------------------------
+  const rimFolder = gui.addFolder("Rim Light (auto)");
+  rimFolder.add(rimIntensityRef, "value").name("rimIntensity").listen().disable();
+  rimFolder.close();
+
+  // -- CSS Props (auto) -------------------------------------------------------
+  const cssFolder = gui.addFolder("CSS Props (auto)");
+  cssFolder.add(cssGlowOpacityRef, "value").name("glowOpacity").listen().disable();
+  cssFolder.add(cssCaOffsetRef, "value").name("caOffset").listen().disable();
+  cssFolder.close();
+
+  // -- Cloud env opacity (auto) -----------------------------------------------
+  cloudFolder.add(envCloudOpacityRef, "value").name("envOpacity").listen().disable();
 
   return gui;
 }
