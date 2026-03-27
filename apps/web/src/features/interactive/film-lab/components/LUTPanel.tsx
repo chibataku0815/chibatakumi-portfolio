@@ -11,19 +11,38 @@ interface LUTPanelProps {
 export function LUTPanel({ viewport }: LUTPanelProps) {
   const [lutName, setLutName] = useState<string | null>(null);
   const [intensity, setIntensity] = useState(1.0);
+  const [error, setError] = useState<string | null>(null);
 
   const handleLoad = () => {
+    if (!viewport) {
+      setError("Viewport not ready");
+      return;
+    }
+    setError(null);
+
     const input = document.createElement("input");
     input.type = "file";
-    input.accept = ".cube";
+    // accept を除去 — .cube はカスタム拡張子のため OS によって表示されない
     input.onchange = async () => {
       const file = input.files?.[0];
-      if (!file || !viewport) return;
-      const { parseCube } = await import("../core/cube-parser");
-      const text = await file.text();
-      const lut = parseCube(text);
-      viewport.setLUT(lut.data, lut.size);
-      setLutName(lut.title || file.name);
+      if (!file) return;
+
+      if (!file.name.endsWith(".cube")) {
+        setError("Only .cube files are supported");
+        return;
+      }
+
+      try {
+        const { parseCube } = await import("../core/cube-parser");
+        const text = await file.text();
+        const lut = parseCube(text);
+        viewport.setLUT(lut.data, lut.size);
+        setLutName(lut.title || file.name);
+        setError(null);
+      } catch (err) {
+        console.error("LUT load failed:", err);
+        setError("Failed to load LUT");
+      }
     };
     input.click();
   };
@@ -32,6 +51,7 @@ export function LUTPanel({ viewport }: LUTPanelProps) {
     viewport?.clearLUT();
     setLutName(null);
     setIntensity(1.0);
+    setError(null);
   };
 
   const handleIntensity = (value: number) => {
@@ -48,7 +68,8 @@ export function LUTPanel({ viewport }: LUTPanelProps) {
       <div className="mb-2.5 flex items-center gap-2">
         <button
           onClick={handleLoad}
-          className="rounded bg-white/5 px-2.5 py-1 text-[11px] text-white/60 transition-colors hover:bg-white/10 hover:text-white/80"
+          disabled={!viewport}
+          className="rounded bg-white/5 px-2.5 py-1 text-[11px] text-white/60 transition-colors hover:bg-white/10 hover:text-white/80 disabled:cursor-not-allowed disabled:opacity-30"
         >
           Load .cube
         </button>
@@ -66,6 +87,10 @@ export function LUTPanel({ viewport }: LUTPanelProps) {
           </>
         )}
       </div>
+
+      {error && (
+        <p className="mb-2 text-[10px] text-red-400">{error}</p>
+      )}
 
       {lutName && (
         <ControlSlider

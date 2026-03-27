@@ -53,10 +53,11 @@ export type PresetName = keyof typeof PRESETS;
 interface FilmLabCanvasProps {
   preset: PresetName;
   className?: string;
+  fullScreen?: boolean;
   onViewportReady?: (viewport: Viewport | null) => void;
 }
 
-export function FilmLabCanvas({ preset, className, onViewportReady }: FilmLabCanvasProps) {
+export function FilmLabCanvas({ preset, className, fullScreen, onViewportReady }: FilmLabCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<Viewport | null>(null);
   const mediaLoaderRef = useRef<MediaLoader | null>(null);
@@ -174,16 +175,20 @@ export function FilmLabCanvas({ preset, className, onViewportReady }: FilmLabCan
     const file = e.dataTransfer.files[0];
     if (!file || !viewportRef.current || !mediaLoaderRef.current) return;
 
-    if (file.name.endsWith(".cube")) {
-      const text = await file.text();
-      const lut = parseCube(text);
-      viewportRef.current.setLUT(lut.data, lut.size);
-      return;
-    }
+    try {
+      if (file.name.endsWith(".cube")) {
+        const text = await file.text();
+        const lut = parseCube(text);
+        viewportRef.current.setLUT(lut.data, lut.size);
+        return;
+      }
 
-    const result = await mediaLoaderRef.current.loadFile(file);
-    viewportRef.current.setTexture(result.texture);
-    viewportRef.current.setImageResolution(result.width, result.height);
+      const result = await mediaLoaderRef.current.loadFile(file);
+      viewportRef.current.setTexture(result.texture);
+      viewportRef.current.setImageResolution(result.width, result.height);
+    } catch (err) {
+      console.error("Drop file load failed:", err);
+    }
   }, []);
 
   // === Download ===
@@ -212,21 +217,18 @@ export function FilmLabCanvas({ preset, className, onViewportReady }: FilmLabCan
   const handleFileClick = useCallback(() => {
     const input = document.createElement("input");
     input.type = "file";
-    input.accept = "image/*,video/*,.cube";
+    input.accept = "image/*,video/*";
     input.onchange = async () => {
       const file = input.files?.[0];
       if (!file || !viewportRef.current || !mediaLoaderRef.current) return;
 
-      if (file.name.endsWith(".cube")) {
-        const text = await file.text();
-        const lut = parseCube(text);
-        viewportRef.current.setLUT(lut.data, lut.size);
-        return;
+      try {
+        const result = await mediaLoaderRef.current.loadFile(file);
+        viewportRef.current.setTexture(result.texture);
+        viewportRef.current.setImageResolution(result.width, result.height);
+      } catch (err) {
+        console.error("File load failed:", err);
       }
-
-      const result = await mediaLoaderRef.current.loadFile(file);
-      viewportRef.current.setTexture(result.texture);
-      viewportRef.current.setImageResolution(result.width, result.height);
     };
     input.click();
   }, []);
@@ -242,7 +244,7 @@ export function FilmLabCanvas({ preset, className, onViewportReady }: FilmLabCan
   if (!supported) {
     return (
       <div
-        className={`relative flex aspect-[16/9] w-full items-center justify-center rounded-lg bg-[#0a0a0a] ${className ?? ""}`}
+        className={`relative flex ${fullScreen ? "h-full" : "aspect-[16/9]"} w-full items-center justify-center rounded-lg bg-[#0a0a0a] ${className ?? ""}`}
       >
         <span className="text-sm text-[var(--text-muted)]">
           WebGL2 is required for Film Lab
@@ -254,7 +256,7 @@ export function FilmLabCanvas({ preset, className, onViewportReady }: FilmLabCan
   return (
     <div
       ref={containerRef}
-      className={`relative aspect-[16/9] w-full cursor-col-resize overflow-hidden rounded-lg bg-[#0a0a0a] ${className ?? ""}`}
+      className={`relative ${fullScreen ? "h-full" : "aspect-[16/9]"} w-full cursor-col-resize overflow-hidden rounded-lg bg-[#0a0a0a] ${className ?? ""}`}
       onDragOver={(e) => {
         e.preventDefault();
         setIsDragging(true);

@@ -110,6 +110,10 @@ export class Viewport {
   // === LUT ===
 
   setLUT(data: Float32Array, size: number): void {
+    // Dispose previous LUT texture if exists
+    const prev = this.material.uniforms.uLUT?.value as THREE.Data3DTexture | null;
+    if (prev) prev.dispose();
+
     const texture = new THREE.Data3DTexture(data, size, size, size);
     texture.format = THREE.RGBAFormat;
     texture.type = THREE.FloatType;
