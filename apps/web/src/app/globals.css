@@ -767,3 +767,29 @@ body:has(.photography-page) {
     opacity: 1;
   }
 }
+
+/* === Film Lab Slider === */
+.film-lab-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent-amber1);
+  cursor: pointer;
+  box-shadow: 0 0 6px rgba(255, 180, 50, 0.4);
+  transition: transform 0.15s ease;
+}
+
+.film-lab-slider::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent-amber1);
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 0 6px rgba(255, 180, 50, 0.4);
+}
+
+.film-lab-slider:hover::-webkit-slider-thumb {
+  transform: scale(1.2);
+}

@@ -53,12 +53,16 @@ export type PresetName = keyof typeof PRESETS;
 interface FilmLabCanvasProps {
   preset: PresetName;
   className?: string;
+  onViewportReady?: (viewport: Viewport | null) => void;
 }
 
-export function FilmLabCanvas({ preset, className }: FilmLabCanvasProps) {
+export function FilmLabCanvas({ preset, className, onViewportReady }: FilmLabCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<Viewport | null>(null);
   const mediaLoaderRef = useRef<MediaLoader | null>(null);
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+  const sceneRef = useRef<THREE.Scene | null>(null);
+  const cameraRef = useRef<THREE.OrthographicCamera | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [supported, setSupported] = useState(true);
 
@@ -87,14 +91,18 @@ export function FilmLabCanvas({ preset, className }: FilmLabCanvasProps) {
     const renderer = new THREE.WebGLRenderer({
       antialias: false,
       alpha: false,
+      preserveDrawingBuffer: true,
     });
     renderer.setSize(width, height);
     renderer.setPixelRatio(getOptimalPixelRatio(1.5));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
+    rendererRef.current = renderer;
     container.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x0a0a0a);
+    sceneRef.current = scene;
+    cameraRef.current = camera;
 
     // === Viewport ===
     const viewport = new Viewport({
@@ -105,6 +113,7 @@ export function FilmLabCanvas({ preset, className }: FilmLabCanvasProps) {
     });
     scene.add(viewport.mesh);
     viewportRef.current = viewport;
+    onViewportReady?.(viewport);
 
     // === Default image ===
     const mediaLoader = new MediaLoader();
@@ -151,6 +160,10 @@ export function FilmLabCanvas({ preset, className }: FilmLabCanvasProps) {
       }
       viewportRef.current = null;
       mediaLoaderRef.current = null;
+      rendererRef.current = null;
+      sceneRef.current = null;
+      cameraRef.current = null;
+      onViewportReady?.(null);
     };
   }, []);
 
@@ -171,6 +184,51 @@ export function FilmLabCanvas({ preset, className }: FilmLabCanvasProps) {
     const result = await mediaLoaderRef.current.loadFile(file);
     viewportRef.current.setTexture(result.texture);
     viewportRef.current.setImageResolution(result.width, result.height);
+  }, []);
+
+  // === Download ===
+  const handleDownload = useCallback(() => {
+    const viewport = viewportRef.current;
+    const renderer = rendererRef.current;
+    const scene = sceneRef.current;
+    const camera = cameraRef.current;
+    if (!viewport || !renderer || !scene || !camera) return;
+
+    // Split を画面外に追い出して全面エフェクト適用（After のみ）
+    viewport.setSplitPosition(-1.0);
+    renderer.render(scene, camera);
+
+    const url = renderer.domElement.toDataURL("image/png");
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `film-lab-${Date.now()}.png`;
+    a.click();
+
+    // Split を 0.5 に戻す
+    viewport.setSplitPosition(0.5);
+  }, []);
+
+  // === File picker ===
+  const handleFileClick = useCallback(() => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*,video/*,.cube";
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (!file || !viewportRef.current || !mediaLoaderRef.current) return;
+
+      if (file.name.endsWith(".cube")) {
+        const text = await file.text();
+        const lut = parseCube(text);
+        viewportRef.current.setLUT(lut.data, lut.size);
+        return;
+      }
+
+      const result = await mediaLoaderRef.current.loadFile(file);
+      viewportRef.current.setTexture(result.texture);
+      viewportRef.current.setImageResolution(result.width, result.height);
+    };
+    input.click();
   }, []);
 
   // === Split drag ===
@@ -205,6 +263,23 @@ export function FilmLabCanvas({ preset, className }: FilmLabCanvasProps) {
       onDrop={handleDrop}
       onPointerMove={handlePointerMove}
     >
+      {/* Toolbar */}
+      <div className="absolute left-3 top-3 z-10 flex gap-1.5">
+        <button
+          onClick={handleFileClick}
+          className="rounded bg-black/50 px-2.5 py-1 text-[11px] text-white/50 backdrop-blur-sm transition-colors hover:bg-black/70 hover:text-white/80"
+        >
+          Open
+        </button>
+        <button
+          onClick={handleDownload}
+          className="rounded bg-black/50 px-2.5 py-1 text-[11px] text-white/50 backdrop-blur-sm transition-colors hover:bg-black/70 hover:text-white/80"
+        >
+          Save PNG
+        </button>
+      </div>
+
+      {/* Drag overlay */}
       {isDragging && (
         <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg border-2 border-dashed border-white/30 bg-black/60">
           <span className="text-sm text-white/70">

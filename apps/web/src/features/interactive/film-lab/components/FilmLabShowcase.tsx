@@ -3,16 +3,15 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
-import type { PresetName } from "./FilmLabCanvas";
+import type { Viewport } from "../core/Viewport";
 
 const FilmLabCanvas = dynamic(
   () => import("./FilmLabCanvas").then((m) => ({ default: m.FilmLabCanvas })),
   { ssr: false },
 );
 
-const FilmLabControls = dynamic(
-  () =>
-    import("./FilmLabControls").then((m) => ({ default: m.FilmLabControls })),
+const ControlPanel = dynamic(
+  () => import("./ControlPanel").then((m) => ({ default: m.ControlPanel })),
   { ssr: false },
 );
 
@@ -27,19 +26,24 @@ const TAGS = [
 
 export function FilmLabShowcase() {
   const t = useTranslations("interactive.film-lab");
-  const [activePreset, setActivePreset] = useState<PresetName>("cinematic");
+  const [viewport, setViewport] = useState<Viewport | null>(null);
 
   return (
     <section className="px-6 pb-20">
       <div className="mx-auto max-w-5xl">
-        {/* WebGL Canvas */}
-        <FilmLabCanvas preset={activePreset} />
+        {/* Canvas */}
+        <FilmLabCanvas
+          preset="cinematic"
+          onViewportReady={setViewport}
+        />
 
-        {/* Preset Controls */}
-        <FilmLabControls onPreset={setActivePreset} activePreset={activePreset} />
+        {/* ControlPanel（Canvas 直下） */}
+        <div className="mt-3">
+          <ControlPanel viewport={viewport} />
+        </div>
 
-        {/* Description + Tags */}
-        <div className="mt-8 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+        {/* Description + Tags（下） */}
+        <div className="mt-6 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div className="max-w-xl">
             <h2 className="text-xl font-semibold tracking-tight text-[var(--text-base)]">
               {t("title")}
