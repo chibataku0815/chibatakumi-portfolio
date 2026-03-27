@@ -3,6 +3,7 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import type { Viewport } from "../core/Viewport";
 
 const FilmLabCanvas = dynamic(
@@ -51,6 +52,12 @@ export function FilmLabShowcase() {
             <p className="mt-2 text-sm leading-relaxed text-[var(--text-muted)]">
               {t("description")}
             </p>
+            <Link
+              href="/film-lab"
+              className="mt-3 inline-flex items-center gap-1 text-sm text-[var(--text-base-60)] transition-colors hover:text-[var(--text-base)]"
+            >
+              Open Full App →
+            </Link>
           </div>
 
           <div className="flex flex-wrap gap-1.5 md:pt-1">
