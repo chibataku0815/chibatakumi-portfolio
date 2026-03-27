@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Film Lab — WebGL Color Grading</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      overflow: hidden;
+      background: #0a0a0a;
+      color: #e0e0e0;
+      font-family: -apple-system, "SF Pro Text", "Helvetica Neue", sans-serif;
+    }
+
+    canvas#webgl {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+    }
+
+    /* ドロップゾーンオーバーレイ */
+    #drop-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      opacity: 0;
+    }
+
+    #drop-overlay.active {
+      opacity: 1;
+      background: rgba(0, 0, 0, 0.7);
+      pointer-events: auto;
+    }
+
+    #drop-overlay.initial {
+      opacity: 1;
+      pointer-events: auto;
+      cursor: pointer;
+    }
+
+    .drop-message {
+      border: 2px dashed rgba(255, 255, 255, 0.3);
+      border-radius: 16px;
+      padding: 48px 64px;
+      text-align: center;
+      font-size: 18px;
+      color: rgba(255, 255, 255, 0.7);
+      letter-spacing: 0.02em;
+    }
+
+    .drop-message .title {
+      font-size: 24px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .drop-message .subtitle {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    /* Before/After 分割線のドラッグハンドル（CSS のみ、Phase A は非表示。main.ts で制御） */
+    #split-handle {
+      position: fixed;
+      top: 0;
+      width: 2px;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.6);
+      z-index: 5;
+      cursor: ew-resize;
+      display: none;
+    }
+
+    #split-handle::after {
+      content: '◀ ▶';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      padding: 8px 4px;
+      border-radius: 4px;
+      font-size: 10px;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="webgl"></canvas>
+
+  <div id="drop-overlay" class="initial">
+    <div class="drop-message">
+      <div class="title">Film Lab</div>
+      <div>Drop image or video here</div>
+      <div class="subtitle">JPG, PNG, WebP, MP4, WebM, .cube LUT</div>
+    </div>
+  </div>
+
+  <div id="split-handle"></div>
+
+  <script type="module" src="./src/main.ts"></script>
+</body>
+</html>
