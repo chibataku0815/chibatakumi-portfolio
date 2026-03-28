@@ -1,32 +1,71 @@
 "use client";
 
-import { useReducer, useState, useCallback, useEffect } from "react";
+import { useReducer, useState, useCallback, useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { ControlSlider } from "./ui/ControlSlider";
 import { LUTPanel } from "./LUTPanel";
 import { PresetBar } from "./PresetBar";
 import type { Viewport } from "../core/Viewport";
-import { PRESETS, type PresetName, halationHueToHex } from "../preset-data";
-import { filmLabReducer, createInitialState, type Params } from "./film-lab-reducer";
+import { PRESETS, findMatchingPreset, type PresetName, halationHueToHex } from "../preset-data";
+import { buildFilmLabPostToXUrl, buildFilmLabShareUrl } from "../share-utils";
+import type { Params } from "../types";
+import {
+  filmLabReducer,
+  createInitialState,
+  createInitialStateFromSharedParams,
+} from "./film-lab-reducer";
 
 interface ControlPanelProps {
   viewport: Viewport | null;
   histogramVisible?: boolean;
   onHistogramToggle?: () => void;
+  /** サーバーで ?v=1&p= から復元したパラメータ（hydration 一致・初期表示用） */
+  initialSharedParams?: Params | null;
 }
 
-export function ControlPanel({ viewport, histogramVisible = true, onHistogramToggle }: ControlPanelProps) {
+export function ControlPanel({
+  viewport,
+  histogramVisible = true,
+  onHistogramToggle,
+  initialSharedParams = null,
+}: ControlPanelProps) {
+  const pathname = usePathname();
+  const tShare = useTranslations("film-lab.share");
+
+  /** URL 共有が無いときは Cinematic＋basePreset、あるときはそのスナップショットで初期化 */
   const [state, dispatch] = useReducer(
     filmLabReducer,
-    { ...PRESETS.cinematic } as Params,
-    createInitialState,
+    undefined,
+    () =>
+      initialSharedParams
+        ? createInitialStateFromSharedParams(initialSharedParams)
+        : createInitialState({ ...PRESETS.cinematic } as Params, "cinematic"),
   );
-  const [activePreset, setActivePreset] = useState<PresetName>("cinematic");
-  const [bloomEnabled, setBloomEnabled] = useState(PRESETS.cinematic.bloomStrength > 0);
-  const [halationEnabled, setHalationEnabled] = useState(PRESETS.cinematic.halationIntensity > 0);
+  const [activePreset, setActivePreset] = useState<PresetName>(() =>
+    initialSharedParams ? findMatchingPreset(initialSharedParams) ?? "reset" : "cinematic",
+  );
+  const [bloomEnabled, setBloomEnabled] = useState(
+    () => (initialSharedParams?.bloomStrength ?? PRESETS.cinematic.bloomStrength) > 0,
+  );
+  const [halationEnabled, setHalationEnabled] = useState(
+    () => (initialSharedParams?.halationIntensity ?? PRESETS.cinematic.halationIntensity) > 0,
+  );
   const [savedBloomStrength, setSavedBloomStrength] = useState(0.3);
   const [savedHalationIntensity, setSavedHalationIntensity] = useState(0.25);
   const [effectsOpen, setEffectsOpen] = useState(true);
   const [showHelp, setShowHelp] = useState(false);
+  /** Space キーと同じ Before/After を、タッチでも確実に使えるようにするためのフラグ（pointer capture と組み合わせる） */
+  const beforeAfterPointerActiveRef = useRef(false);
+  const [linkCopied, setLinkCopied] = useState(false);
+  const copyFeedbackTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(
+    () => () => {
+      if (copyFeedbackTimeoutRef.current) clearTimeout(copyFeedbackTimeoutRef.current);
+    },
+    [],
+  );
 
   // Mobile: close Effects section by default
   useEffect(() => {
@@ -35,8 +74,20 @@ export function ControlPanel({ viewport, histogramVisible = true, onHistogramTog
     }
   }, []);
 
-  // Derive active slot params
-  const params = (state.activeSlot === "A" ? state.slotA : state.slotB).params;
+  const activeSlotState = state.activeSlot === "A" ? state.slotA : state.slotB;
+  const params = activeSlotState.params;
+
+  /** reset 以外のフィルムプリセット選択中だけ、reset→preset のブレンド率を変えられる */
+  const presetIntensityAvailable =
+    activeSlotState.basePreset != null && activeSlotState.basePreset !== "reset";
+
+  /**
+   * プリセットボタンのリング表示: Undo 後も reducer の basePreset を優先し、手動編集後は従来どおり activePreset に従う
+   */
+  const presetBarActive: PresetName =
+    presetIntensityAvailable && activeSlotState.basePreset
+      ? activeSlotState.basePreset
+      : activePreset;
 
   // Viewport sync — all param changes (including Undo/Redo) flow through here
   useEffect(() => {
@@ -64,6 +115,26 @@ export function ControlPanel({ viewport, histogramVisible = true, onHistogramTog
   const commit = useCallback(() => {
     dispatch({ type: "COMMIT" });
   }, []);
+
+  const handleCopyShareLink = useCallback(async () => {
+    if (typeof window === "undefined" || !pathname) return;
+    const url = buildFilmLabShareUrl(window.location.origin, pathname, params);
+    try {
+      await navigator.clipboard.writeText(url);
+      setLinkCopied(true);
+      if (copyFeedbackTimeoutRef.current) clearTimeout(copyFeedbackTimeoutRef.current);
+      copyFeedbackTimeoutRef.current = setTimeout(() => setLinkCopied(false), 2000);
+    } catch (err) {
+      console.error("handleCopyShareLink: clipboard write failed", { pathname, err });
+    }
+  }, [pathname, params]);
+
+  const handlePostToX = useCallback(() => {
+    if (typeof window === "undefined" || !pathname) return;
+    const pageUrl = buildFilmLabShareUrl(window.location.origin, pathname, params);
+    const text = tShare("postText");
+    window.open(buildFilmLabPostToXUrl(pageUrl, text), "_blank", "noopener,noreferrer");
+  }, [pathname, params, tShare]);
 
   const updateHalationHue = useCallback((hue: number) => {
     dispatch({ type: "SET_PARAM", key: "halationHue", value: hue });
@@ -106,6 +177,39 @@ export function ControlPanel({ viewport, histogramVisible = true, onHistogramTog
     setActivePreset(name);
     setBloomEnabled(preset.bloomStrength > 0);
     setHalationEnabled(preset.halationIntensity > 0);
+  }, []);
+
+  /**
+   * モバイル向け Before/After: 押している間だけリセットルックを表示する（キーボードの Space と同じ reducer アクション）。
+   * 指が外れたら必ず復帰するよう pointer capture と cancel/lostcapture も処理する。
+   */
+  const handleBeforeAfterPointerDown = useCallback((e: React.PointerEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    const target = e.currentTarget;
+    target.setPointerCapture(e.pointerId);
+    if (!beforeAfterPointerActiveRef.current) {
+      beforeAfterPointerActiveRef.current = true;
+      dispatch({ type: "BEFORE_AFTER_ON" });
+    }
+  }, []);
+
+  const handleBeforeAfterPointerEnd = useCallback((e: React.PointerEvent<HTMLButtonElement>) => {
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {
+      /* capture が既に外れている環境向け（詳細は無視してよい） */
+    }
+    if (beforeAfterPointerActiveRef.current) {
+      beforeAfterPointerActiveRef.current = false;
+      dispatch({ type: "BEFORE_AFTER_OFF" });
+    }
+  }, []);
+
+  const handleBeforeAfterLostCapture = useCallback(() => {
+    if (beforeAfterPointerActiveRef.current) {
+      beforeAfterPointerActiveRef.current = false;
+      dispatch({ type: "BEFORE_AFTER_OFF" });
+    }
   }, []);
 
   // Keyboard shortcuts
@@ -234,7 +338,56 @@ export function ControlPanel({ viewport, histogramVisible = true, onHistogramTog
             <LUTPanel viewport={viewport} />
             <div className="mt-3 border-t border-white/[0.06] pt-3">
               <SectionHeader title="Presets" />
-              <PresetBar activePreset={activePreset} onPreset={applyPreset} />
+              <PresetBar activePreset={presetBarActive} onPreset={applyPreset} />
+            </div>
+            {presetIntensityAvailable && (
+              <div className="mt-3">
+                <ControlSlider
+                  label="Preset intensity"
+                  value={activeSlotState.intensity}
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  defaultValue={1}
+                  formatValue={(v) => `${Math.round(v * 100)}%`}
+                  onChange={(v) => dispatch({ type: "SET_INTENSITY", value: v })}
+                  onCommit={() => dispatch({ type: "COMMIT" })}
+                />
+              </div>
+            )}
+            <div className="mt-3">
+              <button
+                type="button"
+                onPointerDown={handleBeforeAfterPointerDown}
+                onPointerUp={handleBeforeAfterPointerEnd}
+                onPointerCancel={handleBeforeAfterPointerEnd}
+                onLostPointerCapture={handleBeforeAfterLostCapture}
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-left text-[11px] text-white/65 transition-colors hover:bg-white/8 hover:text-white/80 active:bg-white/12 sm:py-2"
+              >
+                <span className="font-medium text-white/85">Hold for original</span>
+                <span className="mt-0.5 block text-[10px] text-white/40">
+                  Touch and hold — same as holding Space on desktop
+                </span>
+              </button>
+            </div>
+            <div className="mt-3 border-t border-white/[0.06] pt-3">
+              <SectionHeader title="Share" />
+              <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => void handleCopyShareLink()}
+                  className="rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-center text-[11px] font-medium text-white/80 transition-colors hover:bg-white/10 sm:min-h-0 sm:flex-1 sm:py-2"
+                >
+                  {linkCopied ? tShare("copied") : tShare("copyLink")}
+                </button>
+                <button
+                  type="button"
+                  onClick={handlePostToX}
+                  className="rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-center text-[11px] font-medium text-white/80 transition-colors hover:bg-white/10 sm:min-h-0 sm:flex-1 sm:py-2"
+                >
+                  {tShare("postToX")}
+                </button>
+              </div>
             </div>
             <div className="mt-3 border-t border-white/[0.06] pt-3">
               <ToggleHeader title="Histogram" enabled={histogramVisible} onToggle={() => onHistogramToggle?.()} />
@@ -290,7 +443,7 @@ function HueSlider({
 }) {
   const hex = halationHueToHex(value);
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex min-h-[44px] items-center gap-3 sm:min-h-0">
       <span className="w-16 shrink-0 text-[11px] text-white/50 sm:w-24">Hue</span>
       <div className="relative flex-1">
         <input
@@ -356,6 +509,8 @@ function ShortcutHelp({ open, onClose }: { open: boolean; onClose: () => void })
     { key: "1 \u2013 8", action: "Select preset" },
     { key: "0", action: "Reset" },
     { key: "Space", action: "Before / After (hold)" },
+    { key: "Hold button", action: "Before / After on touch devices" },
+    { key: "Preset slider", action: "Blend film preset vs neutral (when preset active)" },
     { key: `${mod}+Z`, action: "Undo" },
     { key: `${mod}+Shift+Z`, action: "Redo" },
     { key: "H", action: "Toggle histogram" },

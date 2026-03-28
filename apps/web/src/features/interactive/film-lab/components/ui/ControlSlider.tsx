@@ -1,5 +1,10 @@
 "use client";
 
+/**
+ * Film Lab 用の横スライダー行。
+ * - ラベルタップで defaultValue に戻す（モバイル向け。ダブルクリックも従来どおり可）。
+ * - スマホでは行の高さを確保し、指で押しやすいヒット領域にする（44px 目安）。
+ */
 interface ControlSliderProps {
   label: string;
   value: number;
@@ -35,7 +40,7 @@ export function ControlSlider({
 
   return (
     <div
-      className={`group flex items-center gap-3 ${disabled ? "opacity-45" : ""}`}
+      className={`group flex min-h-[44px] items-center gap-3 sm:min-h-0 ${disabled ? "opacity-45" : ""}`}
       onDoubleClick={handleDoubleClick}
     >
       {/* ラベル（左） */}

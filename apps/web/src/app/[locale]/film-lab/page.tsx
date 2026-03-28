@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { FilmLabFullPage } from "@/features/interactive/film-lab";
+import { decodeSharedParamP } from "@/features/interactive/film-lab/params-codec";
+import type { Params } from "@/features/interactive/film-lab/types";
 
 const BASE_URL = "https://www.chibatakumi.studio";
 
@@ -74,13 +76,30 @@ function getJsonLd(locale: string) {
   };
 }
 
+function firstQueryValue(value: string | string[] | undefined): string | undefined {
+  if (value === undefined) return undefined;
+  return typeof value === "string" ? value : value[0];
+}
+
 export default async function FilmLabPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+
+  let initialSharedParams: Params | null = null;
+  if (searchParams) {
+    const sp = await searchParams;
+    const pRaw = firstQueryValue(sp.p);
+    const vRaw = firstQueryValue(sp.v);
+    if (pRaw) {
+      initialSharedParams = decodeSharedParamP(vRaw, pRaw);
+    }
+  }
 
   return (
     <>
@@ -88,7 +107,7 @@ export default async function FilmLabPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(getJsonLd(locale)) }}
       />
-      <FilmLabFullPage />
+      <FilmLabFullPage initialSharedParams={initialSharedParams} />
     </>
   );
 }

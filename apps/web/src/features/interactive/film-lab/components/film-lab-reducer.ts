@@ -238,6 +238,31 @@ export function filmLabReducer(state: State, action: Action): State {
   }
 }
 
+/**
+ * URL 共有など「数値パラメータのスナップショット」から初期化する（basePreset は無し＝手動ルック扱い）。
+ */
+export function createInitialStateFromSharedParams(shared: Params): State {
+  const slot: GradeSlotState = {
+    params: cloneParams(shared),
+    basePreset: null,
+    intensity: 1,
+  };
+
+  const present: PresentState = {
+    slotA: cloneSlot(slot),
+    slotB: cloneSlot(slot),
+    compareMode: false,
+    activeSlot: "A",
+  };
+
+  return {
+    ...present,
+    history: [snapshot(present)],
+    historyIndex: 0,
+    beforeAfterStash: null,
+  };
+}
+
 export function createInitialState(
   initialParams: Params,
   initialPresetName: PresetName | null = null,

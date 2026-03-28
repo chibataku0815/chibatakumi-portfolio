@@ -60,3 +60,19 @@ export function decodeParams(encoded: string): Params | null {
 export function paramsToClipboardJson(params: Params): string {
   return JSON.stringify(params, null, 2);
 }
+
+/**
+ * URL クエリの v / p から Params を復元する（v=1 が現在の JSON base64 スキーマ）。
+ * p はすでにデコード済みの文字列でもよい（decodeURIComponent が二重にならないよう try）。
+ */
+export function decodeSharedParamP(version: string | undefined, encoded: string): Params | null {
+  const v = version?.trim() || "1";
+  if (v !== "1") return null;
+  const trimmed = encoded.trim();
+  if (!trimmed) return null;
+  try {
+    return decodeParams(decodeURIComponent(trimmed));
+  } catch {
+    return decodeParams(trimmed);
+  }
+}

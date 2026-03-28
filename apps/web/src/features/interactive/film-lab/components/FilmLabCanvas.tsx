@@ -4,20 +4,41 @@ import { useRef, useEffect, useCallback, useState } from "react";
 import * as THREE from "three";
 import { isWebGL2Supported, getOptimalPixelRatio } from "@/shared/gl";
 import { Viewport } from "../core/Viewport";
-import { MediaLoader } from "../core/MediaLoader";
+import { MediaLoader, MediaLoadError } from "../core/MediaLoader";
 import { parseCube } from "../core/cube-parser";
 import { filmlabVertexShader } from "../shader/filmlab.vert";
 import { filmlabFragmentShader } from "../shader/filmlab.frag";
 import { PRESETS, halationHueToHex, type PresetName } from "../preset-data";
+import type { Params } from "../types";
 
 interface FilmLabCanvasProps {
   preset: PresetName;
   className?: string;
   fullScreen?: boolean;
   onViewportReady?: (viewport: Viewport | null) => void;
+  /**
+   * URL 共有で復元した grade。指定時はプリセット prop による上書きを止め、
+   * デフォルト画像読み込み後の setParams もこの値に合わせる（ControlPanel と競合しないようにする）。
+   */
+  initialGradeParams?: Params | null;
 }
 
-export function FilmLabCanvas({ preset, className, fullScreen, onViewportReady }: FilmLabCanvasProps) {
+/** ファイルピッカー用: HEIC を選びにくくしつつ、一般的な形式はそのまま選べる */
+const FILM_LAB_FILE_ACCEPT =
+  "image/jpeg,image/png,image/webp,image/gif,.jpg,.jpeg,.png,.webp,.gif,video/mp4,video/webm,.mp4,.webm,.cube,application/octet-stream";
+
+type MediaOverlayState =
+  | { kind: "idle" }
+  | { kind: "loading" }
+  | { kind: "error"; message: string };
+
+export function FilmLabCanvas({
+  preset,
+  className,
+  fullScreen,
+  onViewportReady,
+  initialGradeParams = null,
+}: FilmLabCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<Viewport | null>(null);
   const mediaLoaderRef = useRef<MediaLoader | null>(null);
@@ -27,15 +48,17 @@ export function FilmLabCanvas({ preset, className, fullScreen, onViewportReady }
   const [isDragging, setIsDragging] = useState(false);
   const [isSplitDragging, setIsSplitDragging] = useState(false);
   const [supported, setSupported] = useState(true);
+  const [mediaOverlay, setMediaOverlay] = useState<MediaOverlayState>({ kind: "idle" });
 
-  // Apply preset when it changes
+  // Apply preset when it changes（URL 共有で initialGradeParams があるときは ControlPanel 側を正とする）
   useEffect(() => {
+    if (initialGradeParams) return;
     const p = PRESETS[preset];
     viewportRef.current?.setParams({
       ...p,
       halationColor: halationHueToHex(p.halationHue),
     });
-  }, [preset]);
+  }, [preset, initialGradeParams]);
 
   // Three.js setup (FluidGradientBackground pattern)
   useEffect(() => {
@@ -90,7 +113,11 @@ export function FilmLabCanvas({ preset, className, fullScreen, onViewportReady }
       .then((result) => {
         viewport.setTexture(result.texture);
         viewport.setImageResolution(result.width, result.height);
-        viewport.setParams(PRESETS.cinematic);
+        const source = initialGradeParams ?? PRESETS.cinematic;
+        viewport.setParams({
+          ...source,
+          halationColor: halationHueToHex(source.halationHue),
+        });
       })
       .catch(() => {
         // No default image — waiting for drop
@@ -133,28 +160,64 @@ export function FilmLabCanvas({ preset, className, fullScreen, onViewportReady }
     };
   }, []);
 
-  // === Drag & Drop ===
-  const handleDrop = useCallback(async (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const file = e.dataTransfer.files[0];
-    if (!file || !viewportRef.current || !mediaLoaderRef.current) return;
-
-    try {
-      if (file.name.endsWith(".cube")) {
-        const text = await file.text();
-        const lut = parseCube(text);
-        viewportRef.current.setLUT(lut.data, lut.size);
-        return;
-      }
-
-      const result = await mediaLoaderRef.current.loadFile(file);
-      viewportRef.current.setTexture(result.texture);
-      viewportRef.current.setImageResolution(result.width, result.height);
-    } catch (err) {
-      console.error("Drop file load failed:", err);
-    }
+  const getMaxTextureSize = useCallback((): number => {
+    return rendererRef.current?.capabilities.maxTextureSize ?? 8192;
   }, []);
+
+  /**
+   * Open / ドロップ共通の読み込み。ローディング・HEIC・デコード失敗・動画失敗を画面に出す。
+   */
+  const loadUserMediaFile = useCallback(
+    async (file: File) => {
+      if (!viewportRef.current || !mediaLoaderRef.current) return;
+
+      setMediaOverlay({ kind: "loading" });
+
+      try {
+        if (file.name.toLowerCase().endsWith(".cube")) {
+          const text = await file.text();
+          const lut = parseCube(text);
+          viewportRef.current.setLUT(lut.data, lut.size);
+          setMediaOverlay({ kind: "idle" });
+          return;
+        }
+
+        const maxTex = getMaxTextureSize();
+        const result = await mediaLoaderRef.current.loadFile(file, {
+          maxTextureSize: maxTex,
+        });
+        viewportRef.current.setTexture(result.texture);
+        viewportRef.current.setImageResolution(result.width, result.height);
+        setMediaOverlay({ kind: "idle" });
+      } catch (err) {
+        const message =
+          err instanceof MediaLoadError
+            ? err.message
+            : err instanceof Error
+              ? err.message
+              : "Could not load this file.";
+        setMediaOverlay({ kind: "error", message });
+        console.error("FilmLabCanvas.loadUserMediaFile failed", {
+          fileName: file.name,
+          fileType: file.type,
+          err,
+        });
+      }
+    },
+    [getMaxTextureSize],
+  );
+
+  // === Drag & Drop ===
+  const handleDrop = useCallback(
+    async (e: React.DragEvent) => {
+      e.preventDefault();
+      setIsDragging(false);
+      const file = e.dataTransfer.files[0];
+      if (!file) return;
+      await loadUserMediaFile(file);
+    },
+    [loadUserMediaFile],
+  );
 
   // === Download ===
   const handleDownload = useCallback(() => {
@@ -182,21 +245,14 @@ export function FilmLabCanvas({ preset, className, fullScreen, onViewportReady }
   const handleFileClick = useCallback(() => {
     const input = document.createElement("input");
     input.type = "file";
-    input.accept = "image/*,video/*";
-    input.onchange = async () => {
+    input.accept = FILM_LAB_FILE_ACCEPT;
+    input.onchange = () => {
       const file = input.files?.[0];
-      if (!file || !viewportRef.current || !mediaLoaderRef.current) return;
-
-      try {
-        const result = await mediaLoaderRef.current.loadFile(file);
-        viewportRef.current.setTexture(result.texture);
-        viewportRef.current.setImageResolution(result.width, result.height);
-      } catch (err) {
-        console.error("File load failed:", err);
-      }
+      if (!file) return;
+      void loadUserMediaFile(file);
     };
     input.click();
-  }, []);
+  }, [loadUserMediaFile]);
 
   // === Split drag ===
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
@@ -246,8 +302,14 @@ export function FilmLabCanvas({ preset, className, fullScreen, onViewportReady }
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerUp}
     >
-      {/* Toolbar */}
-      <div className="absolute left-3 top-3 z-10 flex gap-1.5">
+      {/* Toolbar: stop pointer propagation so split-drag on the canvas does not steal taps from Open/Save */}
+      <div
+        className="absolute left-3 top-3 z-10 flex gap-1.5"
+        onPointerDown={(e) => e.stopPropagation()}
+        onPointerMove={(e) => e.stopPropagation()}
+        onPointerUp={(e) => e.stopPropagation()}
+        onPointerCancel={(e) => e.stopPropagation()}
+      >
         <button
           onClick={handleFileClick}
           className="rounded bg-black/50 px-3 py-2 text-xs min-h-[44px] flex items-center sm:px-2.5 sm:py-1 sm:text-[11px] sm:min-h-0 text-white/50 backdrop-blur-sm transition-colors hover:bg-black/70 hover:text-white/80"
@@ -268,6 +330,32 @@ export function FilmLabCanvas({ preset, className, fullScreen, onViewportReady }
           <span className="text-sm text-white/70">
             Drop image, video, or .cube LUT
           </span>
+        </div>
+      )}
+
+      {/* 読み込み中 / 失敗メッセージ（iPhone Safari で無反応に見えないようにする） */}
+      {mediaOverlay.kind === "loading" && (
+        <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center rounded-lg bg-black/55 backdrop-blur-[2px]">
+          <span className="rounded-lg bg-black/70 px-4 py-3 text-sm text-white/90">
+            Loading media…
+          </span>
+        </div>
+      )}
+      {mediaOverlay.kind === "error" && (
+        <div
+          className="absolute inset-0 z-20 flex items-center justify-center rounded-lg bg-black/70 p-4 backdrop-blur-sm"
+          role="alert"
+        >
+          <div className="max-w-sm rounded-xl border border-white/15 bg-[#141414] p-4 shadow-xl">
+            <p className="text-sm leading-relaxed text-white/85">{mediaOverlay.message}</p>
+            <button
+              type="button"
+              onClick={() => setMediaOverlay({ kind: "idle" })}
+              className="mt-4 w-full rounded-lg bg-white/10 py-2.5 text-xs font-medium text-white/90 transition-colors hover:bg-white/15"
+            >
+              OK
+            </button>
+          </div>
         </div>
       )}
     </div>

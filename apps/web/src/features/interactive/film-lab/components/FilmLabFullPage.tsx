@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import type { Viewport } from "../core/Viewport";
+import type { Params } from "../types";
 
 const FilmLabCanvas = dynamic(
   () => import("./FilmLabCanvas").then((m) => ({ default: m.FilmLabCanvas })),
@@ -21,7 +22,12 @@ const Histogram = dynamic(
   { ssr: false },
 );
 
-export function FilmLabFullPage() {
+export function FilmLabFullPage({
+  initialSharedParams = null,
+}: {
+  /** サーバーでデコードした ?p= の grade（子へ渡して hydration を揃える） */
+  initialSharedParams?: Params | null;
+} = {}) {
   const t = useTranslations("film-lab");
   const [viewport, setViewport] = useState<Viewport | null>(null);
   const [histogramVisible, setHistogramVisible] = useState(true);
@@ -36,6 +42,7 @@ export function FilmLabFullPage() {
       <div className="relative">
         <FilmLabCanvas
           preset="cinematic"
+          initialGradeParams={initialSharedParams}
           onViewportReady={setViewport}
         />
         <Histogram viewport={viewport} visible={histogramVisible} />
@@ -43,7 +50,12 @@ export function FilmLabFullPage() {
 
       {/* ControlPanel */}
       <div className="mt-3">
-        <ControlPanel viewport={viewport} histogramVisible={histogramVisible} onHistogramToggle={toggleHistogram} />
+        <ControlPanel
+          viewport={viewport}
+          histogramVisible={histogramVisible}
+          onHistogramToggle={toggleHistogram}
+          initialSharedParams={initialSharedParams}
+        />
       </div>
 
       {/* Back link */}
