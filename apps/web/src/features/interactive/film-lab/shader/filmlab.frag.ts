@@ -49,8 +49,6 @@ float grain(vec2 uv, float time) {
 void main() {
   vec2 uv = coverUv(vUv, uResolution, uImageResolution);
 
-  vec4 original = texture(uTexture, uv);
-
   vec4 color = uRGBShift > 0.0
     ? rgbShiftSample(uTexture, uv, uRGBShift)
     : texture(uTexture, uv);
@@ -69,33 +67,14 @@ void main() {
   color.r += uTemperature * 0.1;
   color.b -= uTemperature * 0.1;
 
-  // LUT (after all color grading, before vignette/grain)
+  // LUT (after all color grading)
   if (uLUTEnabled > 0.5) {
     vec3 lutCoord = clamp(color.rgb, 0.0, 1.0);
     vec3 lutColor = texture(uLUT, lutCoord).rgb;
     color.rgb = mix(color.rgb, lutColor, uLUTIntensity);
   }
 
-  // Vignette
-  float dist = length(vUv - 0.5) * 1.414;
-  float vig = 1.0 - uVignette * dist * dist;
-  color.rgb *= clamp(vig, 0.0, 1.0);
-
-  // Grain
-  color.rgb += grain(vUv, uTime) * uGrainIntensity;
-
   color.rgb = clamp(color.rgb, 0.0, 1.0);
-
-  // Before/After split
-  float split = uSplitPosition;
-  float lineWidth = 2.0 / uResolution.x;
-
-  if (vUv.x < split - lineWidth) {
-    fragColor = original;
-  } else if (vUv.x < split + lineWidth) {
-    fragColor = vec4(1.0);
-  } else {
-    fragColor = color;
-  }
+  fragColor = color;
 }
 `;

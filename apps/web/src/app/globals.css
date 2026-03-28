@@ -793,3 +793,30 @@ body:has(.photography-page) {
 .film-lab-slider:hover::-webkit-slider-thumb {
   transform: scale(1.2);
 }
+
+/* === Halation Hue Slider === */
+.halation-hue-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  transition: transform 0.15s ease;
+}
+
+.halation-hue-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.halation-hue-slider:hover::-webkit-slider-thumb {
+  transform: scale(1.15);
+}

@@ -18,6 +18,12 @@ export const PRESETS = {
     rgbShift: 0,
     grainIntensity: 0,
     vignette: 0,
+    bloomThreshold: 0.8,
+    bloomStrength: 0,
+    bloomRadius: 0.4,
+    halationIntensity: 0,
+    halationSpread: 15,
+    halationHue: 0,
   },
   cinematic: {
     exposure: 0.1,
@@ -27,6 +33,12 @@ export const PRESETS = {
     rgbShift: 0.002,
     grainIntensity: 0.08,
     vignette: 0.4,
+    bloomThreshold: 0.85,
+    bloomStrength: 0.3,
+    bloomRadius: 0.5,
+    halationIntensity: 0,
+    halationSpread: 15,
+    halationHue: 0,
   },
   portra: {
     exposure: 0.2,
@@ -36,6 +48,42 @@ export const PRESETS = {
     rgbShift: 0,
     grainIntensity: 0.12,
     vignette: 0.2,
+    bloomThreshold: 0.7,
+    bloomStrength: 0.15,
+    bloomRadius: 0.3,
+    halationIntensity: 0.25,
+    halationSpread: 20,
+    halationHue: 20,
+  },
+  gold200: {
+    exposure: 0.15,
+    contrast: 1.2,
+    saturation: 1.15,
+    temperature: 0.18,
+    rgbShift: 0.001,
+    grainIntensity: 0.1,
+    vignette: 0.25,
+    bloomThreshold: 0.75,
+    bloomStrength: 0.2,
+    bloomRadius: 0.35,
+    halationIntensity: 0.15,
+    halationSpread: 18,
+    halationHue: 30,
+  },
+  pro400h: {
+    exposure: 0.25,
+    contrast: 1.05,
+    saturation: 0.85,
+    temperature: -0.1,
+    rgbShift: 0,
+    grainIntensity: 0.06,
+    vignette: 0.15,
+    bloomThreshold: 0.65,
+    bloomStrength: 0.1,
+    bloomRadius: 0.45,
+    halationIntensity: 0,
+    halationSpread: 15,
+    halationHue: 0,
   },
   bw: {
     exposure: 0.1,
@@ -45,10 +93,25 @@ export const PRESETS = {
     rgbShift: 0,
     grainIntensity: 0.15,
     vignette: 0.5,
+    bloomThreshold: 0.75,
+    bloomStrength: 0.2,
+    bloomRadius: 0.6,
+    halationIntensity: 0,
+    halationSpread: 15,
+    halationHue: 0,
   },
 } as const;
 
 export type PresetName = keyof typeof PRESETS;
+
+/** Dehancer-style hue: 0 = deep red → 100 = orange-red */
+export function halationHueToHex(hue: number): string {
+  const t = Math.max(0, Math.min(1, hue / 100));
+  const r = Math.round(0xe8 + (0xc8 - 0xe8) * t);
+  const g = Math.round(0x10 + (0x60 - 0x10) * t);
+  const b = Math.round(0x20 + (0x10 - 0x20) * t);
+  return `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
+}
 
 interface FilmLabCanvasProps {
   preset: PresetName;
@@ -69,7 +132,11 @@ export function FilmLabCanvas({ preset, className, fullScreen, onViewportReady }
 
   // Apply preset when it changes
   useEffect(() => {
-    viewportRef.current?.setParams(PRESETS[preset]);
+    const p = PRESETS[preset];
+    viewportRef.current?.setParams({
+      ...p,
+      halationColor: halationHueToHex(p.halationHue),
+    });
   }, [preset]);
 
   // Three.js setup (FluidGradientBackground pattern)
@@ -146,7 +213,7 @@ export function FilmLabCanvas({ preset, className, fullScreen, onViewportReady }
     const animate = () => {
       animationId = requestAnimationFrame(animate);
       viewport.setTime(clock.getElapsedTime());
-      renderer.render(scene, camera);
+      viewport.render(renderer, scene, camera);
     };
     animate();
 
@@ -201,7 +268,7 @@ export function FilmLabCanvas({ preset, className, fullScreen, onViewportReady }
 
     // Split を画面外に追い出して全面エフェクト適用（After のみ）
     viewport.setSplitPosition(-1.0);
-    renderer.render(scene, camera);
+    viewport.render(renderer, scene, camera);
 
     const url = renderer.domElement.toDataURL("image/png");
     const a = document.createElement("a");
