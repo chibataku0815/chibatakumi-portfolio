@@ -14,6 +14,8 @@ uniform float uGrainIntensity;
 uniform float uTime;
 
 uniform float uSplitPosition;
+/** 0: Before/After（左は原画を coverUv でサンプル） / 1: A/B 比較（左は uOriginalTexture を vUv でサンプル＝スロット A の全パス結果） */
+uniform float uAbCompare;
 uniform vec2 uResolution;
 uniform vec2 uImageResolution;
 
@@ -49,13 +51,15 @@ void main() {
   color.rgb += grain(vUv, uTime) * uGrainIntensity;
   color.rgb = clamp(color.rgb, 0.0, 1.0);
 
-  // Before/After split
+  // Before/After または A/B 比較の分割
   vec2 origUv = coverUv(vUv, uResolution, uImageResolution);
-  vec4 original = texture(uOriginalTexture, origUv);
+  vec4 leftSample = uAbCompare > 0.5
+    ? texture(uOriginalTexture, vUv)
+    : texture(uOriginalTexture, origUv);
   float lineWidth = 2.0 / uResolution.x;
 
   if (vUv.x < uSplitPosition - lineWidth) {
-    fragColor = original;
+    fragColor = leftSample;
   } else if (vUv.x < uSplitPosition + lineWidth) {
     fragColor = vec4(1.0);
   } else {

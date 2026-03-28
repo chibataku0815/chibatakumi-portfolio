@@ -14,6 +14,7 @@ import {
   filmLabReducer,
   createInitialState,
   createInitialStateFromSharedParams,
+  type GradeSlotState,
 } from "./film-lab-reducer";
 
 /** UI の見せ方だけを切り替える。グレードの数値（reducer）は Quick でも Pro でも同じ */
@@ -96,14 +97,36 @@ export function ControlPanel({
       ? activeSlotState.basePreset
       : activePreset;
 
-  // Viewport sync — all param changes (including Undo/Redo) flow through here
+  /** Viewport.setParams / setComparePair 用に Halation の色を hex 文字列へ */
+  const gradeToViewportRecord = useCallback((slot: GradeSlotState) => {
+    return {
+      ...slot.params,
+      halationColor: halationHueToHex(slot.params.halationHue),
+    } as Record<string, number | string>;
+  }, []);
+
+  // Viewport 同期: A/B 比較オン時は二重パス用に両スロットを渡す
   useEffect(() => {
     if (!viewport) return;
-    viewport.setParams({
-      ...params,
-      halationColor: halationHueToHex(params.halationHue),
-    } as Record<string, number | string>);
-  }, [params, viewport]);
+    if (state.compareMode) {
+      viewport.setComparePair(
+        true,
+        gradeToViewportRecord(state.slotA),
+        gradeToViewportRecord(state.slotB),
+      );
+    } else {
+      viewport.setComparePair(false, {}, {});
+      const active = state.activeSlot === "A" ? state.slotA : state.slotB;
+      viewport.setParams(gradeToViewportRecord(active));
+    }
+  }, [
+    viewport,
+    state.compareMode,
+    state.slotA,
+    state.slotB,
+    state.activeSlot,
+    gradeToViewportRecord,
+  ]);
 
   /** Bloom/Halation の ON はパラメータが 0 より大きいかどうかで決める（Undo とも自動で一致） */
   const bloomEnabled = params.bloomStrength > 0;
@@ -260,6 +283,18 @@ export function ControlPanel({
         onHistogramToggle?.();
         return;
       }
+      // Tab: 比較モードでアクティブスロット A/B 切替
+      if (e.key === "Tab" && state.compareMode) {
+        e.preventDefault();
+        dispatch({ type: "SWITCH_SLOT" });
+        return;
+      }
+      // V: A/B 比較のオンオフ
+      if (e.key === "v" || e.key === "V") {
+        e.preventDefault();
+        dispatch({ type: "TOGGLE_COMPARE" });
+        return;
+      }
       // P: Quick / Pro（入力中は無視）
       if (e.key === "p" || e.key === "P") {
         e.preventDefault();
@@ -290,7 +325,7 @@ export function ControlPanel({
       document.removeEventListener("keydown", handleKeyDown, { capture: true });
       document.removeEventListener("keyup", handleKeyUp, { capture: true });
     };
-  }, [applyPreset, onHistogramToggle]);
+  }, [applyPreset, onHistogramToggle, state.compareMode]);
 
   return (
     <>
@@ -325,6 +360,46 @@ export function ControlPanel({
             </button>
           </div>
           <p className="text-[10px] leading-snug text-white/35 sm:max-w-[240px] sm:text-right">{tFilmLab("mode.hint")}</p>
+        </div>
+
+        <div className="mb-3 rounded-lg border border-white/[0.06] bg-black/40 px-3 py-2.5">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <ToggleHeader
+              title={tFilmLab("compare.title")}
+              enabled={state.compareMode}
+              onToggle={(on) => dispatch({ type: on ? "COMPARE_ON" : "COMPARE_OFF" })}
+            />
+            {state.compareMode ? (
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] text-white/35">{tFilmLab("compare.editLabel")}</span>
+                <div className="flex rounded-md border border-white/10 p-0.5" role="group">
+                  <button
+                    type="button"
+                    onClick={() => dispatch({ type: "SWITCH_SLOT", slot: "A" })}
+                    className={`rounded px-2.5 py-1 text-[10px] font-medium ${
+                      state.activeSlot === "A"
+                        ? "bg-[var(--accent-amber1)] text-black"
+                        : "text-white/55 hover:text-white/80"
+                    }`}
+                  >
+                    A
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => dispatch({ type: "SWITCH_SLOT", slot: "B" })}
+                    className={`rounded px-2.5 py-1 text-[10px] font-medium ${
+                      state.activeSlot === "B"
+                        ? "bg-[var(--accent-amber1)] text-black"
+                        : "text-white/55 hover:text-white/80"
+                    }`}
+                  >
+                    B
+                  </button>
+                </div>
+              </div>
+            ) : null}
+          </div>
+          <p className="mt-1.5 text-[10px] leading-snug text-white/30">{tFilmLab("compare.hint")}</p>
         </div>
 
         {/* Grid: Quick = Color | Presets+Share / Pro = Color | Effects | LUT+Presets */}
@@ -560,6 +635,8 @@ function ShortcutHelp({ open, onClose }: { open: boolean; onClose: () => void })
     { key: "Preset slider", action: t("presetSlider") },
     { key: `${mod}+Z`, action: t("undo") },
     { key: `${mod}+Shift+Z`, action: t("redo") },
+    { key: "V", action: t("toggleCompare") },
+    { key: "Tab", action: t("switchSlot") },
     { key: "P", action: t("toggleMode") },
     { key: "H", action: t("histogram") },
     { key: "?", action: t("help") },

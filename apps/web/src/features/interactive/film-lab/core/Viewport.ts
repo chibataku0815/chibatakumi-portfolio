@@ -70,6 +70,13 @@ export class Viewport {
   private rtBloom1: THREE.WebGLRenderTarget | null = null;
   private rtHalation0: THREE.WebGLRenderTarget | null = null;
   private rtHalation1: THREE.WebGLRenderTarget | null = null;
+  /** A/B 比較: スロット A の最終合成（分割なし）を書き込む */
+  private rtCompareComposite: THREE.WebGLRenderTarget | null = null;
+
+  /** true のとき render() でスロット A→RT、続けてスロット B を画面に分割表示 */
+  private abCompareEnabled = false;
+  private compareParamsA: Record<string, number | string> = {};
+  private compareParamsB: Record<string, number | string> = {};
 
   // Bloom/Halation params (stored here, not on color grade material)
   private bloomThreshold = 0.8;
@@ -179,6 +186,7 @@ export class Viewport {
         uGrainIntensity: { value: 0.0 },
         uTime: { value: 0.0 },
         uSplitPosition: { value: 0.5 },
+        uAbCompare: { value: 0.0 },
         uResolution: {
           value: new THREE.Vector2(options.width, options.height),
         },
@@ -196,6 +204,7 @@ export class Viewport {
     const h = this.height;
 
     this.rtColorGraded = new THREE.WebGLRenderTarget(w, h, RT_OPTIONS);
+    this.rtCompareComposite = new THREE.WebGLRenderTarget(w, h, RT_OPTIONS);
 
     // Bloom at 1/2 resolution
     const bw = Math.max(1, Math.floor(w / 2));
@@ -214,6 +223,7 @@ export class Viewport {
     if (!this.rtColorGraded) return;
 
     this.rtColorGraded.setSize(w, h);
+    this.rtCompareComposite?.setSize(w, h);
 
     const bw = Math.max(1, Math.floor(w / 2));
     const bh = Math.max(1, Math.floor(h / 2));
@@ -228,6 +238,37 @@ export class Viewport {
 
   // ===== Multi-pass render =====
 
+  /**
+   * 合成パス用ユニフォームをカラーグレード側（＋ Bloom/Halation 強度）に合わせる。
+   */
+  private syncCompositeUniformsFromMaterial(): void {
+    const cu = this.compositeMaterial.uniforms;
+    const mu = this.material.uniforms;
+    cu.uVignette!.value = mu.uVignette!.value;
+    cu.uGrainIntensity!.value = mu.uGrainIntensity!.value;
+    cu.uTime!.value = mu.uTime!.value;
+    cu.uResolution!.value.copy(mu.uResolution!.value as THREE.Vector2);
+    cu.uImageResolution!.value.copy(
+      mu.uImageResolution!.value as THREE.Vector2,
+    );
+    cu.uBloomStrength!.value = this.bloomStrength;
+    cu.uHalationIntensity!.value = this.halationIntensity;
+  }
+
+  /**
+   * A/B ルック比較のオンオフと両スロットのパラメータ（setParams と同形のレコード）。
+   * オフ時は render が従来どおりアクティブ側のみ（setParams で渡した値）を使う。
+   */
+  setComparePair(
+    enabled: boolean,
+    paramsA: Record<string, number | string> | null,
+    paramsB: Record<string, number | string> | null,
+  ): void {
+    this.abCompareEnabled = enabled;
+    if (paramsA) this.compareParamsA = { ...paramsA };
+    if (paramsB) this.compareParamsB = { ...paramsB };
+  }
+
   render(
     renderer: THREE.WebGLRenderer,
     scene: THREE.Scene,
@@ -236,20 +277,17 @@ export class Viewport {
     this.ensureRenderTargets();
     this.renderer = renderer;
 
-    // Sync composite uniforms from color grade material
+    if (this.abCompareEnabled) {
+      this.renderComparePair(renderer, scene, camera);
+      return;
+    }
+
     const cu = this.compositeMaterial.uniforms;
     const mu = this.material.uniforms;
-    cu.uVignette!.value = mu.uVignette!.value;
-    cu.uGrainIntensity!.value = mu.uGrainIntensity!.value;
-    cu.uTime!.value = mu.uTime!.value;
+    this.syncCompositeUniformsFromMaterial();
     cu.uSplitPosition!.value = mu.uSplitPosition!.value;
-    cu.uResolution!.value.copy(mu.uResolution!.value as THREE.Vector2);
-    cu.uImageResolution!.value.copy(
-      mu.uImageResolution!.value as THREE.Vector2,
-    );
     cu.uOriginalTexture!.value = mu.uTexture!.value;
-    cu.uBloomStrength!.value = this.bloomStrength;
-    cu.uHalationIntensity!.value = this.halationIntensity;
+    cu.uAbCompare!.value = 0.0;
 
     // Pass 1: Color grade → RT_A
     renderer.setRenderTarget(this.rtColorGraded);
@@ -258,17 +296,14 @@ export class Viewport {
     const bloomOn = this.bloomStrength > 0;
     const halationOn = this.halationIntensity > 0;
 
-    // Pass 2-4: Bloom
     if (bloomOn) {
       this.renderBloom(renderer);
     }
 
-    // Pass 5-7: Halation
     if (halationOn) {
       this.renderHalation(renderer);
     }
 
-    // Final: Composite → screen
     renderer.setRenderTarget(null);
     const black = getBlackTexture();
     cu.uSource!.value = this.rtColorGraded!.texture;
@@ -276,6 +311,72 @@ export class Viewport {
     cu.uHalationTexture!.value = halationOn ? this.rtHalation0!.texture : black;
     this.postMesh.material = this.compositeMaterial;
     renderer.render(this.postScene, this.postCamera);
+  }
+
+  /**
+   * スロット A を全パスで RT に書き、続けてスロット B を画面に分割合成する。
+   */
+  private renderComparePair(
+    renderer: THREE.WebGLRenderer,
+    scene: THREE.Scene,
+    camera: THREE.Camera,
+  ): void {
+    const cu = this.compositeMaterial.uniforms;
+    const mu = this.material.uniforms;
+    const black = getBlackTexture();
+
+    const runPipeline = () => {
+      renderer.setRenderTarget(this.rtColorGraded);
+      renderer.render(scene, camera);
+      const bloomOn = this.bloomStrength > 0;
+      const halationOn = this.halationIntensity > 0;
+      if (bloomOn) {
+        this.renderBloom(renderer);
+      }
+      if (halationOn) {
+        this.renderHalation(renderer);
+      }
+    };
+
+    const compositeToTarget = (
+      target: THREE.WebGLRenderTarget | null,
+      splitPosition: number,
+      abCompare: number,
+      originalTex: THREE.Texture,
+    ) => {
+      this.syncCompositeUniformsFromMaterial();
+      cu.uSplitPosition!.value = splitPosition;
+      cu.uAbCompare!.value = abCompare;
+      cu.uOriginalTexture!.value = originalTex;
+      const bloomOn = this.bloomStrength > 0;
+      const halationOn = this.halationIntensity > 0;
+      cu.uSource!.value = this.rtColorGraded!.texture;
+      cu.uBloomTexture!.value = bloomOn ? this.rtBloom0!.texture : black;
+      cu.uHalationTexture!.value = halationOn ? this.rtHalation0!.texture : black;
+      this.postMesh.material = this.compositeMaterial;
+      renderer.setRenderTarget(target);
+      renderer.render(this.postScene, this.postCamera);
+    };
+
+    // —— スロット A: 分割なしでフルフレームを比較用 RT に ——
+    this.setParams(this.compareParamsA);
+    runPipeline();
+    compositeToTarget(
+      this.rtCompareComposite,
+      -1.0,
+      0.0,
+      mu.uTexture!.value as THREE.Texture,
+    );
+
+    // —— スロット B: 左=A の合成結果、右=B ——
+    this.setParams(this.compareParamsB);
+    runPipeline();
+    compositeToTarget(
+      null,
+      mu.uSplitPosition!.value as number,
+      1.0,
+      this.rtCompareComposite!.texture,
+    );
   }
 
   private renderBloom(renderer: THREE.WebGLRenderer): void {
@@ -562,6 +663,7 @@ export class Viewport {
     this.rtBloom1?.dispose();
     this.rtHalation0?.dispose();
     this.rtHalation1?.dispose();
+    this.rtCompareComposite?.dispose();
     const lutTexture = this.material.uniforms.uLUT?.value as THREE.Data3DTexture | null;
     if (lutTexture) lutTexture.dispose();
     const mediaTexture = this.material.uniforms.uTexture?.value as THREE.Texture | null;
