@@ -21,7 +21,7 @@ export function FilmLabFullPage() {
   const [viewport, setViewport] = useState<Viewport | null>(null);
 
   return (
-    <div className="mx-auto max-w-6xl px-6 pt-32 pb-12">
+    <div className="mx-auto max-w-6xl px-4 pt-20 pb-8 sm:px-6 sm:pt-32 sm:pb-12">
       {/* Canvas */}
       <FilmLabCanvas
         preset="cinematic"

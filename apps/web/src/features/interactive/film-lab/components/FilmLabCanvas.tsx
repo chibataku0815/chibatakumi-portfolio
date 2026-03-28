@@ -128,6 +128,7 @@ export function FilmLabCanvas({ preset, className, fullScreen, onViewportReady }
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.OrthographicCamera | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [isSplitDragging, setIsSplitDragging] = useState(false);
   const [supported, setSupported] = useState(true);
 
   // Apply preset when it changes
@@ -301,17 +302,30 @@ export function FilmLabCanvas({ preset, className, fullScreen, onViewportReady }
   }, []);
 
   // === Split drag ===
-  const handlePointerMove = useCallback((e: React.PointerEvent) => {
-    if (e.buttons !== 1) return;
+  const handlePointerDown = useCallback((e: React.PointerEvent) => {
+    setIsSplitDragging(true);
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width;
     viewportRef.current?.setSplitPosition(Math.max(0, Math.min(1, x)));
   }, []);
 
+  const handlePointerUp = useCallback((e: React.PointerEvent) => {
+    setIsSplitDragging(false);
+    (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+  }, []);
+
+  const handlePointerMove = useCallback((e: React.PointerEvent) => {
+    if (!isSplitDragging) return;
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width;
+    viewportRef.current?.setSplitPosition(Math.max(0, Math.min(1, x)));
+  }, [isSplitDragging]);
+
   if (!supported) {
     return (
       <div
-        className={`relative flex ${fullScreen ? "h-full" : "aspect-[16/9]"} w-full items-center justify-center rounded-lg bg-[#0a0a0a] ${className ?? ""}`}
+        className={`relative flex ${fullScreen ? "h-full" : "aspect-[4/3] sm:aspect-[16/9]"} w-full items-center justify-center rounded-lg bg-[#0a0a0a] ${className ?? ""}`}
       >
         <span className="text-sm text-[var(--text-muted)]">
           WebGL2 is required for Film Lab
@@ -323,26 +337,29 @@ export function FilmLabCanvas({ preset, className, fullScreen, onViewportReady }
   return (
     <div
       ref={containerRef}
-      className={`relative ${fullScreen ? "h-full" : "aspect-[16/9]"} w-full cursor-col-resize overflow-hidden rounded-lg bg-[#0a0a0a] ${className ?? ""}`}
+      className={`relative ${fullScreen ? "h-full" : "aspect-[4/3] sm:aspect-[16/9]"} w-full touch-none cursor-col-resize overflow-hidden rounded-lg bg-[#0a0a0a] ${className ?? ""}`}
       onDragOver={(e) => {
         e.preventDefault();
         setIsDragging(true);
       }}
       onDragLeave={() => setIsDragging(false)}
       onDrop={handleDrop}
+      onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerUp}
     >
       {/* Toolbar */}
       <div className="absolute left-3 top-3 z-10 flex gap-1.5">
         <button
           onClick={handleFileClick}
-          className="rounded bg-black/50 px-2.5 py-1 text-[11px] text-white/50 backdrop-blur-sm transition-colors hover:bg-black/70 hover:text-white/80"
+          className="rounded bg-black/50 px-3 py-2 text-xs min-h-[44px] flex items-center sm:px-2.5 sm:py-1 sm:text-[11px] sm:min-h-0 text-white/50 backdrop-blur-sm transition-colors hover:bg-black/70 hover:text-white/80"
         >
           Open
         </button>
         <button
           onClick={handleDownload}
-          className="rounded bg-black/50 px-2.5 py-1 text-[11px] text-white/50 backdrop-blur-sm transition-colors hover:bg-black/70 hover:text-white/80"
+          className="rounded bg-black/50 px-3 py-2 text-xs min-h-[44px] flex items-center sm:px-2.5 sm:py-1 sm:text-[11px] sm:min-h-0 text-white/50 backdrop-blur-sm transition-colors hover:bg-black/70 hover:text-white/80"
         >
           Save PNG
         </button>

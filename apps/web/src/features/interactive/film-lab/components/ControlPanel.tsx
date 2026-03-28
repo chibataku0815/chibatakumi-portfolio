@@ -209,7 +209,7 @@ function HueSlider({
   const hex = halationHueToHex(value);
   return (
     <div className="flex items-center gap-3">
-      <span className="w-24 shrink-0 text-[11px] text-white/50">Hue</span>
+      <span className="w-16 shrink-0 text-[11px] text-white/50 sm:w-24">Hue</span>
       <div className="relative flex-1">
         <input
           type="range"
@@ -218,7 +218,7 @@ function HueSlider({
           step={1}
           value={value}
           onChange={(e) => onChange(Number(e.target.value))}
-          className="halation-hue-slider h-1.5 w-full cursor-pointer appearance-none rounded-full"
+          className="halation-hue-slider h-1.5 w-full cursor-pointer appearance-none rounded-full touch-none"
           style={{
             background: `linear-gradient(to right, #e81020, #d83818, #c86010)`,
           }}

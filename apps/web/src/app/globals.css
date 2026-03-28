@@ -771,8 +771,8 @@ body:has(.photography-page) {
 /* === Film Lab Slider === */
 .film-lab-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 12px;
-  height: 12px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background: var(--accent-amber1);
   cursor: pointer;
@@ -781,17 +781,29 @@ body:has(.photography-page) {
 }
 
 .film-lab-slider::-moz-range-thumb {
-  width: 12px;
-  height: 12px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background: var(--accent-amber1);
-  border: none;
   cursor: pointer;
+  border: none;
   box-shadow: 0 0 6px rgba(255, 180, 50, 0.4);
 }
 
 .film-lab-slider:hover::-webkit-slider-thumb {
   transform: scale(1.2);
+}
+
+@media (min-width: 640px) {
+  .film-lab-slider::-webkit-slider-thumb {
+    width: 12px;
+    height: 12px;
+  }
+
+  .film-lab-slider::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+  }
 }
 
 /* === Halation Hue Slider === */
