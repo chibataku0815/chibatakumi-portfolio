@@ -43,7 +43,7 @@ export function FilmLabFullPage() {
 
       {/* ControlPanel */}
       <div className="mt-3">
-        <ControlPanel viewport={viewport} onHistogramToggle={toggleHistogram} />
+        <ControlPanel viewport={viewport} histogramVisible={histogramVisible} onHistogramToggle={toggleHistogram} />
       </div>
 
       {/* Back link */}

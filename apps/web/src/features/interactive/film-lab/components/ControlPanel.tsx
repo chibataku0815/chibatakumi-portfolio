@@ -5,15 +5,16 @@ import { ControlSlider } from "./ui/ControlSlider";
 import { LUTPanel } from "./LUTPanel";
 import { PresetBar } from "./PresetBar";
 import type { Viewport } from "../core/Viewport";
-import { PRESETS, type PresetName, halationHueToHex } from "./FilmLabCanvas";
+import { PRESETS, type PresetName, halationHueToHex } from "../preset-data";
 import { filmLabReducer, createInitialState, type Params } from "./film-lab-reducer";
 
 interface ControlPanelProps {
   viewport: Viewport | null;
+  histogramVisible?: boolean;
   onHistogramToggle?: () => void;
 }
 
-export function ControlPanel({ viewport, onHistogramToggle }: ControlPanelProps) {
+export function ControlPanel({ viewport, histogramVisible = true, onHistogramToggle }: ControlPanelProps) {
   const [state, dispatch] = useReducer(
     filmLabReducer,
     { ...PRESETS.cinematic } as Params,
@@ -34,23 +35,26 @@ export function ControlPanel({ viewport, onHistogramToggle }: ControlPanelProps)
     }
   }, []);
 
+  // Derive active slot params
+  const params = (state.activeSlot === "A" ? state.slotA : state.slotB).params;
+
   // Viewport sync — all param changes (including Undo/Redo) flow through here
   useEffect(() => {
     if (!viewport) return;
     viewport.setParams({
-      ...state.params,
-      halationColor: halationHueToHex(state.params.halationHue),
+      ...params,
+      halationColor: halationHueToHex(params.halationHue),
     } as Record<string, number | string>);
-  }, [state.params, viewport]);
+  }, [params, viewport]);
 
   // Sync toggle states after Undo/Redo
   useEffect(() => {
-    setBloomEnabled(state.params.bloomStrength > 0);
-  }, [state.params.bloomStrength]);
+    setBloomEnabled(params.bloomStrength > 0);
+  }, [params.bloomStrength]);
 
   useEffect(() => {
-    setHalationEnabled(state.params.halationIntensity > 0);
-  }, [state.params.halationIntensity]);
+    setHalationEnabled(params.halationIntensity > 0);
+  }, [params.halationIntensity]);
 
   const updateParam = useCallback((key: keyof Params, value: number) => {
     dispatch({ type: "SET_PARAM", key, value });
@@ -72,13 +76,13 @@ export function ControlPanel({ viewport, onHistogramToggle }: ControlPanelProps)
       if (on) {
         dispatch({ type: "SET_PARAM", key: "bloomStrength", value: savedBloomStrength || 0.3 });
       } else {
-        if (state.params.bloomStrength > 0) setSavedBloomStrength(state.params.bloomStrength);
+        if (params.bloomStrength > 0) setSavedBloomStrength(params.bloomStrength);
         dispatch({ type: "SET_PARAM", key: "bloomStrength", value: 0 });
       }
       dispatch({ type: "COMMIT" });
       setActivePreset("reset");
     },
-    [state.params.bloomStrength, savedBloomStrength],
+    [params.bloomStrength, savedBloomStrength],
   );
 
   const toggleHalation = useCallback(
@@ -87,18 +91,18 @@ export function ControlPanel({ viewport, onHistogramToggle }: ControlPanelProps)
       if (on) {
         dispatch({ type: "SET_PARAM", key: "halationIntensity", value: savedHalationIntensity || 0.25 });
       } else {
-        if (state.params.halationIntensity > 0) setSavedHalationIntensity(state.params.halationIntensity);
+        if (params.halationIntensity > 0) setSavedHalationIntensity(params.halationIntensity);
         dispatch({ type: "SET_PARAM", key: "halationIntensity", value: 0 });
       }
       dispatch({ type: "COMMIT" });
       setActivePreset("reset");
     },
-    [state.params.halationIntensity, savedHalationIntensity],
+    [params.halationIntensity, savedHalationIntensity],
   );
 
   const applyPreset = useCallback((name: PresetName) => {
     const preset = PRESETS[name];
-    dispatch({ type: "APPLY_PRESET", preset: { ...preset } as Params });
+    dispatch({ type: "APPLY_PRESET", presetName: name, preset: { ...preset } as Params });
     setActivePreset(name);
     setBloomEnabled(preset.bloomStrength > 0);
     setHalationEnabled(preset.halationIntensity > 0);
@@ -180,8 +184,6 @@ export function ControlPanel({ viewport, onHistogramToggle }: ControlPanelProps)
     };
   }, [applyPreset, onHistogramToggle]);
 
-  const { params } = state;
-
   return (
     <>
       <div className="rounded-lg border border-white/[0.06] bg-black/60 p-4 backdrop-blur-xl">
@@ -233,6 +235,9 @@ export function ControlPanel({ viewport, onHistogramToggle }: ControlPanelProps)
             <div className="mt-3 border-t border-white/[0.06] pt-3">
               <SectionHeader title="Presets" />
               <PresetBar activePreset={activePreset} onPreset={applyPreset} />
+            </div>
+            <div className="mt-3 border-t border-white/[0.06] pt-3">
+              <ToggleHeader title="Histogram" enabled={histogramVisible} onToggle={() => onHistogramToggle?.()} />
             </div>
           </div>
         </div>

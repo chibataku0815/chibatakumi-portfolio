@@ -11,6 +11,7 @@ uniform float uExposure;
 uniform float uContrast;
 uniform float uSaturation;
 uniform float uTemperature;
+uniform float uTint;
 
 uniform float uRGBShift;
 uniform float uGrainIntensity;
@@ -19,6 +20,8 @@ uniform float uVignette;
 uniform float uFade;
 uniform float uHighlights;
 uniform float uShadows;
+uniform vec3 uShadowTint;
+uniform vec3 uHighlightTint;
 
 uniform float uSplitPosition;
 
@@ -70,6 +73,16 @@ void main() {
   // Temperature
   color.r += uTemperature * 0.1;
   color.b -= uTemperature * 0.1;
+
+  // Tint (green / magenta axis)
+  color.r += uTint * 0.05;
+  color.g -= uTint * 0.08;
+  color.b += uTint * 0.05;
+
+  // Split toning
+  float lumST = dot(color.rgb, vec3(0.2126, 0.7152, 0.0722));
+  color.rgb += uShadowTint * (1.0 - lumST) * 0.18;
+  color.rgb += uHighlightTint * lumST * 0.18;
 
   // Fade (Lift — フィルムの「浮いた黒」)
   color.rgb = color.rgb + uFade * (1.0 - color.rgb);

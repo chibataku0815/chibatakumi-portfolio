@@ -28,7 +28,10 @@ export function Histogram({ viewport, visible = true }: HistogramProps) {
     lastUpdateRef.current = now;
 
     const data = viewport.getHistogramPixels();
-    if (!data) return;
+    if (!data) {
+      rafRef.current = requestAnimationFrame(updateHistogram);
+      return;
+    }
 
     const { pixels, width, height } = data;
 
@@ -41,14 +44,14 @@ export function Histogram({ viewport, visible = true }: HistogramProps) {
     // サンプリング (4ピクセルに1回で高速化)
     const step = 4;
     for (let i = 0; i < width * height * 4; i += 4 * step) {
-      const r = pixels[i];
-      const g = pixels[i + 1];
-      const b = pixels[i + 2];
-      const luma = Math.round(0.2126 * r + 0.7152 * g + 0.0722 * b);
+      const r = Math.min(255, Math.max(0, Math.round(pixels[i] * 255)));
+      const g = Math.min(255, Math.max(0, Math.round(pixels[i + 1] * 255)));
+      const b = Math.min(255, Math.max(0, Math.round(pixels[i + 2] * 255)));
+      const luma = Math.min(255, Math.round(0.2126 * r + 0.7152 * g + 0.0722 * b));
       binsR[r]++;
       binsG[g]++;
       binsB[b]++;
-      binsL[Math.min(255, luma)]++;
+      binsL[luma]++;
     }
 
     // 最大値 (正規化用) — 端の bin (0, 255) を除外してクリッピングの影響を排除

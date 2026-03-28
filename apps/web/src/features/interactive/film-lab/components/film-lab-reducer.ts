@@ -1,129 +1,263 @@
-// === 型定義 ===
+import { PRESETS, type PresetName } from "../preset-data";
+import { PARAM_KEYS, cloneParams, type Params } from "../types";
 
-export interface Params {
-  exposure: number;
-  contrast: number;
-  saturation: number;
-  temperature: number;
-  rgbShift: number;
-  grainIntensity: number;
-  vignette: number;
-  bloomThreshold: number;
-  bloomStrength: number;
-  bloomRadius: number;
-  halationIntensity: number;
-  halationSpread: number;
-  halationHue: number;
-  fade: number;
-  highlights: number;
-  shadows: number;
+export type SlotId = "A" | "B";
+
+export interface GradeSlotState {
+  params: Params;
+  basePreset: PresetName | null;
+  intensity: number;
+}
+
+interface PresentState {
+  slotA: GradeSlotState;
+  slotB: GradeSlotState;
+  compareMode: boolean;
+  activeSlot: SlotId;
+}
+
+export interface State extends PresentState {
+  history: PresentState[];
+  historyIndex: number;
+  beforeAfterStash: PresentState | null;
 }
 
 export type Action =
-  | { type: "SET_PARAM"; key: keyof Params; value: number }
+  | { type: "SET_PARAM"; key: keyof Params; value: number; preserveBasePreset?: boolean }
+  | { type: "SET_INTENSITY"; value: number }
   | { type: "COMMIT" }
-  | { type: "APPLY_PRESET"; preset: Params }
+  | { type: "APPLY_PRESET"; presetName: PresetName; preset: Params }
+  | { type: "APPLY_PARAMS"; params: Params; basePreset: PresetName | null; intensity?: number }
   | { type: "UNDO" }
   | { type: "REDO" }
+  | { type: "COMPARE_ON" }
+  | { type: "COMPARE_OFF" }
+  | { type: "TOGGLE_COMPARE" }
+  | { type: "SWITCH_SLOT"; slot?: SlotId }
   | { type: "BEFORE_AFTER_ON" }
   | { type: "BEFORE_AFTER_OFF" };
 
-export interface State {
-  params: Params;
-  history: Params[];
-  historyIndex: number;
-  beforeAfterStash: Params | null;
-}
-
-// === 定数 ===
 const MAX_HISTORY = 30;
 
-// === reducer ===
+function cloneSlot(slot: GradeSlotState): GradeSlotState {
+  return {
+    params: cloneParams(slot.params),
+    basePreset: slot.basePreset,
+    intensity: slot.intensity,
+  };
+}
+
+function snapshot(state: PresentState): PresentState {
+  return {
+    slotA: cloneSlot(state.slotA),
+    slotB: cloneSlot(state.slotB),
+    compareMode: state.compareMode,
+    activeSlot: state.activeSlot,
+  };
+}
+
+function activeSlotKey(activeSlot: SlotId): "slotA" | "slotB" {
+  return activeSlot === "A" ? "slotA" : "slotB";
+}
+
+function withActiveSlot(
+  state: State,
+  update: (slot: GradeSlotState) => GradeSlotState,
+): State {
+  const key = activeSlotKey(state.activeSlot);
+  return {
+    ...state,
+    [key]: update(state[key]),
+  };
+}
+
+function pushHistory(state: State): State {
+  const nextHistory = [
+    ...state.history.slice(0, state.historyIndex + 1),
+    snapshot(state),
+  ].slice(-MAX_HISTORY);
+
+  return {
+    ...state,
+    history: nextHistory,
+    historyIndex: nextHistory.length - 1,
+  };
+}
+
+function interpolatePreset(presetName: PresetName, intensity: number): Params {
+  const clamped = Math.max(0, Math.min(1, intensity));
+  const params = { ...PRESETS.reset };
+  const preset = PRESETS[presetName];
+
+  for (const key of PARAM_KEYS) {
+    params[key] = PRESETS.reset[key] + (preset[key] - PRESETS.reset[key]) * clamped;
+  }
+
+  return params;
+}
+
+function slotsMatch(slotA: GradeSlotState, slotB: GradeSlotState): boolean {
+  return (
+    slotA.basePreset === slotB.basePreset &&
+    slotA.intensity === slotB.intensity &&
+    PARAM_KEYS.every((key) => slotA.params[key] === slotB.params[key])
+  );
+}
+
+function restoreSnapshot(state: State, nextPresent: PresentState): State {
+  return {
+    ...state,
+    slotA: cloneSlot(nextPresent.slotA),
+    slotB: cloneSlot(nextPresent.slotB),
+    compareMode: nextPresent.compareMode,
+    activeSlot: nextPresent.activeSlot,
+  };
+}
+
 export function filmLabReducer(state: State, action: Action): State {
   switch (action.type) {
     case "SET_PARAM": {
-      // params を更新するだけ。history は触らない
-      return {
-        ...state,
-        params: { ...state.params, [action.key]: action.value },
-      };
+      return withActiveSlot(state, (slot) => ({
+        ...slot,
+        params: { ...slot.params, [action.key]: action.value },
+        basePreset: action.preserveBasePreset ? slot.basePreset : null,
+        intensity: action.preserveBasePreset ? slot.intensity : 1,
+      }));
     }
-    case "COMMIT": {
-      // 現在の params を history に push。future を切り捨て
-      const newHistory = [
-        ...state.history.slice(0, state.historyIndex + 1),
-        { ...state.params },
-      ].slice(-MAX_HISTORY);
-      return {
-        ...state,
-        history: newHistory,
-        historyIndex: newHistory.length - 1,
-      };
+
+    case "SET_INTENSITY": {
+      return withActiveSlot(state, (slot) => {
+        if (!slot.basePreset || slot.basePreset === "reset") return slot;
+        const nextIntensity = Math.max(0, Math.min(1, action.value));
+        return {
+          ...slot,
+          params: interpolatePreset(slot.basePreset, nextIntensity),
+          intensity: nextIntensity,
+        };
+      });
     }
+
+    case "COMMIT":
+      return pushHistory(state);
+
     case "APPLY_PRESET": {
-      // params を上書き + 即COMMIT相当
-      const newParams = { ...action.preset };
-      const newHistory = [
-        ...state.history.slice(0, state.historyIndex + 1),
-        newParams,
-      ].slice(-MAX_HISTORY);
-      return {
-        ...state,
-        params: newParams,
-        history: newHistory,
-        historyIndex: newHistory.length - 1,
-      };
+      const next = withActiveSlot(state, () => ({
+        params: cloneParams(action.preset),
+        basePreset: action.presetName,
+        intensity: 1,
+      }));
+      return pushHistory(next);
     }
+
+    case "APPLY_PARAMS": {
+      const next = withActiveSlot(state, () => ({
+        params: cloneParams(action.params),
+        basePreset: action.basePreset,
+        intensity: action.intensity ?? 1,
+      }));
+      return pushHistory(next);
+    }
+
     case "UNDO": {
       if (state.historyIndex <= 0) return state;
-      const newIndex = state.historyIndex - 1;
-      return {
-        ...state,
-        params: { ...state.history[newIndex] },
-        historyIndex: newIndex,
-      };
+      const nextIndex = state.historyIndex - 1;
+      return restoreSnapshot(
+        {
+          ...state,
+          historyIndex: nextIndex,
+        },
+        state.history[nextIndex],
+      );
     }
+
     case "REDO": {
       if (state.historyIndex >= state.history.length - 1) return state;
-      const newIndex = state.historyIndex + 1;
-      return {
-        ...state,
-        params: { ...state.history[newIndex] },
-        historyIndex: newIndex,
-      };
-    }
-    case "BEFORE_AFTER_ON": {
-      if (state.beforeAfterStash !== null) return state;
-      return {
-        ...state,
-        beforeAfterStash: { ...state.params },
-        params: {
-          exposure: 0, contrast: 1, saturation: 1, temperature: 0,
-          rgbShift: 0, grainIntensity: 0, vignette: 0,
-          bloomThreshold: 0.8, bloomStrength: 0, bloomRadius: 0.4,
-          halationIntensity: 0, halationSpread: 15, halationHue: 0,
-          fade: 0, highlights: 0, shadows: 0,
+      const nextIndex = state.historyIndex + 1;
+      return restoreSnapshot(
+        {
+          ...state,
+          historyIndex: nextIndex,
         },
-      };
+        state.history[nextIndex],
+      );
     }
-    case "BEFORE_AFTER_OFF": {
-      if (state.beforeAfterStash === null) return state;
+
+    case "COMPARE_ON":
       return {
         ...state,
-        params: { ...state.beforeAfterStash },
+        compareMode: true,
+        activeSlot: slotsMatch(state.slotA, state.slotB) ? "B" : state.activeSlot,
+      };
+
+    case "COMPARE_OFF":
+      return {
+        ...state,
+        compareMode: false,
+      };
+
+    case "TOGGLE_COMPARE":
+      return state.compareMode
+        ? filmLabReducer(state, { type: "COMPARE_OFF" })
+        : filmLabReducer(state, { type: "COMPARE_ON" });
+
+    case "SWITCH_SLOT":
+      return {
+        ...state,
+        activeSlot:
+          action.slot ??
+          (state.activeSlot === "A" ? "B" : "A"),
+      };
+
+    case "BEFORE_AFTER_ON": {
+      if (state.beforeAfterStash) return state;
+
+      const key = activeSlotKey(state.activeSlot);
+      const resetSlot: GradeSlotState = {
+        params: cloneParams(PRESETS.reset),
+        basePreset: "reset",
+        intensity: 1,
+      };
+
+      return {
+        ...state,
+        beforeAfterStash: snapshot(state),
+        compareMode: false,
+        [key]: resetSlot,
+      };
+    }
+
+    case "BEFORE_AFTER_OFF":
+      if (!state.beforeAfterStash) return state;
+      return {
+        ...restoreSnapshot(state, state.beforeAfterStash),
         beforeAfterStash: null,
       };
-    }
+
     default:
       return state;
   }
 }
 
-// === 初期状態生成 ===
-export function createInitialState(initialParams: Params): State {
+export function createInitialState(
+  initialParams: Params,
+  initialPresetName: PresetName | null = null,
+): State {
+  const slot: GradeSlotState = {
+    params: cloneParams(initialParams),
+    basePreset: initialPresetName,
+    intensity: 1,
+  };
+
+  const present: PresentState = {
+    slotA: cloneSlot(slot),
+    slotB: cloneSlot(slot),
+    compareMode: false,
+    activeSlot: "A",
+  };
+
   return {
-    params: { ...initialParams },
-    history: [{ ...initialParams }],
+    ...present,
+    history: [snapshot(present)],
     historyIndex: 0,
     beforeAfterStash: null,
   };

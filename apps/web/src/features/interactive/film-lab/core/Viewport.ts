@@ -83,7 +83,7 @@ export class Viewport {
   private height: number;
 
   private renderer: THREE.WebGLRenderer | null = null;
-  private histogramBuffer: Uint8Array | null = null;
+  private histogramBuffer: Float32Array | null = null;
 
   constructor(options: ViewportOptions) {
     this.width = options.width;
@@ -527,16 +527,23 @@ export class Viewport {
   // ===== Histogram readback =====
 
   /** カラーグレード済みRTからピクセルデータを取得（ヒストグラム用） */
-  getHistogramPixels(): { pixels: Uint8Array; width: number; height: number } | null {
+  getHistogramPixels(): { pixels: Float32Array; width: number; height: number } | null {
     if (!this.rtColorGraded || !this.renderer) return null;
     const rt = this.rtColorGraded;
     const w = rt.width;
     const h = rt.height;
     const size = w * h * 4;
     if (!this.histogramBuffer || this.histogramBuffer.length !== size) {
-      this.histogramBuffer = new Uint8Array(size);
+      this.histogramBuffer = new Float32Array(size);
     }
-    this.renderer.readRenderTargetPixels(rt, 0, 0, w, h, this.histogramBuffer);
+    // Three.js readRenderTargetPixels passes HALF_FLOAT type to gl.readPixels (from RT texture type),
+    // but HALF_FLOAT requires Uint16Array. ANGLE/Metal also rejects UNSIGNED_BYTE on RGBA16F.
+    // Direct gl.readPixels with FLOAT type + Float32Array works on RGBA16F framebuffers.
+    const prevRT = this.renderer.getRenderTarget();
+    this.renderer.setRenderTarget(rt);
+    const gl = this.renderer.getContext() as WebGL2RenderingContext;
+    gl.readPixels(0, 0, w, h, gl.RGBA, gl.FLOAT, this.histogramBuffer);
+    this.renderer.setRenderTarget(prevRT);
     return { pixels: this.histogramBuffer, width: w, height: h };
   }
 
