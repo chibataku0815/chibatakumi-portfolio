@@ -7,6 +7,9 @@ const PRESET_BUTTONS: { name: PresetName; label: string }[] = [
   { name: "portra", label: "Portra" },
   { name: "gold200", label: "Gold 200" },
   { name: "pro400h", label: "Pro 400H" },
+  { name: "ektar100", label: "Ektar 100" },
+  { name: "superia400", label: "Superia" },
+  { name: "cinestill800t", label: "CineStill" },
   { name: "bw", label: "B&W" },
   { name: "reset", label: "Reset" },
 ];

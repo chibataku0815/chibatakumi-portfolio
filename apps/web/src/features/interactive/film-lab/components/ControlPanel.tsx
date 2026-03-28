@@ -25,6 +25,9 @@ interface Params {
   halationIntensity: number;
   halationSpread: number;
   halationHue: number;
+  fade: number;
+  highlights: number;
+  shadows: number;
 }
 
 const DEFAULTS: Params = { ...PRESETS.reset };
@@ -79,6 +82,15 @@ export function ControlPanel({ viewport }: ControlPanelProps) {
           break;
         case "halationSpread":
           viewport.setHalationSpread(value);
+          break;
+        case "fade":
+          viewport.setFade(value);
+          break;
+        case "highlights":
+          viewport.setHighlights(value);
+          break;
+        case "shadows":
+          viewport.setShadows(value);
           break;
       }
       setActivePreset("reset"); // カスタム変更時はプリセット解除
@@ -151,6 +163,9 @@ export function ControlPanel({ viewport }: ControlPanelProps) {
             <ControlSlider label="Contrast" value={params.contrast} min={0} max={3} step={0.01} defaultValue={1} onChange={(v) => updateParam("contrast", v)} />
             <ControlSlider label="Saturation" value={params.saturation} min={0} max={3} step={0.01} defaultValue={1} onChange={(v) => updateParam("saturation", v)} />
             <ControlSlider label="Temperature" value={params.temperature} min={-1} max={1} step={0.01} defaultValue={0} onChange={(v) => updateParam("temperature", v)} />
+            <ControlSlider label="Highlights" value={params.highlights} min={-1} max={1} step={0.01} defaultValue={0} onChange={(v) => updateParam("highlights", v)} />
+            <ControlSlider label="Shadows" value={params.shadows} min={-1} max={1} step={0.01} defaultValue={0} onChange={(v) => updateParam("shadows", v)} />
+            <ControlSlider label="Fade" value={params.fade} min={0} max={0.3} step={0.01} defaultValue={0} onChange={(v) => updateParam("fade", v)} />
           </div>
         </div>
 

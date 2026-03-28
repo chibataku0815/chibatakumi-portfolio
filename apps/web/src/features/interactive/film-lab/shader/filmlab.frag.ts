@@ -16,6 +16,10 @@ uniform float uRGBShift;
 uniform float uGrainIntensity;
 uniform float uVignette;
 
+uniform float uFade;
+uniform float uHighlights;
+uniform float uShadows;
+
 uniform float uSplitPosition;
 
 uniform highp sampler3D uLUT;
@@ -66,6 +70,14 @@ void main() {
   // Temperature
   color.r += uTemperature * 0.1;
   color.b -= uTemperature * 0.1;
+
+  // Fade (Lift — フィルムの「浮いた黒」)
+  color.rgb = color.rgb + uFade * (1.0 - color.rgb);
+
+  // Highlights / Shadows
+  float lumHS = dot(color.rgb, vec3(0.2126, 0.7152, 0.0722));
+  color.rgb += uShadows * (1.0 - lumHS) * 0.5;
+  color.rgb += uHighlights * lumHS * 0.5;
 
   // LUT (after all color grading)
   if (uLUTEnabled > 0.5) {

@@ -105,6 +105,9 @@ export class Viewport {
         uRGBShift: { value: 0.0 },
         uGrainIntensity: { value: 0.0 },
         uVignette: { value: 0.0 },
+        uFade: { value: 0.0 },
+        uHighlights: { value: 0.0 },
+        uShadows: { value: 0.0 },
         uSplitPosition: { value: 0.5 },
         uLUT: { value: null },
         uLUTIntensity: { value: 1.0 },
@@ -371,6 +374,18 @@ export class Viewport {
     this.material.uniforms.uTemperature!.value = value;
   }
 
+  setFade(value: number): void {
+    this.material.uniforms.uFade!.value = value;
+  }
+
+  setHighlights(value: number): void {
+    this.material.uniforms.uHighlights!.value = value;
+  }
+
+  setShadows(value: number): void {
+    this.material.uniforms.uShadows!.value = value;
+  }
+
   // ===== Effects Setters =====
 
   setRGBShift(value: number): void {
@@ -461,6 +476,9 @@ export class Viewport {
       rgbShift: this.material.uniforms.uRGBShift!.value as number,
       grainIntensity: this.material.uniforms.uGrainIntensity!.value as number,
       vignette: this.material.uniforms.uVignette!.value as number,
+      fade: this.material.uniforms.uFade!.value as number,
+      highlights: this.material.uniforms.uHighlights!.value as number,
+      shadows: this.material.uniforms.uShadows!.value as number,
       bloomThreshold: this.bloomThreshold,
       bloomStrength: this.bloomStrength,
       bloomRadius: this.bloomRadius,
@@ -485,6 +503,9 @@ export class Viewport {
       this.setGrainIntensity(params.grainIntensity as number);
     if (params.vignette !== undefined)
       this.setVignette(params.vignette as number);
+    if (params.fade !== undefined) this.setFade(params.fade as number);
+    if (params.highlights !== undefined) this.setHighlights(params.highlights as number);
+    if (params.shadows !== undefined) this.setShadows(params.shadows as number);
     if (params.bloomThreshold !== undefined)
       this.setBloomThreshold(params.bloomThreshold as number);
     if (params.bloomStrength !== undefined)
