@@ -23,6 +23,14 @@ export async function generateMetadata({
     openGraph: {
       title: t("ogTitle"),
       description: t("ogDescription"),
+      images: [
+        {
+          url: "/film-lab/og-image.jpg",
+          width: 1200,
+          height: 630,
+          alt: t("ogImageAlt"),
+        },
+      ],
       type: "website",
       locale: isJa ? "ja_JP" : "en_US",
     },
@@ -30,6 +38,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: t("ogTitle"),
       description: t("ogDescription"),
+      images: ["/film-lab/og-image.jpg"],
     },
     alternates: {
       canonical: canonicalUrl,
@@ -55,6 +64,8 @@ function getJsonLd(locale: string) {
     operatingSystem: "Any",
     browserRequirements: "WebGL2",
     inLanguage: isJa ? "ja" : "en",
+    image: `${BASE_URL}/film-lab/og-image.jpg`,
+    screenshot: `${BASE_URL}/film-lab/og-image.jpg`,
     author: {
       "@type": "Person",
       name: "Takumi Chiba",
