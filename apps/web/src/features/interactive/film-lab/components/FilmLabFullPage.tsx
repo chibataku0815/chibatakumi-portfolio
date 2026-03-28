@@ -31,6 +31,11 @@ export function FilmLabFullPage({
   const t = useTranslations("film-lab");
   const [viewport, setViewport] = useState<Viewport | null>(null);
   const [histogramVisible, setHistogramVisible] = useState(true);
+  /** 比較オン・編集スロット（キャンバス HUD 用） */
+  const [compareUi, setCompareUi] = useState<{
+    compareMode: boolean;
+    activeSlot: "A" | "B";
+  }>({ compareMode: false, activeSlot: "A" });
 
   const toggleHistogram = useCallback(() => {
     setHistogramVisible((prev) => !prev);
@@ -44,6 +49,9 @@ export function FilmLabFullPage({
           preset="cinematic"
           initialGradeParams={initialSharedParams}
           onViewportReady={setViewport}
+          compareHud={
+            compareUi.compareMode ? { activeSlot: compareUi.activeSlot } : null
+          }
         />
         <Histogram viewport={viewport} visible={histogramVisible} />
       </div>
@@ -55,6 +63,7 @@ export function FilmLabFullPage({
           histogramVisible={histogramVisible}
           onHistogramToggle={toggleHistogram}
           initialSharedParams={initialSharedParams}
+          onCompareUiChange={setCompareUi}
         />
       </div>
 

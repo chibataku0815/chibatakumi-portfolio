@@ -26,6 +26,11 @@ interface ControlPanelProps {
   onHistogramToggle?: () => void;
   /** サーバーで ?v=1&p= から復元したパラメータ（hydration 一致・初期表示用） */
   initialSharedParams?: Params | null;
+  /**
+   * 比較オン・編集スロットを親へ通知（キャンバス上の HUD と同期）。
+   * 未指定なら何もしない（ショーケース埋め込みなど）。
+   */
+  onCompareUiChange?: (ui: { compareMode: boolean; activeSlot: "A" | "B" }) => void;
 }
 
 export function ControlPanel({
@@ -33,6 +38,7 @@ export function ControlPanel({
   histogramVisible = true,
   onHistogramToggle,
   initialSharedParams = null,
+  onCompareUiChange,
 }: ControlPanelProps) {
   const pathname = usePathname();
   const tShare = useTranslations("film-lab.share");
@@ -127,6 +133,14 @@ export function ControlPanel({
     state.activeSlot,
     gradeToViewportRecord,
   ]);
+
+  /** 親（FilmLabFullPage）でキャンバス HUD と同期 */
+  useEffect(() => {
+    onCompareUiChange?.({
+      compareMode: state.compareMode,
+      activeSlot: state.activeSlot,
+    });
+  }, [state.compareMode, state.activeSlot, onCompareUiChange]);
 
   /** Bloom/Halation の ON はパラメータが 0 より大きいかどうかで決める（Undo とも自動で一致） */
   const bloomEnabled = params.bloomStrength > 0;
@@ -264,18 +278,21 @@ export function ControlPanel({
         return;
       }
 
+      // Space: Before/After（長押し）— repeat でも必ず preventDefault（長押し中のページスクロール防止）
+      if (e.key === " ") {
+        e.preventDefault();
+        if (!e.repeat) {
+          dispatch({ type: "BEFORE_AFTER_ON" });
+        }
+        return;
+      }
+
       // For remaining shortcuts, skip key repeat
       if (e.repeat) return;
 
       // Preset shortcuts: 0-8
       if (presetKeys[e.key]) {
         applyPreset(presetKeys[e.key]);
-        return;
-      }
-      // Space: Before/After (hold)
-      if (e.key === " ") {
-        e.preventDefault();
-        dispatch({ type: "BEFORE_AFTER_ON" });
         return;
       }
       // H: Histogram toggle
@@ -314,9 +331,17 @@ export function ControlPanel({
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
-      if (e.key === " ") {
-        dispatch({ type: "BEFORE_AFTER_OFF" });
+      if (e.key !== " ") return;
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement ||
+        (e.target instanceof HTMLElement && e.target.isContentEditable)
+      ) {
+        return;
       }
+      // keyup でも Space の既定（スクロール等）を抑止
+      e.preventDefault();
+      dispatch({ type: "BEFORE_AFTER_OFF" });
     };
 
     document.addEventListener("keydown", handleKeyDown, { capture: true });
@@ -362,46 +387,6 @@ export function ControlPanel({
           <p className="text-[10px] leading-snug text-white/35 sm:max-w-[240px] sm:text-right">{tFilmLab("mode.hint")}</p>
         </div>
 
-        <div className="mb-3 rounded-lg border border-white/[0.06] bg-black/40 px-3 py-2.5">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <ToggleHeader
-              title={tFilmLab("compare.title")}
-              enabled={state.compareMode}
-              onToggle={(on) => dispatch({ type: on ? "COMPARE_ON" : "COMPARE_OFF" })}
-            />
-            {state.compareMode ? (
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] text-white/35">{tFilmLab("compare.editLabel")}</span>
-                <div className="flex rounded-md border border-white/10 p-0.5" role="group">
-                  <button
-                    type="button"
-                    onClick={() => dispatch({ type: "SWITCH_SLOT", slot: "A" })}
-                    className={`rounded px-2.5 py-1 text-[10px] font-medium ${
-                      state.activeSlot === "A"
-                        ? "bg-[var(--accent-amber1)] text-black"
-                        : "text-white/55 hover:text-white/80"
-                    }`}
-                  >
-                    A
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => dispatch({ type: "SWITCH_SLOT", slot: "B" })}
-                    className={`rounded px-2.5 py-1 text-[10px] font-medium ${
-                      state.activeSlot === "B"
-                        ? "bg-[var(--accent-amber1)] text-black"
-                        : "text-white/55 hover:text-white/80"
-                    }`}
-                  >
-                    B
-                  </button>
-                </div>
-              </div>
-            ) : null}
-          </div>
-          <p className="mt-1.5 text-[10px] leading-snug text-white/30">{tFilmLab("compare.hint")}</p>
-        </div>
-
         {/* Grid: Quick = Color | Presets+Share / Pro = Color | Effects | LUT+Presets */}
         <div className={`grid grid-cols-1 gap-4 md:gap-6 ${isPro ? "md:grid-cols-3" : "md:grid-cols-2"}`}>
           {/* === COLOR GRADING === */}
@@ -412,10 +397,40 @@ export function ControlPanel({
               <ControlSlider label="Contrast" value={params.contrast} min={0} max={3} step={0.01} defaultValue={1} onChange={(v) => updateParam("contrast", v)} onCommit={commit} />
               <ControlSlider label="Saturation" value={params.saturation} min={0} max={3} step={0.01} defaultValue={1} onChange={(v) => updateParam("saturation", v)} onCommit={commit} />
               <ControlSlider label="Temperature" value={params.temperature} min={-1} max={1} step={0.01} defaultValue={0} onChange={(v) => updateParam("temperature", v)} onCommit={commit} />
+              <ControlSlider
+                label={tFilmLab("color.tint")}
+                value={params.tint}
+                min={-1}
+                max={1}
+                step={0.01}
+                defaultValue={0}
+                onChange={(v) => updateParam("tint", v)}
+                onCommit={commit}
+              />
               {isPro && (
                 <>
                   <ControlSlider label="Highlights" value={params.highlights} min={-1} max={1} step={0.01} defaultValue={0} onChange={(v) => updateParam("highlights", v)} onCommit={commit} />
                   <ControlSlider label="Shadows" value={params.shadows} min={-1} max={1} step={0.01} defaultValue={0} onChange={(v) => updateParam("shadows", v)} onCommit={commit} />
+                  <ControlSlider
+                    label={tFilmLab("color.shadowTone")}
+                    value={params.shadowTone}
+                    min={-1}
+                    max={1}
+                    step={0.01}
+                    defaultValue={0}
+                    onChange={(v) => updateParam("shadowTone", v)}
+                    onCommit={commit}
+                  />
+                  <ControlSlider
+                    label={tFilmLab("color.highlightTone")}
+                    value={params.highlightTone}
+                    min={-1}
+                    max={1}
+                    step={0.01}
+                    defaultValue={0}
+                    onChange={(v) => updateParam("highlightTone", v)}
+                    onCommit={commit}
+                  />
                 </>
               )}
               <ControlSlider label="Fade" value={params.fade} min={0} max={0.3} step={0.01} defaultValue={0} onChange={(v) => updateParam("fade", v)} onCommit={commit} />
@@ -452,7 +467,8 @@ export function ControlPanel({
 
           {/* === LUT + PRESETS === */}
           <div>
-            {isPro ? <LUTPanel viewport={viewport} /> : null}
+            {/* Quick でも .cube を読めるように常時表示（Effects/Bloom は Pro のみ） */}
+            <LUTPanel viewport={viewport} />
             <div className="mt-3 border-t border-white/[0.06] pt-3">
               <SectionHeader title="Presets" />
               <PresetBar activePreset={presetBarActive} onPreset={applyPreset} />
@@ -472,20 +488,102 @@ export function ControlPanel({
                 />
               </div>
             )}
-            <div className="mt-3">
+            <div className="mt-3 rounded-xl border border-white/[0.08] bg-gradient-to-b from-white/[0.04] to-black/20 p-3">
+              <p className="mb-3 text-[10px] font-medium uppercase tracking-[0.12em] text-white/45">
+                {tFilmLab("compare.sectionTitle")}
+              </p>
+
+              <div className="flex gap-3 rounded-lg border border-white/[0.06] bg-black/35 p-2.5">
+                <BeforeAfterPreviewIcon />
+                <div className="min-w-0 flex-1">
+                  <p className="text-[11px] font-medium leading-snug text-white/85">
+                    {tFilmLab("compare.beforeAfterTitle")}
+                  </p>
+                  <p className="mt-0.5 text-[10px] leading-snug text-white/38">
+                    {tFilmLab("compare.beforeAfterHint")}
+                  </p>
+                </div>
+              </div>
               <button
                 type="button"
                 onPointerDown={handleBeforeAfterPointerDown}
                 onPointerUp={handleBeforeAfterPointerEnd}
                 onPointerCancel={handleBeforeAfterPointerEnd}
                 onLostPointerCapture={handleBeforeAfterLostCapture}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-left text-[11px] text-white/65 transition-colors hover:bg-white/8 hover:text-white/80 active:bg-white/12 sm:py-2"
+                className="mt-2 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-left text-[11px] text-white/65 transition-colors hover:bg-white/8 hover:text-white/80 active:bg-white/12 sm:py-2"
               >
-                <span className="font-medium text-white/85">Hold for original</span>
-                <span className="mt-0.5 block text-[10px] text-white/40">
-                  Touch and hold — same as holding Space on desktop
-                </span>
+                <span className="font-medium text-white/85">{tFilmLab("compare.holdTitle")}</span>
+                <span className="mt-0.5 block text-[10px] text-white/40">{tFilmLab("compare.holdHint")}</span>
               </button>
+
+              <div className="my-3 h-px bg-white/[0.08]" />
+
+              <div className="flex gap-3">
+                <SplitLooksPreviewIcon />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="text-[11px] font-medium leading-snug text-white/85">
+                      {tFilmLab("compare.title")}
+                    </h3>
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={state.compareMode}
+                      onClick={() =>
+                        dispatch({ type: state.compareMode ? "COMPARE_OFF" : "COMPARE_ON" })
+                      }
+                      className={`mt-0.5 h-4 w-7 shrink-0 rounded-full transition-colors ${
+                        state.compareMode ? "bg-[var(--accent-amber1)]" : "bg-white/15"
+                      }`}
+                    >
+                      <span className="sr-only">{tFilmLab("compare.title")}</span>
+                      <span
+                        className={`block h-3 w-3 rounded-full bg-white transition-transform ${
+                          state.compareMode ? "translate-x-3.5" : "translate-x-0.5"
+                        }`}
+                      />
+                    </button>
+                  </div>
+                  <p className="mt-1.5 text-[10px] leading-relaxed text-white/38">
+                    {state.compareMode ? tFilmLab("compare.taglineOn") : tFilmLab("compare.taglineOff")}
+                  </p>
+                  {state.compareMode ? (
+                    <div className="mt-2 flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between">
+                      <span className="text-[10px] text-white/35">{tFilmLab("compare.editLabel")}</span>
+                      <div
+                        className="flex rounded-md border border-white/10 p-0.5"
+                        role="group"
+                        aria-label={tFilmLab("compare.editLabel")}
+                      >
+                        <button
+                          type="button"
+                          title={tFilmLab("compare.slotTooltipLeft")}
+                          onClick={() => dispatch({ type: "SWITCH_SLOT", slot: "A" })}
+                          className={`min-w-[2.75rem] rounded px-2 py-1.5 text-[11px] font-medium sm:py-1 ${
+                            state.activeSlot === "A"
+                              ? "bg-[var(--accent-amber1)] text-black"
+                              : "text-white/55 hover:text-white/80"
+                          }`}
+                        >
+                          {tFilmLab("compare.slotLeft")}
+                        </button>
+                        <button
+                          type="button"
+                          title={tFilmLab("compare.slotTooltipRight")}
+                          onClick={() => dispatch({ type: "SWITCH_SLOT", slot: "B" })}
+                          className={`min-w-[2.75rem] rounded px-2 py-1.5 text-[11px] font-medium sm:py-1 ${
+                            state.activeSlot === "B"
+                              ? "bg-[var(--accent-amber1)] text-black"
+                              : "text-white/55 hover:text-white/80"
+                          }`}
+                        >
+                          {tFilmLab("compare.slotRight")}
+                        </button>
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              </div>
             </div>
             <div className="mt-3 border-t border-white/[0.06] pt-3">
               <SectionHeader title="Share" />
@@ -518,6 +616,44 @@ export function ControlPanel({
 }
 
 /* ── Sub-components ───────────────────────────────────────────── */
+
+/**
+ * 「元の写真 | いまのルック」の並びを示すミニ図。比べ方カードで視覚的に役割を伝える。
+ */
+function BeforeAfterPreviewIcon() {
+  return (
+    <svg
+      width={44}
+      height={32}
+      viewBox="0 0 44 32"
+      className="shrink-0 text-white/30"
+      aria-hidden
+    >
+      <rect x="1" y="5" width="19" height="22" rx="3" fill="currentColor" opacity="0.45" />
+      <rect x="24" y="5" width="19" height="22" rx="3" fill="var(--accent-amber1)" opacity="0.55" />
+    </svg>
+  );
+}
+
+/**
+ * 左右分割で2ルックを並べるモードを示すミニ図（中央に縦線）。
+ */
+function SplitLooksPreviewIcon() {
+  return (
+    <svg
+      width={44}
+      height={32}
+      viewBox="0 0 44 32"
+      className="shrink-0 text-white/30"
+      aria-hidden
+    >
+      <rect x="1" y="5" width="42" height="22" rx="3" fill="currentColor" opacity="0.15" />
+      <rect x="1" y="5" width="20" height="22" rx="3" fill="var(--accent-amber1)" opacity="0.35" />
+      <rect x="23" y="5" width="20" height="22" rx="3" fill="var(--accent-amber1)" opacity="0.6" />
+      <line x1="22" y1="5" x2="22" y2="27" stroke="white" strokeWidth="1.2" opacity="0.45" />
+    </svg>
+  );
+}
 
 function SectionHeader({ title }: { title: string }) {
   return (

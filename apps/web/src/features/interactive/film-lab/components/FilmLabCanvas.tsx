@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useCallback, useState } from "react";
+import { useTranslations } from "next-intl";
 import * as THREE from "three";
 import { isWebGL2Supported, getOptimalPixelRatio } from "@/shared/gl";
 import { Viewport } from "../core/Viewport";
@@ -21,6 +22,11 @@ interface FilmLabCanvasProps {
    * デフォルト画像読み込み後の setParams もこの値に合わせる（ControlPanel と競合しないようにする）。
    */
   initialGradeParams?: Params | null;
+  /**
+   * 比較モード中のみ渡す。プレビュー上に「左/右」ラベル・編集中チップ・境界ドラッグのヒントを重ねる。
+   * pointer-events-none でスプリット操作と干渉しない。
+   */
+  compareHud?: { activeSlot: "A" | "B" } | null;
 }
 
 /** ファイルピッカー用: HEIC を選びにくくしつつ、一般的な形式はそのまま選べる */
@@ -38,7 +44,9 @@ export function FilmLabCanvas({
   fullScreen,
   onViewportReady,
   initialGradeParams = null,
+  compareHud = null,
 }: FilmLabCanvasProps) {
+  const tFilmLab = useTranslations("film-lab");
   const containerRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<Viewport | null>(null);
   const mediaLoaderRef = useRef<MediaLoader | null>(null);
@@ -323,6 +331,43 @@ export function FilmLabCanvas({
           Save PNG
         </button>
       </div>
+
+      {/* 比較モード: 編集中がどちらか + 左右ラベル + 境界操作のヒント */}
+      {compareHud != null && (
+        <>
+          <div className="pointer-events-none absolute left-0 right-0 top-16 z-[6] flex justify-center px-3 sm:top-[4.5rem]">
+            <span className="rounded-full bg-black/55 px-2.5 py-1 text-[10px] font-medium text-white/80 ring-1 ring-white/15 backdrop-blur-sm">
+              {tFilmLab("compare.dragSplitHint")}
+            </span>
+          </div>
+          <div className="pointer-events-none absolute bottom-10 left-0 right-0 z-[6] flex justify-center px-3 sm:bottom-11">
+            <span className="rounded-full bg-[var(--accent-amber1)]/95 px-3 py-1 text-[10px] font-semibold text-black shadow-lg ring-1 ring-black/20 backdrop-blur-sm">
+              {compareHud.activeSlot === "A"
+                ? tFilmLab("compare.editingLeftChip")
+                : tFilmLab("compare.editingRightChip")}
+            </span>
+          </div>
+          <div
+            className="pointer-events-none absolute bottom-2 left-0 right-0 z-[5] flex justify-between gap-2 px-3 sm:bottom-3"
+            aria-hidden
+          >
+            <span
+              className={`max-w-[42%] truncate text-[9px] font-medium sm:text-[10px] ${
+                compareHud.activeSlot === "A" ? "text-[var(--accent-amber1)]" : "text-white/40"
+              }`}
+            >
+              {tFilmLab("compare.canvasLeft")}
+            </span>
+            <span
+              className={`max-w-[42%] truncate text-right text-[9px] font-medium sm:text-[10px] ${
+                compareHud.activeSlot === "B" ? "text-[var(--accent-amber1)]" : "text-white/40"
+              }`}
+            >
+              {tFilmLab("compare.canvasRight")}
+            </span>
+          </div>
+        </>
+      )}
 
       {/* Drag overlay */}
       {isDragging && (

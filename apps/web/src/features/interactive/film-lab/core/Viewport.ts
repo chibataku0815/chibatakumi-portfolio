@@ -47,6 +47,18 @@ function hexToVec3(hex: string): THREE.Vector3 {
   return new THREE.Vector3(c.r, c.g, c.b);
 }
 
+/**
+ * スプリットトーン（シャドウ）: `shadowTone` スカラー（-1〜1）に掛けて `uShadowTint` へ送る固定方向。
+ * 青寄りで陰影に「冷たさ」を足す想定（filmlab.frag は lum マスク後に加算）。
+ */
+const SHADOW_TONE_DIRECTION = new THREE.Vector3(0.12, 0.18, 0.42);
+
+/**
+ * スプリットトーン（ハイライト）: `highlightTone` に掛けて `uHighlightTint` へ送る固定方向。
+ * 暖色寄りでハイライトにフィルム感を足す想定。
+ */
+const HIGHLIGHT_TONE_DIRECTION = new THREE.Vector3(0.38, 0.16, 0.06);
+
 export class Viewport {
   mesh: THREE.Mesh;
   private material: THREE.ShaderMaterial;
@@ -112,6 +124,9 @@ export class Viewport {
         uContrast: { value: 1.0 },
         uSaturation: { value: 1.0 },
         uTemperature: { value: 0.0 },
+        uTint: { value: 0.0 },
+        uShadowTint: { value: new THREE.Vector3(0, 0, 0) },
+        uHighlightTint: { value: new THREE.Vector3(0, 0, 0) },
         uRGBShift: { value: 0.0 },
         uGrainIntensity: { value: 0.0 },
         uVignette: { value: 0.0 },
@@ -479,6 +494,32 @@ export class Viewport {
     this.material.uniforms.uTemperature!.value = value;
   }
 
+  /**
+   * グリーン／マゼンタ軸の色かぶり（シェーダー `uTint`）。
+   * @param value -1〜1 程度（プリセットと `types.Params.tint` に対応）
+   */
+  setTint(value: number): void {
+    this.material.uniforms.uTint!.value = value;
+  }
+
+  /**
+   * シャドウ域へのスプリットトーン強度。内部で固定色ベクトルにスカラー倍して `uShadowTint` を更新する。
+   * @param value -1〜1（`types.Params.shadowTone`）
+   */
+  setShadowTone(value: number): void {
+    const u = this.material.uniforms.uShadowTint!.value as THREE.Vector3;
+    u.copy(SHADOW_TONE_DIRECTION).multiplyScalar(value);
+  }
+
+  /**
+   * ハイライト域へのスプリットトーン強度（`types.Params.highlightTone`）。
+   * @param value -1〜1
+   */
+  setHighlightTone(value: number): void {
+    const u = this.material.uniforms.uHighlightTint!.value as THREE.Vector3;
+    u.copy(HIGHLIGHT_TONE_DIRECTION).multiplyScalar(value);
+  }
+
   setFade(value: number): void {
     this.material.uniforms.uFade!.value = value;
   }
@@ -578,6 +619,17 @@ export class Viewport {
       contrast: this.material.uniforms.uContrast!.value as number,
       saturation: this.material.uniforms.uSaturation!.value as number,
       temperature: this.material.uniforms.uTemperature!.value as number,
+      tint: this.material.uniforms.uTint!.value as number,
+      shadowTone: (() => {
+        const u = this.material.uniforms.uShadowTint!.value as THREE.Vector3;
+        const d = SHADOW_TONE_DIRECTION.x;
+        return d !== 0 ? u.x / d : 0;
+      })(),
+      highlightTone: (() => {
+        const u = this.material.uniforms.uHighlightTint!.value as THREE.Vector3;
+        const d = HIGHLIGHT_TONE_DIRECTION.x;
+        return d !== 0 ? u.x / d : 0;
+      })(),
       rgbShift: this.material.uniforms.uRGBShift!.value as number,
       grainIntensity: this.material.uniforms.uGrainIntensity!.value as number,
       vignette: this.material.uniforms.uVignette!.value as number,
@@ -602,6 +654,11 @@ export class Viewport {
       this.setSaturation(params.saturation as number);
     if (params.temperature !== undefined)
       this.setTemperature(params.temperature as number);
+    if (params.tint !== undefined) this.setTint(params.tint as number);
+    if (params.shadowTone !== undefined)
+      this.setShadowTone(params.shadowTone as number);
+    if (params.highlightTone !== undefined)
+      this.setHighlightTone(params.highlightTone as number);
     if (params.rgbShift !== undefined)
       this.setRGBShift(params.rgbShift as number);
     if (params.grainIntensity !== undefined)
