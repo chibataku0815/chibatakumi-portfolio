@@ -16,6 +16,9 @@ import {
   createInitialStateFromSharedParams,
 } from "./film-lab-reducer";
 
+/** UI の見せ方だけを切り替える。グレードの数値（reducer）は Quick でも Pro でも同じ */
+type UiMode = "quick" | "pro";
+
 interface ControlPanelProps {
   viewport: Viewport | null;
   histogramVisible?: boolean;
@@ -32,6 +35,7 @@ export function ControlPanel({
 }: ControlPanelProps) {
   const pathname = usePathname();
   const tShare = useTranslations("film-lab.share");
+  const tFilmLab = useTranslations("film-lab");
 
   /** URL 共有が無いときは Cinematic＋basePreset、あるときはそのスナップショットで初期化 */
   const [state, dispatch] = useReducer(
@@ -45,12 +49,6 @@ export function ControlPanel({
   const [activePreset, setActivePreset] = useState<PresetName>(() =>
     initialSharedParams ? findMatchingPreset(initialSharedParams) ?? "reset" : "cinematic",
   );
-  const [bloomEnabled, setBloomEnabled] = useState(
-    () => (initialSharedParams?.bloomStrength ?? PRESETS.cinematic.bloomStrength) > 0,
-  );
-  const [halationEnabled, setHalationEnabled] = useState(
-    () => (initialSharedParams?.halationIntensity ?? PRESETS.cinematic.halationIntensity) > 0,
-  );
   const [savedBloomStrength, setSavedBloomStrength] = useState(0.3);
   const [savedHalationIntensity, setSavedHalationIntensity] = useState(0.25);
   const [effectsOpen, setEffectsOpen] = useState(true);
@@ -60,6 +58,9 @@ export function ControlPanel({
   const [linkCopied, setLinkCopied] = useState(false);
   const copyFeedbackTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  /** デスクトップは Pro、狭い画面は Quick を初期表示（SSR と一致させるため初回は Pro → effect で Quick に寄せる） */
+  const [uiMode, setUiMode] = useState<UiMode>("pro");
+
   useEffect(
     () => () => {
       if (copyFeedbackTimeoutRef.current) clearTimeout(copyFeedbackTimeoutRef.current);
@@ -67,12 +68,18 @@ export function ControlPanel({
     [],
   );
 
-  // Mobile: close Effects section by default
+  // Mobile: close Effects section by default + Quick モードを既定に
+  // matchMedia はクライアント専用のため effect で寄せる（SSR は Pro / Effects 開を仮定しハイドレーション後に修正）
   useEffect(() => {
+    /* eslint-disable react-hooks/set-state-in-effect -- intentional client-only media default */
     if (!window.matchMedia("(min-width: 768px)").matches) {
       setEffectsOpen(false);
+      setUiMode("quick");
     }
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
+
+  const isPro = uiMode === "pro";
 
   const activeSlotState = state.activeSlot === "A" ? state.slotA : state.slotB;
   const params = activeSlotState.params;
@@ -98,14 +105,9 @@ export function ControlPanel({
     } as Record<string, number | string>);
   }, [params, viewport]);
 
-  // Sync toggle states after Undo/Redo
-  useEffect(() => {
-    setBloomEnabled(params.bloomStrength > 0);
-  }, [params.bloomStrength]);
-
-  useEffect(() => {
-    setHalationEnabled(params.halationIntensity > 0);
-  }, [params.halationIntensity]);
+  /** Bloom/Halation の ON はパラメータが 0 より大きいかどうかで決める（Undo とも自動で一致） */
+  const bloomEnabled = params.bloomStrength > 0;
+  const halationEnabled = params.halationIntensity > 0;
 
   const updateParam = useCallback((key: keyof Params, value: number) => {
     dispatch({ type: "SET_PARAM", key, value });
@@ -143,7 +145,6 @@ export function ControlPanel({
 
   const toggleBloom = useCallback(
     (on: boolean) => {
-      setBloomEnabled(on);
       if (on) {
         dispatch({ type: "SET_PARAM", key: "bloomStrength", value: savedBloomStrength || 0.3 });
       } else {
@@ -158,7 +159,6 @@ export function ControlPanel({
 
   const toggleHalation = useCallback(
     (on: boolean) => {
-      setHalationEnabled(on);
       if (on) {
         dispatch({ type: "SET_PARAM", key: "halationIntensity", value: savedHalationIntensity || 0.25 });
       } else {
@@ -175,8 +175,6 @@ export function ControlPanel({
     const preset = PRESETS[name];
     dispatch({ type: "APPLY_PRESET", presetName: name, preset: { ...preset } as Params });
     setActivePreset(name);
-    setBloomEnabled(preset.bloomStrength > 0);
-    setHalationEnabled(preset.halationIntensity > 0);
   }, []);
 
   /**
@@ -262,6 +260,12 @@ export function ControlPanel({
         onHistogramToggle?.();
         return;
       }
+      // P: Quick / Pro（入力中は無視）
+      if (e.key === "p" || e.key === "P") {
+        e.preventDefault();
+        setUiMode((m) => (m === "quick" ? "pro" : "quick"));
+        return;
+      }
       // ?: Shortcut help
       if (e.key === "?") {
         setShowHelp((prev) => !prev);
@@ -291,8 +295,40 @@ export function ControlPanel({
   return (
     <>
       <div className="rounded-lg border border-white/[0.06] bg-black/60 p-4 backdrop-blur-xl">
-        {/* Grid: Color | Effects | LUT + Presets */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-6">
+        <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div
+            className="flex rounded-lg border border-white/10 p-0.5"
+            role="group"
+            aria-label={tFilmLab("mode.hint")}
+          >
+            <button
+              type="button"
+              onClick={() => setUiMode("quick")}
+              className={`flex-1 rounded-md px-3 py-2 text-center text-[11px] font-medium transition-colors sm:flex-none sm:px-4 ${
+                uiMode === "quick"
+                  ? "bg-[var(--accent-amber1)] text-black"
+                  : "text-white/55 hover:text-white/75"
+              }`}
+            >
+              {tFilmLab("mode.quick")}
+            </button>
+            <button
+              type="button"
+              onClick={() => setUiMode("pro")}
+              className={`flex-1 rounded-md px-3 py-2 text-center text-[11px] font-medium transition-colors sm:flex-none sm:px-4 ${
+                uiMode === "pro"
+                  ? "bg-[var(--accent-amber1)] text-black"
+                  : "text-white/55 hover:text-white/75"
+              }`}
+            >
+              {tFilmLab("mode.pro")}
+            </button>
+          </div>
+          <p className="text-[10px] leading-snug text-white/35 sm:max-w-[240px] sm:text-right">{tFilmLab("mode.hint")}</p>
+        </div>
+
+        {/* Grid: Quick = Color | Presets+Share / Pro = Color | Effects | LUT+Presets */}
+        <div className={`grid grid-cols-1 gap-4 md:gap-6 ${isPro ? "md:grid-cols-3" : "md:grid-cols-2"}`}>
           {/* === COLOR GRADING === */}
           <div>
             <SectionHeader title="Color" />
@@ -301,13 +337,18 @@ export function ControlPanel({
               <ControlSlider label="Contrast" value={params.contrast} min={0} max={3} step={0.01} defaultValue={1} onChange={(v) => updateParam("contrast", v)} onCommit={commit} />
               <ControlSlider label="Saturation" value={params.saturation} min={0} max={3} step={0.01} defaultValue={1} onChange={(v) => updateParam("saturation", v)} onCommit={commit} />
               <ControlSlider label="Temperature" value={params.temperature} min={-1} max={1} step={0.01} defaultValue={0} onChange={(v) => updateParam("temperature", v)} onCommit={commit} />
-              <ControlSlider label="Highlights" value={params.highlights} min={-1} max={1} step={0.01} defaultValue={0} onChange={(v) => updateParam("highlights", v)} onCommit={commit} />
-              <ControlSlider label="Shadows" value={params.shadows} min={-1} max={1} step={0.01} defaultValue={0} onChange={(v) => updateParam("shadows", v)} onCommit={commit} />
+              {isPro && (
+                <>
+                  <ControlSlider label="Highlights" value={params.highlights} min={-1} max={1} step={0.01} defaultValue={0} onChange={(v) => updateParam("highlights", v)} onCommit={commit} />
+                  <ControlSlider label="Shadows" value={params.shadows} min={-1} max={1} step={0.01} defaultValue={0} onChange={(v) => updateParam("shadows", v)} onCommit={commit} />
+                </>
+              )}
               <ControlSlider label="Fade" value={params.fade} min={0} max={0.3} step={0.01} defaultValue={0} onChange={(v) => updateParam("fade", v)} onCommit={commit} />
             </div>
           </div>
 
-          {/* === EFFECTS === */}
+          {/* === EFFECTS（Pro のみ） === */}
+          {isPro ? (
           <div>
             <CollapsibleHeader title="Effects" open={effectsOpen} onToggle={() => setEffectsOpen(!effectsOpen)} />
             {effectsOpen && (
@@ -332,10 +373,11 @@ export function ControlPanel({
               <HueSlider value={params.halationHue} onChange={updateHalationHue} onCommit={commit} />
             </div>
           </div>
+          ) : null}
 
           {/* === LUT + PRESETS === */}
           <div>
-            <LUTPanel viewport={viewport} />
+            {isPro ? <LUTPanel viewport={viewport} /> : null}
             <div className="mt-3 border-t border-white/[0.06] pt-3">
               <SectionHeader title="Presets" />
               <PresetBar activePreset={presetBarActive} onPreset={applyPreset} />
@@ -499,22 +541,28 @@ function ToggleHeader({
   );
 }
 
+/**
+ * ショートカット一覧モーダル。文言は next-intl（film-lab.shortcuts）に寄せる。
+ */
 function ShortcutHelp({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const t = useTranslations("film-lab.shortcuts");
+
   if (!open) return null;
 
   const isMac = typeof navigator !== "undefined" && /Mac|iPod|iPhone|iPad/.test(navigator.userAgent);
   const mod = isMac ? "\u2318" : "Ctrl";
 
-  const shortcuts = [
-    { key: "1 \u2013 8", action: "Select preset" },
-    { key: "0", action: "Reset" },
-    { key: "Space", action: "Before / After (hold)" },
-    { key: "Hold button", action: "Before / After on touch devices" },
-    { key: "Preset slider", action: "Blend film preset vs neutral (when preset active)" },
-    { key: `${mod}+Z`, action: "Undo" },
-    { key: `${mod}+Shift+Z`, action: "Redo" },
-    { key: "H", action: "Toggle histogram" },
-    { key: "?", action: "This help" },
+  const shortcuts: { key: string; action: string }[] = [
+    { key: "1 \u2013 8", action: t("presetSelect") },
+    { key: "0", action: t("reset") },
+    { key: "Space", action: t("beforeAfter") },
+    { key: "Hold button", action: t("holdButton") },
+    { key: "Preset slider", action: t("presetSlider") },
+    { key: `${mod}+Z`, action: t("undo") },
+    { key: `${mod}+Shift+Z`, action: t("redo") },
+    { key: "P", action: t("toggleMode") },
+    { key: "H", action: t("histogram") },
+    { key: "?", action: t("help") },
   ];
 
   return (
@@ -526,7 +574,7 @@ function ShortcutHelp({ open, onClose }: { open: boolean; onClose: () => void })
         className="max-w-sm rounded-xl border border-white/10 bg-[#1a1a1a] p-6 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="mb-4 text-sm font-medium text-white/80">Keyboard Shortcuts</h2>
+        <h2 className="mb-4 text-sm font-medium text-white/80">{t("title")}</h2>
         <div className="space-y-2.5">
           {shortcuts.map((s) => (
             <div key={s.key} className="flex items-center justify-between gap-8">
@@ -537,7 +585,7 @@ function ShortcutHelp({ open, onClose }: { open: boolean; onClose: () => void })
             </div>
           ))}
         </div>
-        <p className="mt-4 text-[10px] text-white/30">Press ? or Esc to close</p>
+        <p className="mt-4 text-[10px] text-white/30">{t("closeHint")}</p>
       </div>
     </div>
   );
