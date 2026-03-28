@@ -82,6 +82,9 @@ export class Viewport {
   private width: number;
   private height: number;
 
+  private renderer: THREE.WebGLRenderer | null = null;
+  private histogramBuffer: Uint8Array | null = null;
+
   constructor(options: ViewportOptions) {
     this.width = options.width;
     this.height = options.height;
@@ -231,6 +234,7 @@ export class Viewport {
     camera: THREE.Camera,
   ): void {
     this.ensureRenderTargets();
+    this.renderer = renderer;
 
     // Sync composite uniforms from color grade material
     const cu = this.compositeMaterial.uniforms;
@@ -520,6 +524,22 @@ export class Viewport {
       this.setHalationColor(params.halationColor as string);
   }
 
+  // ===== Histogram readback =====
+
+  /** カラーグレード済みRTからピクセルデータを取得（ヒストグラム用） */
+  getHistogramPixels(): { pixels: Uint8Array; width: number; height: number } | null {
+    if (!this.rtColorGraded || !this.renderer) return null;
+    const rt = this.rtColorGraded;
+    const w = rt.width;
+    const h = rt.height;
+    const size = w * h * 4;
+    if (!this.histogramBuffer || this.histogramBuffer.length !== size) {
+      this.histogramBuffer = new Uint8Array(size);
+    }
+    this.renderer.readRenderTargetPixels(rt, 0, 0, w, h, this.histogramBuffer);
+    return { pixels: this.histogramBuffer, width: w, height: h };
+  }
+
   // ===== Dispose =====
 
   dispose(): void {
@@ -539,5 +559,7 @@ export class Viewport {
     if (lutTexture) lutTexture.dispose();
     const mediaTexture = this.material.uniforms.uTexture?.value as THREE.Texture | null;
     if (mediaTexture) mediaTexture.dispose();
+    this.histogramBuffer = null;
+    this.renderer = null;
   }
 }

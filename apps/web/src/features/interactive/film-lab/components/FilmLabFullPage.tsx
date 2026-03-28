@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
@@ -16,21 +16,34 @@ const ControlPanel = dynamic(
   { ssr: false },
 );
 
+const Histogram = dynamic(
+  () => import("./ui/Histogram").then((m) => ({ default: m.Histogram })),
+  { ssr: false },
+);
+
 export function FilmLabFullPage() {
   const t = useTranslations("film-lab");
   const [viewport, setViewport] = useState<Viewport | null>(null);
+  const [histogramVisible, setHistogramVisible] = useState(true);
+
+  const toggleHistogram = useCallback(() => {
+    setHistogramVisible((prev) => !prev);
+  }, []);
 
   return (
     <div className="mx-auto max-w-6xl px-4 pt-20 pb-8 sm:px-6 sm:pt-32 sm:pb-12">
-      {/* Canvas */}
-      <FilmLabCanvas
-        preset="cinematic"
-        onViewportReady={setViewport}
-      />
+      {/* Canvas + Histogram overlay */}
+      <div className="relative">
+        <FilmLabCanvas
+          preset="cinematic"
+          onViewportReady={setViewport}
+        />
+        <Histogram viewport={viewport} visible={histogramVisible} />
+      </div>
 
       {/* ControlPanel */}
       <div className="mt-3">
-        <ControlPanel viewport={viewport} />
+        <ControlPanel viewport={viewport} onHistogramToggle={toggleHistogram} />
       </div>
 
       {/* Back link */}

@@ -8,9 +8,10 @@ interface ControlSliderProps {
   step: number;
   defaultValue: number;
   onChange: (value: number) => void;
+  onCommit?: () => void;
 }
 
-export function ControlSlider({ label, value, min, max, step, defaultValue, onChange }: ControlSliderProps) {
+export function ControlSlider({ label, value, min, max, step, defaultValue, onChange, onCommit }: ControlSliderProps) {
   // ダブルクリックでデフォルト値にリセット
   const handleDoubleClick = () => onChange(defaultValue);
 
@@ -36,6 +37,8 @@ export function ControlSlider({ label, value, min, max, step, defaultValue, onCh
         step={step}
         value={value}
         onChange={(e) => onChange(parseFloat(e.target.value))}
+        onPointerUp={() => onCommit?.()}
+        onTouchEnd={() => onCommit?.()}
         className="film-lab-slider h-1.5 flex-1 cursor-pointer appearance-none rounded-full touch-none sm:h-1"
         style={{
           background: `linear-gradient(to right, var(--accent-amber1) 0%, var(--accent-amber1) ${percent}%, rgba(255,255,255,0.08) ${percent}%, rgba(255,255,255,0.08) 100%)`
