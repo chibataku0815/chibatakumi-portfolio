@@ -13,7 +13,6 @@
     "e2e:preset-quality": "playwright test e2e/preset-quality-snapshots.spec.ts"
   },
   "dependencies": {
-    "film-lab-core": "workspace:*",
     "@fontsource/noto-sans-jp": "5.2.5",
     "@radix-ui/colors": "^3.0.0",
     "@radix-ui/react-popover": "^1.1.15",
@@ -21,11 +20,13 @@
     "@react-three/fiber": "^9.4.2",
     "@types/three": "^0.181.0",
     "date-fns": "^4.1.0",
+    "film-lab-core": "workspace:*",
     "gsap": "^3.13.0",
     "next": "16.0.7",
     "next-intl": "^4.8.3",
     "react": "19.2.1",
     "react-dom": "19.2.1",
+    "stripe": "^17.5.0",
     "three": "^0.181.2"
   },
   "devDependencies": {

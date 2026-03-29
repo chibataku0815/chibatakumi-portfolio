@@ -3,7 +3,7 @@
 /**
  * @file Film Lab の任意寄付 UI（フッター・保存後モーダル・LUT バナー・プレゼン用ヒント）。
  * @description 表示条件は親が持ち、本コンポーネントは描画とクリック計測のみ担当する。
- * @limitations Phase 1 は外部 URL へのリンクのみ。決済成功のサーバ検証はない。
+ * @limitations Phase 1 は外部 URL へのリンクのみ。Phase 1.5 は supporterAck で主 CTA を弱める（サーバ未検証）。
  */
 
 import { useCallback, useEffect, useRef } from "react";
@@ -23,6 +23,8 @@ export type FilmLabDonationLayerProps = {
   locale: string;
   /** プレゼンモード ON のときは寄付 UI を一切出さない */
   presentMode: boolean;
+  /** Thanks 戻り等で主ナッジ（黄 Stripe）を出さないモード */
+  supporterAck: boolean;
   saveModalOpen: boolean;
   onSaveModalClose: () => void;
   lutBannerOpen: boolean;
@@ -40,6 +42,7 @@ export function FilmLabDonationLayer({
   bmcUrl,
   locale,
   presentMode,
+  supporterAck,
   saveModalOpen,
   onSaveModalClose,
   lutBannerOpen,
@@ -49,21 +52,35 @@ export function FilmLabDonationLayer({
 }: FilmLabDonationLayerProps) {
   const t = useTranslations("film-lab.donation");
   const footerImpressionSent = useRef(false);
+  const supporterFooterImpressionSent = useRef(false);
 
   const hasStripe = stripeTiers.length > 0;
   /** LUT バナーはスリムのため、既定は最も低い金額のリンクだけ出す */
   const lutBannerTier = stripeTiers[0] ?? null;
 
   useEffect(() => {
-    if (presentMode || footerImpressionSent.current) return;
+    if (presentMode) return;
+    if (supporterAck) {
+      if (supporterFooterImpressionSent.current) return;
+      supporterFooterImpressionSent.current = true;
+      trackFilmLabDonationEvent("donation_nudge_impression", {
+        surface: "footer",
+        locale,
+        variant: VARIANT,
+        nudge_mode: "supporter",
+      });
+      return;
+    }
+    if (footerImpressionSent.current) return;
     if (!hasStripe && !bmcUrl) return;
     footerImpressionSent.current = true;
     trackFilmLabDonationEvent("donation_nudge_impression", {
       surface: "footer",
       locale,
       variant: VARIANT,
+      nudge_mode: "default",
     });
-  }, [presentMode, hasStripe, bmcUrl, locale]);
+  }, [presentMode, supporterAck, hasStripe, bmcUrl, locale]);
 
   useEffect(() => {
     if (!saveModalOpen) return;
@@ -71,8 +88,9 @@ export function FilmLabDonationLayer({
       surface: "preset_save_modal",
       locale,
       variant: VARIANT,
+      nudge_mode: supporterAck ? "supporter" : "default",
     });
-  }, [saveModalOpen, locale]);
+  }, [saveModalOpen, locale, supporterAck]);
 
   const openStripeTier = useCallback(
     (
@@ -83,12 +101,13 @@ export function FilmLabDonationLayer({
         surface,
         locale,
         variant: VARIANT,
+        nudge_mode: supporterAck ? "supporter" : "default",
         provider: "stripe",
         stripeTierUsd: String(tier.amountUsd),
       });
       window.open(tier.url, "_blank", "noopener,noreferrer");
     },
-    [locale],
+    [locale, supporterAck],
   );
 
   const openBmc = useCallback(
@@ -98,11 +117,12 @@ export function FilmLabDonationLayer({
         surface,
         locale,
         variant: VARIANT,
+        nudge_mode: supporterAck ? "supporter" : "default",
         provider: "bmc",
       });
       window.open(bmcUrl, "_blank", "noopener,noreferrer");
     },
-    [locale, bmcUrl],
+    [locale, bmcUrl, supporterAck],
   );
 
   const dismissModal = useCallback(
@@ -111,11 +131,12 @@ export function FilmLabDonationLayer({
         surface: "preset_save_modal",
         locale,
         variant: VARIANT,
+        nudge_mode: supporterAck ? "supporter" : "default",
         method,
       });
       onSaveModalClose();
     },
-    [locale, onSaveModalClose],
+    [locale, onSaveModalClose, supporterAck],
   );
 
   useEffect(() => {
@@ -133,40 +154,53 @@ export function FilmLabDonationLayer({
 
   return (
     <>
-      {(hasStripe || bmcUrl) && (
+      {(supporterAck || hasStripe || bmcUrl) && (
         <footer
           className="mt-6 border-t border-[var(--text-base-20)] pt-4"
           aria-label={t("footer.ariaSupportSection")}
         >
           <p className="mb-2 text-xs leading-relaxed text-[var(--text-base-60)]">
-            {t("footer.shortLine")}
+            {supporterAck ? t("supporter.footer_shortLine") : t("footer.shortLine")}
           </p>
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
-            {stripeTiers.length === 1 ? (
-              <button
-                type="button"
-                onClick={() => openStripeTier("footer", stripeTiers[0])}
-                className="text-[var(--accent-amber1)] underline decoration-white/20 underline-offset-2 transition-colors hover:decoration-[var(--accent-amber1)]"
-                aria-label={t("footer.ariaOpenStripe")}
-              >
-                {t("footer.linkStripe")}
-              </button>
-            ) : (
-              stripeTiers.map((tier) => (
+          {!supporterAck ? (
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+              {stripeTiers.length === 1 ? (
                 <button
-                  key={tier.amountUsd}
                   type="button"
-                  onClick={() => openStripeTier("footer", tier)}
+                  onClick={() => openStripeTier("footer", stripeTiers[0])}
                   className="text-[var(--accent-amber1)] underline decoration-white/20 underline-offset-2 transition-colors hover:decoration-[var(--accent-amber1)]"
-                  aria-label={t("footer.ariaOpenStripeTier", {
-                    amountUsd: tier.amountUsd,
-                  })}
+                  aria-label={t("footer.ariaOpenStripe")}
                 >
-                  {t("footer.linkStripeAmount", { amountUsd: tier.amountUsd })}
+                  {t("footer.linkStripe")}
                 </button>
-              ))
-            )}
-            {bmcUrl ? (
+              ) : (
+                stripeTiers.map((tier) => (
+                  <button
+                    key={tier.amountUsd}
+                    type="button"
+                    onClick={() => openStripeTier("footer", tier)}
+                    className="text-[var(--accent-amber1)] underline decoration-white/20 underline-offset-2 transition-colors hover:decoration-[var(--accent-amber1)]"
+                    aria-label={t("footer.ariaOpenStripeTier", {
+                      amountUsd: tier.amountUsd,
+                    })}
+                  >
+                    {t("footer.linkStripeAmount", { amountUsd: tier.amountUsd })}
+                  </button>
+                ))
+              )}
+              {bmcUrl ? (
+                <button
+                  type="button"
+                  onClick={() => openBmc("footer")}
+                  className="text-[var(--text-base-60)] underline decoration-white/15 underline-offset-2 transition-colors hover:text-[var(--text-base)]"
+                  aria-label={t("footer.ariaOpenBmc")}
+                >
+                  {t("footer.linkBmc")}
+                </button>
+              ) : null}
+            </div>
+          ) : bmcUrl ? (
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
               <button
                 type="button"
                 onClick={() => openBmc("footer")}
@@ -175,8 +209,8 @@ export function FilmLabDonationLayer({
               >
                 {t("footer.linkBmc")}
               </button>
-            ) : null}
-          </div>
+            </div>
+          ) : null}
           <p className="mt-2 text-[10px] leading-snug text-[var(--text-base-40)]">
             {t("legal_footer_short")}
           </p>
@@ -204,34 +238,48 @@ export function FilmLabDonationLayer({
               {t("preset_save_modal.title")}
             </h2>
             <p className="mt-2 text-sm leading-relaxed text-[var(--text-base-70)]">
-              {t("preset_save_modal.body")}
+              {supporterAck
+                ? t("supporter.preset_save_modal_body")
+                : t("preset_save_modal.body")}
             </p>
-            <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-              {stripeTiers.length === 1 ? (
-                <button
-                  type="button"
-                  onClick={() => openStripeTier("preset_save_modal", stripeTiers[0])}
-                  className="rounded-xl bg-[var(--accent-amber1)] px-4 py-2.5 text-center text-sm font-medium text-black transition-opacity hover:opacity-90"
-                >
-                  {t("preset_save_modal.primaryStripe")}
-                </button>
-              ) : (
-                stripeTiers.map((tier) => (
+            {!supporterAck ? (
+              <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+                {stripeTiers.length === 1 ? (
                   <button
-                    key={tier.amountUsd}
                     type="button"
-                    onClick={() =>
-                      openStripeTier("preset_save_modal", tier)
-                    }
+                    onClick={() => openStripeTier("preset_save_modal", stripeTiers[0])}
                     className="rounded-xl bg-[var(--accent-amber1)] px-4 py-2.5 text-center text-sm font-medium text-black transition-opacity hover:opacity-90"
                   >
-                    {t("preset_save_modal.stripeTierLabel", {
-                      amountUsd: tier.amountUsd,
-                    })}
+                    {t("preset_save_modal.primaryStripe")}
                   </button>
-                ))
-              )}
-              {bmcUrl ? (
+                ) : (
+                  stripeTiers.map((tier) => (
+                    <button
+                      key={tier.amountUsd}
+                      type="button"
+                      onClick={() =>
+                        openStripeTier("preset_save_modal", tier)
+                      }
+                      className="rounded-xl bg-[var(--accent-amber1)] px-4 py-2.5 text-center text-sm font-medium text-black transition-opacity hover:opacity-90"
+                    >
+                      {t("preset_save_modal.stripeTierLabel", {
+                        amountUsd: tier.amountUsd,
+                      })}
+                    </button>
+                  ))
+                )}
+                {bmcUrl ? (
+                  <button
+                    type="button"
+                    onClick={() => openBmc("preset_save_modal")}
+                    className="rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-center text-sm text-white/85 transition-colors hover:bg-white/10"
+                  >
+                    {t("preset_save_modal.secondaryBmc")}
+                  </button>
+                ) : null}
+              </div>
+            ) : bmcUrl ? (
+              <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
                 <button
                   type="button"
                   onClick={() => openBmc("preset_save_modal")}
@@ -239,8 +287,8 @@ export function FilmLabDonationLayer({
                 >
                   {t("preset_save_modal.secondaryBmc")}
                 </button>
-              ) : null}
-            </div>
+              </div>
+            ) : null}
             <div className="mt-4 flex flex-col gap-2 border-t border-white/10 pt-4">
               <button
                 type="button"
@@ -297,6 +345,7 @@ export function FilmLabDonationLayer({
                     surface: "lut_banner",
                     locale,
                     variant: VARIANT,
+                    nudge_mode: "default",
                     method: "banner_dismiss",
                   });
                   onLutBannerDismiss();

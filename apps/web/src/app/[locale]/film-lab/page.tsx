@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { FilmLabFullPage } from "@/features/interactive/film-lab";
+import {
+  FILM_LAB_SUPPORTER_COOKIE_NAME,
+  filmLabVerifySupporterCookieValue,
+} from "@/features/interactive/film-lab/film-lab-donation-cookie-signing";
 import { filmLabReadDonationEnvOnServer } from "@/features/interactive/film-lab/film-lab-donation-env-server";
 import { decodeSharedParamP } from "@/features/interactive/film-lab/params-codec";
 import type { Params } from "@/features/interactive/film-lab/types";
@@ -123,6 +128,15 @@ export default async function FilmLabPage({
 
   const donationRuntime = filmLabReadDonationEnvOnServer();
 
+  const cookieStore = await cookies();
+  const supporterRaw = cookieStore.get(FILM_LAB_SUPPORTER_COOKIE_NAME)?.value;
+  const signSecret = process.env.FILM_LAB_DONATION_SIGNING_SECRET?.trim() ?? "";
+  const serverVerifiedSupporter = Boolean(
+    supporterRaw &&
+      signSecret.length > 0 &&
+      filmLabVerifySupporterCookieValue(supporterRaw, signSecret) !== null,
+  );
+
   return (
     <>
       <script
@@ -132,6 +146,7 @@ export default async function FilmLabPage({
       <FilmLabFullPage
         initialSharedParams={initialSharedParams}
         donationRuntime={donationRuntime}
+        serverVerifiedSupporter={serverVerifiedSupporter}
       />
     </>
   );

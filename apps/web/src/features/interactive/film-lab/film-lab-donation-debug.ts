@@ -10,6 +10,7 @@ import {
   FILM_LAB_DONATION_COOLDOWN_MS,
   FILM_LAB_DONATION_STORAGE_KEYS,
   filmLabCanShowPresetSaveModal,
+  filmLabReadSupporterAck,
 } from "./film-lab-donation-logic";
 
 /** @description ビルド時に埋め込む。true なら常に「ユーザー向けデバッグ」（パネル＋[FilmLab donation debug] ログ）を ON */
@@ -111,6 +112,7 @@ export function filmLabDiagnosePresetSaveModal(): {
         hintJa: "SSR 中（window なし）",
       };
     }
+    details.supporterAck = filmLabReadSupporterAck();
     const never = localStorage.getItem(FILM_LAB_DONATION_STORAGE_KEYS.presetModalNever);
     details.presetModalNever = never;
     if (never === "1") {
@@ -194,6 +196,7 @@ export function filmLabDebugResetDonationNudgeKeys(): void {
       FILM_LAB_DONATION_STORAGE_KEYS.lutBannerLastAt,
       FILM_LAB_DONATION_STORAGE_KEYS.lutBannerSession,
       FILM_LAB_DONATION_STORAGE_KEYS.lutBannerPending,
+      FILM_LAB_DONATION_STORAGE_KEYS.supporterAck,
     ],
   });
   try {
@@ -203,6 +206,7 @@ export function filmLabDebugResetDonationNudgeKeys(): void {
     localStorage.removeItem(FILM_LAB_DONATION_STORAGE_KEYS.lutBannerLastAt);
     sessionStorage.removeItem(FILM_LAB_DONATION_STORAGE_KEYS.lutBannerSession);
     sessionStorage.removeItem(FILM_LAB_DONATION_STORAGE_KEYS.lutBannerPending);
+    localStorage.removeItem(FILM_LAB_DONATION_STORAGE_KEYS.supporterAck);
   } catch (err) {
     console.warn("[FilmLab donation debug] filmLabDebugResetDonationNudgeKeys failed", {
       functionName: "filmLabDebugResetDonationNudgeKeys",

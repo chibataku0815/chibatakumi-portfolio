@@ -1,6 +1,13 @@
 "use client";
 
-import { useRef, useEffect, useCallback, useState } from "react";
+import {
+  useRef,
+  useEffect,
+  useCallback,
+  useState,
+  forwardRef,
+  useImperativeHandle,
+} from "react";
 import { useTranslations } from "next-intl";
 import * as THREE from "three";
 import { isWebGL2Supported, getOptimalPixelRatio } from "@/shared/gl";
@@ -31,6 +38,18 @@ interface FilmLabCanvasProps {
   onCubeLutLoaded?: () => void;
 }
 
+/**
+ * @description 親からキャプチャ用に呼び出す ref。スマートルック API 用に縮小 JPEG を base64 で返す。
+ */
+export type FilmLabCanvasRef = {
+  /**
+   * @description WebGL キャンバスを長辺 maxSide 以下に縮小した JPEG の **base64 本体**（data: プレフィックスなし）。
+   * @param {number} maxSide - 長辺ピクセル上限（例: 1024）
+   * @returns {string | null} 未初期化・キャンバス無効時は null
+   */
+  getJpegBase64ForAi: (maxSide: number) => string | null;
+};
+
 /** ファイルピッカー用: HEIC を選びにくくしつつ、一般的な形式はそのまま選べる */
 const FILM_LAB_FILE_ACCEPT =
   "image/jpeg,image/png,image/webp,image/gif,.jpg,.jpeg,.png,.webp,.gif,video/mp4,video/webm,.mp4,.webm,.cube,application/octet-stream";
@@ -44,15 +63,19 @@ type MediaOverlayState =
   | { kind: "loading" }
   | { kind: "error"; message: string };
 
-export function FilmLabCanvas({
-  preset,
-  className,
-  fullScreen,
-  onViewportReady,
-  initialGradeParams = null,
-  onCubeLutLoaded,
-  compareHud = null,
-}: FilmLabCanvasProps) {
+export const FilmLabCanvas = forwardRef<FilmLabCanvasRef | null, FilmLabCanvasProps>(
+  function FilmLabCanvas(
+    {
+      preset,
+      className,
+      fullScreen,
+      onViewportReady,
+      initialGradeParams = null,
+      onCubeLutLoaded,
+      compareHud = null,
+    },
+    ref,
+  ) {
   const tFilmLab = useTranslations("film-lab");
   const containerRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<Viewport | null>(null);
@@ -296,13 +319,45 @@ export function FilmLabCanvas({
     setIsSplitDragging(false);
   }, []);
 
+  useImperativeHandle(
+    ref,
+    () => ({
+      getJpegBase64ForAi: (maxSide: number) => {
+        const renderer = rendererRef.current;
+        if (!renderer || !supported) return null;
+        const src = renderer.domElement;
+        const w = src.width;
+        const h = src.height;
+        if (w <= 0 || h <= 0) return null;
+        const scale = Math.min(1, maxSide / Math.max(w, h));
+        const tw = Math.max(1, Math.floor(w * scale));
+        const th = Math.max(1, Math.floor(h * scale));
+        const oc = document.createElement("canvas");
+        oc.width = tw;
+        oc.height = th;
+        const ctx = oc.getContext("2d");
+        if (!ctx) return null;
+        ctx.drawImage(src, 0, 0, tw, th);
+        try {
+          const dataUrl = oc.toDataURL("image/jpeg", 0.82);
+          const comma = dataUrl.indexOf(",");
+          if (comma < 0) return null;
+          return dataUrl.slice(comma + 1);
+        } catch {
+          return null;
+        }
+      },
+    }),
+    [supported],
+  );
+
   if (!supported) {
     return (
       <div
         className={`relative flex ${fullScreen ? "h-full" : "aspect-[4/3] sm:aspect-[16/9]"} w-full items-center justify-center rounded-lg bg-[#0a0a0a] ${className ?? ""}`}
       >
         <span className="text-sm text-[var(--text-muted)]">
-          WebGL2 is required for Film Lab
+          {tFilmLab("canvas.webgl2Required")}
         </span>
       </div>
     );
@@ -390,9 +445,7 @@ export function FilmLabCanvas({
       {/* Drag overlay */}
       {isDragging && (
         <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg border-2 border-dashed border-white/30 bg-black/60">
-          <span className="text-sm text-white/70">
-            Drop image, video, or .cube LUT
-          </span>
+          <span className="text-sm text-white/70">{tFilmLab("canvas.dropHint")}</span>
         </div>
       )}
 
@@ -400,7 +453,7 @@ export function FilmLabCanvas({
       {mediaOverlay.kind === "loading" && (
         <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center rounded-lg bg-black/55 backdrop-blur-[2px]">
           <span className="rounded-lg bg-black/70 px-4 py-3 text-sm text-white/90">
-            Loading media…
+            {tFilmLab("canvas.loadingMedia")}
           </span>
         </div>
       )}
@@ -416,11 +469,13 @@ export function FilmLabCanvas({
               onClick={() => setMediaOverlay({ kind: "idle" })}
               className="mt-4 w-full rounded-lg bg-white/10 py-2.5 text-xs font-medium text-white/90 transition-colors hover:bg-white/15"
             >
-              OK
+              {tFilmLab("canvas.dismissError")}
             </button>
           </div>
         </div>
       )}
     </div>
   );
-}
+});
+
+FilmLabCanvas.displayName = "FilmLabCanvas";

@@ -1,6 +1,14 @@
 "use client";
 
-import { useReducer, useState, useCallback, useEffect, useRef, startTransition } from "react";
+import {
+  useReducer,
+  useState,
+  useCallback,
+  useEffect,
+  useRef,
+  startTransition,
+  type RefObject,
+} from "react";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { ControlSlider } from "./ui/ControlSlider";
@@ -22,6 +30,8 @@ import {
 } from "./film-lab-reducer";
 import { FilmLabBrowserStorageSection } from "./FilmLabBrowserStorageSection";
 import { FilmLabShareSection } from "./FilmLabShareSection";
+import type { FilmLabCanvasRef } from "./FilmLabCanvas";
+import { FilmLabSmartLookSection } from "./FilmLabSmartLookSection";
 
 /** UI の見せ方だけを切り替える。グレードの数値（reducer）は Quick でも Pro でも同じ */
 type UiMode = "quick" | "pro";
@@ -49,6 +59,10 @@ interface ControlPanelProps {
   onLutLoadSuccess?: () => void;
   /** 「このブラウザに保存」成功時 */
   onBrowserSaveSuccess?: () => void;
+  /** /film-lab フルページ: Stripe 検証済み支援者（サーバー） */
+  serverVerifiedSupporter?: boolean;
+  /** スマートルック用キャンバスキャプチャ ref（フルページのみ） */
+  filmLabCanvasRef?: RefObject<FilmLabCanvasRef | null>;
 }
 
 export function ControlPanel({
@@ -60,6 +74,8 @@ export function ControlPanel({
   donationUi,
   onLutLoadSuccess,
   onBrowserSaveSuccess,
+  serverVerifiedSupporter = false,
+  filmLabCanvasRef,
 }: ControlPanelProps) {
   const pathname = usePathname();
   const tFilmLab = useTranslations("film-lab");
@@ -591,6 +607,17 @@ export function ControlPanel({
               onAfterRestore={handleBrowserRestoreUi}
               onSaveSuccess={onBrowserSaveSuccess}
             />
+            {filmLabCanvasRef != null &&
+            pathname.includes("/film-lab") &&
+            !pathname.includes("/support") ? (
+              <FilmLabSmartLookSection
+                serverVerifiedSupporter={serverVerifiedSupporter}
+                filmLabCanvasRef={filmLabCanvasRef}
+                activePreset={presetBarActive}
+                activeSlotState={activeSlotState}
+                dispatch={dispatch}
+              />
+            ) : null}
             <div className="mt-3 rounded-xl border border-white/[0.08] bg-gradient-to-b from-white/[0.04] to-black/20 p-3">
               <p className="mb-3 text-[10px] font-medium uppercase tracking-[0.12em] text-white/45">
                 {tFilmLab("compare.sectionTitle")}

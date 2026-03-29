@@ -1,7 +1,7 @@
 /**
  * @file /film-lab 専用のフルレイアウト。
  * @description ヒストグラム・共有パラメータ・比較 UI を含む。任意寄付（Stripe / BMC）・プレゼンモードは環境変数で有効化する。
- * @limitations 寄付 Phase 1 はリンクアウトのみ。決済成功のサーバ検証はない。
+ * @limitations Phase 2 は Checkout 検証 Cookie（任意 env）。未設定時は Phase 1.5 の localStorage と同じ見え方。
  */
 "use client";
 
@@ -13,6 +13,7 @@ import {
   useRef,
   useSyncExternalStore,
 } from "react";
+import type { FilmLabCanvasRef } from "./FilmLabCanvas";
 import dynamic from "next/dynamic";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
@@ -43,8 +44,10 @@ import {
   filmLabMarkPresetSaveModalOpened,
   filmLabReadPresentHintDismissed,
   filmLabReadPresentMode,
+  filmLabReadSupporterAck,
   filmLabSetLutBannerPending,
   filmLabWritePresentMode,
+  filmLabWriteSupporterAck,
 } from "../film-lab-donation-logic";
 import { FilmLabDonationDebugPanel } from "./FilmLabDonationDebugPanel";
 
@@ -102,15 +105,19 @@ function FilmLabFullPageHydrationPlaceholder() {
  * @param root0 - ルート props
  * @param root0.initialSharedParams - URL 共有から復元したグレード。null のときは通常の初期状態。
  * @param root0.donationRuntime - Vercel 実行時 env（`FILM_LAB_*`）。null のときはクライアントの NEXT_PUBLIC 埋め込みを使う。
+ * @param root0.serverVerifiedSupporter - `verify` API で発行した httpOnly Cookie がサーバーで有効なとき true。
  */
 export function FilmLabFullPage({
   initialSharedParams = null,
   donationRuntime = null,
+  serverVerifiedSupporter = false,
 }: {
   /** サーバーでデコードした ?p= の grade（子へ渡して hydration を揃える） */
   initialSharedParams?: Params | null;
   /** `film-lab/page.tsx` が `filmLabReadDonationEnvOnServer()` の結果を渡す（本番の再ビルドなし env 用） */
   donationRuntime?: FilmLabDonationRuntimeConfig | null;
+  /** Phase 2: Checkout Session 検証済み Cookie（`FILM_LAB_DONATION_SIGNING_SECRET` 設定時のみ意味を持つ） */
+  serverVerifiedSupporter?: boolean;
 } = {}) {
   const t = useTranslations("film-lab");
   const locale = useLocale();
@@ -131,6 +138,7 @@ export function FilmLabFullPage({
   const donationEnabled = resolvedDonation.enabled;
 
   const [viewport, setViewport] = useState<Viewport | null>(null);
+  const filmLabCanvasRef = useRef<FilmLabCanvasRef | null>(null);
   const [histogramVisible, setHistogramVisible] = useState(true);
   /** 比較オン・編集スロット（キャンバス HUD 用） */
   const [compareUi, setCompareUi] = useState<{
@@ -140,6 +148,15 @@ export function FilmLabFullPage({
 
   const [presentMode, setPresentMode] = useState(false);
   const [presentHydrated, setPresentHydrated] = useState(false);
+  /** Phase 1.5: Thanks `donationThanks` または localStorage。Phase 2 Cookie とは別（`serverVerifiedSupporter`）。 */
+  const [supporterAck, setSupporterAck] = useState(() =>
+    typeof window !== "undefined" ? filmLabReadSupporterAck() : false,
+  );
+  /** Cookie 検証（サーバー）または Thanks クエリ / localStorage（クライアント）のいずれかでナッジ弱め。 */
+  const supporterUi = useMemo(
+    () => serverVerifiedSupporter || supporterAck,
+    [serverVerifiedSupporter, supporterAck],
+  );
   const [saveModalOpen, setSaveModalOpen] = useState(false);
   const [lutBannerOpen, setLutBannerOpen] = useState(false);
   const [lutWaitInteraction, setLutWaitInteraction] = useState(false);
@@ -163,7 +180,27 @@ export function FilmLabFullPage({
     if (typeof window === "undefined") return;
     /* eslint-disable react-hooks/set-state-in-effect -- URL / localStorage はクライアント専用のためマウント後に同期 */
     const params = new URLSearchParams(window.location.search);
-    const p = params.get("present");
+    const thanksRaw = params.get("donationThanks");
+    if (thanksRaw === "1" || thanksRaw === "true") {
+      filmLabWriteSupporterAck();
+      setSupporterAck(true);
+      trackFilmLabDonationEvent("donation_supporter_ack", {
+        locale,
+        variant: "v1",
+      });
+      params.delete("donationThanks");
+      const qs = params.toString();
+      window.history.replaceState(
+        {},
+        "",
+        window.location.pathname + (qs ? `?${qs}` : "") + window.location.hash,
+      );
+    } else {
+      setSupporterAck(filmLabReadSupporterAck());
+    }
+
+    const paramsAfterThanks = new URLSearchParams(window.location.search);
+    const p = paramsAfterThanks.get("present");
     /** URL で明示 OFF（寄付 UI 無効時でもプレゼン解除できるようにする） */
     if (p === "0" || p === "false") {
       setPresentMode(false);
@@ -181,7 +218,7 @@ export function FilmLabFullPage({
     }
     setPresentHydrated(true);
     /* eslint-enable react-hooks/set-state-in-effect */
-  }, []);
+  }, [locale]);
 
   useEffect(() => {
     if (!presentHydrated) return;
@@ -211,6 +248,7 @@ export function FilmLabFullPage({
       filmLabClearLutBannerPending();
       setLutWaitInteraction(false);
       if (!filmLabCanShowLutBanner()) return;
+      if (supporterUi) return;
       setLutBannerOpen(true);
       filmLabMarkLutBannerShown();
       trackFilmLabDonationEvent("donation_nudge_impression", {
@@ -229,7 +267,7 @@ export function FilmLabFullPage({
       document.removeEventListener("keydown", onFirstInteract, opts);
       document.removeEventListener("touchstart", onFirstInteract, opts);
     };
-  }, [donationEnabled, presentMode, lutWaitInteraction, locale]);
+  }, [donationEnabled, presentMode, lutWaitInteraction, locale, supporterUi]);
 
   const onBrowserSaveSuccess = useCallback(() => {
     filmLabDonationDevTrace("onBrowserSaveSuccess: 呼び出し", {
@@ -344,6 +382,7 @@ export function FilmLabFullPage({
       {/* Canvas + Histogram overlay */}
       <div className="relative">
         <FilmLabCanvas
+          ref={filmLabCanvasRef}
           preset="cinematic"
           initialGradeParams={initialSharedParams}
           onViewportReady={setViewport}
@@ -369,6 +408,8 @@ export function FilmLabFullPage({
           donationUi={presentModeBinding}
           onLutLoadSuccess={donationEnabled ? onLutLoadSuccess : undefined}
           onBrowserSaveSuccess={onBrowserSaveSuccess}
+          serverVerifiedSupporter={serverVerifiedSupporter}
+          filmLabCanvasRef={filmLabCanvasRef}
         />
       </div>
 
@@ -388,6 +429,7 @@ export function FilmLabFullPage({
           bmcUrl={resolvedDonation.bmcUrl}
           locale={locale}
           presentMode={presentMode}
+          supporterAck={supporterUi}
           saveModalOpen={saveModalOpen}
           onSaveModalClose={dismissSaveModal}
           lutBannerOpen={lutBannerOpen}

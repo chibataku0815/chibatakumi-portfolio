@@ -149,6 +149,8 @@ export function FilmLabDonationDebugPanel({
         <dd>{String(diagnosis.details.sessionModalShown ?? "—")}</dd>
         <dt className="text-white/40">lastAt</dt>
         <dd className="break-all">{String(diagnosis.details.presetModalLastAt ?? "—")}</dd>
+        <dt className="text-white/40">supporterAck（Thanks 戻り・サーバ未検証）</dt>
+        <dd>{String(diagnosis.details.supporterAck ?? "—")}</dd>
       </dl>
       <div className="mt-3 flex flex-col gap-2">
         <button

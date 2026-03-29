@@ -2,6 +2,7 @@
  * @file Film Lab 寄付ナッジの表示条件と localStorage / sessionStorage の読み書き。
  * @description life リポの Eng 実行稿と同じキー名・72 時間クールダウンを使う。
  * @limitations SSR では呼ばない。`typeof window` を前提にした関数はクライアントからのみ。
+ *   Phase 1.5 の `filmLabDonationSupporterAck` は Stripe サーバ検証なし（URL 偽装可能なベストエフォート）。
  */
 
 /** 72 時間（ミリ秒）。ナッジの再表示間隔。 */
@@ -10,6 +11,9 @@ export const FILM_LAB_DONATION_COOLDOWN_MS = 72 * 60 * 60 * 1000;
 const KEY_PRESET_LAST = "filmLabDonationPresetModalLastAt";
 const KEY_PRESET_NEVER = "filmLabDonationPresetModalNever";
 const KEY_SESSION_MODAL = "filmLabDonationModalShownSession";
+
+/** Thanks ページから Film Lab に戻ったときに立てる「ナッジ弱め」フラグ（ISO 時刻を格納）。 */
+const KEY_SUPPORTER_ACK = "filmLabDonationSupporterAck";
 
 const KEY_LUT_LAST = "filmLabDonationLutBannerLastAt";
 const KEY_LUT_SESSION = "filmLabDonationLutBannerShownSession";
@@ -31,6 +35,7 @@ export const FILM_LAB_DONATION_STORAGE_KEYS = {
   lutBannerPending: KEY_LUT_PENDING,
   presentMode: KEY_PRESENT,
   presentHintDismissed: KEY_PRESENT_HINT,
+  supporterAck: KEY_SUPPORTER_ACK,
 } as const;
 
 function parseStoredTime(iso: string | null): number | null {
@@ -42,6 +47,31 @@ function parseStoredTime(iso: string | null): number | null {
 function withinCooldown(lastAt: number | null): boolean {
   if (lastAt == null) return false;
   return Date.now() - lastAt < FILM_LAB_DONATION_COOLDOWN_MS;
+}
+
+/**
+ * 支援者向けナッジ弱めが有効か（Thanks 経由でFilm Lab に戻ったブラウザのみ・決済の裏付けはない）。
+ * @returns {boolean} localStorage に ack 時刻があれば true
+ */
+export function filmLabReadSupporterAck(): boolean {
+  try {
+    if (typeof window === "undefined") return false;
+    const raw = localStorage.getItem(KEY_SUPPORTER_ACK);
+    return raw != null && raw.length > 0;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Film Lab へ `donationThanks=1` で戻ったときに呼ぶ。ISO 時刻を保存する。
+ */
+export function filmLabWriteSupporterAck(): void {
+  try {
+    localStorage.setItem(KEY_SUPPORTER_ACK, new Date().toISOString());
+  } catch {
+    /* private モードなど */
+  }
 }
 
 /**
@@ -114,6 +144,7 @@ export function filmLabHasLutBannerPending(): boolean {
 export function filmLabCanShowLutBanner(): boolean {
   try {
     if (typeof window === "undefined") return false;
+    if (filmLabReadSupporterAck()) return false;
     if (sessionStorage.getItem(KEY_LUT_SESSION) === "1") return false;
     const last = parseStoredTime(localStorage.getItem(KEY_LUT_LAST));
     return !withinCooldown(last);
