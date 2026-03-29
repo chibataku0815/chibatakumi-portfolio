@@ -67,6 +67,10 @@ interface ControlPanelProps {
    * @description デスクトップ等: BFF のオリジン（末尾スラッシュなし）。未指定時は相対 `/api/film-lab/ai/smart-look`（Web 本番）。
    */
   smartLookApiBaseUrl?: string;
+  /**
+   * @description `false` のとき、localStorage の Film Lab セッションを起動時に自動復元しない（Electron で Web とストレージを共有するときの compare 残留防止）。
+   */
+  autoRestoreStoredSession?: boolean;
 }
 
 export function ControlPanel({
@@ -81,6 +85,7 @@ export function ControlPanel({
   serverVerifiedSupporter = false,
   filmLabCanvasRef,
   smartLookApiBaseUrl,
+  autoRestoreStoredSession = true,
 }: ControlPanelProps) {
   const pathname = usePathname();
   const tFilmLab = useTranslations("film-lab");
@@ -103,6 +108,9 @@ export function ControlPanel({
   const [showHelp, setShowHelp] = useState(false);
   /** Space キーと同じ Before/After を、タッチでも確実に使えるようにするためのフラグ（pointer capture と組み合わせる） */
   const beforeAfterPointerActiveRef = useRef(false);
+  /** Viewport の分割線を reducer と同期するための直前フレームの状態 */
+  const prevCompareModeRef = useRef(false);
+  const prevBeforeAfterActiveRef = useRef(false);
   /** デスクトップは Pro、狭い画面は Quick を初期表示（SSR と一致させるため初回は Pro → effect で Quick に寄せる） */
   const [uiMode, setUiMode] = useState<UiMode>("pro");
 
@@ -133,12 +141,13 @@ export function ControlPanel({
   /** 共有 URL が無いとき、前回「ブラウザに保存」したルックを自動復元 */
   useEffect(() => {
     if (initialSharedParams != null) return;
+    if (!autoRestoreStoredSession) return;
     const session = loadFilmLabStoredSession();
     if (!session) return;
     startTransition(() => {
       restoreFromStoredSession(session);
     });
-  }, [initialSharedParams, restoreFromStoredSession]);
+  }, [initialSharedParams, restoreFromStoredSession, autoRestoreStoredSession]);
 
   const handleBrowserRestoreUi = useCallback(
     (payload: {
@@ -178,26 +187,50 @@ export function ControlPanel({
     } as Record<string, number | string>;
   }, []);
 
-  // Viewport 同期: A/B 比較オン時は二重パス用に両スロットを渡す
+  /**
+   * Viewport 同期: A/B 比較・単独編集に加え、合成シェーダーの分割（uSplitPosition）を UI 状態と一致させる。
+   * 既定 0.5 のままだと原画／白線／グレードが常時残るため、オフ時は -1、Before/After・Compare 開始時のみ 0.5 を明示する。
+   */
   useEffect(() => {
     if (!viewport) return;
-    if (state.compareMode) {
+
+    const compareOn = state.compareMode;
+    const beforeAfterActive = state.beforeAfterStash != null;
+
+    if (compareOn) {
       viewport.setComparePair(
         true,
         gradeToViewportRecord(state.slotA),
         gradeToViewportRecord(state.slotB),
       );
+      if (!prevCompareModeRef.current) {
+        viewport.setSplitPosition(0.5);
+      }
     } else {
       viewport.setComparePair(false, {}, {});
       const active = state.activeSlot === "A" ? state.slotA : state.slotB;
       viewport.setParams(gradeToViewportRecord(active));
+
+      if (prevCompareModeRef.current && !compareOn) {
+        if (!beforeAfterActive) {
+          viewport.setSplitPosition(-1.0);
+        }
+      } else if (beforeAfterActive && !prevBeforeAfterActiveRef.current) {
+        viewport.setSplitPosition(0.5);
+      } else if (!beforeAfterActive && prevBeforeAfterActiveRef.current) {
+        viewport.setSplitPosition(-1.0);
+      }
     }
+
+    prevCompareModeRef.current = compareOn;
+    prevBeforeAfterActiveRef.current = beforeAfterActive;
   }, [
     viewport,
     state.compareMode,
     state.slotA,
     state.slotB,
     state.activeSlot,
+    state.beforeAfterStash,
     gradeToViewportRecord,
   ]);
 

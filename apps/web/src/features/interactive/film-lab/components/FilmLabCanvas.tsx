@@ -53,11 +53,32 @@ export type FilmLabCanvasRef = {
    * @returns {string | null} 未初期化・キャンバス無効時は null
    */
   getJpegBase64ForAi: (maxSide: number) => string | null;
+  /**
+   * @description BFF が返した補正済み PNG（base64 本体）をデコードし、プレビューのソース画像として載せ替える（スマートルック画像 MVP）。
+   * @param pngBase64Body - `data:image/png;base64,` を除いた base64 文字列
+   * @returns デコードまたは MediaLoader 失敗時は false
+   */
+  replaceSourceFromPngBase64Body: (pngBase64Body: string) => Promise<boolean>;
 };
 
 /** ファイルピッカー用: HEIC を選びにくくしつつ、一般的な形式はそのまま選べる */
 const FILM_LAB_FILE_ACCEPT =
   "image/jpeg,image/png,image/webp,image/gif,.jpg,.jpeg,.png,.webp,.gif,video/mp4,video/webm,.mp4,.webm,.cube,application/octet-stream";
+
+/**
+ * @description `apps/web/public` 直下からの相対パス（先頭スラッシュなし推奨）を、Vite の `base` に合わせた URL にする。
+ * Electron の `file://` + `base: './'` では `/images/...` が `file:///images/...` になり失敗するため必須。
+ * Next.js 本番では `import.meta.env.BASE_URL` が無い場合があり、そのときは `/` を使う。
+ */
+function publicAssetUrlFromWebPublic(pathFromPublicRoot: string): string {
+  const rawBase =
+    typeof import.meta.env?.BASE_URL === "string"
+      ? import.meta.env.BASE_URL
+      : "/";
+  const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
+  const rel = pathFromPublicRoot.replace(/^\//, "");
+  return `${base}${rel}`;
+}
 
 /** キャンバス左上ツールバー: 44px 級タップ／sm でコンパクト／pointer: coarse ではタブレットでも高さ維持 */
 const FILM_LAB_TOOLBAR_BUTTON_CLASS =
@@ -153,7 +174,7 @@ export const FilmLabCanvas = forwardRef<FilmLabCanvasRef | null, FilmLabCanvasPr
     mediaLoaderRef.current = mediaLoader;
 
     mediaLoader
-      .loadURL("/images/film-lab/default.jpg")
+      .loadURL(publicAssetUrlFromWebPublic("images/film-lab/default.jpg"))
       .then((result) => {
         viewport.setTexture(result.texture);
         viewport.setImageResolution(result.width, result.height);
@@ -272,6 +293,7 @@ export const FilmLabCanvas = forwardRef<FilmLabCanvasRef | null, FilmLabCanvasPr
     const camera = cameraRef.current;
     if (!viewport || !renderer || !scene || !camera) return;
 
+    const splitBefore = viewport.getSplitPosition();
     // Split を画面外に追い出して全面エフェクト適用（After のみ）
     viewport.setSplitPosition(-1.0);
     viewport.render(renderer, scene, camera);
@@ -282,8 +304,7 @@ export const FilmLabCanvas = forwardRef<FilmLabCanvasRef | null, FilmLabCanvasPr
     a.download = `film-lab-${Date.now()}.png`;
     a.click();
 
-    // Split を 0.5 に戻す
-    viewport.setSplitPosition(0.5);
+    viewport.setSplitPosition(splitBefore);
   }, []);
 
   // === File picker ===
@@ -351,6 +372,34 @@ export const FilmLabCanvas = forwardRef<FilmLabCanvasRef | null, FilmLabCanvasPr
           return dataUrl.slice(comma + 1);
         } catch {
           return null;
+        }
+      },
+      replaceSourceFromPngBase64Body: async (pngBase64Body: string) => {
+        const viewport = viewportRef.current;
+        const mediaLoader = mediaLoaderRef.current;
+        const renderer = rendererRef.current;
+        if (!viewport || !mediaLoader || !renderer || !supported) return false;
+        try {
+          const binary = atob(pngBase64Body);
+          const len = binary.length;
+          const bytes = new Uint8Array(len);
+          for (let i = 0; i < len; i++) {
+            bytes[i] = binary.charCodeAt(i);
+          }
+          const blob = new Blob([bytes], { type: "image/png" });
+          const file = new File([blob], "smart-look-corrected.png", {
+            type: "image/png",
+          });
+          const maxTex = renderer.capabilities.maxTextureSize;
+          const result = await mediaLoader.loadFile(file, {
+            maxTextureSize: maxTex,
+          });
+          viewport.setTexture(result.texture);
+          viewport.setImageResolution(result.width, result.height);
+          return true;
+        } catch (err) {
+          console.error("FilmLabCanvas.replaceSourceFromPngBase64Body failed", err);
+          return false;
         }
       },
     }),

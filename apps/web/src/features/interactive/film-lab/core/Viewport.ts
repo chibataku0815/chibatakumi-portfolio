@@ -137,7 +137,8 @@ export class Viewport {
         uFade: { value: 0.0 },
         uHighlights: { value: 0.0 },
         uShadows: { value: 0.0 },
-        uSplitPosition: { value: 0.5 },
+        /** -1 で分割オフ（全面がグレード後）。0〜1 で Before/After または A/B の境界 */
+        uSplitPosition: { value: -1.0 },
         uLUT: { value: null },
         uLUTIntensity: { value: 1.0 },
         uLUTEnabled: { value: 0.0 },
@@ -204,7 +205,7 @@ export class Viewport {
         uVignette: { value: 0.0 },
         uGrainIntensity: { value: 0.0 },
         uTime: { value: 0.0 },
-        uSplitPosition: { value: 0.5 },
+        uSplitPosition: { value: -1.0 },
         uAbCompare: { value: 0.0 },
         uResolution: {
           value: new THREE.Vector2(options.width, options.height),
@@ -595,6 +596,13 @@ export class Viewport {
 
   setSplitPosition(value: number): void {
     this.material.uniforms.uSplitPosition!.value = value;
+  }
+
+  /**
+   * @description 合成パスが参照する分割位置（FilmLabCanvas の保存後復帰など）
+   */
+  getSplitPosition(): number {
+    return this.material.uniforms.uSplitPosition!.value as number;
   }
 
   // ===== Bulk Params (for presets) =====
