@@ -33,6 +33,10 @@ interface FilmLabCanvasProps {
 const FILM_LAB_FILE_ACCEPT =
   "image/jpeg,image/png,image/webp,image/gif,.jpg,.jpeg,.png,.webp,.gif,video/mp4,video/webm,.mp4,.webm,.cube,application/octet-stream";
 
+/** キャンバス左上ツールバー: 44px 級タップ／sm でコンパクト／pointer: coarse ではタブレットでも高さ維持 */
+const FILM_LAB_TOOLBAR_BUTTON_CLASS =
+  "rounded bg-black/50 px-3 py-2 text-xs flex items-center min-h-[44px] text-white/50 backdrop-blur-sm transition-colors hover:bg-black/70 hover:text-white/80 sm:min-h-0 sm:px-2.5 sm:py-1 sm:text-[11px] [@media(pointer:coarse)]:min-h-[44px] [@media(pointer:coarse)]:py-2";
+
 type MediaOverlayState =
   | { kind: "idle" }
   | { kind: "loading" }
@@ -283,13 +287,18 @@ export function FilmLabCanvas({
     viewportRef.current?.setSplitPosition(Math.max(0, Math.min(1, x)));
   }, [isSplitDragging]);
 
+  /** OS やブラウザが pointer capture を奪ったときも Split ドラッグ状態を確実に終える */
+  const handleLostPointerCapture = useCallback(() => {
+    setIsSplitDragging(false);
+  }, []);
+
   if (!supported) {
     return (
       <div
         className={`relative flex ${fullScreen ? "h-full" : "aspect-[4/3] sm:aspect-[16/9]"} w-full items-center justify-center rounded-lg bg-[#0a0a0a] ${className ?? ""}`}
       >
         <span className="text-sm text-[var(--text-muted)]">
-          WebGL2 is required for Film Lab
+          WebGL2 is required for Quiet Reel
         </span>
       </div>
     );
@@ -298,6 +307,7 @@ export function FilmLabCanvas({
   return (
     <div
       ref={containerRef}
+      data-testid="film-lab-viewport"
       className={`relative ${fullScreen ? "h-full" : "aspect-[4/3] sm:aspect-[16/9]"} w-full touch-none cursor-col-resize overflow-hidden rounded-lg bg-[#0a0a0a] ${className ?? ""}`}
       onDragOver={(e) => {
         e.preventDefault();
@@ -309,6 +319,7 @@ export function FilmLabCanvas({
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerUp}
+      onLostPointerCapture={handleLostPointerCapture}
     >
       {/* Toolbar: stop pointer propagation so split-drag on the canvas does not steal taps from Open/Save */}
       <div
@@ -319,16 +330,19 @@ export function FilmLabCanvas({
         onPointerCancel={(e) => e.stopPropagation()}
       >
         <button
+          type="button"
+          data-testid="film-lab-open"
           onClick={handleFileClick}
-          className="rounded bg-black/50 px-3 py-2 text-xs min-h-[44px] flex items-center sm:px-2.5 sm:py-1 sm:text-[11px] sm:min-h-0 text-white/50 backdrop-blur-sm transition-colors hover:bg-black/70 hover:text-white/80"
+          className={FILM_LAB_TOOLBAR_BUTTON_CLASS}
         >
-          Open
+          {tFilmLab("toolbar.open")}
         </button>
         <button
+          type="button"
           onClick={handleDownload}
-          className="rounded bg-black/50 px-3 py-2 text-xs min-h-[44px] flex items-center sm:px-2.5 sm:py-1 sm:text-[11px] sm:min-h-0 text-white/50 backdrop-blur-sm transition-colors hover:bg-black/70 hover:text-white/80"
+          className={FILM_LAB_TOOLBAR_BUTTON_CLASS}
         >
-          Save PNG
+          {tFilmLab("toolbar.savePng")}
         </button>
       </div>
 

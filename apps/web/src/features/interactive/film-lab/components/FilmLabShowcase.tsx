@@ -65,9 +65,9 @@ export function FilmLabShowcase() {
             </p>
             <Link
               href="/film-lab"
-              className="mt-3 inline-flex items-center gap-1 text-sm text-[var(--text-base-60)] transition-colors hover:text-[var(--text-base)]"
+              className="mt-3 inline-flex min-h-[44px] max-w-fit items-center justify-center rounded-lg border border-white/15 bg-white/5 px-4 text-sm text-[var(--text-base-70)] transition-colors hover:border-white/25 hover:bg-white/10 hover:text-[var(--text-base)]"
             >
-              Open Full App →
+              {t("openFullApp")}
             </Link>
           </div>
 
