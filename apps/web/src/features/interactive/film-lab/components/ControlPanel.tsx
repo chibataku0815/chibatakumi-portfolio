@@ -436,13 +436,13 @@ export function ControlPanel({
         ) : null}
 
         {/*
-          レイアウト: 狭い画面は 1 列。md 以上は
-          - Quick: Color | LUT+（2 列）
-          - Pro: 上段 Color | Effects、下段 LUT+ を全幅（col-span-2）— 3 列だと右列だけ縦に長く「右寄り」に見えるため
+          レイアウト:
+          - Quick: 1 列では「プリセット列」を先に（親指・初回操作）。md+ では左列=プリセット、右列=Color（order で制御）。
+          - Pro: 上段 Color | Effects、下段 LUT+ 全幅（col-span-2）。
         */}
         <div className="grid w-full min-w-0 grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
-          {/* === COLOR GRADING === */}
-          <div className="min-w-0">
+          {/* === COLOR GRADING（Quick 時は視覚順を後ろに — order-2） === */}
+          <div className={`min-w-0 ${isPro ? "" : "order-2 md:order-2"}`}>
             <SectionHeader title="Color" />
             <div className="flex flex-col gap-2.5">
               <ControlSlider label="Exposure" value={params.exposure} min={-3} max={3} step={0.01} defaultValue={0} onChange={(v) => updateParam("exposure", v)} onCommit={commit} />
@@ -529,15 +529,46 @@ export function ControlPanel({
           </div>
           ) : null}
 
-          {/* === LUT + PRESETS（Pro 時は下段で全幅） === */}
-          <div className={`min-w-0 ${isPro ? "md:col-span-2" : ""}`}>
-            {/* Quick でも .cube を読めるように常時表示（Effects/Bloom は Pro のみ） */}
-            <LUTPanel viewport={viewport} onCubeLutLoaded={onLutLoadSuccess} />
-            <div className="mt-3 border-t border-white/[0.06] pt-3">
-              <SectionHeader title="Presets" />
-              <PresetBar activePreset={presetBarActive} onPreset={applyPreset} />
-            </div>
-            {presetIntensityAvailable && (
+          {/* === LUT + PRESETS（Pro: LUT 先 / Quick: プリセット先で触りやすく） === */}
+          <div
+            className={`min-w-0 ${isPro ? "md:col-span-2" : "order-1 md:order-1"}`}
+          >
+            {isPro ? (
+              <>
+                {/* Quick でも .cube を読めるように常時表示（Effects/Bloom は Pro のみ） */}
+                <LUTPanel viewport={viewport} onCubeLutLoaded={onLutLoadSuccess} />
+                <div className="mt-3 border-t border-white/[0.06] pt-3">
+                  <SectionHeader title="Presets" />
+                  <PresetBar activePreset={presetBarActive} onPreset={applyPreset} />
+                </div>
+              </>
+            ) : (
+              <>
+                <div>
+                  <SectionHeader title="Presets" />
+                  <PresetBar activePreset={presetBarActive} onPreset={applyPreset} />
+                </div>
+                {presetIntensityAvailable ? (
+                  <div className="mt-3">
+                    <ControlSlider
+                      label="Preset intensity"
+                      value={activeSlotState.intensity}
+                      min={0}
+                      max={1}
+                      step={0.01}
+                      defaultValue={1}
+                      formatValue={(v) => `${Math.round(v * 100)}%`}
+                      onChange={(v) => dispatch({ type: "SET_INTENSITY", value: v })}
+                      onCommit={() => dispatch({ type: "COMMIT" })}
+                    />
+                  </div>
+                ) : null}
+                <div className="mt-3 border-t border-white/[0.06] pt-3">
+                  <LUTPanel viewport={viewport} onCubeLutLoaded={onLutLoadSuccess} />
+                </div>
+              </>
+            )}
+            {isPro && presetIntensityAvailable ? (
               <div className="mt-3">
                 <ControlSlider
                   label="Preset intensity"
@@ -551,7 +582,7 @@ export function ControlPanel({
                   onCommit={() => dispatch({ type: "COMMIT" })}
                 />
               </div>
-            )}
+            ) : null}
             <FilmLabBrowserStorageSection
               state={state}
               dispatch={dispatch}
