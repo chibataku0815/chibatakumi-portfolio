@@ -25,6 +25,11 @@ export interface State extends PresentState {
 
 export type Action =
   | { type: "SET_PARAM"; key: keyof Params; value: number; preserveBasePreset?: boolean }
+  /**
+   * Quick モードのメタスライダー用: 指定キーだけをまとめて上書きし、履歴には COMMIT の 1 回だけ載せる。
+   * basePreset は手動編集と同様に外れる。
+   */
+  | { type: "MERGE_PARAMS"; patch: Partial<Params> }
   | { type: "SET_INTENSITY"; value: number }
   | { type: "COMMIT" }
   | { type: "APPLY_PRESET"; presetName: PresetName; preset: Params }
@@ -125,6 +130,15 @@ export function filmLabReducer(state: State, action: Action): State {
         params: { ...slot.params, [action.key]: action.value },
         basePreset: action.preserveBasePreset ? slot.basePreset : null,
         intensity: action.preserveBasePreset ? slot.intensity : 1,
+      }));
+    }
+
+    case "MERGE_PARAMS": {
+      return withActiveSlot(state, (slot) => ({
+        ...slot,
+        params: { ...slot.params, ...action.patch },
+        basePreset: null,
+        intensity: 1,
       }));
     }
 

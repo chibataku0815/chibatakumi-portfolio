@@ -101,8 +101,8 @@ function getJsonLd(locale: string) {
     "@type": "WebApplication",
     name: "Film Lab",
     description: isJa
-      ? "ブラウザで動くリアルタイムカラーグレーディングツール"
-      : "A real-time color grading tool in the browser",
+      ? "ブラウザで動くリアルタイムカラーグレーディング。クイックは3本のメタ調整とプリセット、プロでBloom・Halation・LUTまで。"
+      : "Real-time browser color grading—Quick meta sliders and presets, Pro for Bloom, Halation, LUT.",
     url: isJa ? `${BASE_URL}/film-lab` : `${BASE_URL}/en/film-lab`,
     applicationCategory: "PhotographyApplication",
     operatingSystem: "Any",

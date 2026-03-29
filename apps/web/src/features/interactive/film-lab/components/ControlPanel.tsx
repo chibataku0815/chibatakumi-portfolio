@@ -33,6 +33,11 @@ import { FilmLabShareSection } from "./FilmLabShareSection";
 import type { FilmLabCanvasRef } from "./FilmLabCanvas";
 import { FilmLabSmartLookSection } from "./FilmLabSmartLookSection";
 import { FilmLabInfoTip } from "./FilmLabInfoTip";
+import {
+  quickMetaDisplayValue,
+  quickMetaPatchForValue,
+  type QuickMetaAxis,
+} from "./quick-meta-sliders";
 
 /** UI の見せ方だけを切り替える。グレードの数値（reducer）は Quick でも Pro でも同じ */
 type UiMode = "quick" | "pro";
@@ -258,6 +263,18 @@ export function ControlPanel({
 
   const updateHalationHue = useCallback((hue: number) => {
     dispatch({ type: "SET_PARAM", key: "halationHue", value: hue });
+    setActivePreset("reset");
+  }, []);
+
+  /**
+   * Quick のメタスライダー: ドラッグ中は MERGE_PARAMS のみ（プレビュー）、離したとき COMMIT で Undo 1 単位にまとめる。
+   */
+  const applyQuickMetaChange = useCallback((axis: QuickMetaAxis, value01: number) => {
+    dispatch({ type: "MERGE_PARAMS", patch: quickMetaPatchForValue(axis, value01) });
+  }, []);
+
+  const commitQuickMeta = useCallback(() => {
+    dispatch({ type: "COMMIT" });
     setActivePreset("reset");
   }, []);
 
@@ -565,6 +582,7 @@ export function ControlPanel({
           {/* === COLOR GRADING（Quick 時は視覚順を後ろに — order-2） === */}
           <div className={`min-w-0 ${isPro ? "" : "order-2 @min-[560px]:order-2"}`}>
             <SectionHeader title={tFilmLab("controls.color")} />
+            {isPro ? (
             <div className="flex flex-col gap-2.5">
               <ControlSlider label={tFilmLab("controls.exposure")} value={params.exposure} min={-3} max={3} step={0.01} defaultValue={0} onChange={(v) => updateParam("exposure", v)} onCommit={commit} />
               <ControlSlider label={tFilmLab("controls.contrast")} value={params.contrast} min={0} max={3} step={0.01} defaultValue={1} onChange={(v) => updateParam("contrast", v)} onCommit={commit} />
@@ -580,46 +598,85 @@ export function ControlPanel({
                 onChange={(v) => updateParam("tint", v)}
                 onCommit={commit}
               />
-              {isPro && (
-                <>
-                  <ControlSlider label={tFilmLab("controls.highlights")} value={params.highlights} min={-1} max={1} step={0.01} defaultValue={0} onChange={(v) => updateParam("highlights", v)} onCommit={commit} />
-                  <ControlSlider label={tFilmLab("controls.shadows")} value={params.shadows} min={-1} max={1} step={0.01} defaultValue={0} onChange={(v) => updateParam("shadows", v)} onCommit={commit} />
-                  <SplitToneHueSlider
-                    label={tFilmLab("color.shadowHue")}
-                    value={params.shadowHue}
-                    onChange={(v) => updateParam("shadowHue", v)}
-                    onCommit={commit}
-                  />
-                  <ControlSlider
-                    label={tFilmLab("color.shadowTone")}
-                    value={params.shadowTone}
-                    min={-1}
-                    max={1}
-                    step={0.01}
-                    defaultValue={0}
-                    onChange={(v) => updateParam("shadowTone", v)}
-                    onCommit={commit}
-                  />
-                  <SplitToneHueSlider
-                    label={tFilmLab("color.highlightHue")}
-                    value={params.highlightHue}
-                    onChange={(v) => updateParam("highlightHue", v)}
-                    onCommit={commit}
-                  />
-                  <ControlSlider
-                    label={tFilmLab("color.highlightTone")}
-                    value={params.highlightTone}
-                    min={-1}
-                    max={1}
-                    step={0.01}
-                    defaultValue={0}
-                    onChange={(v) => updateParam("highlightTone", v)}
-                    onCommit={commit}
-                  />
-                </>
-              )}
+              <ControlSlider label={tFilmLab("controls.highlights")} value={params.highlights} min={-1} max={1} step={0.01} defaultValue={0} onChange={(v) => updateParam("highlights", v)} onCommit={commit} />
+              <ControlSlider label={tFilmLab("controls.shadows")} value={params.shadows} min={-1} max={1} step={0.01} defaultValue={0} onChange={(v) => updateParam("shadows", v)} onCommit={commit} />
+              <SplitToneHueSlider
+                label={tFilmLab("color.shadowHue")}
+                value={params.shadowHue}
+                onChange={(v) => updateParam("shadowHue", v)}
+                onCommit={commit}
+              />
+              <ControlSlider
+                label={tFilmLab("color.shadowTone")}
+                value={params.shadowTone}
+                min={-1}
+                max={1}
+                step={0.01}
+                defaultValue={0}
+                onChange={(v) => updateParam("shadowTone", v)}
+                onCommit={commit}
+              />
+              <SplitToneHueSlider
+                label={tFilmLab("color.highlightHue")}
+                value={params.highlightHue}
+                onChange={(v) => updateParam("highlightHue", v)}
+                onCommit={commit}
+              />
+              <ControlSlider
+                label={tFilmLab("color.highlightTone")}
+                value={params.highlightTone}
+                min={-1}
+                max={1}
+                step={0.01}
+                defaultValue={0}
+                onChange={(v) => updateParam("highlightTone", v)}
+                onCommit={commit}
+              />
               <ControlSlider label={tFilmLab("controls.fade")} value={params.fade} min={0} max={0.3} step={0.01} defaultValue={0} onChange={(v) => updateParam("fade", v)} onCommit={commit} />
             </div>
+            ) : (
+            <div className="flex flex-col gap-2.5">
+              <p className="text-[10px] leading-snug text-white/45">
+                {tFilmLab("controls.quick.summary")}
+              </p>
+              <ControlSlider
+                label={tFilmLab("controls.quick.filmLook")}
+                hint={tFilmLab("controls.quick.filmLookHint")}
+                value={quickMetaDisplayValue("filmLook", params)}
+                min={0}
+                max={1}
+                step={0.01}
+                defaultValue={0.5}
+                formatValue={(v) => `${Math.round(v * 100)}%`}
+                onChange={(v) => applyQuickMetaChange("filmLook", v)}
+                onCommit={commitQuickMeta}
+              />
+              <ControlSlider
+                label={tFilmLab("controls.quick.era")}
+                hint={tFilmLab("controls.quick.eraHint")}
+                value={quickMetaDisplayValue("era", params)}
+                min={0}
+                max={1}
+                step={0.01}
+                defaultValue={0.5}
+                formatValue={(v) => `${Math.round(v * 100)}%`}
+                onChange={(v) => applyQuickMetaChange("era", v)}
+                onCommit={commitQuickMeta}
+              />
+              <ControlSlider
+                label={tFilmLab("controls.quick.dynamics")}
+                hint={tFilmLab("controls.quick.dynamicsHint")}
+                value={quickMetaDisplayValue("dynamics", params)}
+                min={0}
+                max={1}
+                step={0.01}
+                defaultValue={0.5}
+                formatValue={(v) => `${Math.round(v * 100)}%`}
+                onChange={(v) => applyQuickMetaChange("dynamics", v)}
+                onCommit={commitQuickMeta}
+              />
+            </div>
+            )}
           </div>
 
           {/* === EFFECTS（Pro のみ） === */}
