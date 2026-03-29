@@ -1,0 +1,25 @@
+{
+  "lookPresetId": "look:mp:portra:v1",
+  "presetVersion": "v1",
+  "grade": {
+    "exposure": 0.2,
+    "contrast": 1.1,
+    "saturation": 0.9,
+    "temperature": 0.1,
+    "tint": 0,
+    "rgbShift": 0,
+    "grainIntensity": 0.12,
+    "vignette": 0.2,
+    "bloomThreshold": 0.7,
+    "bloomStrength": 0.15,
+    "bloomRadius": 0.3,
+    "halationIntensity": 0.25,
+    "halationSpread": 20,
+    "halationHue": 20,
+    "fade": 0.05,
+    "highlights": 0,
+    "shadows": 0.1,
+    "shadowTone": 0,
+    "highlightTone": 0
+  }
+}

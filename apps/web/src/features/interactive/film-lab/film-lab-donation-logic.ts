@@ -18,6 +18,21 @@ const KEY_LUT_PENDING = "filmLabDonationLutBannerPending";
 const KEY_PRESENT = "filmLabPresentMode";
 const KEY_PRESENT_HINT = "filmLabPresentModeHintDismissed";
 
+/**
+ * @description デバッグ用にキー名だけ外部公開（値の読み書きロジックは変えない）。
+ *   開発者ツールや診断パネルで「どのキーがブロックしているか」を示す。
+ */
+export const FILM_LAB_DONATION_STORAGE_KEYS = {
+  presetModalLastAt: KEY_PRESET_LAST,
+  presetModalNever: KEY_PRESET_NEVER,
+  sessionModalShown: KEY_SESSION_MODAL,
+  lutBannerLastAt: KEY_LUT_LAST,
+  lutBannerSession: KEY_LUT_SESSION,
+  lutBannerPending: KEY_LUT_PENDING,
+  presentMode: KEY_PRESENT,
+  presentHintDismissed: KEY_PRESENT_HINT,
+} as const;
+
 function parseStoredTime(iso: string | null): number | null {
   if (!iso) return null;
   const t = Date.parse(iso);

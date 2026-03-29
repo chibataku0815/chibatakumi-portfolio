@@ -1,16 +1,17 @@
 /**
- * @fileoverview Remotion 上で Film Lab の **解析グレード** と任意の **3D LUT（.cube）** をかける Three.js シーン。
+ * @fileoverview Remotion 上で Film Lab の **解析グレード** と任意の **.cube LUT（2D パック）** をかける Three.js シーン。
  *
  * 主な仕様:
  * - 入力は **静止画**（既定 `film-lab-default.jpg`）または **動画**（`gradeSourceVideoRelPath` + `@remotion/media` の headless `Video`）。
  * - 動画は Canvas に縮小コピーして `CanvasTexture` に載せる（長辺 1920 上限でメモリを抑える）。
- * - フラグメントは **GLSL ES 1.0**。LUT は 2D パック＋トリリニア。
+ * - **多パス**: ブラウザ `Viewport.ts` と同順（grade+LUT → bloom しきい値+ブラー×2 → halation+ブラー×2 → composite）。シェーダは `apps/web` の bloom/halation/blur/composite を流用。
+ * - Pass1 のグレードは GLSL3・2D LUT＋トリリニア（`gradeOnlyMultipass.frag.ts`）。
  * - ソースは **object-fit: cover** 相当（コンポ 1080×1920）。
- * - ブラウザの **composite 相当**として vignette / grain（画面空間 vUv）と、filmlab に近い rgbShift・tint・fade・highlights・shadows を LUT 前後に配線。
  *
  * 制限事項:
- * - **Bloom / Halation** はブラウザの多パス専用のためここでは未配線（`bloom*` / `halation*` は無視）。
- * - スプリットトーン（shadowHue 等のベクトル調）は未配線。
+ * - ブラウザ本番の filmlab.frag（3D LUT）とは LUT テクスチャ形式が異なる。
+ * - composite の split / A+B 比較 UI は未使用（全画面合成のみ）。
+ * - スプリットトーン（shadowHue 等）は未配線。
  */
 import { useFrame, useThree } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
@@ -31,10 +32,12 @@ import {
   useRemotionEnvironment,
 } from "remotion";
 import {
+  hslToRgb01,
   packCubeLutToFloatRgbaGrid,
   parseCube,
   type FilmLookGradeInputProps,
 } from "film-lab-core";
+import { FilmLabRemotionPipeline } from "../filmLabRemotionPipeline";
 
 /** `Root.tsx` の Composition と揃える */
 const COMPOSITION_WIDTH = 1080;
@@ -130,123 +133,19 @@ function drawFrameCoverToCanvas(
   ctx.drawImage(source, sx, sy, sw, sh, 0, 0, cw, ch);
 }
 
-const vertexShader = /* glsl */ `
-varying vec2 vUv;
-void main() {
-  vUv = uv;
-  gl_Position = vec4(position.xy, 0.0, 1.0);
-}
-`;
-
-const fragmentShader = /* glsl */ `
-precision highp float;
-uniform sampler2D map;
-uniform float uImageAspect;
-uniform float uCompAspect;
-uniform float uExposure;
-uniform float uContrast;
-uniform float uSaturation;
-uniform float uTemperature;
-uniform float uTint;
-uniform float uRgbShift;
-uniform float uFade;
-uniform float uHighlights;
-uniform float uShadows;
-uniform float uVignette;
-uniform float uGrainIntensity;
-uniform float uGrainPhase;
-uniform sampler2D uLUT2D;
-uniform float uLutEnabled;
-uniform float uLutIntensity;
-uniform float uLutSize;
-varying vec2 vUv;
-
-// object-fit: cover — apps/web filmlab.frag.ts の式と同型（旧: (uv-0.5)/scale は scale が逆で横潰れ）
-vec2 coverUv(vec2 uv, float imgAspect, float compAspect) {
-  vec2 scale = compAspect > imgAspect
-    ? vec2(1.0, imgAspect / compAspect)
-    : vec2(compAspect / imgAspect, 1.0);
-  return (uv - 0.5) * scale + 0.5;
-}
-
-vec3 lutTexel(float r, float g, float b) {
-  float n = uLutSize;
-  vec2 uv = (vec2(r + g * n, b) + 0.5) / vec2(n * n, n);
-  return texture2D(uLUT2D, uv).rgb;
-}
-
-vec3 sampleLutTrilinear(vec3 c) {
-  float n = uLutSize;
-  c = clamp(c, 0.0, 1.0);
-  vec3 scaled = c * (n - 1.0);
-  vec3 c0 = floor(scaled);
-  vec3 f = scaled - c0;
-  vec3 c1 = min(c0 + 1.0, vec3(n - 1.0));
-  vec3 s000 = lutTexel(c0.x, c0.y, c0.z);
-  vec3 s100 = lutTexel(c1.x, c0.y, c0.z);
-  vec3 s010 = lutTexel(c0.x, c1.y, c0.z);
-  vec3 s110 = lutTexel(c1.x, c1.y, c0.z);
-  vec3 s001 = lutTexel(c0.x, c0.y, c1.z);
-  vec3 s101 = lutTexel(c1.x, c0.y, c1.z);
-  vec3 s011 = lutTexel(c0.x, c1.y, c1.z);
-  vec3 s111 = lutTexel(c1.x, c1.y, c1.z);
-  vec3 x0 = mix(s000, s100, f.x);
-  vec3 x1 = mix(s010, s110, f.x);
-  vec3 x2 = mix(s001, s101, f.x);
-  vec3 x3 = mix(s011, s111, f.x);
-  vec3 y0 = mix(x0, x1, f.y);
-  vec3 y1 = mix(x2, x3, f.y);
-  return mix(y0, y1, f.z);
-}
-
-vec3 adjustTemperature(vec3 c, float t) {
-  return c + vec3(t * 0.05, t * 0.02, -t * 0.04);
-}
-
-vec4 rgbShiftSample(sampler2D tex, vec2 uv, float amount) {
-  float r = texture2D(tex, uv + vec2(amount, 0.0)).r;
-  float g = texture2D(tex, uv).g;
-  float b = texture2D(tex, uv - vec2(amount, 0.0)).b;
-  float a = texture2D(tex, uv).a;
-  return vec4(r, g, b, a);
-}
-
-float filmGrain(vec2 uv, float phase) {
-  return fract(sin(dot(uv * phase, vec2(12.9898, 78.233))) * 43758.5453) - 0.5;
-}
-
-void main() {
-  vec2 uv = coverUv(vUv, uImageAspect, uCompAspect);
-  if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) {
-    gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
-  } else {
-    vec4 tex = uRgbShift > 0.0001
-      ? rgbShiftSample(map, uv, uRgbShift)
-      : texture2D(map, uv);
-    vec3 col = tex.rgb * pow(2.0, uExposure);
-    col = (col - 0.5) * uContrast + 0.5;
-    float l = dot(col, vec3(0.299, 0.587, 0.114));
-    col = mix(vec3(l), col, uSaturation);
-    col = adjustTemperature(col, uTemperature);
-    col.r += uTint * 0.05;
-    col.g -= uTint * 0.08;
-    col.b += uTint * 0.05;
-    col.rgb = col.rgb + uFade * (1.0 - col.rgb);
-    float lumHS = dot(col.rgb, vec3(0.2126, 0.7152, 0.0722));
-    col.rgb += uShadows * (1.0 - lumHS) * 0.5;
-    col.rgb += uHighlights * lumHS * 0.5;
-    if (uLutEnabled > 0.5) {
-      vec3 lutRgb = sampleLutTrilinear(col);
-      col = mix(col, lutRgb, uLutIntensity);
-    }
-    float dist = length(vUv - 0.5) * 1.414;
-    float vig = 1.0 - uVignette * dist * dist;
-    col.rgb *= clamp(vig, 0.0, 1.0);
-    col.rgb += filmGrain(vUv, uGrainPhase + 1.0) * uGrainIntensity;
-    gl_FragColor = vec4(clamp(col, 0.0, 1.0), tex.a);
+/**
+ * テクスチャのピクセル幅・高さ（composite の原画解像度・パイプライン入力用）。
+ */
+function readTexturePixelSize(tex: THREE.Texture): { w: number; h: number } {
+  const img = tex.image as { width?: number; height?: number } | undefined;
+  if (img && typeof img.width === "number" && typeof img.height === "number") {
+    return {
+      w: Math.max(1, img.width),
+      h: Math.max(1, img.height),
+    };
   }
+  return { w: 1920, h: 1080 };
 }
-`;
 
 function createDummyLutTexture(): THREE.DataTexture {
   const d = new Float32Array(4);
@@ -359,81 +258,73 @@ interface GradeBackdropProps {
 }
 
 /**
- * 共有: シェーダー・LUT・フルスクリーンクアッド。
+ * Viewport 相当の多パスを `FilmLabRemotionPipeline` で実行し、結果をフルスクリーンquadで表示する。
  */
 function GradeBackdrop({
   input,
   mapTexture,
   imageAspect,
 }: GradeBackdropProps) {
+  const { gl } = useThree();
   const { grade, lutCubeRelPath, lutEnabled = true, lutIntensity = 1 } = input;
-  /** Remotion フレーム番号（grain をフレーム決定的にする） */
   const remotionFrame = useCurrentFrame();
 
   const wantLut = Boolean(lutCubeRelPath) && lutEnabled !== false;
   const lutData = useCubeLutTexture(lutCubeRelPath, wantLut);
-
   const dummyLut = useMemo(() => createDummyLutTexture(), []);
-
-  const compAspect = COMPOSITION_WIDTH / COMPOSITION_HEIGHT;
 
   const lutTextureEffective = lutData?.texture ?? dummyLut;
   const lutSizeUniform = lutData?.size ?? 2;
   const lutOn = wantLut && lutData !== null ? 1 : 0;
-
   const lutBlocking = wantLut && lutData === null;
 
-  const material = useMemo(() => {
-    return new THREE.ShaderMaterial({
-      uniforms: {
-        map: { value: mapTexture },
-        uImageAspect: { value: imageAspect },
-        uCompAspect: { value: compAspect },
-        uExposure: { value: 0 },
-        uContrast: { value: 1 },
-        uSaturation: { value: 1 },
-        uTemperature: { value: 0 },
-        uTint: { value: 0 },
-        uRgbShift: { value: 0 },
-        uFade: { value: 0 },
-        uHighlights: { value: 0 },
-        uShadows: { value: 0 },
-        uVignette: { value: 0 },
-        uGrainIntensity: { value: 0 },
-        uGrainPhase: { value: 0 },
-        uLUT2D: { value: dummyLut },
-        uLutEnabled: { value: 0 },
-        uLutIntensity: { value: 1 },
-        uLutSize: { value: 2 },
-      },
-      vertexShader,
-      fragmentShader,
-    });
-  }, [mapTexture, dummyLut, imageAspect, compAspect]);
+  const halationColorVec3 = useMemo(() => {
+    const { r, g, b } = hslToRgb01(grade.halationHue, 1, 0.5);
+    return new THREE.Vector3(r, g, b);
+  }, [grade.halationHue]);
+
+  const pipeline = useMemo(
+    () => new FilmLabRemotionPipeline(COMPOSITION_WIDTH, COMPOSITION_HEIGHT),
+    [],
+  );
+
+  const displayMaterial = useMemo(
+    () =>
+      new THREE.MeshBasicMaterial({
+        toneMapped: false,
+      }),
+    [],
+  );
+
+  useLayoutEffect(() => {
+    return () => {
+      pipeline.dispose();
+      displayMaterial.dispose();
+    };
+  }, [pipeline, displayMaterial]);
+
+  const compAspect = COMPOSITION_WIDTH / COMPOSITION_HEIGHT;
 
   useFrame(() => {
     if (lutBlocking) {
       return;
     }
-    material.uniforms.map.value = mapTexture;
-    material.uniforms.uImageAspect.value = imageAspect;
-    material.uniforms.uCompAspect.value = compAspect;
-    material.uniforms.uExposure.value = grade.exposure;
-    material.uniforms.uContrast.value = grade.contrast;
-    material.uniforms.uSaturation.value = grade.saturation;
-    material.uniforms.uTemperature.value = grade.temperature;
-    material.uniforms.uRgbShift!.value = grade.rgbShift;
-    material.uniforms.uTint!.value = grade.tint;
-    material.uniforms.uFade!.value = grade.fade;
-    material.uniforms.uHighlights!.value = grade.highlights;
-    material.uniforms.uShadows!.value = grade.shadows;
-    material.uniforms.uVignette!.value = grade.vignette;
-    material.uniforms.uGrainIntensity!.value = grade.grainIntensity;
-    material.uniforms.uGrainPhase!.value = remotionFrame + 1.0;
-    material.uniforms.uLUT2D!.value = lutTextureEffective;
-    material.uniforms.uLutEnabled!.value = lutOn;
-    material.uniforms.uLutIntensity!.value = lutIntensity;
-    material.uniforms.uLutSize!.value = lutSizeUniform;
+    const { w, h } = readTexturePixelSize(mapTexture);
+    pipeline.setInputTexture(mapTexture, w, h);
+    pipeline.syncFromProps(
+      grade,
+      lutTextureEffective,
+      lutOn,
+      lutIntensity,
+      lutSizeUniform,
+      halationColorVec3,
+      remotionFrame + 1.0,
+    );
+    pipeline.setCoverAspects(imageAspect, compAspect);
+    pipeline.render(gl);
+    const outTex = pipeline.getOutputTexture();
+    displayMaterial.map = outTex;
+    displayMaterial.needsUpdate = true;
   });
 
   return (
@@ -444,7 +335,7 @@ function GradeBackdrop({
         position={[0, 0, 1]}
       />
       {!lutBlocking ? (
-        <mesh material={material}>
+        <mesh material={displayMaterial}>
           <planeGeometry args={[2, 2]} />
         </mesh>
       ) : null}

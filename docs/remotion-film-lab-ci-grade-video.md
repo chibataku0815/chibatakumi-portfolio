@@ -4,6 +4,10 @@
 > **結論（現行）**: **デフォルトの `film-lab-ci.yml` には含めない。** `public/videos/*.MOV` がリポに無いと必ず失敗するため。  
 > **代わりに常時回すジョブ**: `render:spike` と `render:grade`（静止画 + LUT・`samples/grade-props.json`）。
 
+## Linux / GitHub Actions
+
+GitHub-hosted `ubuntu-latest` には実ディスプレイがないため、Chromium が **WebGL context を作れず** `render:grade` 等が失敗することがある。`.github/workflows/film-lab-ci.yml` では **xvfb** と Mesa / Chromium 依存パッケージを `apt-get` したうえで、各 Remotion コマンドを **`xvfb-run -a`** で実行する。
+
 ## 将来 CI に入れる場合の選択肢
 
 | 方式 | 内容 | 注意 |

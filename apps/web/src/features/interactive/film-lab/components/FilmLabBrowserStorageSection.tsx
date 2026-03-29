@@ -11,6 +11,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { findMatchingPreset, type PresetName } from "../preset-data";
 import {
+  isFilmLabDonationDebugEnabled,
+  filmLabDonationDebugLog,
+  filmLabDonationDevTrace,
+} from "../film-lab-donation-debug";
+import {
   clearFilmLabStoredSession,
   hasFilmLabStoredSession,
   loadFilmLabStoredSession,
@@ -105,6 +110,16 @@ export function FilmLabBrowserStorageSection({
       });
       setHasStored(true);
       showFeedback("saved");
+      filmLabDonationDevTrace("handleSave: ブラウザ保存成功 → onSaveSuccess を呼ぶ", {
+        functionName: "FilmLabBrowserStorageSection.handleSave",
+        hasOnSaveSuccess: typeof onSaveSuccess === "function",
+      });
+      if (isFilmLabDonationDebugEnabled()) {
+        filmLabDonationDebugLog("handleSave: 成功。onSaveSuccess 呼び出し", {
+          functionName: "FilmLabBrowserStorageSection.handleSave",
+          hasOnSaveSuccess: typeof onSaveSuccess === "function",
+        });
+      }
       onSaveSuccess?.();
     } catch (err) {
       console.error("FilmLabBrowserStorageSection.handleSave: localStorage 書き込み失敗", {

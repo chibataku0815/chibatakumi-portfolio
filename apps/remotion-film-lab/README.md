@@ -16,9 +16,17 @@ bun run dev          # Studio
 bun run render:spike # Phase 0 — props 上書きの短尺 MP4 → out/spike.mp4
 bun run render:grade # Phase 2+ — 解析グレード + 任意 .cube LUT + cover AR → out/grade.mp4
 bun run render:grade:img0513 # サンプル: `public/videos/IMG_0513.MOV`（手元コピー必須）→ out/grade-img0513.mp4
+# G2 / Route C: 代表フレーム PNG（MP4 再エンコードなし。ブラウザキャプチャと並べやすい）
+bun run still:grade           # samples/grade-props.json · frame 45 → out/stills/grade-default-f45.png
+bun run still:grade:nolut     # LUT なし・同一 grade（samples/grade-props-g2-no-lut.json）→ grade-g2-nolut-f45.png
+bun run still:grade:img0513   # 動画ソースありのとき（上記 MOV 必須）
 ```
 
-`render:*` は **`--gl=angle`** を付与（ヘッドレスでの WebGL 安定化）。別バックエンドを試す場合は [Chromium flags](https://www.remotion.dev/docs/chromium-flags) を参照。
+`render:*` / `still:*` は **`--gl=angle`** を付与（ヘッドレスでの WebGL 安定化）。別バックエンドを試す場合は [Chromium flags](https://www.remotion.dev/docs/chromium-flags) を参照。
+
+## ブラウザ Film Lab との差（Tier A）
+
+同じ **JSON / `film-lab-core` の props** でも、**画が一致するとは限らない**。`GradeScene.tsx` は **多パス**（grade+LUT → bloom（しきい値＋H/V ブラー @ 1/2 解像度）→ halation（同 @ 1/4）→ composite）で `apps/web` の `Viewport.ts` と**同順**に寄せ、`bloom` / `halation` / `blur` / `composite` シェーダは web 本番と同一ソースを import。**残る差**: Pass1 の LUT は Remotion 用 **2D パック**、ブラウザ本番は **3D LUT**／色空間・GL 実装差・split tone 未配線など。詳細は life `docs/guides/2026-04-01-film-lab-remotion-film-aesthetic-gap-verification-handoff.md`。目視比較は `docs/remotion-film-lab-g2-golden.md`。
 
 ## 動画ソース（任意）
 
@@ -29,8 +37,8 @@ bun run render:grade:img0513 # サンプル: `public/videos/IMG_0513.MOV`（手�
 
 ## グレードのうち Remotion で効くもの
 
-- **適用される**: 露出・コントラスト・彩度・色温度、`tint`、`rgbShift`、`fade`、`highlights`、`shadows`、**LUT**、`vignette` / `grainIntensity`（ブラウザの composite パス相当・画面空間）。
-- **適用されない（無視）**: `bloom*` / `halation*`（Web 側の多パス専用）、`shadowHue` / `highlightHue` ベースのスプリットトーン（将来拡張）。
+- **適用される**: 露出・コントラスト・彩度・色温度、`tint`、`rgbShift`、`fade`、`highlights`、`shadows`、**LUT**、`vignette` / `grainIntensity`（composite）、`bloomThreshold` / `bloomStrength` / `bloomRadius`、`halationIntensity` / `halationSpread` / `halationHue`（**多パス**: web `Viewport` と同型のしきい値＋ガウス風ブラー 2 パス／解像度スケールも同様）。
+- **適用されない（無視）**: `shadowHue` / `highlightHue` ベースのスプリットトーン（将来拡張）。
 
 ## LUT（`.cube`）
 

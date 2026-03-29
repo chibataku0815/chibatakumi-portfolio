@@ -7,7 +7,10 @@
     "dev": "remotion studio",
     "render:spike": "remotion render src/index.ts FilmLookSpike out/spike.mp4 --props=./samples/spike-props.json --gl=angle",
     "render:grade": "remotion render src/index.ts FilmLookGrade out/grade.mp4 --props=./samples/grade-props.json --gl=angle",
-    "render:grade:img0513": "remotion render src/index.ts FilmLookGrade out/grade-img0513.mp4 --props=./samples/grade-props-IMG0513.json --gl=angle"
+    "render:grade:img0513": "remotion render src/index.ts FilmLookGrade out/grade-img0513.mp4 --props=./samples/grade-props-IMG0513.json --gl=angle",
+    "still:grade": "remotion still src/index.ts FilmLookGrade out/stills/grade-default-f45.png --frame=45 --props=./samples/grade-props.json --gl=angle",
+    "still:grade:nolut": "remotion still src/index.ts FilmLookGrade out/stills/grade-g2-nolut-f45.png --frame=45 --props=./samples/grade-props-g2-no-lut.json --gl=angle",
+    "still:grade:img0513": "remotion still src/index.ts FilmLookGrade out/stills/grade-img0513-f45.png --frame=45 --props=./samples/grade-props-IMG0513.json --gl=angle"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",

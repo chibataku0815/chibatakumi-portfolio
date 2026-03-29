@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { FilmLabFullPage } from "@/features/interactive/film-lab";
+import { filmLabReadDonationEnvOnServer } from "@/features/interactive/film-lab/film-lab-donation-env-server";
 import { decodeSharedParamP } from "@/features/interactive/film-lab/params-codec";
 import type { Params } from "@/features/interactive/film-lab/types";
 
@@ -120,13 +121,18 @@ export default async function FilmLabPage({
     }
   }
 
+  const donationRuntime = filmLabReadDonationEnvOnServer();
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(getJsonLd(locale)) }}
       />
-      <FilmLabFullPage initialSharedParams={initialSharedParams} />
+      <FilmLabFullPage
+        initialSharedParams={initialSharedParams}
+        donationRuntime={donationRuntime}
+      />
     </>
   );
 }

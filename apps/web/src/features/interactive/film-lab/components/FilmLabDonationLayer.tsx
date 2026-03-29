@@ -9,16 +9,16 @@
 import { useCallback, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { trackFilmLabDonationEvent } from "@/shared/analytics";
-import {
-  filmLabDonationBmcUrl,
-  filmLabDonationStripeTiers,
-  type FilmLabDonationStripeTier,
-} from "../film-lab-donation-config";
+import type { FilmLabDonationStripeTier } from "../film-lab-donation-config";
 import { filmLabMarkPresetSaveModalNever } from "../film-lab-donation-logic";
 
 const VARIANT = "v1";
 
 export type FilmLabDonationLayerProps = {
+  /** Stripe 寄付リンク（親が env 埋め込み or サーバーから解決した配列を渡す） */
+  stripeTiers: FilmLabDonationStripeTier[];
+  /** Buy Me a Coffee URL（空なら非表示） */
+  bmcUrl: string;
   /** ロケール（analytics 用） */
   locale: string;
   /** プレゼンモード ON のときは寄付 UI を一切出さない */
@@ -36,6 +36,8 @@ export type FilmLabDonationLayerProps = {
  * @description 寄付用のフッター・モーダル・バナーをまとめたレイヤー。
  */
 export function FilmLabDonationLayer({
+  stripeTiers,
+  bmcUrl,
   locale,
   presentMode,
   saveModalOpen,
@@ -48,8 +50,6 @@ export function FilmLabDonationLayer({
   const t = useTranslations("film-lab.donation");
   const footerImpressionSent = useRef(false);
 
-  const stripeTiers = filmLabDonationStripeTiers;
-  const bmcUrl = filmLabDonationBmcUrl;
   const hasStripe = stripeTiers.length > 0;
   /** LUT バナーはスリムのため、既定は最も低い金額のリンクだけ出す */
   const lutBannerTier = stripeTiers[0] ?? null;
