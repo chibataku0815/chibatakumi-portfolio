@@ -148,6 +148,7 @@ export class Viewport {
         uLUT: { value: null },
         uLUTIntensity: { value: 1.0 },
         uLUTEnabled: { value: 0.0 },
+        uFlipY: { value: 0.0 },
       },
     });
 
@@ -169,6 +170,7 @@ export class Viewport {
       uniforms: {
         uSource: { value: null },
         uBloomThreshold: { value: 0.8 },
+        uFlipY: { value: 0.0 },
       },
     });
 
@@ -180,6 +182,7 @@ export class Viewport {
       uniforms: {
         uSource: { value: null },
         uHalationColor: { value: new THREE.Vector3(0.91, 0.063, 0.125) },
+        uFlipY: { value: 0.0 },
       },
     });
 
@@ -193,6 +196,7 @@ export class Viewport {
         uDirection: { value: new THREE.Vector2(1, 0) },
         uResolution: { value: new THREE.Vector2(options.width, options.height) },
         uRadius: { value: 0.4 },
+        uFlipY: { value: 0.0 },
       },
     });
 
@@ -218,6 +222,7 @@ export class Viewport {
         },
         uImageResolution: { value: new THREE.Vector2(1280, 720) },
         uAberrationEdgeSoften: { value: 0.0 },
+        uFlipY: { value: 0.0 },
       },
     });
   }
@@ -602,6 +607,18 @@ export class Viewport {
 
   setLUTIntensity(value: number): void {
     this.material.uniforms.uLUTIntensity!.value = value;
+  }
+
+  // ===== Export Y-flip =====
+
+  /**
+   * @description エクスポート時の Y 反転。composite パスのみ反転し、中間 RT は通常方向を維持。
+   * readPixels 後の CPU flip を不要にする。
+   */
+  setExportFlipY(flip: boolean): void {
+    // Only flip the final composite pass — intermediate RTs must stay normal
+    // so bloom/halation UV sampling works correctly
+    this.compositeMaterial.uniforms.uFlipY!.value = flip ? 1.0 : 0.0;
   }
 
   // ===== Before/After =====
