@@ -380,7 +380,7 @@ export function ControlPanel({
 
   return (
     <>
-      <div className="rounded-lg border border-white/[0.06] bg-black/60 p-4 backdrop-blur-xl">
+      <div className="w-full min-w-0 rounded-lg border border-white/[0.06] bg-black/60 p-4 backdrop-blur-xl sm:p-5">
         <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div
             className="flex rounded-lg border border-white/10 p-0.5"
@@ -435,10 +435,14 @@ export function ControlPanel({
           </label>
         ) : null}
 
-        {/* Grid: Quick = Color | Presets（共有 UI は feature flag） / Pro = Color | Effects | LUT+Presets */}
-        <div className={`grid grid-cols-1 gap-4 md:gap-6 ${isPro ? "md:grid-cols-3" : "md:grid-cols-2"}`}>
+        {/*
+          レイアウト: 狭い画面は 1 列。md 以上は
+          - Quick: Color | LUT+（2 列）
+          - Pro: 上段 Color | Effects、下段 LUT+ を全幅（col-span-2）— 3 列だと右列だけ縦に長く「右寄り」に見えるため
+        */}
+        <div className="grid w-full min-w-0 grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
           {/* === COLOR GRADING === */}
-          <div>
+          <div className="min-w-0">
             <SectionHeader title="Color" />
             <div className="flex flex-col gap-2.5">
               <ControlSlider label="Exposure" value={params.exposure} min={-3} max={3} step={0.01} defaultValue={0} onChange={(v) => updateParam("exposure", v)} onCommit={commit} />
@@ -499,7 +503,7 @@ export function ControlPanel({
 
           {/* === EFFECTS（Pro のみ） === */}
           {isPro ? (
-          <div>
+          <div className="min-w-0">
             <CollapsibleHeader title="Effects" open={effectsOpen} onToggle={() => setEffectsOpen(!effectsOpen)} />
             {effectsOpen && (
               <div className="flex flex-col gap-2.5">
@@ -525,8 +529,8 @@ export function ControlPanel({
           </div>
           ) : null}
 
-          {/* === LUT + PRESETS === */}
-          <div>
+          {/* === LUT + PRESETS（Pro 時は下段で全幅） === */}
+          <div className={`min-w-0 ${isPro ? "md:col-span-2" : ""}`}>
             {/* Quick でも .cube を読めるように常時表示（Effects/Bloom は Pro のみ） */}
             <LUTPanel viewport={viewport} onCubeLutLoaded={onLutLoadSuccess} />
             <div className="mt-3 border-t border-white/[0.06] pt-3">

@@ -48,7 +48,7 @@ const FilmLabDonationLayer = dynamic(
 );
 
 /**
- * @description Film Lab フルページ。コントロール直上に sampleHint を置き、自分のメディアへの誘導を行う。
+ * @description Film Lab フルページ。コントロール直上に sampleHint を置く。コンテナは `max-w-7xl`（ナビと揃えつつ横幅を確保）。
  * @param root0 - ルート props
  * @param root0.initialSharedParams - URL 共有から復元したグレード。null のときは通常の初期状態。
  */
@@ -168,7 +168,7 @@ export function FilmLabFullPage({
     : undefined;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 pt-20 pb-8 sm:px-6 sm:pt-32 sm:pb-12">
+    <div className="mx-auto w-full max-w-7xl px-4 pt-20 pb-8 sm:px-6 sm:pt-32 sm:pb-12">
       {/* Canvas + Histogram overlay */}
       <div className="relative">
         <FilmLabCanvas
