@@ -1,7 +1,7 @@
 /**
  * @file Interactive ページ用の Film Lab 埋め込み。
  * @description キャンバスとコントロールを並べ、下に説明文とタグを出す。初見ユーザー向けに「サンプル画像であること」を一文で伝える。
- * @limitations フルページ版（/film-lab）ではない。WebGL は dynamic import でクライアントのみ。
+ * @limitations フルページ版（/film-lab）ではない。WebGL は dynamic import でクライアントのみ。セクションの横パディングはモバイルで `px-4`、sm 以上で `px-6`（Film Lab 1B と整合）。
  */
 "use client";
 
@@ -38,7 +38,7 @@ export function FilmLabShowcase() {
   const [viewport, setViewport] = useState<Viewport | null>(null);
 
   return (
-    <section className="px-6 pb-20">
+    <section className="px-4 pb-16 sm:px-6 sm:pb-20">
       <div className="mx-auto max-w-5xl">
         {/* Canvas */}
         <FilmLabCanvas

@@ -807,10 +807,11 @@ body:has(.photography-page) {
 }
 
 /* === Halation Hue Slider === */
+/* 既定（狭いビューポート）: タッチ向けに thumb を大きく。640px 以上は下の @media で 12px。 */
 .halation-hue-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 14px;
-  height: 14px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background: #fff;
   border: 2px solid rgba(0, 0, 0, 0.3);
@@ -820,8 +821,8 @@ body:has(.photography-page) {
 }
 
 .halation-hue-slider::-moz-range-thumb {
-  width: 14px;
-  height: 14px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background: #fff;
   border: 2px solid rgba(0, 0, 0, 0.3);
@@ -831,4 +832,16 @@ body:has(.photography-page) {
 
 .halation-hue-slider:hover::-webkit-slider-thumb {
   transform: scale(1.15);
+}
+
+@media (min-width: 640px) {
+  .halation-hue-slider::-webkit-slider-thumb {
+    width: 12px;
+    height: 12px;
+  }
+
+  .halation-hue-slider::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+  }
 }
