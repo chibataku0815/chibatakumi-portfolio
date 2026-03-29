@@ -26,6 +26,12 @@ import { FilmLabShareSection } from "./FilmLabShareSection";
 /** UI の見せ方だけを切り替える。グレードの数値（reducer）は Quick でも Pro でも同じ */
 type UiMode = "quick" | "pro";
 
+/** フルページ用: プレゼンモード（寄付 UI 全消し）のトグルをコントロールパネルに出す */
+export type FilmLabDonationUiBinding = {
+  presentMode: boolean;
+  onPresentModeChange: (next: boolean) => void;
+};
+
 interface ControlPanelProps {
   viewport: Viewport | null;
   histogramVisible?: boolean;
@@ -37,6 +43,12 @@ interface ControlPanelProps {
    * 未指定なら何もしない（ショーケース埋め込みなど）。
    */
   onCompareUiChange?: (ui: { compareMode: boolean; activeSlot: "A" | "B" }) => void;
+  /** /film-lab のみ: プレゼンモード切替 */
+  donationUi?: FilmLabDonationUiBinding;
+  /** .cube 読み込み成功時（親が寄付バナー用） */
+  onLutLoadSuccess?: () => void;
+  /** 「このブラウザに保存」成功時 */
+  onBrowserSaveSuccess?: () => void;
 }
 
 export function ControlPanel({
@@ -45,6 +57,9 @@ export function ControlPanel({
   onHistogramToggle,
   initialSharedParams = null,
   onCompareUiChange,
+  donationUi,
+  onLutLoadSuccess,
+  onBrowserSaveSuccess,
 }: ControlPanelProps) {
   const pathname = usePathname();
   const tFilmLab = useTranslations("film-lab");
@@ -398,6 +413,28 @@ export function ControlPanel({
           <p className="text-[10px] leading-snug text-white/35 sm:max-w-[240px] sm:text-right">{tFilmLab("mode.hint")}</p>
         </div>
 
+        {donationUi ? (
+          <label className="mt-2 flex cursor-pointer items-start gap-2.5 rounded-lg border border-white/[0.06] bg-white/[0.03] p-2.5">
+            <input
+              type="checkbox"
+              checked={donationUi.presentMode}
+              onChange={(e) => donationUi.onPresentModeChange(e.target.checked)}
+              className="mt-0.5 h-4 w-4 shrink-0 rounded border-white/20 bg-black/40 text-[var(--accent-amber1)] focus:ring-[var(--accent-amber1)]"
+            />
+            <span className="min-w-0">
+              <span className="block text-[11px] font-medium text-white/80">
+                {tFilmLab("donation.present_mode.toggleLabel")}
+              </span>
+              <span className="mt-1 block text-[10px] leading-snug text-white/38">
+                {tFilmLab("donation.present_mode.description")}
+              </span>
+              <span className="mt-0.5 block text-[10px] text-white/28">
+                {tFilmLab("donation.present_mode.urlHint")}
+              </span>
+            </span>
+          </label>
+        ) : null}
+
         {/* Grid: Quick = Color | Presets（共有 UI は feature flag） / Pro = Color | Effects | LUT+Presets */}
         <div className={`grid grid-cols-1 gap-4 md:gap-6 ${isPro ? "md:grid-cols-3" : "md:grid-cols-2"}`}>
           {/* === COLOR GRADING === */}
@@ -491,7 +528,7 @@ export function ControlPanel({
           {/* === LUT + PRESETS === */}
           <div>
             {/* Quick でも .cube を読めるように常時表示（Effects/Bloom は Pro のみ） */}
-            <LUTPanel viewport={viewport} />
+            <LUTPanel viewport={viewport} onCubeLutLoaded={onLutLoadSuccess} />
             <div className="mt-3 border-t border-white/[0.06] pt-3">
               <SectionHeader title="Presets" />
               <PresetBar activePreset={presetBarActive} onPreset={applyPreset} />
@@ -517,6 +554,7 @@ export function ControlPanel({
               savedBloomStrength={savedBloomStrength}
               savedHalationIntensity={savedHalationIntensity}
               onAfterRestore={handleBrowserRestoreUi}
+              onSaveSuccess={onBrowserSaveSuccess}
             />
             <div className="mt-3 rounded-xl border border-white/[0.08] bg-gradient-to-b from-white/[0.04] to-black/20 p-3">
               <p className="mb-3 text-[10px] font-medium uppercase tracking-[0.12em] text-white/45">

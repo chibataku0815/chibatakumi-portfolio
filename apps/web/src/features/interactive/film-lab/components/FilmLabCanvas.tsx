@@ -27,6 +27,8 @@ interface FilmLabCanvasProps {
    * pointer-events-none でスプリット操作と干渉しない。
    */
   compareHud?: { activeSlot: "A" | "B" } | null;
+  /** ドロップ／ファイル選択で .cube が適用できたとき（寄付ナッジ用） */
+  onCubeLutLoaded?: () => void;
 }
 
 /** ファイルピッカー用: HEIC を選びにくくしつつ、一般的な形式はそのまま選べる */
@@ -48,6 +50,7 @@ export function FilmLabCanvas({
   fullScreen,
   onViewportReady,
   initialGradeParams = null,
+  onCubeLutLoaded,
   compareHud = null,
 }: FilmLabCanvasProps) {
   const tFilmLab = useTranslations("film-lab");
@@ -191,6 +194,7 @@ export function FilmLabCanvas({
           const lut = parseCube(text);
           viewportRef.current.setLUT(lut.data, lut.size);
           setMediaOverlay({ kind: "idle" });
+          onCubeLutLoaded?.();
           return;
         }
 
@@ -216,7 +220,7 @@ export function FilmLabCanvas({
         });
       }
     },
-    [getMaxTextureSize],
+    [getMaxTextureSize, onCubeLutLoaded],
   );
 
   // === Drag & Drop ===
@@ -298,7 +302,7 @@ export function FilmLabCanvas({
         className={`relative flex ${fullScreen ? "h-full" : "aspect-[4/3] sm:aspect-[16/9]"} w-full items-center justify-center rounded-lg bg-[#0a0a0a] ${className ?? ""}`}
       >
         <span className="text-sm text-[var(--text-muted)]">
-          WebGL2 is required for Quiet Reel
+          WebGL2 is required for Film Lab
         </span>
       </div>
     );

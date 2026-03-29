@@ -26,6 +26,37 @@ export function trackPageView(path: string) {
   }
 }
 
+/**
+ * Film Lab の任意寄付ナッジ用イベント（GA4）。イベント名は life 側仕様と一致させる。
+ */
+export function trackFilmLabDonationEvent(
+  name:
+    | "donation_nudge_impression"
+    | "donation_nudge_dismiss"
+    | "donation_nudge_cta_click",
+  details: {
+    surface: "footer" | "preset_save_modal" | "lut_banner";
+    locale: string;
+    variant?: string;
+    provider?: "stripe" | "bmc" | null;
+    method?: string;
+  },
+) {
+  if (!window.gtag || !GA_MEASUREMENT_ID) return;
+
+  const payload: Record<string, string | undefined> = {
+    surface: details.surface,
+    variant: details.variant ?? "v1",
+    locale: details.locale,
+  };
+  if (details.provider != null) {
+    payload.provider = details.provider;
+  }
+  if (details.method) payload.method = details.method;
+
+  window.gtag("event", name, payload);
+}
+
 export function trackPhotographyLead(details: {
   locale: string;
   eventType: string;

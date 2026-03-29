@@ -6,9 +6,11 @@ import type { Viewport } from "../core/Viewport";
 
 interface LUTPanelProps {
   viewport: Viewport | null;
+  /** .cube の読み込みが成功したとき（寄付バナー用のフック） */
+  onCubeLutLoaded?: () => void;
 }
 
-export function LUTPanel({ viewport }: LUTPanelProps) {
+export function LUTPanel({ viewport, onCubeLutLoaded }: LUTPanelProps) {
   const [lutName, setLutName] = useState<string | null>(null);
   const [intensity, setIntensity] = useState(1.0);
   const [error, setError] = useState<string | null>(null);
@@ -39,6 +41,7 @@ export function LUTPanel({ viewport }: LUTPanelProps) {
         viewport.setLUT(lut.data, lut.size);
         setLutName(lut.title || file.name);
         setError(null);
+        onCubeLutLoaded?.();
       } catch (err) {
         console.error("LUT load failed:", err);
         setError("Failed to load LUT");

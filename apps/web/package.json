@@ -7,7 +7,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "e2e:install": "playwright install chromium",
+    "e2e:preset-quality": "playwright test e2e/preset-quality-snapshots.spec.ts"
   },
   "dependencies": {
     "film-lab-core": "workspace:*",
@@ -26,6 +28,7 @@
     "three": "^0.181.2"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

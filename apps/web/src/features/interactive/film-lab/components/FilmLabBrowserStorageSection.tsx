@@ -35,6 +35,8 @@ interface FilmLabBrowserStorageSectionProps {
     savedHalationIntensity: number;
     activePreset: PresetName;
   }) => void;
+  /** 「このブラウザに保存」が成功した直後（任意寄付モーダル用） */
+  onSaveSuccess?: () => void;
 }
 
 type FeedbackKind = "idle" | "saved" | "loaded" | "cleared" | "error";
@@ -66,6 +68,7 @@ export function FilmLabBrowserStorageSection({
   savedBloomStrength,
   savedHalationIntensity,
   onAfterRestore,
+  onSaveSuccess,
 }: FilmLabBrowserStorageSectionProps) {
   const t = useTranslations("film-lab.browser");
   const [hasStored, setHasStored] = useState(false);
@@ -102,13 +105,14 @@ export function FilmLabBrowserStorageSection({
       });
       setHasStored(true);
       showFeedback("saved");
+      onSaveSuccess?.();
     } catch (err) {
       console.error("FilmLabBrowserStorageSection.handleSave: localStorage 書き込み失敗", {
         err,
       });
       showFeedback("error");
     }
-  }, [state, savedBloomStrength, savedHalationIntensity, showFeedback]);
+  }, [state, savedBloomStrength, savedHalationIntensity, showFeedback, onSaveSuccess]);
 
   const handleLoad = useCallback(() => {
     const session = loadFilmLabStoredSession();
