@@ -30,17 +30,32 @@ export type FilmLabSmartLookSectionProps = {
   activePreset: PresetName;
   activeSlotState: GradeSlotState;
   dispatch: (a: Action) => void;
+  /**
+   * @description BFF のオリジン（`https://example.com`、末尾スラッシュなし）。未指定なら同一オリジン相対パス。
+   */
+  smartLookApiBaseUrl?: string;
 };
 
 /**
  * @description フルページ Film Lab 用のスマートルック行。
  */
+/**
+ * @description スマートルック POST の URL。デスクトップは絶対 URL、Web は相対で十分。
+ */
+function buildSmartLookPostUrl(apiBaseUrl: string | undefined): string {
+  const trimmed = apiBaseUrl?.trim().replace(/\/$/, "") ?? "";
+  return trimmed.length > 0
+    ? `${trimmed}/api/film-lab/ai/smart-look`
+    : "/api/film-lab/ai/smart-look";
+}
+
 export function FilmLabSmartLookSection({
   serverVerifiedSupporter,
   filmLabCanvasRef,
   activePreset,
   activeSlotState,
   dispatch,
+  smartLookApiBaseUrl,
 }: FilmLabSmartLookSectionProps) {
   const t = useTranslations("film-lab.smartLook");
   const locale = useLocale();
@@ -76,7 +91,7 @@ export function FilmLabSmartLookSection({
     setBusy(true);
     const t0 = typeof performance !== "undefined" ? performance.now() : 0;
     try {
-      const res = await fetch("/api/film-lab/ai/smart-look", {
+      const res = await fetch(buildSmartLookPostUrl(smartLookApiBaseUrl), {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -167,6 +182,7 @@ export function FilmLabSmartLookSection({
     filmLabCanvasRef,
     locale,
     serverVerifiedSupporter,
+    smartLookApiBaseUrl,
     t,
   ]);
 

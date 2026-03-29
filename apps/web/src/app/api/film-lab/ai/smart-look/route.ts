@@ -19,7 +19,7 @@ import {
   parseAndClampSmartLookDelta,
   parseJsonObjectFromAssistantText,
   type FilmLabSmartLookDelta,
-} from "@/features/interactive/film-lab/film-lab-smart-look";
+} from "film-lab-smart-look";
 
 export const runtime = "nodejs";
 

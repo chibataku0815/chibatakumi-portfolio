@@ -63,6 +63,10 @@ interface ControlPanelProps {
   serverVerifiedSupporter?: boolean;
   /** スマートルック用キャンバスキャプチャ ref（フルページのみ） */
   filmLabCanvasRef?: RefObject<FilmLabCanvasRef | null>;
+  /**
+   * @description デスクトップ等: BFF のオリジン（末尾スラッシュなし）。未指定時は相対 `/api/film-lab/ai/smart-look`（Web 本番）。
+   */
+  smartLookApiBaseUrl?: string;
 }
 
 export function ControlPanel({
@@ -76,6 +80,7 @@ export function ControlPanel({
   onBrowserSaveSuccess,
   serverVerifiedSupporter = false,
   filmLabCanvasRef,
+  smartLookApiBaseUrl,
 }: ControlPanelProps) {
   const pathname = usePathname();
   const tFilmLab = useTranslations("film-lab");
@@ -396,7 +401,11 @@ export function ControlPanel({
 
   return (
     <>
-      <div className="w-full min-w-0 rounded-lg border border-white/[0.06] bg-black/60 p-4 backdrop-blur-xl sm:p-5">
+      {/*
+        @container + @min-[560px]: Color|Effects の 2 列は「パネル幅」基準。
+        ビューポートだけが広いデスクトップ右ペインでは 1 列のままにし、ラベルとスライダーの重なりを防ぐ。
+      */}
+      <div className="@container w-full min-w-0 rounded-lg border border-white/[0.06] bg-black/60 p-4 backdrop-blur-xl sm:p-5">
         <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div
             className="flex rounded-lg border border-white/10 p-0.5"
@@ -453,12 +462,12 @@ export function ControlPanel({
 
         {/*
           レイアウト:
-          - Quick: 1 列では「プリセット列」を先に（親指・初回操作）。md+ では左列=プリセット、右列=Color（order で制御）。
-          - Pro: 上段 Color | Effects、下段 LUT+ 全幅（col-span-2）。
+          - Quick: 1 列では「プリセット列」を先に。パネルが十分広いときだけ 2 列（左=プリセット / 右=Color）。
+          - Pro: 上段 Color | Effects、下段 LUT+ 全幅（col-span-2）。2 列化もパネル幅ベース（@container）。
         */}
-        <div className="grid w-full min-w-0 grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
+        <div className="grid w-full min-w-0 grid-cols-1 gap-4 @min-[560px]:grid-cols-2 @min-[560px]:gap-6">
           {/* === COLOR GRADING（Quick 時は視覚順を後ろに — order-2） === */}
-          <div className={`min-w-0 ${isPro ? "" : "order-2 md:order-2"}`}>
+          <div className={`min-w-0 ${isPro ? "" : "order-2 @min-[560px]:order-2"}`}>
             <SectionHeader title="Color" />
             <div className="flex flex-col gap-2.5">
               <ControlSlider label="Exposure" value={params.exposure} min={-3} max={3} step={0.01} defaultValue={0} onChange={(v) => updateParam("exposure", v)} onCommit={commit} />
@@ -547,7 +556,7 @@ export function ControlPanel({
 
           {/* === LUT + PRESETS（Pro: LUT 先 / Quick: プリセット先で触りやすく） === */}
           <div
-            className={`min-w-0 ${isPro ? "md:col-span-2" : "order-1 md:order-1"}`}
+            className={`min-w-0 ${isPro ? "@min-[560px]:col-span-2" : "order-1 @min-[560px]:order-1"}`}
           >
             {isPro ? (
               <>
@@ -616,6 +625,7 @@ export function ControlPanel({
                 activePreset={presetBarActive}
                 activeSlotState={activeSlotState}
                 dispatch={dispatch}
+                smartLookApiBaseUrl={smartLookApiBaseUrl}
               />
             ) : null}
             <div className="mt-3 rounded-xl border border-white/[0.08] bg-gradient-to-b from-white/[0.04] to-black/20 p-3">
