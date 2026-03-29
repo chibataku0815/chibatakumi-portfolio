@@ -4,12 +4,14 @@
   "private": true,
   "packageManager": "bun@1.3.3",
   "scripts": {
+    "bff:local": "next dev",
     "dev": "next dev",
     "dev:context": "node ./scripts/film-lab-dev-context.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "e2e:install": "playwright install chromium",
+    "e2e:smart-look-pending": "playwright test e2e/smart-look-pending.spec.ts",
     "e2e:preset-quality": "playwright test e2e/preset-quality-snapshots.spec.ts"
   },
   "dependencies": {
@@ -28,6 +30,7 @@
     "next-intl": "^4.8.3",
     "react": "19.2.1",
     "react-dom": "19.2.1",
+    "sharp": "^0.34.5",
     "stripe": "^17.5.0",
     "three": "^0.181.2"
   },

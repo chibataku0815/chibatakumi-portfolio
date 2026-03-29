@@ -16,7 +16,7 @@ import { LUTPanel } from "./LUTPanel";
 import { PresetBar } from "./PresetBar";
 import type { Viewport } from "../core/Viewport";
 import { PRESETS, findMatchingPreset, type PresetName, halationHueToHex } from "../preset-data";
-import { filmLabShareUiEnabled } from "../feature-flags";
+import { filmLabShareUiEnabled, filmLabSmartLookUiEnabled } from "../feature-flags";
 import {
   loadFilmLabStoredSession,
   type FilmLabStoredSessionV1,
@@ -32,6 +32,7 @@ import { FilmLabBrowserStorageSection } from "./FilmLabBrowserStorageSection";
 import { FilmLabShareSection } from "./FilmLabShareSection";
 import type { FilmLabCanvasRef } from "./FilmLabCanvas";
 import { FilmLabSmartLookSection } from "./FilmLabSmartLookSection";
+import { FilmLabInfoTip } from "./FilmLabInfoTip";
 
 /** UI の見せ方だけを切り替える。グレードの数値（reducer）は Quick でも Pro でも同じ */
 type UiMode = "quick" | "pro";
@@ -432,6 +433,22 @@ export function ControlPanel({
     };
   }, [applyPreset, onHistogramToggle, state.compareMode]);
 
+  /**
+   * @description Web の /film-lab はパスで判定。Desktop は BFF 絶対 URL が渡るのでそれでも出す（パススタブ不一致の保険）。
+   */
+  const smartLookPathOk =
+    pathname.includes("/film-lab") && !pathname.includes("/support");
+  const smartLookHasDesktopBff =
+    typeof smartLookApiBaseUrl === "string" &&
+    smartLookApiBaseUrl.trim().length > 0;
+  /** @description 実装・API は残すが、フラグ OFF 時はセクションをマウントしない（ペンディング時の負荷軽減） */
+  const smartLookSlotAllowed =
+    filmLabSmartLookUiEnabled &&
+    filmLabCanvasRef != null &&
+    (smartLookPathOk || smartLookHasDesktopBff);
+  /** @description Desktop は Presets 直下に置き、スクロールしなくても見えるようにする */
+  const smartLookProminent = smartLookHasDesktopBff;
+
   return (
     <>
       {/*
@@ -443,7 +460,7 @@ export function ControlPanel({
           <div
             className="flex rounded-lg border border-white/10 p-0.5"
             role="group"
-            aria-label={tFilmLab("mode.hint")}
+            aria-label={tFilmLab("mode.hintShort")}
           >
             <button
               type="button"
@@ -468,7 +485,16 @@ export function ControlPanel({
               {tFilmLab("mode.pro")}
             </button>
           </div>
-          <p className="text-[10px] leading-snug text-white/35 sm:max-w-[240px] sm:text-right">{tFilmLab("mode.hint")}</p>
+          <div className="flex items-start justify-end gap-1 sm:max-w-[260px]">
+            <p className="min-w-0 flex-1 text-right text-[10px] leading-snug text-white/35">
+              {tFilmLab("mode.hintShort")}
+            </p>
+            <FilmLabInfoTip
+              tip={tFilmLab("mode.hint")}
+              assistiveLabel={tFilmLab("mode.hintInfoAria")}
+              className="mt-0.5 text-white/35 hover:text-amber-200/80"
+            />
+          </div>
         </div>
 
         {donationUi ? (
@@ -516,6 +542,19 @@ export function ControlPanel({
             </div>
           ) : null}
         </div>
+
+        {smartLookSlotAllowed && smartLookProminent ? (
+          <div className="mb-4 min-w-0 border-b border-white/[0.06] pb-4">
+            <FilmLabSmartLookSection
+              serverVerifiedSupporter={serverVerifiedSupporter}
+              filmLabCanvasRef={filmLabCanvasRef}
+              activePreset={presetBarActive}
+              activeSlotState={activeSlotState}
+              dispatch={dispatch}
+              smartLookApiBaseUrl={smartLookApiBaseUrl}
+            />
+          </div>
+        ) : null}
 
         {/*
           レイアウト:
@@ -634,9 +673,7 @@ export function ControlPanel({
               onAfterRestore={handleBrowserRestoreUi}
               onSaveSuccess={onBrowserSaveSuccess}
             />
-            {filmLabCanvasRef != null &&
-            pathname.includes("/film-lab") &&
-            !pathname.includes("/support") ? (
+            {smartLookSlotAllowed && !smartLookProminent ? (
               <FilmLabSmartLookSection
                 serverVerifiedSupporter={serverVerifiedSupporter}
                 filmLabCanvasRef={filmLabCanvasRef}

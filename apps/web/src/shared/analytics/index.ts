@@ -82,6 +82,10 @@ export function trackFilmLabSmartLookEvent(
     latency_bucket?: string;
     preset_id?: string;
     version?: number;
+    /** 補正済みラスタをキャンバスに載せたか（画像レベル MVP） */
+    raster_applied?: boolean;
+    /** 参照画像スタイル用の 2 枚目を POST に含めたか */
+    reference_attached?: boolean;
   },
 ) {
   if (!window.gtag || !GA_MEASUREMENT_ID) return;
@@ -93,6 +97,8 @@ export function trackFilmLabSmartLookEvent(
   if (details.latency_bucket != null) payload.latency_bucket = details.latency_bucket;
   if (details.preset_id != null) payload.preset_id = details.preset_id;
   if (details.version !== undefined) payload.consent_version = details.version;
+  if (details.raster_applied !== undefined) payload.raster_applied = details.raster_applied;
+  if (details.reference_attached !== undefined) payload.reference_attached = details.reference_attached;
   window.gtag("event", name, payload);
 }
 

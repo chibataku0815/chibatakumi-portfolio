@@ -16,6 +16,17 @@ function filmLabOgPath(locale: string): string {
   return locale === "ja" ? "/film-lab/og" : `/en/film-lab/og`;
 }
 
+/**
+ * Film Lab ページ用のメタデータを組み立てて返す。
+ *
+ * @description
+ * - OGP／Twitter カードの画像は、従来どおり写実ヒーローか動的 OG ルート（共有プリセット URL）。
+ * - ブラウザタブと Apple Touch 用には、サイト全体の icon ではなく **Film Lab 専用シンボル**（`/brand/film-lab-symbol.svg` 等）を載せる。
+ *   life 側の正本: `film-lab-symbol-mark-assets.md`。
+ *
+ * @param params - Next.js のルート `params`。`locale` で言語を切り替える。
+ * @param searchParams - クエリ `p` / `v`。共有ルックが解読できたときだけ動的 OG パスを選ぶ。
+ */
 export async function generateMetadata({
   params,
   searchParams,
@@ -47,6 +58,12 @@ export async function generateMetadata({
   return {
     title: t("title"),
     description: t("description"),
+    icons: {
+      icon: [{ url: "/brand/film-lab-symbol.svg", type: "image/svg+xml", sizes: "any" }],
+      apple: [
+        { url: "/brand/film-lab-apple-touch.png", sizes: "180x180", type: "image/png" },
+      ],
+    },
     openGraph: {
       title: t("ogTitle"),
       description: t("ogDescription"),
