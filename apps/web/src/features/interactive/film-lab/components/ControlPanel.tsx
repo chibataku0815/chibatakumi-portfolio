@@ -422,6 +422,12 @@ export function ControlPanel({
                 <>
                   <ControlSlider label="Highlights" value={params.highlights} min={-1} max={1} step={0.01} defaultValue={0} onChange={(v) => updateParam("highlights", v)} onCommit={commit} />
                   <ControlSlider label="Shadows" value={params.shadows} min={-1} max={1} step={0.01} defaultValue={0} onChange={(v) => updateParam("shadows", v)} onCommit={commit} />
+                  <SplitToneHueSlider
+                    label={tFilmLab("color.shadowHue")}
+                    value={params.shadowHue}
+                    onChange={(v) => updateParam("shadowHue", v)}
+                    onCommit={commit}
+                  />
                   <ControlSlider
                     label={tFilmLab("color.shadowTone")}
                     value={params.shadowTone}
@@ -430,6 +436,12 @@ export function ControlPanel({
                     step={0.01}
                     defaultValue={0}
                     onChange={(v) => updateParam("shadowTone", v)}
+                    onCommit={commit}
+                  />
+                  <SplitToneHueSlider
+                    label={tFilmLab("color.highlightHue")}
+                    value={params.highlightHue}
+                    onChange={(v) => updateParam("highlightHue", v)}
                     onCommit={commit}
                   />
                   <ControlSlider
@@ -684,6 +696,49 @@ function CollapsibleHeader({
       </span>
       {title}
     </button>
+  );
+}
+
+/**
+ * スプリットトーン用 0〜360° の色相スライダー（HSL 円周に沿ったプレビュー）
+ */
+function SplitToneHueSlider({
+  label,
+  value,
+  onChange,
+  onCommit,
+}: {
+  label: string;
+  value: number;
+  onChange: (v: number) => void;
+  onCommit?: () => void;
+}) {
+  const h = ((value % 360) + 360) % 360;
+  return (
+    <div className="flex min-h-[44px] items-center gap-3 sm:min-h-0">
+      <span className="w-16 shrink-0 text-[11px] text-white/50 sm:w-24">{label}</span>
+      <div className="relative flex-1">
+        <input
+          type="range"
+          min={0}
+          max={360}
+          step={1}
+          value={h}
+          onChange={(e) => onChange(Number(e.target.value))}
+          onPointerUp={() => onCommit?.()}
+          onTouchEnd={() => onCommit?.()}
+          className="split-tone-hue-slider h-1.5 w-full cursor-pointer appearance-none rounded-full touch-none"
+          style={{
+            background:
+              "linear-gradient(to right, hsl(0,100%,50%), hsl(60,100%,50%), hsl(120,100%,50%), hsl(180,100%,50%), hsl(240,100%,50%), hsl(300,100%,50%), hsl(360,100%,50%))",
+          }}
+        />
+      </div>
+      <div
+        className="h-4 w-4 shrink-0 rounded-full border border-white/20"
+        style={{ backgroundColor: `hsl(${h} 100% 50%)` }}
+      />
+    </div>
   );
 }
 

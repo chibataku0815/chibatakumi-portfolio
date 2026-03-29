@@ -20,6 +20,7 @@ uniform float uVignette;
 uniform float uFade;
 uniform float uHighlights;
 uniform float uShadows;
+// シャドウ／ハイライトの vec3 は JS 側で色相（HSL 彩度方向）× 強度 × レガシー長さから合成（軸 E 色相拡張）
 uniform vec3 uShadowTint;
 uniform vec3 uHighlightTint;
 

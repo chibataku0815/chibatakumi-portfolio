@@ -9,6 +9,13 @@
  */
 
 import * as THREE from "three";
+import {
+  chromaUnitFromHueDegrees,
+  FILM_LAB_DEFAULT_HIGHLIGHT_HUE,
+  FILM_LAB_DEFAULT_SHADOW_HUE,
+  LEGACY_HIGHLIGHT_TONE_MAGNITUDE,
+  LEGACY_SHADOW_TONE_MAGNITUDE,
+} from "film-lab-core";
 import { filmlabVertexShader } from "../shader/filmlab.vert";
 import { bloomFragmentShader } from "../shader/bloom.frag";
 import { halationFragmentShader } from "../shader/halation.frag";
@@ -46,18 +53,6 @@ function hexToVec3(hex: string): THREE.Vector3 {
   const c = new THREE.Color(hex);
   return new THREE.Vector3(c.r, c.g, c.b);
 }
-
-/**
- * スプリットトーン（シャドウ）: `shadowTone` スカラー（-1〜1）に掛けて `uShadowTint` へ送る固定方向。
- * 青寄りで陰影に「冷たさ」を足す想定（filmlab.frag は lum マスク後に加算）。
- */
-const SHADOW_TONE_DIRECTION = new THREE.Vector3(0.12, 0.18, 0.42);
-
-/**
- * スプリットトーン（ハイライト）: `highlightTone` に掛けて `uHighlightTint` へ送る固定方向。
- * 暖色寄りでハイライトにフィルム感を足す想定。
- */
-const HIGHLIGHT_TONE_DIRECTION = new THREE.Vector3(0.38, 0.16, 0.06);
 
 export class Viewport {
   mesh: THREE.Mesh;
@@ -97,6 +92,13 @@ export class Viewport {
   private halationIntensity = 0.0;
   private halationSpread = 15.0;
   private halationColor = new THREE.Vector3(0.91, 0.063, 0.125);
+
+  /**
+   * シャドウ／ハイライトの色相は GPU から一意に逆算できないため、最後に `setParams` で適用した値を保持する。
+   * `getParams` と「色相だけ更新」のときの強度維持に使う。
+   */
+  private splitShadowHueDeg = FILM_LAB_DEFAULT_SHADOW_HUE;
+  private splitHighlightHueDeg = FILM_LAB_DEFAULT_HIGHLIGHT_HUE;
 
   private width: number;
   private height: number;
@@ -502,24 +504,6 @@ export class Viewport {
     this.material.uniforms.uTint!.value = value;
   }
 
-  /**
-   * シャドウ域へのスプリットトーン強度。内部で固定色ベクトルにスカラー倍して `uShadowTint` を更新する。
-   * @param value -1〜1（`types.Params.shadowTone`）
-   */
-  setShadowTone(value: number): void {
-    const u = this.material.uniforms.uShadowTint!.value as THREE.Vector3;
-    u.copy(SHADOW_TONE_DIRECTION).multiplyScalar(value);
-  }
-
-  /**
-   * ハイライト域へのスプリットトーン強度（`types.Params.highlightTone`）。
-   * @param value -1〜1
-   */
-  setHighlightTone(value: number): void {
-    const u = this.material.uniforms.uHighlightTint!.value as THREE.Vector3;
-    u.copy(HIGHLIGHT_TONE_DIRECTION).multiplyScalar(value);
-  }
-
   setFade(value: number): void {
     this.material.uniforms.uFade!.value = value;
   }
@@ -620,15 +604,17 @@ export class Viewport {
       saturation: this.material.uniforms.uSaturation!.value as number,
       temperature: this.material.uniforms.uTemperature!.value as number,
       tint: this.material.uniforms.uTint!.value as number,
+      shadowHue: this.splitShadowHueDeg,
+      highlightHue: this.splitHighlightHueDeg,
       shadowTone: (() => {
         const u = this.material.uniforms.uShadowTint!.value as THREE.Vector3;
-        const d = SHADOW_TONE_DIRECTION.x;
-        return d !== 0 ? u.x / d : 0;
+        const [ux, uy, uz] = chromaUnitFromHueDegrees(this.splitShadowHueDeg);
+        return (u.x * ux + u.y * uy + u.z * uz) / LEGACY_SHADOW_TONE_MAGNITUDE;
       })(),
       highlightTone: (() => {
         const u = this.material.uniforms.uHighlightTint!.value as THREE.Vector3;
-        const d = HIGHLIGHT_TONE_DIRECTION.x;
-        return d !== 0 ? u.x / d : 0;
+        const [ux, uy, uz] = chromaUnitFromHueDegrees(this.splitHighlightHueDeg);
+        return (u.x * ux + u.y * uy + u.z * uz) / LEGACY_HIGHLIGHT_TONE_MAGNITUDE;
       })(),
       rgbShift: this.material.uniforms.uRGBShift!.value as number,
       grainIntensity: this.material.uniforms.uGrainIntensity!.value as number,
@@ -655,10 +641,45 @@ export class Viewport {
     if (params.temperature !== undefined)
       this.setTemperature(params.temperature as number);
     if (params.tint !== undefined) this.setTint(params.tint as number);
-    if (params.shadowTone !== undefined)
-      this.setShadowTone(params.shadowTone as number);
-    if (params.highlightTone !== undefined)
-      this.setHighlightTone(params.highlightTone as number);
+    if (params.shadowHue !== undefined || params.shadowTone !== undefined) {
+      let tone: number;
+      if (params.shadowTone !== undefined) {
+        tone = params.shadowTone as number;
+        if (params.shadowHue !== undefined) {
+          this.splitShadowHueDeg = params.shadowHue as number;
+        }
+      } else {
+        const u = this.material.uniforms.uShadowTint!.value as THREE.Vector3;
+        const [ox, oy, oz] = chromaUnitFromHueDegrees(this.splitShadowHueDeg);
+        tone =
+          (u.x * ox + u.y * oy + u.z * oz) / LEGACY_SHADOW_TONE_MAGNITUDE;
+        this.splitShadowHueDeg = params.shadowHue as number;
+      }
+      const [cx, cy, cz] = chromaUnitFromHueDegrees(this.splitShadowHueDeg);
+      (this.material.uniforms.uShadowTint!.value as THREE.Vector3)
+        .set(cx, cy, cz)
+        .multiplyScalar(tone * LEGACY_SHADOW_TONE_MAGNITUDE);
+    }
+
+    if (params.highlightHue !== undefined || params.highlightTone !== undefined) {
+      let tone: number;
+      if (params.highlightTone !== undefined) {
+        tone = params.highlightTone as number;
+        if (params.highlightHue !== undefined) {
+          this.splitHighlightHueDeg = params.highlightHue as number;
+        }
+      } else {
+        const u = this.material.uniforms.uHighlightTint!.value as THREE.Vector3;
+        const [ox, oy, oz] = chromaUnitFromHueDegrees(this.splitHighlightHueDeg);
+        tone =
+          (u.x * ox + u.y * oy + u.z * oz) / LEGACY_HIGHLIGHT_TONE_MAGNITUDE;
+        this.splitHighlightHueDeg = params.highlightHue as number;
+      }
+      const [cx, cy, cz] = chromaUnitFromHueDegrees(this.splitHighlightHueDeg);
+      (this.material.uniforms.uHighlightTint!.value as THREE.Vector3)
+        .set(cx, cy, cz)
+        .multiplyScalar(tone * LEGACY_HIGHLIGHT_TONE_MAGNITUDE);
+    }
     if (params.rgbShift !== undefined)
       this.setRGBShift(params.rgbShift as number);
     if (params.grainIntensity !== undefined)
