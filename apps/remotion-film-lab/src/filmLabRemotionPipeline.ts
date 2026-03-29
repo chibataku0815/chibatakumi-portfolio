@@ -26,6 +26,9 @@ const RT_OPTIONS: THREE.WebGLRenderTargetOptions = {
   type: THREE.HalfFloatType,
 };
 
+/** Web の Viewport.ABERRATION_EDGE_SOFTEN_SCALE と同値（rgbShift→composite 周辺ソフト） */
+const ABERRATION_EDGE_SOFTEN_SCALE = 22;
+
 let blackTexture: THREE.DataTexture | null = null;
 function getBlackTexture(): THREE.DataTexture {
   if (!blackTexture) {
@@ -162,6 +165,7 @@ export class FilmLabRemotionPipeline {
         uAbCompare: { value: 0 },
         uResolution: { value: new THREE.Vector2(width, height) },
         uImageResolution: { value: new THREE.Vector2(1280, 720) },
+        uAberrationEdgeSoften: { value: 0.0 },
       },
     });
   }
@@ -250,6 +254,10 @@ export class FilmLabRemotionPipeline {
     cu.uBloomStrength!.value = this.bloomStrength;
     cu.uHalationIntensity!.value = this.halationIntensity;
     cu.uResolution!.value.set(this.width, this.height);
+    cu.uAberrationEdgeSoften!.value = Math.min(
+      1,
+      Math.max(0, grade.rgbShift * ABERRATION_EDGE_SOFTEN_SCALE),
+    );
   }
 
   private renderBloom(renderer: THREE.WebGLRenderer): void {

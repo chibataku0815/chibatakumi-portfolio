@@ -7,6 +7,8 @@
  */
 interface ControlSliderProps {
   label: string;
+  /** ラベル行に付けるネイティブ title（ツールチップ） */
+  hint?: string;
   value: number;
   min: number;
   max: number;
@@ -20,6 +22,7 @@ interface ControlSliderProps {
 
 export function ControlSlider({
   label,
+  hint,
   value,
   min,
   max,
@@ -42,6 +45,7 @@ export function ControlSlider({
     <div
       className={`group flex min-h-[44px] items-center gap-3 sm:min-h-0 ${disabled ? "opacity-45" : ""}`}
       onDoubleClick={handleDoubleClick}
+      title={hint}
     >
       {/* ラベル（左） */}
       <span

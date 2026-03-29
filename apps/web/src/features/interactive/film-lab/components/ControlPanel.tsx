@@ -589,7 +589,17 @@ export function ControlPanel({
             <CollapsibleHeader title="Effects" open={effectsOpen} onToggle={() => setEffectsOpen(!effectsOpen)} />
             {effectsOpen && (
               <div className="flex flex-col gap-2.5">
-                <ControlSlider label="RGB Shift" value={params.rgbShift} min={0} max={0.05} step={0.001} defaultValue={0} onChange={(v) => updateParam("rgbShift", v)} onCommit={commit} />
+                <ControlSlider
+                  label="RGB Shift"
+                  hint={tFilmLab("effects.rgbShiftHint")}
+                  value={params.rgbShift}
+                  min={0}
+                  max={0.05}
+                  step={0.001}
+                  defaultValue={0}
+                  onChange={(v) => updateParam("rgbShift", v)}
+                  onCommit={commit}
+                />
                 <ControlSlider label="Film Grain" value={params.grainIntensity} min={0} max={0.5} step={0.01} defaultValue={0} onChange={(v) => updateParam("grainIntensity", v)} onCommit={commit} />
                 <ControlSlider label="Vignette" value={params.vignette} min={0} max={1} step={0.01} defaultValue={0} onChange={(v) => updateParam("vignette", v)} onCommit={commit} />
               </div>

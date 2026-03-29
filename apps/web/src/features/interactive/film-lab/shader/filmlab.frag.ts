@@ -42,12 +42,22 @@ vec2 coverUv(vec2 uv, vec2 resolution, vec2 imageResolution) {
   return (uv - 0.5) * scale + 0.5;
 }
 
-vec4 rgbShiftSample(sampler2D tex, vec2 uv, float amount) {
-  float r = texture(tex, uv + vec2(amount, 0.0)).r;
-  float g = texture(tex, uv).g;
-  float b = texture(tex, uv - vec2(amount, 0.0)).b;
-  float a = texture(tex, uv).a;
-  return vec4(r, g, b, a);
+/**
+ * レンズ周辺の色収差に近い見え方: 画像中心ではゼロ、フレーム端ほど R/B を放射方向にずらす。
+ * amount はスライダ上限（周辺で最大に近い量）。アスペクト補正で距離マスクを円形に揃える。
+ */
+vec4 rgbShiftSampleRadial(sampler2D tex, vec2 uv, float amount, vec2 imageResolution) {
+  vec2 delta = uv - 0.5;
+  delta.x *= imageResolution.x / max(imageResolution.y, 1.0);
+  float radial = clamp(length(delta) * 2.0, 0.0, 1.0);
+  float weight = pow(radial, 1.65);
+  float amt = amount * weight;
+  vec2 dir = normalize(delta + vec2(1e-5));
+  float rCh = texture(tex, uv + dir * amt).r;
+  float gCh = texture(tex, uv).g;
+  float bCh = texture(tex, uv - dir * amt).b;
+  float aCh = texture(tex, uv).a;
+  return vec4(rCh, gCh, bCh, aCh);
 }
 
 float grain(vec2 uv, float time) {
@@ -58,7 +68,7 @@ void main() {
   vec2 uv = coverUv(vUv, uResolution, uImageResolution);
 
   vec4 color = uRGBShift > 0.0
-    ? rgbShiftSample(uTexture, uv, uRGBShift)
+    ? rgbShiftSampleRadial(uTexture, uv, uRGBShift, uImageResolution)
     : texture(uTexture, uv);
 
   // Exposure

@@ -49,6 +49,12 @@ const RT_OPTIONS: THREE.RenderTargetOptions = {
   type: THREE.HalfFloatType,
 };
 
+/**
+ * 色収差スライダに連動して composite で周辺ソフトを掛ける混色率のゲイン。
+ * rgbShift が 0 のときはユニフォーム 0（ソフトなし）。
+ */
+const ABERRATION_EDGE_SOFTEN_SCALE = 22;
+
 function hexToVec3(hex: string): THREE.Vector3 {
   const c = new THREE.Color(hex);
   return new THREE.Vector3(c.r, c.g, c.b);
@@ -211,6 +217,7 @@ export class Viewport {
           value: new THREE.Vector2(options.width, options.height),
         },
         uImageResolution: { value: new THREE.Vector2(1280, 720) },
+        uAberrationEdgeSoften: { value: 0.0 },
       },
     });
   }
@@ -273,6 +280,11 @@ export class Viewport {
     );
     cu.uBloomStrength!.value = this.bloomStrength;
     cu.uHalationIntensity!.value = this.halationIntensity;
+    const rgbShift = mu.uRGBShift!.value as number;
+    cu.uAberrationEdgeSoften!.value = Math.min(
+      1,
+      Math.max(0, rgbShift * ABERRATION_EDGE_SOFTEN_SCALE),
+    );
   }
 
   /**

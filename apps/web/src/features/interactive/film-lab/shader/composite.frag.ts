@@ -18,6 +18,8 @@ uniform float uSplitPosition;
 uniform float uAbCompare;
 uniform vec2 uResolution;
 uniform vec2 uImageResolution;
+/** 色収差オン時の周辺のみシャープと微ブラーを混ぜる量（0〜1、JS 側で rgbShift に比例） */
+uniform float uAberrationEdgeSoften;
 
 in vec2 vUv;
 out vec4 fragColor;
@@ -36,7 +38,21 @@ float grain(vec2 uv, float time) {
 }
 
 void main() {
-  vec4 color = texture(uSource, vUv);
+  // 周辺だけごく弱いブラー（色収差と併せたフィルム的周辺柔らかさ）
+  vec2 edgeDelta = vUv - 0.5;
+  edgeDelta.x *= uResolution.x / max(uResolution.y, 1.0);
+  float edgeR = clamp(length(edgeDelta) * 1.414, 0.0, 1.0);
+  float edgeMask = smoothstep(0.25, 1.0, edgeR);
+  vec3 sharpRgb = texture(uSource, vUv).rgb;
+  vec2 px = vec2(1.0 / max(uResolution.x, 1.0), 1.0 / max(uResolution.y, 1.0)) * 1.5;
+  vec3 blurRgb =
+    (texture(uSource, vUv + vec2(px.x, 0.0)).rgb +
+     texture(uSource, vUv - vec2(px.x, 0.0)).rgb +
+     texture(uSource, vUv + vec2(0.0, px.y)).rgb +
+     texture(uSource, vUv - vec2(0.0, px.y)).rgb) *
+    0.25;
+  float softenAmt = clamp(uAberrationEdgeSoften * edgeMask, 0.0, 1.0);
+  vec4 color = vec4(mix(sharpRgb, blurRgb, softenAmt), texture(uSource, vUv).a);
 
   // Bloom + Halation additive (no branching — strength=0 naturally zeros out)
   color.rgb += texture(uBloomTexture, vUv).rgb * uBloomStrength;

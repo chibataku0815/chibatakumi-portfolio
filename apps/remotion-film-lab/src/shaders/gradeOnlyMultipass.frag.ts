@@ -72,12 +72,19 @@ vec3 adjustTemperature(vec3 c, float t) {
   return c + vec3(t * 0.05, t * 0.02, -t * 0.04);
 }
 
-vec4 rgbShiftSample(sampler2D tex, vec2 uv, float amount) {
-  float r = texture(tex, uv + vec2(amount, 0.0)).r;
-  float g = texture(tex, uv).g;
-  float b = texture(tex, uv - vec2(amount, 0.0)).b;
-  float a = texture(tex, uv).a;
-  return vec4(r, g, b, a);
+/* ブラウザ本番 filmlab.frag の rgbShiftSampleRadial と同じモデル（中心弱・周辺強・放射方向） */
+vec4 rgbShiftSampleRadial(sampler2D tex, vec2 uv, float amount, float imageAspect) {
+  vec2 delta = uv - 0.5;
+  delta.x *= imageAspect;
+  float radial = clamp(length(delta) * 2.0, 0.0, 1.0);
+  float weight = pow(radial, 1.65);
+  float amt = amount * weight;
+  vec2 dir = normalize(delta + vec2(1e-5));
+  float rCh = texture(tex, uv + dir * amt).r;
+  float gCh = texture(tex, uv).g;
+  float bCh = texture(tex, uv - dir * amt).b;
+  float aCh = texture(tex, uv).a;
+  return vec4(rCh, gCh, bCh, aCh);
 }
 
 void main() {
@@ -88,7 +95,7 @@ void main() {
   }
 
   vec4 tex = uRgbShift > 0.0001
-    ? rgbShiftSample(uTexture, uv, uRgbShift)
+    ? rgbShiftSampleRadial(uTexture, uv, uRgbShift, uImageAspect)
     : texture(uTexture, uv);
   vec3 col = tex.rgb * pow(2.0, uExposure);
   col = (col - 0.5) * uContrast + 0.5;
