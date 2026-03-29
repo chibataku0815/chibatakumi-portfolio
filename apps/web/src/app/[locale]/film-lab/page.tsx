@@ -6,10 +6,16 @@ import type { Params } from "@/features/interactive/film-lab/types";
 
 const BASE_URL = "https://www.chibatakumi.studio";
 
+function filmLabOgPath(locale: string): string {
+  return locale === "ja" ? "/film-lab/og" : `/en/film-lab/og`;
+}
+
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "film-lab.metadata" });
@@ -19,6 +25,19 @@ export async function generateMetadata({
     ? `${BASE_URL}/film-lab`
     : `${BASE_URL}/en/film-lab`;
 
+  let ogImageUrl = "/film-lab/og-image.jpg";
+  if (searchParams) {
+    const sp = await searchParams;
+    const pRaw = firstQueryValue(sp.p);
+    const vRaw = firstQueryValue(sp.v);
+    if (pRaw && decodeSharedParamP(vRaw, pRaw)) {
+      const og = new URL(filmLabOgPath(locale), BASE_URL);
+      og.searchParams.set("v", vRaw?.trim() || "1");
+      og.searchParams.set("p", pRaw);
+      ogImageUrl = `${og.pathname}${og.search}`;
+    }
+  }
+
   return {
     title: t("title"),
     description: t("description"),
@@ -27,7 +46,7 @@ export async function generateMetadata({
       description: t("ogDescription"),
       images: [
         {
-          url: "/film-lab/og-image.jpg",
+          url: ogImageUrl,
           width: 1200,
           height: 630,
           alt: t("ogImageAlt"),
@@ -40,7 +59,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: t("ogTitle"),
       description: t("ogDescription"),
-      images: ["/film-lab/og-image.jpg"],
+      images: [ogImageUrl],
     },
     alternates: {
       canonical: canonicalUrl,
