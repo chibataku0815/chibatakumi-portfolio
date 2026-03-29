@@ -1,11 +1,13 @@
 /**
  * Film Lab 動的 OGP 画像（軸 D 拡張）
  *
- * 概要: 共有クエリ `?v=1&p=` を解釈し、ルックの要約テキストを焼いた 1200×630 の PNG を返す。
- * 仕様: `next/og` の ImageResponse（Satori）を使用。解読できない場合は汎用カードを返す。
- * 制限: カード上の文言は主に英字（フォント同梱を避ける）。実画像のサムネは描画しない（テキストのみ）。
+ * 概要: 共有クエリ `?v=1&p=` を解釈し、ルック要約＋ヒーロー写真を焼いた 1200×630 の PNG を返す。
+ * 仕様: `next/og` の ImageResponse（Satori）。`ja` ロケール時は Noto Sans JP（@fontsource）を同梱読み込み。
+ * 制限: 実際のグレード結果ピクセルは描画しない（静的ヒーロー画像のみ）。フォント読み込み失敗時は英字のみにフォールバック。
  */
 
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import { ImageResponse } from "next/og";
 import { decodeSharedParamP } from "@/features/interactive/film-lab/params-codec";
 import { findMatchingPreset, type PresetName } from "@/features/interactive/film-lab/preset-data";
@@ -15,6 +17,51 @@ export const runtime = "nodejs";
 
 const OG_WIDTH = 1200;
 const OG_HEIGHT = 630;
+
+/** CDN・クローラ向け。URL ごとにキャッシュしつつ再検証可能にする */
+const CACHE_CONTROL =
+  "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800";
+
+const NOTO_FILES = {
+  w400: "noto-sans-jp-japanese-400-normal.woff",
+  w700: "noto-sans-jp-japanese-700-normal.woff",
+} as const;
+
+/**
+ * Node の Buffer を Satori が受け取る ArrayBuffer に変換する（共有バッファを切り離す）。
+ * @param buf - readFile の結果
+ */
+function bufferToArrayBuffer(buf: Buffer): ArrayBuffer {
+  const copy = new Uint8Array(buf.length);
+  copy.set(buf);
+  return copy.buffer;
+}
+
+/**
+ * @fontsource/noto-sans-jp の WOFF を読み込む。パス解決に失敗したら null。
+ * @param weightKey - 400 または 700 に対応するファイルキー
+ */
+async function loadNotoSansJpWoff(weightKey: keyof typeof NOTO_FILES): Promise<ArrayBuffer | null> {
+  const fileName = NOTO_FILES[weightKey];
+  const fontPath = path.join(
+    process.cwd(),
+    "node_modules",
+    "@fontsource",
+    "noto-sans-jp",
+    "files",
+    fileName,
+  );
+  try {
+    const buf = await readFile(fontPath);
+    return bufferToArrayBuffer(buf);
+  } catch (err) {
+    console.error(
+      `[film-lab/og] loadNotoSansJpWoff: フォント読み込み失敗 fileName=${fileName} fontPath=${fontPath}`,
+      err,
+    );
+    return null;
+  }
+}
 
 /**
  * OGP 上でプリセット名を短く読みやすくする（messages と完全一致は不要）。
@@ -46,48 +93,116 @@ function summarizeGradeLine(p: Params): string {
 /**
  * 動的またはフォールバックの OG カードを ImageResponse で生成する。
  * @param decoded - 共有パラメータ。null なら汎用カード。
+ * @param locale - `ja` のとき日本語サブコピーと Noto フォントを試みる。
+ * @param heroImageUrl - ヒーロー画像の絶対 URL（同一オリジン推奨）
  */
-function buildOgImageResponse(decoded: Params | null): ImageResponse {
+async function buildOgImageResponse(
+  decoded: Params | null,
+  locale: string,
+  heroImageUrl: string,
+): Promise<ImageResponse> {
+  const isJa = locale === "ja";
   const matched = decoded ? findMatchingPreset(decoded) : null;
   const headline = decoded
     ? matched
       ? `Preset · ${formatPresetLabel(matched)}`
       : "Custom grade"
     : null;
-  /** 日本語はデフォルトフォントで欠けることがあるため、OG カードは英字に統一（CJK フォント同梱は別タスク） */
   const sub = decoded
     ? summarizeGradeLine(decoded)
-    : "Decide your look in seconds";
+    : isJa
+      ? "ブラウザでルックを試す"
+      : "Decide your look in seconds";
   const brand = "chibatakumi.studio · Film Lab";
+
+  const fonts: {
+    name: string;
+    data: ArrayBuffer;
+    weight: 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900;
+    style: "normal" | "italic";
+  }[] = [];
+
+  if (isJa) {
+    const [d400, d700] = await Promise.all([
+      loadNotoSansJpWoff("w400"),
+      loadNotoSansJpWoff("w700"),
+    ]);
+    if (d400) {
+      fonts.push({ name: "Noto Sans JP", data: d400, weight: 400, style: "normal" });
+    }
+    if (d700) {
+      fonts.push({ name: "Noto Sans JP", data: d700, weight: 700, style: "normal" });
+    }
+  }
+
+  const subJaBroken = isJa && fonts.length === 0;
+  const subFinal = subJaBroken ? "Decide your look in seconds" : sub;
+
+  const fontFamily = isJa && fonts.length > 0 ? "Noto Sans JP" : "system-ui, sans-serif";
 
   return new ImageResponse(
     (
       <div
         style={{
-          width: "100%",
-          height: "100%",
+          position: "relative",
+          width: OG_WIDTH,
+          height: OG_HEIGHT,
           display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
-          padding: 64,
-          background: "linear-gradient(145deg, #0a0a0a 0%, #1a1510 45%, #2a1810 100%)",
-          color: "#f5f0e8",
-          fontSize: 42,
-          fontWeight: 600,
-          letterSpacing: "-0.02em",
         }}
       >
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <div style={{ fontSize: 56, fontWeight: 700 }}>Film Lab</div>
-          {headline ? (
-            <div style={{ fontSize: 38, color: "rgba(245,240,232,0.88)" }}>{headline}</div>
-          ) : null}
-          <div style={{ fontSize: 28, color: "rgba(245,240,232,0.55)", fontWeight: 500 }}>{sub}</div>
+        {/* Satori が同一オリジン画像を取得して背景に使う（next/og では img が必須） */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          alt=""
+          src={heroImageUrl}
+          width={OG_WIDTH}
+          height={OG_HEIGHT}
+          style={{
+            position: "absolute",
+            left: 0,
+            top: 0,
+            width: OG_WIDTH,
+            height: OG_HEIGHT,
+            objectFit: "cover",
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            left: 0,
+            top: 0,
+            width: OG_WIDTH,
+            height: OG_HEIGHT,
+            background:
+              "linear-gradient(145deg, rgba(10,10,10,0.92) 0%, rgba(26,21,16,0.88) 45%, rgba(42,24,16,0.85) 100%)",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+            padding: 64,
+            color: "#f5f0e8",
+            fontFamily,
+            letterSpacing: "-0.02em",
+          }}
+        >
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <div style={{ fontSize: 56, fontWeight: 700 }}>Film Lab</div>
+            {headline ? (
+              <div style={{ fontSize: 38, color: "rgba(245,240,232,0.88)", fontWeight: 600 }}>{headline}</div>
+            ) : null}
+            <div style={{ fontSize: 28, color: "rgba(245,240,232,0.55)", fontWeight: 500 }}>{subFinal}</div>
+          </div>
+          <div style={{ fontSize: 22, color: "rgba(245,240,232,0.4)", fontWeight: 500 }}>{brand}</div>
         </div>
-        <div style={{ fontSize: 22, color: "rgba(245,240,232,0.4)", fontWeight: 500 }}>{brand}</div>
       </div>
     ),
-    { width: OG_WIDTH, height: OG_HEIGHT },
+    {
+      width: OG_WIDTH,
+      height: OG_HEIGHT,
+      headers: {
+        "Cache-Control": CACHE_CONTROL,
+      },
+      ...(fonts.length > 0 ? { fonts } : {}),
+    },
   );
 }
 
@@ -99,11 +214,14 @@ export async function GET(
   request: Request,
   context: { params: Promise<{ locale: string }> },
 ): Promise<ImageResponse> {
-  await context.params;
+  const { locale } = await context.params;
   const url = new URL(request.url);
   const v = url.searchParams.get("v") ?? undefined;
   const p = url.searchParams.get("p") ?? "";
   const decoded = p.trim() ? decodeSharedParamP(v, p) : null;
 
-  return buildOgImageResponse(decoded);
+  const origin = url.origin;
+  const heroImageUrl = `${origin}/images/film-lab/default.jpg`;
+
+  return buildOgImageResponse(decoded, locale, heroImageUrl);
 }
