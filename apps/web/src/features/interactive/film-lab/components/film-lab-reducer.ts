@@ -9,7 +9,8 @@ export interface GradeSlotState {
   intensity: number;
 }
 
-interface PresentState {
+/** 永続化・A/B 比較に使う「いまの盤面」（履歴とは別） */
+export interface PresentState {
   slotA: GradeSlotState;
   slotB: GradeSlotState;
   compareMode: boolean;
@@ -35,7 +36,9 @@ export type Action =
   | { type: "TOGGLE_COMPARE" }
   | { type: "SWITCH_SLOT"; slot?: SlotId }
   | { type: "BEFORE_AFTER_ON" }
-  | { type: "BEFORE_AFTER_OFF" };
+  | { type: "BEFORE_AFTER_OFF" }
+  /** localStorage などから復元した盤面を丸ごと適用（Undo 履歴は 1 スナップショットにリセット） */
+  | { type: "RESTORE_PRESENT"; present: PresentState };
 
 const MAX_HISTORY = 30;
 
@@ -233,9 +236,33 @@ export function filmLabReducer(state: State, action: Action): State {
         beforeAfterStash: null,
       };
 
+    case "RESTORE_PRESENT": {
+      const present = action.present;
+      const next: PresentState = {
+        slotA: cloneSlot(present.slotA),
+        slotB: cloneSlot(present.slotB),
+        compareMode: present.compareMode,
+        activeSlot: present.activeSlot,
+      };
+      return {
+        ...next,
+        history: [snapshot(next)],
+        historyIndex: 0,
+        beforeAfterStash: null,
+      };
+    }
+
     default:
       return state;
   }
+}
+
+/**
+ * ブラウザ保存用に、履歴を除いた現在の盤面だけを複製する。
+ * @param state - reducer の State
+ */
+export function toPresentSnapshot(state: State): PresentState {
+  return snapshot(state);
 }
 
 /**

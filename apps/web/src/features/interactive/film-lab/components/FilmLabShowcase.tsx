@@ -1,3 +1,8 @@
+/**
+ * @file Interactive ページ用の Film Lab 埋め込み。
+ * @description キャンバスとコントロールを並べ、下に説明文とタグを出す。初見ユーザー向けに「サンプル画像であること」を一文で伝える。
+ * @limitations フルページ版（/film-lab）ではない。WebGL は dynamic import でクライアントのみ。
+ */
 "use client";
 
 import { useState } from "react";
@@ -25,6 +30,9 @@ const TAGS = [
   "TypeScript",
 ];
 
+/**
+ * @description Film Lab のデモ枠。説明の直後に sampleHint で DnD を促す。
+ */
 export function FilmLabShowcase() {
   const t = useTranslations("interactive.film-lab");
   const [viewport, setViewport] = useState<Viewport | null>(null);
@@ -51,6 +59,9 @@ export function FilmLabShowcase() {
             </h2>
             <p className="mt-2 text-sm leading-relaxed text-[var(--text-muted)]">
               {t("description")}
+            </p>
+            <p className="mt-2 text-xs leading-relaxed text-[var(--text-base-60)]">
+              {t("sampleHint")}
             </p>
             <Link
               href="/film-lab"

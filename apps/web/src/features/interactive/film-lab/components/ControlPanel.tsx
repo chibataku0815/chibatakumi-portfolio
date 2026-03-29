@@ -1,6 +1,6 @@
 "use client";
 
-import { useReducer, useState, useCallback, useEffect, useRef } from "react";
+import { useReducer, useState, useCallback, useEffect, useRef, startTransition } from "react";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { ControlSlider } from "./ui/ControlSlider";
@@ -8,7 +8,11 @@ import { LUTPanel } from "./LUTPanel";
 import { PresetBar } from "./PresetBar";
 import type { Viewport } from "../core/Viewport";
 import { PRESETS, findMatchingPreset, type PresetName, halationHueToHex } from "../preset-data";
-import { buildFilmLabPostToXUrl, buildFilmLabShareUrl } from "../share-utils";
+import { filmLabShareUiEnabled } from "../feature-flags";
+import {
+  loadFilmLabStoredSession,
+  type FilmLabStoredSessionV1,
+} from "../film-lab-browser-storage";
 import type { Params } from "../types";
 import {
   filmLabReducer,
@@ -16,6 +20,8 @@ import {
   createInitialStateFromSharedParams,
   type GradeSlotState,
 } from "./film-lab-reducer";
+import { FilmLabBrowserStorageSection } from "./FilmLabBrowserStorageSection";
+import { FilmLabShareSection } from "./FilmLabShareSection";
 
 /** UI の見せ方だけを切り替える。グレードの数値（reducer）は Quick でも Pro でも同じ */
 type UiMode = "quick" | "pro";
@@ -41,7 +47,6 @@ export function ControlPanel({
   onCompareUiChange,
 }: ControlPanelProps) {
   const pathname = usePathname();
-  const tShare = useTranslations("film-lab.share");
   const tFilmLab = useTranslations("film-lab");
 
   /** URL 共有が無いときは Cinematic＋basePreset、あるときはそのスナップショットで初期化 */
@@ -62,18 +67,8 @@ export function ControlPanel({
   const [showHelp, setShowHelp] = useState(false);
   /** Space キーと同じ Before/After を、タッチでも確実に使えるようにするためのフラグ（pointer capture と組み合わせる） */
   const beforeAfterPointerActiveRef = useRef(false);
-  const [linkCopied, setLinkCopied] = useState(false);
-  const copyFeedbackTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
   /** デスクトップは Pro、狭い画面は Quick を初期表示（SSR と一致させるため初回は Pro → effect で Quick に寄せる） */
   const [uiMode, setUiMode] = useState<UiMode>("pro");
-
-  useEffect(
-    () => () => {
-      if (copyFeedbackTimeoutRef.current) clearTimeout(copyFeedbackTimeoutRef.current);
-    },
-    [],
-  );
 
   // Mobile: close Effects section by default + Quick モードを既定に
   // matchMedia はクライアント専用のため effect で寄せる（SSR は Pro / Effects 開を仮定しハイドレーション後に修正）
@@ -85,6 +80,42 @@ export function ControlPanel({
     }
     /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
+
+  /**
+   * localStorage から読んだセッションを盤面と UI 補助 state に反映する。
+   * @param session - 検証済みの保存データ
+   */
+  const restoreFromStoredSession = useCallback((session: FilmLabStoredSessionV1) => {
+    dispatch({ type: "RESTORE_PRESENT", present: session.present });
+    setSavedBloomStrength(session.savedBloomStrength);
+    setSavedHalationIntensity(session.savedHalationIntensity);
+    const slot =
+      session.present.activeSlot === "A" ? session.present.slotA : session.present.slotB;
+    setActivePreset(slot.basePreset ?? findMatchingPreset(slot.params) ?? "reset");
+  }, []);
+
+  /** 共有 URL が無いとき、前回「ブラウザに保存」したルックを自動復元 */
+  useEffect(() => {
+    if (initialSharedParams != null) return;
+    const session = loadFilmLabStoredSession();
+    if (!session) return;
+    startTransition(() => {
+      restoreFromStoredSession(session);
+    });
+  }, [initialSharedParams, restoreFromStoredSession]);
+
+  const handleBrowserRestoreUi = useCallback(
+    (payload: {
+      savedBloomStrength: number;
+      savedHalationIntensity: number;
+      activePreset: PresetName;
+    }) => {
+      setSavedBloomStrength(payload.savedBloomStrength);
+      setSavedHalationIntensity(payload.savedHalationIntensity);
+      setActivePreset(payload.activePreset);
+    },
+    [],
+  );
 
   const isPro = uiMode === "pro";
 
@@ -154,26 +185,6 @@ export function ControlPanel({
   const commit = useCallback(() => {
     dispatch({ type: "COMMIT" });
   }, []);
-
-  const handleCopyShareLink = useCallback(async () => {
-    if (typeof window === "undefined" || !pathname) return;
-    const url = buildFilmLabShareUrl(window.location.origin, pathname, params);
-    try {
-      await navigator.clipboard.writeText(url);
-      setLinkCopied(true);
-      if (copyFeedbackTimeoutRef.current) clearTimeout(copyFeedbackTimeoutRef.current);
-      copyFeedbackTimeoutRef.current = setTimeout(() => setLinkCopied(false), 2000);
-    } catch (err) {
-      console.error("handleCopyShareLink: clipboard write failed", { pathname, err });
-    }
-  }, [pathname, params]);
-
-  const handlePostToX = useCallback(() => {
-    if (typeof window === "undefined" || !pathname) return;
-    const pageUrl = buildFilmLabShareUrl(window.location.origin, pathname, params);
-    const text = tShare("postText");
-    window.open(buildFilmLabPostToXUrl(pageUrl, text), "_blank", "noopener,noreferrer");
-  }, [pathname, params, tShare]);
 
   const updateHalationHue = useCallback((hue: number) => {
     dispatch({ type: "SET_PARAM", key: "halationHue", value: hue });
@@ -387,7 +398,7 @@ export function ControlPanel({
           <p className="text-[10px] leading-snug text-white/35 sm:max-w-[240px] sm:text-right">{tFilmLab("mode.hint")}</p>
         </div>
 
-        {/* Grid: Quick = Color | Presets+Share / Pro = Color | Effects | LUT+Presets */}
+        {/* Grid: Quick = Color | Presets（共有 UI は feature flag） / Pro = Color | Effects | LUT+Presets */}
         <div className={`grid grid-cols-1 gap-4 md:gap-6 ${isPro ? "md:grid-cols-3" : "md:grid-cols-2"}`}>
           {/* === COLOR GRADING === */}
           <div>
@@ -488,6 +499,13 @@ export function ControlPanel({
                 />
               </div>
             )}
+            <FilmLabBrowserStorageSection
+              state={state}
+              dispatch={dispatch}
+              savedBloomStrength={savedBloomStrength}
+              savedHalationIntensity={savedHalationIntensity}
+              onAfterRestore={handleBrowserRestoreUi}
+            />
             <div className="mt-3 rounded-xl border border-white/[0.08] bg-gradient-to-b from-white/[0.04] to-black/20 p-3">
               <p className="mb-3 text-[10px] font-medium uppercase tracking-[0.12em] text-white/45">
                 {tFilmLab("compare.sectionTitle")}
@@ -585,25 +603,9 @@ export function ControlPanel({
                 </div>
               </div>
             </div>
-            <div className="mt-3 border-t border-white/[0.06] pt-3">
-              <SectionHeader title="Share" />
-              <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-                <button
-                  type="button"
-                  onClick={() => void handleCopyShareLink()}
-                  className="rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-center text-[11px] font-medium text-white/80 transition-colors hover:bg-white/10 sm:min-h-0 sm:flex-1 sm:py-2"
-                >
-                  {linkCopied ? tShare("copied") : tShare("copyLink")}
-                </button>
-                <button
-                  type="button"
-                  onClick={handlePostToX}
-                  className="rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-center text-[11px] font-medium text-white/80 transition-colors hover:bg-white/10 sm:min-h-0 sm:flex-1 sm:py-2"
-                >
-                  {tShare("postToX")}
-                </button>
-              </div>
-            </div>
+            {filmLabShareUiEnabled ? (
+              <FilmLabShareSection pathname={pathname} params={params} />
+            ) : null}
             <div className="mt-3 border-t border-white/[0.06] pt-3">
               <ToggleHeader title="Histogram" enabled={histogramVisible} onToggle={() => onHistogramToggle?.()} />
             </div>

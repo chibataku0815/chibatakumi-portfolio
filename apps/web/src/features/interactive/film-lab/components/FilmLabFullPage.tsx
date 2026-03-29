@@ -1,3 +1,8 @@
+/**
+ * @file /film-lab 専用のフルレイアウト。
+ * @description ヒストグラム・共有パラメータ・比較 UI を含む。初回訪問者向けにデフォルトはサンプル画像であることを明示する。
+ * @limitations サーバー側の initialSharedParams とクライアント状態の整合に依存する。
+ */
 "use client";
 
 import { useState, useCallback } from "react";
@@ -22,6 +27,11 @@ const Histogram = dynamic(
   { ssr: false },
 );
 
+/**
+ * @description Film Lab フルページ。コントロール直上に sampleHint を置き、自分のメディアへの誘導を行う。
+ * @param root0 - ルート props
+ * @param root0.initialSharedParams - URL 共有から復元したグレード。null のときは通常の初期状態。
+ */
 export function FilmLabFullPage({
   initialSharedParams = null,
 }: {
@@ -58,6 +68,9 @@ export function FilmLabFullPage({
 
       {/* ControlPanel */}
       <div className="mt-3">
+        <p className="mb-2 text-xs leading-relaxed text-[var(--text-base-60)]">
+          {t("sampleHint")}
+        </p>
         <ControlPanel
           viewport={viewport}
           histogramVisible={histogramVisible}
