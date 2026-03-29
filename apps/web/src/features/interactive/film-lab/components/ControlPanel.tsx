@@ -461,9 +461,33 @@ export function ControlPanel({
         ) : null}
 
         {/*
+          プリセットは Web / Desktop 共通でパネル最上部に置く（スクロールなしで選べる・バッチ反映の起点としても見つけやすい）。
+          強度スライダーはフィルムプリセット選択中のみ。
+        */}
+        <div className="mb-4 min-w-0 border-b border-white/[0.06] pb-4">
+          <SectionHeader title="Presets" />
+          <PresetBar activePreset={presetBarActive} onPreset={applyPreset} />
+          {presetIntensityAvailable ? (
+            <div className="mt-3">
+              <ControlSlider
+                label="Preset intensity"
+                value={activeSlotState.intensity}
+                min={0}
+                max={1}
+                step={0.01}
+                defaultValue={1}
+                formatValue={(v) => `${Math.round(v * 100)}%`}
+                onChange={(v) => dispatch({ type: "SET_INTENSITY", value: v })}
+                onCommit={() => dispatch({ type: "COMMIT" })}
+              />
+            </div>
+          ) : null}
+        </div>
+
+        {/*
           レイアウト:
-          - Quick: 1 列では「プリセット列」を先に。パネルが十分広いときだけ 2 列（左=プリセット / 右=Color）。
-          - Pro: 上段 Color | Effects、下段 LUT+ 全幅（col-span-2）。2 列化もパネル幅ベース（@container）。
+          - Quick: パネル足幅で 2 列（左 ≒ LUT・保存・共有 等 / 右 = Color）。プリセットは上段に移動済み。
+          - Pro: 上段 Color | Effects、下段 LUT ほか 全幅（col-span-2）。2 列化もパネル幅ベース（@container）。
         */}
         <div className="grid w-full min-w-0 grid-cols-1 gap-4 @min-[560px]:grid-cols-2 @min-[560px]:gap-6">
           {/* === COLOR GRADING（Quick 時は視覚順を後ろに — order-2） === */}
@@ -554,60 +578,11 @@ export function ControlPanel({
           </div>
           ) : null}
 
-          {/* === LUT + PRESETS（Pro: LUT 先 / Quick: プリセット先で触りやすく） === */}
+          {/* === LUT（プリセットはパネル上段へ移動・ここでは .cube のみ） === */}
           <div
             className={`min-w-0 ${isPro ? "@min-[560px]:col-span-2" : "order-1 @min-[560px]:order-1"}`}
           >
-            {isPro ? (
-              <>
-                {/* Quick でも .cube を読めるように常時表示（Effects/Bloom は Pro のみ） */}
-                <LUTPanel viewport={viewport} onCubeLutLoaded={onLutLoadSuccess} />
-                <div className="mt-3 border-t border-white/[0.06] pt-3">
-                  <SectionHeader title="Presets" />
-                  <PresetBar activePreset={presetBarActive} onPreset={applyPreset} />
-                </div>
-              </>
-            ) : (
-              <>
-                <div>
-                  <SectionHeader title="Presets" />
-                  <PresetBar activePreset={presetBarActive} onPreset={applyPreset} />
-                </div>
-                {presetIntensityAvailable ? (
-                  <div className="mt-3">
-                    <ControlSlider
-                      label="Preset intensity"
-                      value={activeSlotState.intensity}
-                      min={0}
-                      max={1}
-                      step={0.01}
-                      defaultValue={1}
-                      formatValue={(v) => `${Math.round(v * 100)}%`}
-                      onChange={(v) => dispatch({ type: "SET_INTENSITY", value: v })}
-                      onCommit={() => dispatch({ type: "COMMIT" })}
-                    />
-                  </div>
-                ) : null}
-                <div className="mt-3 border-t border-white/[0.06] pt-3">
-                  <LUTPanel viewport={viewport} onCubeLutLoaded={onLutLoadSuccess} />
-                </div>
-              </>
-            )}
-            {isPro && presetIntensityAvailable ? (
-              <div className="mt-3">
-                <ControlSlider
-                  label="Preset intensity"
-                  value={activeSlotState.intensity}
-                  min={0}
-                  max={1}
-                  step={0.01}
-                  defaultValue={1}
-                  formatValue={(v) => `${Math.round(v * 100)}%`}
-                  onChange={(v) => dispatch({ type: "SET_INTENSITY", value: v })}
-                  onCommit={() => dispatch({ type: "COMMIT" })}
-                />
-              </div>
-            ) : null}
+            <LUTPanel viewport={viewport} onCubeLutLoaded={onLutLoadSuccess} />
             <FilmLabBrowserStorageSection
               state={state}
               dispatch={dispatch}
