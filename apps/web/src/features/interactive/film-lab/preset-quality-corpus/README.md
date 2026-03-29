@@ -23,6 +23,12 @@ chmod +x ./generate-synthetic-corpus.sh   # 初回のみ
 
 **要件**: `ffmpeg`（Homebrew 等）
 
+## Safari で PNG が開けないとき
+
+- ディスプレイ ICC 付きスクリーンショット（CleanShot `@2x` 等）で、**Chrome は通るが Safari だけ `Image` が落ちる**ことがある。Film Lab は `createImageBitmap` フォールバックを試す（`MediaLoader.ts`）。
+- 詳細ログ: Film Lab の URL に **`?filmLabDebugMedia=1`** を付けて開き、コンソールを確認（例: `http://localhost:3000/film-lab?filmLabDebugMedia=1`）。
+- それでもダメなら **プレビュー等で JPEG 書き出し**（プロファイルを剥がす）。
+
 ## cinematic v2 の実写確認（Unsplash）
 
 - life の手順書: `docs/guides/2026-03-31-film-lab-cinematic-verify-photo-set.md`（life リポジトリ）

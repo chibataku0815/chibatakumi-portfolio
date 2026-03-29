@@ -3,6 +3,13 @@
  *
  * iPhone Safari 向け: HEIC の早期拒否、GPU maxTextureSize 超過時の Canvas 縮小、
  * 呼び出し側で表示できるよう MediaLoadError を投げる。
+ *
+ * デスクトップ Safari: 埋め込み ICC（ディスプレイプロファイル付きスクリーンショット等）で
+ * `new Image()` + blob URL のデコードが失敗し、Chrome では通ることがある。
+ * その場合は `createImageBitmap` → Canvas 経由のフォールバックを試す。
+ *
+ * デバッグ: URL に `?filmLabDebugMedia=1`（例: /film-lab?filmLabDebugMedia=1）を付けると
+ * 各デコード段階を console に出す。
  */
 
 import * as THREE from "three";
@@ -37,6 +44,18 @@ export interface LoadFileOptions {
 const HEIC_MIME = /heic|heif/i;
 
 /**
+ * `?filmLabDebugMedia=1` のとき true。クライアント専用。
+ */
+export function isFilmLabMediaDebugEnabled(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return new URLSearchParams(window.location.search).get("filmLabDebugMedia") === "1";
+  } catch {
+    return false;
+  }
+}
+
+/**
  * iPhone の写真（HEIC/HEIF）かどうか。MIME が空のときは拡張子で推定する。
  */
 export function isLikelyHeicFile(file: File): boolean {
@@ -45,19 +64,28 @@ export function isLikelyHeicFile(file: File): boolean {
 }
 
 /**
- * 長辺が maxDim を超える画像を Canvas に縮小する（WebGL テクスチャ上限対策）。
- * 縮小不要なら元の Image をそのまま返す。
+ * 画像ソースの幅・高さを取得する（Image は natural*、Canvas は width/height）。
  */
-function scaleImageToMaxDimension(
-  img: HTMLImageElement,
+function getDrawableSize(source: HTMLImageElement | HTMLCanvasElement): { w: number; h: number } {
+  if (source instanceof HTMLCanvasElement) {
+    return { w: source.width, h: source.height };
+  }
+  return { w: source.naturalWidth, h: source.naturalHeight };
+}
+
+/**
+ * 長辺が maxDim を超える画像を Canvas に縮小する（WebGL テクスチャ上限対策）。
+ * 縮小不要なら元ソースをそのまま返す。
+ */
+function scaleSourceToMaxDimension(
+  source: HTMLImageElement | HTMLCanvasElement,
   maxDim: number,
 ): HTMLImageElement | HTMLCanvasElement {
-  const w = img.naturalWidth;
-  const h = img.naturalHeight;
-  if (!w || !h) return img;
+  const { w, h } = getDrawableSize(source);
+  if (!w || !h) return source;
 
   const longEdge = Math.max(w, h);
-  if (longEdge <= maxDim) return img;
+  if (longEdge <= maxDim) return source;
 
   const scale = maxDim / longEdge;
   const nw = Math.max(1, Math.floor(w * scale));
@@ -67,10 +95,129 @@ function scaleImageToMaxDimension(
   canvas.width = nw;
   canvas.height = nh;
   const ctx = canvas.getContext("2d");
-  if (!ctx) return img;
+  if (!ctx) return source;
 
-  ctx.drawImage(img, 0, 0, nw, nh);
+  ctx.drawImage(source, 0, 0, nw, nh);
   return canvas;
+}
+
+/**
+ * THREE.Texture を組み立てる共通処理。
+ */
+function textureFromDrawable(
+  drawable: HTMLImageElement | HTMLCanvasElement,
+  maxTextureSize: number | undefined,
+): LoadResult {
+  const maxDim = maxTextureSize ?? Number.POSITIVE_INFINITY;
+  const scaled = scaleSourceToMaxDimension(drawable, maxDim);
+  const { w, h } = getDrawableSize(scaled);
+
+  const texture = new THREE.Texture(scaled);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.minFilter = THREE.LinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+  texture.needsUpdate = true;
+
+  return {
+    texture,
+    width: w,
+    height: h,
+    type: "image",
+  };
+}
+
+/**
+ * Blob を createImageBitmap でデコードし、Canvas に描画してから Texture 化する。
+ * ImageBitmap はすぐ close し、THREE が Canvas を参照する形に統一する。
+ */
+async function decodeViaCreateImageBitmap(
+  blob: Blob,
+  maxTextureSize: number | undefined,
+  debug: boolean,
+  label: string,
+): Promise<LoadResult> {
+  if (typeof createImageBitmap !== "function") {
+    throw new Error("createImageBitmap is not available");
+  }
+
+  let bitmap: ImageBitmap | null = null;
+  try {
+    bitmap = await createImageBitmap(blob);
+    if (debug) {
+      console.info(`[FilmLab MediaLoader] createImageBitmap OK (${label})`, {
+        width: bitmap.width,
+        height: bitmap.height,
+      });
+    }
+
+    const canvas = document.createElement("canvas");
+    canvas.width = bitmap.width;
+    canvas.height = bitmap.height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      throw new Error("Could not get 2d context for ImageBitmap transfer");
+    }
+    ctx.drawImage(bitmap, 0, 0);
+    bitmap.close();
+    bitmap = null;
+
+    return textureFromDrawable(canvas, maxTextureSize);
+  } catch (err) {
+    if (bitmap) {
+      try {
+        bitmap.close();
+      } catch {
+        /* ignore */
+      }
+    }
+    if (debug) {
+      console.warn(`[FilmLab MediaLoader] createImageBitmap failed (${label})`, err);
+    }
+    throw err;
+  }
+}
+
+/**
+ * 古典的な Image + object URL 経路。
+ */
+function decodeViaImageElement(file: File, maxTextureSize: number | undefined): Promise<LoadResult> {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    // blob: では crossOrigin を付けない（Safari で読み込み失敗の原因になりうる）
+
+    const cleanupUrl = () => {
+      try {
+        URL.revokeObjectURL(url);
+      } catch {
+        /* ignore */
+      }
+    };
+
+    img.onload = () => {
+      try {
+        const result = textureFromDrawable(img, maxTextureSize);
+        cleanupUrl();
+        resolve(result);
+      } catch (err) {
+        cleanupUrl();
+        const message = err instanceof Error ? err.message : String(err);
+        reject(
+          new MediaLoadError(
+            `Could not build texture from image (${message}). Try JPEG or PNG.`,
+            "IMAGE_DECODE_FAILED",
+          ),
+        );
+      }
+    };
+
+    img.onerror = () => {
+      cleanupUrl();
+      reject(new Error("HTMLImageElement failed to decode (onerror)"));
+    };
+
+    img.src = url;
+  });
 }
 
 export class MediaLoader {
@@ -88,67 +235,65 @@ export class MediaLoader {
     return this.loadImage(file, options.maxTextureSize);
   }
 
+  /**
+   * 画像をデコードしてテクスチャにする。
+   * Safari 等で Image 経路が落ちた場合は createImageBitmap を順に試す。
+   */
   private async loadImage(file: File, maxTextureSize?: number): Promise<LoadResult> {
-    return new Promise((resolve, reject) => {
-      const url = URL.createObjectURL(file);
-      const img = new Image();
+    const debug = isFilmLabMediaDebugEnabled();
+    const meta = {
+      name: file.name,
+      type: file.type || "(empty)",
+      size: file.size,
+      ua: typeof navigator !== "undefined" ? navigator.userAgent : "",
+    };
 
-      const cleanupUrl = () => {
-        try {
-          URL.revokeObjectURL(url);
-        } catch {
-          /* ignore */
+    if (debug) {
+      console.info("[FilmLab MediaLoader] loadImage start", meta);
+    }
+
+    let imageElementError: unknown;
+    try {
+      return await decodeViaImageElement(file, maxTextureSize);
+    } catch (err) {
+      imageElementError = err;
+      if (debug) {
+        console.warn("[FilmLab MediaLoader] Image() + blob URL path failed", err);
+      }
+    }
+
+    const safariHint =
+      typeof navigator !== "undefined" && /Safari/i.test(navigator.userAgent) &&
+      !/Chrome|Chromium|CriOS/i.test(navigator.userAgent)
+        ? " Safari では、ディスプレイプロファイル付きの PNG スクリーンショットが Image デコードに失敗することがあります。"
+        : "";
+
+    try {
+      return await decodeViaCreateImageBitmap(file, maxTextureSize, debug, "from File");
+    } catch (err2) {
+      if (debug) {
+        console.warn("[FilmLab MediaLoader] createImageBitmap(File) failed", err2);
+      }
+
+      const mime = file.type && file.type.startsWith("image/") ? file.type : "image/png";
+      try {
+        const blob = new Blob([await file.arrayBuffer()], { type: mime });
+        return await decodeViaCreateImageBitmap(blob, maxTextureSize, debug, `from Blob(${mime})`);
+      } catch (err3) {
+        if (debug) {
+          console.warn("[FilmLab MediaLoader] createImageBitmap(retyped Blob) failed", err3);
         }
-      };
 
-      img.onload = () => {
-        try {
-          const source = maxTextureSize
-            ? scaleImageToMaxDimension(img, maxTextureSize)
-            : img;
+        const detail = debug
+          ? ` Debug: ImageError=${String(imageElementError)}; Bitmap1=${String(err2)}; Bitmap2=${String(err3)}`
+          : "";
 
-          const texture = new THREE.Texture(source as HTMLImageElement | HTMLCanvasElement);
-          texture.colorSpace = THREE.SRGBColorSpace;
-          texture.minFilter = THREE.LinearFilter;
-          texture.magFilter = THREE.LinearFilter;
-          texture.needsUpdate = true;
-
-          const width =
-            source instanceof HTMLCanvasElement ? source.width : img.naturalWidth;
-          const height =
-            source instanceof HTMLCanvasElement ? source.height : img.naturalHeight;
-
-          cleanupUrl();
-          resolve({
-            texture,
-            width,
-            height,
-            type: "image",
-          });
-        } catch (err) {
-          cleanupUrl();
-          const message = err instanceof Error ? err.message : String(err);
-          reject(
-            new MediaLoadError(
-              `Could not build texture from image (${message}). Try JPEG or PNG.`,
-              "IMAGE_DECODE_FAILED",
-            ),
-          );
-        }
-      };
-
-      img.onerror = () => {
-        cleanupUrl();
-        reject(
-          new MediaLoadError(
-            "Could not decode this image. Try JPEG, PNG, or WebP.",
-            "IMAGE_DECODE_FAILED",
-          ),
+        throw new MediaLoadError(
+          `Could not decode this image. Try JPEG, PNG, or WebP.${safariHint} If it still fails, re-export without an embedded display profile (e.g. Preview → Export).${detail}`,
+          "IMAGE_DECODE_FAILED",
         );
-      };
-
-      img.src = url;
-    });
+      }
+    }
   }
 
   private async loadVideo(file: File): Promise<LoadResult> {
