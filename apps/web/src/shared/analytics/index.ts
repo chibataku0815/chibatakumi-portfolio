@@ -27,7 +27,9 @@ export function trackPageView(path: string) {
 }
 
 /**
- * Film Lab の任意寄付ナッジ用イベント（GA4）。イベント名は life 側仕様と一致させる。
+ * @description Film Lab の任意寄付ナッジ用イベント（GA4）。イベント名は life 側仕様と一致させる。
+ * @param {string} name - impression / dismiss / cta_click
+ * @param {object} details - surface・locale ほか、Stripe 段階別なら `stripeTierUsd` を付与する
  */
 export function trackFilmLabDonationEvent(
   name:
@@ -39,6 +41,8 @@ export function trackFilmLabDonationEvent(
     locale: string;
     variant?: string;
     provider?: "stripe" | "bmc" | null;
+    /** Stripe の金額段階（3 / 9 / 25）。複数ティア無しのクリックでは省略可 */
+    stripeTierUsd?: string;
     method?: string;
   },
 ) {
@@ -51,6 +55,9 @@ export function trackFilmLabDonationEvent(
   };
   if (details.provider != null) {
     payload.provider = details.provider;
+  }
+  if (details.stripeTierUsd != null && details.stripeTierUsd.length > 0) {
+    payload.stripe_tier_usd = details.stripeTierUsd;
   }
   if (details.method) payload.method = details.method;
 

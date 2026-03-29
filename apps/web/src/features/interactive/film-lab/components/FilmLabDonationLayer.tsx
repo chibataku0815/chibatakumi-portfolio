@@ -11,7 +11,8 @@ import { useTranslations } from "next-intl";
 import { trackFilmLabDonationEvent } from "@/shared/analytics";
 import {
   filmLabDonationBmcUrl,
-  filmLabDonationStripeUrl,
+  filmLabDonationStripeTiers,
+  type FilmLabDonationStripeTier,
 } from "../film-lab-donation-config";
 import { filmLabMarkPresetSaveModalNever } from "../film-lab-donation-logic";
 
@@ -32,7 +33,7 @@ export type FilmLabDonationLayerProps = {
 };
 
 /**
- * 寄付用のフッター・モーダル・バナーをまとめたレイヤー。
+ * @description 寄付用のフッター・モーダル・バナーをまとめたレイヤー。
  */
 export function FilmLabDonationLayer({
   locale,
@@ -47,19 +48,22 @@ export function FilmLabDonationLayer({
   const t = useTranslations("film-lab.donation");
   const footerImpressionSent = useRef(false);
 
-  const stripeUrl = filmLabDonationStripeUrl;
+  const stripeTiers = filmLabDonationStripeTiers;
   const bmcUrl = filmLabDonationBmcUrl;
+  const hasStripe = stripeTiers.length > 0;
+  /** LUT バナーはスリムのため、既定は最も低い金額のリンクだけ出す */
+  const lutBannerTier = stripeTiers[0] ?? null;
 
   useEffect(() => {
     if (presentMode || footerImpressionSent.current) return;
-    if (!stripeUrl && !bmcUrl) return;
+    if (!hasStripe && !bmcUrl) return;
     footerImpressionSent.current = true;
     trackFilmLabDonationEvent("donation_nudge_impression", {
       surface: "footer",
       locale,
       variant: VARIANT,
     });
-  }, [presentMode, stripeUrl, bmcUrl, locale]);
+  }, [presentMode, hasStripe, bmcUrl, locale]);
 
   useEffect(() => {
     if (!saveModalOpen) return;
@@ -70,18 +74,21 @@ export function FilmLabDonationLayer({
     });
   }, [saveModalOpen, locale]);
 
-  const openStripe = useCallback(
-    (surface: "footer" | "preset_save_modal" | "lut_banner") => {
-      if (!stripeUrl) return;
+  const openStripeTier = useCallback(
+    (
+      surface: "footer" | "preset_save_modal" | "lut_banner",
+      tier: FilmLabDonationStripeTier,
+    ) => {
       trackFilmLabDonationEvent("donation_nudge_cta_click", {
         surface,
         locale,
         variant: VARIANT,
         provider: "stripe",
+        stripeTierUsd: String(tier.amountUsd),
       });
-      window.open(stripeUrl, "_blank", "noopener,noreferrer");
+      window.open(tier.url, "_blank", "noopener,noreferrer");
     },
-    [locale, stripeUrl],
+    [locale],
   );
 
   const openBmc = useCallback(
@@ -126,7 +133,7 @@ export function FilmLabDonationLayer({
 
   return (
     <>
-      {(stripeUrl || bmcUrl) && (
+      {(hasStripe || bmcUrl) && (
         <footer
           className="mt-6 border-t border-[var(--text-base-20)] pt-4"
           aria-label={t("footer.ariaSupportSection")}
@@ -135,16 +142,30 @@ export function FilmLabDonationLayer({
             {t("footer.shortLine")}
           </p>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
-            {stripeUrl ? (
+            {stripeTiers.length === 1 ? (
               <button
                 type="button"
-                onClick={() => openStripe("footer")}
+                onClick={() => openStripeTier("footer", stripeTiers[0])}
                 className="text-[var(--accent-amber1)] underline decoration-white/20 underline-offset-2 transition-colors hover:decoration-[var(--accent-amber1)]"
                 aria-label={t("footer.ariaOpenStripe")}
               >
                 {t("footer.linkStripe")}
               </button>
-            ) : null}
+            ) : (
+              stripeTiers.map((tier) => (
+                <button
+                  key={tier.amountUsd}
+                  type="button"
+                  onClick={() => openStripeTier("footer", tier)}
+                  className="text-[var(--accent-amber1)] underline decoration-white/20 underline-offset-2 transition-colors hover:decoration-[var(--accent-amber1)]"
+                  aria-label={t("footer.ariaOpenStripeTier", {
+                    amountUsd: tier.amountUsd,
+                  })}
+                >
+                  {t("footer.linkStripeAmount", { amountUsd: tier.amountUsd })}
+                </button>
+              ))
+            )}
             {bmcUrl ? (
               <button
                 type="button"
@@ -186,15 +207,30 @@ export function FilmLabDonationLayer({
               {t("preset_save_modal.body")}
             </p>
             <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-              {stripeUrl ? (
+              {stripeTiers.length === 1 ? (
                 <button
                   type="button"
-                  onClick={() => openStripe("preset_save_modal")}
+                  onClick={() => openStripeTier("preset_save_modal", stripeTiers[0])}
                   className="rounded-xl bg-[var(--accent-amber1)] px-4 py-2.5 text-center text-sm font-medium text-black transition-opacity hover:opacity-90"
                 >
                   {t("preset_save_modal.primaryStripe")}
                 </button>
-              ) : null}
+              ) : (
+                stripeTiers.map((tier) => (
+                  <button
+                    key={tier.amountUsd}
+                    type="button"
+                    onClick={() =>
+                      openStripeTier("preset_save_modal", tier)
+                    }
+                    className="rounded-xl bg-[var(--accent-amber1)] px-4 py-2.5 text-center text-sm font-medium text-black transition-opacity hover:opacity-90"
+                  >
+                    {t("preset_save_modal.stripeTierLabel", {
+                      amountUsd: tier.amountUsd,
+                    })}
+                  </button>
+                ))
+              )}
               {bmcUrl ? (
                 <button
                   type="button"
@@ -239,15 +275,19 @@ export function FilmLabDonationLayer({
           <div className="mx-auto flex max-w-6xl items-start justify-between gap-3 sm:items-center">
             <p className="text-xs leading-snug text-white/80">{t("lut_banner.message")}</p>
             <div className="flex shrink-0 items-center gap-2">
-              {stripeUrl ? (
+              {lutBannerTier ? (
                 <button
                   type="button"
                   onClick={() => {
-                    openStripe("lut_banner");
+                    openStripeTier("lut_banner", lutBannerTier);
                   }}
                   className="rounded-lg bg-white/10 px-2 py-1 text-[10px] text-[var(--accent-amber1)]"
                 >
-                  {t("footer.linkStripe")}
+                  {stripeTiers.length === 1
+                    ? t("footer.linkStripe")
+                    : t("footer.linkStripeAmount", {
+                        amountUsd: lutBannerTier.amountUsd,
+                      })}
                 </button>
               ) : null}
               <button

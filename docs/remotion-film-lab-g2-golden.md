@@ -26,13 +26,18 @@
 
 ## 許容差ログ
 
+判定は **Pass**（Tier A として許容） / **Fail**（要修正） / **要検討**（環境差・主観）。スクリーンショットは任意のパスを記載。
+
 | 日付 | 比較 | メモ |
 |------|------|------|
-| （追記用） | G2-1 / G2-2 | |
+| 2026-03-31 | G2-1（LUT なし） | **要検討** — 手順 G2-1 のブラウザキャプチャと `out/grade.mp4` 代表フレームの並置は **未実施**（CD が実施後に Pass/Fail と SS パスへ更新）。一次確認: `render:grade` および life `verify-film-lab-remotion.sh` でレンダー生成は CI と同手順で通過可能。 |
+| 2026-03-31 | G2-2（LUT あり） | **要検討** — 手順 G2-2 未実施。既知の差分要因: ブラウザは 8-pass 後段の LUT、Remotion は解析グレード直後の 2D パック LUT（本文「差分要因例」参照）。 |
+| （追記用） | G2-1 / G2-2 | CD: スクリーンショット保存パスと主観メモを追記 |
 
 ## 参照
 
 - `packages/film-lab-core/docs/LUT_2D_PACKING.md` — LUT の 2D パック仕様
+- **Viewport（ブラウザ）と Remotion cover の対応表**（life リポ）: `docs/guides/2026-03-31-film-lab-viewport-remotion-correspondence.md`
 - `ideas/status/...`（life リポ）— 検証ラダー・CD ゲートの正本が life 側にある場合はそちらを優先
 
 ## 次フェーズ

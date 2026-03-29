@@ -6,19 +6,28 @@
  * - 動画は Canvas に縮小コピーして `CanvasTexture` に載せる（長辺 1920 上限でメモリを抑える）。
  * - フラグメントは **GLSL ES 1.0**。LUT は 2D パック＋トリリニア。
  * - ソースは **object-fit: cover** 相当（コンポ 1080×1920）。
+ * - ブラウザの **composite 相当**として vignette / grain（画面空間 vUv）と、filmlab に近い rgbShift・tint・fade・highlights・shadows を LUT 前後に配線。
  *
  * 制限事項:
- * - ブラウザ Film Lab の 8-pass は再現しない。
+ * - **Bloom / Halation** はブラウザの多パス専用のためここでは未配線（`bloom*` / `halation*` は無視）。
+ * - スプリットトーン（shadowHue 等のベクトル調）は未配線。
  */
 import { useFrame, useThree } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
 import { Video } from "@remotion/media";
-import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import * as THREE from "three";
 import {
   continueRender,
   delayRender,
   staticFile,
+  useCurrentFrame,
   useRemotionEnvironment,
 } from "remotion";
 import {
@@ -33,6 +42,23 @@ const COMPOSITION_HEIGHT = 1920;
 
 /** 動画テクスチャの長辺上限（4K 直載せを避ける） */
 const VIDEO_TEXTURE_MAX_SIDE = 1920;
+
+/**
+ * デコード後のソース解像度から、CanvasTexture 用のキャンバス寸法とシェーダへ渡す縦横比を求める。
+ * 長辺を {@link VIDEO_TEXTURE_MAX_SIDE} に収めるよう **均等スケール**する（縦動画でも props ヒントと無関係に正しいアスペクトになる）。
+ */
+function computeVideoTextureLayout(sourceW: number, sourceH: number): {
+  cw: number;
+  ch: number;
+  srcAspect: number;
+} {
+  const w = Math.max(1, Math.round(sourceW));
+  const h = Math.max(1, Math.round(sourceH));
+  const scale = Math.min(1, VIDEO_TEXTURE_MAX_SIDE / Math.max(w, h));
+  const cw = Math.max(1, Math.round(w * scale));
+  const ch = Math.max(1, Math.round(h * scale));
+  return { cw, ch, srcAspect: w / h };
+}
 
 /**
  * `onVideoFrame` で渡る画像ソースの実ピクセル幅・高さを取得する。
@@ -121,20 +147,26 @@ uniform float uExposure;
 uniform float uContrast;
 uniform float uSaturation;
 uniform float uTemperature;
+uniform float uTint;
+uniform float uRgbShift;
+uniform float uFade;
+uniform float uHighlights;
+uniform float uShadows;
+uniform float uVignette;
+uniform float uGrainIntensity;
+uniform float uGrainPhase;
 uniform sampler2D uLUT2D;
 uniform float uLutEnabled;
 uniform float uLutIntensity;
 uniform float uLutSize;
 varying vec2 vUv;
 
+// object-fit: cover — apps/web filmlab.frag.ts の式と同型（旧: (uv-0.5)/scale は scale が逆で横潰れ）
 vec2 coverUv(vec2 uv, float imgAspect, float compAspect) {
-  vec2 scale = vec2(1.0);
-  if (imgAspect > compAspect) {
-    scale.x = compAspect / imgAspect;
-  } else {
-    scale.y = imgAspect / compAspect;
-  }
-  return (uv - 0.5) / scale + 0.5;
+  vec2 scale = compAspect > imgAspect
+    ? vec2(1.0, imgAspect / compAspect)
+    : vec2(compAspect / imgAspect, 1.0);
+  return (uv - 0.5) * scale + 0.5;
 }
 
 vec3 lutTexel(float r, float g, float b) {
@@ -171,21 +203,46 @@ vec3 adjustTemperature(vec3 c, float t) {
   return c + vec3(t * 0.05, t * 0.02, -t * 0.04);
 }
 
+vec4 rgbShiftSample(sampler2D tex, vec2 uv, float amount) {
+  float r = texture2D(tex, uv + vec2(amount, 0.0)).r;
+  float g = texture2D(tex, uv).g;
+  float b = texture2D(tex, uv - vec2(amount, 0.0)).b;
+  float a = texture2D(tex, uv).a;
+  return vec4(r, g, b, a);
+}
+
+float filmGrain(vec2 uv, float phase) {
+  return fract(sin(dot(uv * phase, vec2(12.9898, 78.233))) * 43758.5453) - 0.5;
+}
+
 void main() {
   vec2 uv = coverUv(vUv, uImageAspect, uCompAspect);
   if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) {
     gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
   } else {
-    vec4 tex = texture2D(map, uv);
+    vec4 tex = uRgbShift > 0.0001
+      ? rgbShiftSample(map, uv, uRgbShift)
+      : texture2D(map, uv);
     vec3 col = tex.rgb * pow(2.0, uExposure);
     col = (col - 0.5) * uContrast + 0.5;
     float l = dot(col, vec3(0.299, 0.587, 0.114));
     col = mix(vec3(l), col, uSaturation);
     col = adjustTemperature(col, uTemperature);
+    col.r += uTint * 0.05;
+    col.g -= uTint * 0.08;
+    col.b += uTint * 0.05;
+    col.rgb = col.rgb + uFade * (1.0 - col.rgb);
+    float lumHS = dot(col.rgb, vec3(0.2126, 0.7152, 0.0722));
+    col.rgb += uShadows * (1.0 - lumHS) * 0.5;
+    col.rgb += uHighlights * lumHS * 0.5;
     if (uLutEnabled > 0.5) {
       vec3 lutRgb = sampleLutTrilinear(col);
       col = mix(col, lutRgb, uLutIntensity);
     }
+    float dist = length(vUv - 0.5) * 1.414;
+    float vig = 1.0 - uVignette * dist * dist;
+    col.rgb *= clamp(vig, 0.0, 1.0);
+    col.rgb += filmGrain(vUv, uGrainPhase + 1.0) * uGrainIntensity;
     gl_FragColor = vec4(clamp(col, 0.0, 1.0), tex.a);
   }
 }
@@ -310,6 +367,8 @@ function GradeBackdrop({
   imageAspect,
 }: GradeBackdropProps) {
   const { grade, lutCubeRelPath, lutEnabled = true, lutIntensity = 1 } = input;
+  /** Remotion フレーム番号（grain をフレーム決定的にする） */
+  const remotionFrame = useCurrentFrame();
 
   const wantLut = Boolean(lutCubeRelPath) && lutEnabled !== false;
   const lutData = useCubeLutTexture(lutCubeRelPath, wantLut);
@@ -334,6 +393,14 @@ function GradeBackdrop({
         uContrast: { value: 1 },
         uSaturation: { value: 1 },
         uTemperature: { value: 0 },
+        uTint: { value: 0 },
+        uRgbShift: { value: 0 },
+        uFade: { value: 0 },
+        uHighlights: { value: 0 },
+        uShadows: { value: 0 },
+        uVignette: { value: 0 },
+        uGrainIntensity: { value: 0 },
+        uGrainPhase: { value: 0 },
         uLUT2D: { value: dummyLut },
         uLutEnabled: { value: 0 },
         uLutIntensity: { value: 1 },
@@ -355,6 +422,14 @@ function GradeBackdrop({
     material.uniforms.uContrast.value = grade.contrast;
     material.uniforms.uSaturation.value = grade.saturation;
     material.uniforms.uTemperature.value = grade.temperature;
+    material.uniforms.uRgbShift!.value = grade.rgbShift;
+    material.uniforms.uTint!.value = grade.tint;
+    material.uniforms.uFade!.value = grade.fade;
+    material.uniforms.uHighlights!.value = grade.highlights;
+    material.uniforms.uShadows!.value = grade.shadows;
+    material.uniforms.uVignette!.value = grade.vignette;
+    material.uniforms.uGrainIntensity!.value = grade.grainIntensity;
+    material.uniforms.uGrainPhase!.value = remotionFrame + 1.0;
     material.uniforms.uLUT2D!.value = lutTextureEffective;
     material.uniforms.uLutEnabled!.value = lutOn;
     material.uniforms.uLutIntensity!.value = lutIntensity;
@@ -397,19 +472,27 @@ function GradeSceneImage(props: FilmLookGradeInputProps) {
  */
 function GradeSceneVideo(props: FilmLookGradeInputProps) {
   const rel = props.gradeSourceVideoRelPath!;
-  const vw = props.gradeSourceVideoWidth ?? 3840;
-  const vh = props.gradeSourceVideoHeight ?? 2160;
+  const vwHint = props.gradeSourceVideoWidth ?? 3840;
+  const vhHint = props.gradeSourceVideoHeight ?? 2160;
 
-  const scale = Math.min(1, VIDEO_TEXTURE_MAX_SIDE / Math.max(vw, vh));
-  const cw = Math.max(1, Math.round(vw * scale));
-  const ch = Math.max(1, Math.round(vh * scale));
-  /** テクスチャのピクセル縦横比（cover 描画後もキャンバス全体がこの比率） */
-  const textureAspect = cw / Math.max(1, ch);
+  const hintLayout = useMemo(
+    () => computeVideoTextureLayout(vwHint, vhHint),
+    [vwHint, vhHint],
+  );
 
-  const [canvasStuff] = useState(() => {
+  const [layout, setLayout] = useState(hintLayout);
+  const layoutRef = useRef(layout);
+  layoutRef.current = layout;
+
+  const canvasStuffRef = useRef<{
+    canvas: HTMLCanvasElement;
+    ctx: CanvasRenderingContext2D;
+    texture: THREE.CanvasTexture;
+  } | null>(null);
+  if (canvasStuffRef.current === null) {
     const canvas = document.createElement("canvas");
-    canvas.width = cw;
-    canvas.height = ch;
+    canvas.width = hintLayout.cw;
+    canvas.height = hintLayout.ch;
     const ctx = canvas.getContext("2d");
     if (!ctx) {
       throw new Error(
@@ -417,28 +500,51 @@ function GradeSceneVideo(props: FilmLookGradeInputProps) {
       );
     }
     ctx.fillStyle = "#000000";
-    ctx.fillRect(0, 0, cw, ch);
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     const texture = new THREE.CanvasTexture(canvas);
     texture.colorSpace = THREE.SRGBColorSpace;
     texture.minFilter = THREE.LinearFilter;
     texture.magFilter = THREE.LinearFilter;
-    return { canvas, ctx, texture };
-  });
+    canvasStuffRef.current = { canvas, ctx, texture };
+  }
+  const canvasStuff = canvasStuffRef.current;
 
   const { advance, invalidate } = useThree();
   const { isRendering } = useRemotionEnvironment();
 
   const onVideoFrame = useCallback(
     (frame: CanvasImageSource) => {
-      drawFrameCoverToCanvas(canvasStuff.ctx, frame, cw, ch);
-      canvasStuff.texture.needsUpdate = true;
+      const { w: fw, h: fh } = readCanvasImageSourceSize(frame);
+      if (fw < 2 || fh < 2) {
+        return;
+      }
+      const next = computeVideoTextureLayout(fw, fh);
+      const stuff = canvasStuffRef.current!;
+      if (stuff.canvas.width !== next.cw || stuff.canvas.height !== next.ch) {
+        stuff.canvas.width = next.cw;
+        stuff.canvas.height = next.ch;
+        stuff.ctx.fillStyle = "#000000";
+        stuff.ctx.fillRect(0, 0, next.cw, next.ch);
+      }
+      drawFrameCoverToCanvas(stuff.ctx, frame, next.cw, next.ch);
+      stuff.texture.needsUpdate = true;
+
+      const prev = layoutRef.current;
+      if (
+        prev.cw !== next.cw ||
+        prev.ch !== next.ch ||
+        prev.srcAspect !== next.srcAspect
+      ) {
+        setLayout(next);
+      }
+
       if (isRendering) {
         advance(performance.now());
       } else {
         invalidate();
       }
     },
-    [canvasStuff.ctx, canvasStuff.texture, cw, ch, advance, invalidate, isRendering],
+    [advance, invalidate, isRendering],
   );
 
   return (
@@ -454,7 +560,7 @@ function GradeSceneVideo(props: FilmLookGradeInputProps) {
       <GradeBackdrop
         input={props}
         mapTexture={canvasStuff.texture}
-        imageAspect={textureAspect}
+        imageAspect={layout.srcAspect}
       />
     </>
   );

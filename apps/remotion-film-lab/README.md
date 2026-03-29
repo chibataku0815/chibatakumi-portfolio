@@ -22,10 +22,15 @@ bun run render:grade:img0513 # サンプル: `public/videos/IMG_0513.MOV`（手�
 
 ## 動画ソース（任意）
 
-- props に **`gradeSourceVideoRelPath`**（`public/` 相対）と、**`gradeSourceVideoWidth` / `gradeSourceVideoHeight`**（**キャンバス割り当て用のヒント**。長辺 1920 に収めるスケール計算に使う）を渡すと、静止画の代わりに **`@remotion/media` の `Video`（headless）** でフレームを取り込む。
+- props に **`gradeSourceVideoRelPath`**（`public/` 相対）と、任意で **`gradeSourceVideoWidth` / `gradeSourceVideoHeight`**（**初回フレーム前のプレースホルダ**用。実際のキャンバス縦横は **デコード後の実寸**から長辺 1920 に収まるよう決定する）を渡すと、静止画の代わりに **`@remotion/media` の `Video`（headless）** でフレームを取り込む。
 - 各フレームは **デコード後の実寸**で **object-fit: cover** 相当に Canvas へ描く（`drawImage` の一発伸縮は行わない。コンテナメタと実ピクセルが違うと従来は破綻していた）。
 - テクスチャは長辺 **1920px** に縮小した `CanvasTexture`（メモリ対策）。例: `samples/grade-props-IMG0513.json`。
 - `public/videos/*.MOV` は `.gitignore` 対象。検証時はデスクトップ等から `public/videos/` へコピーする。
+
+## グレードのうち Remotion で効くもの
+
+- **適用される**: 露出・コントラスト・彩度・色温度、`tint`、`rgbShift`、`fade`、`highlights`、`shadows`、**LUT**、`vignette` / `grainIntensity`（ブラウザの composite パス相当・画面空間）。
+- **適用されない（無視）**: `bloom*` / `halation*`（Web 側の多パス専用）、`shadowHue` / `highlightHue` ベースのスプリットトーン（将来拡張）。
 
 ## LUT（`.cube`）
 

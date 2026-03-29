@@ -1,4 +1,6 @@
 # film-lab-core + Next web 本番ビルド + Remotion 短尺レンダー（回帰用）
+# 動画レンダー render:grade:img0513 は含めない（public/videos の MOV が無いと失敗するため）。
+# 方針: docs/remotion-film-lab-ci-grade-video.md を参照。
 name: film-lab-ci
 
 on:
