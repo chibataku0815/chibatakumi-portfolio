@@ -1,0 +1,11 @@
+# ノイズ付き合成 PNG は容量が大きいためコミット省略。`generate-synthetic-corpus.sh` で再生成する。
+skin_natural_synthetic_01.png
+office_fluorescent_synthetic_01.png
+green_foliage_synthetic_01.png
+highkey_synthetic_01.png
+
+# Playwright の出力（任意でローカル確認用）
+snapshots/
+
+# Unsplash 検証用（容量大・再取得可）
+verify_*.jpg
