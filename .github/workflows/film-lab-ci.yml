@@ -1,0 +1,37 @@
+# film-lab-core + Next web 本番ビルド + Remotion 短尺レンダー（回帰用）
+name: film-lab-ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: film-lab-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.3.3"
+
+      - name: Install dependencies (postinstall builds film-lab-core)
+        run: bun install
+
+      - name: film-lab-core tests
+        run: bun run --cwd packages/film-lab-core test
+
+      - name: Next.js production build
+        run: bun run --cwd apps/web build
+
+      - name: Remotion spike render
+        run: bun run --cwd apps/remotion-film-lab render:spike
+
+      - name: Remotion grade render (LUT + cover AR)
+        run: bun run --cwd apps/remotion-film-lab render:grade

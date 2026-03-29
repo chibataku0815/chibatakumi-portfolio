@@ -6,14 +6,14 @@ import type { FilmLookGradeInputProps } from "film-lab-core";
 import { GradeScene } from "./GradeScene";
 
 /**
- * Phase 2: film-lab-core の grade を Remotion で可視化（解析シェーダ）
+ * Phase 2+: film-lab-core の grade と任意 LUT（.cube）を Remotion で可視化する。
  */
 export const FilmLookGrade: FC<FilmLookGradeInputProps> = (props) => {
   return (
     <AbsoluteFill>
       <ThreeCanvas width={1080} height={1920}>
         <Suspense fallback={null}>
-          <GradeScene grade={props.grade} />
+          <GradeScene {...props} />
         </Suspense>
       </ThreeCanvas>
     </AbsoluteFill>

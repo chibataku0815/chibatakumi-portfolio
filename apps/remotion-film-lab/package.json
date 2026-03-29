@@ -6,12 +6,14 @@
   "scripts": {
     "dev": "remotion studio",
     "render:spike": "remotion render src/index.ts FilmLookSpike out/spike.mp4 --props=./samples/spike-props.json --gl=angle",
-    "render:grade": "remotion render src/index.ts FilmLookGrade out/grade.mp4 --props=./samples/grade-props.json --gl=angle"
+    "render:grade": "remotion render src/index.ts FilmLookGrade out/grade.mp4 --props=./samples/grade-props.json --gl=angle",
+    "render:grade:img0513": "remotion render src/index.ts FilmLookGrade out/grade-img0513.mp4 --props=./samples/grade-props-IMG0513.json --gl=angle"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.4.2",
     "@remotion/cli": "^4.0.340",
+    "@remotion/media": "^4.0.441",
     "@remotion/three": "^4.0.340",
     "@types/three": "^0.181.0",
     "film-lab-core": "workspace:*",

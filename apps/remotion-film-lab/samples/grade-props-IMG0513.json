@@ -1,6 +1,9 @@
 {
   "lookPresetId": "look:mp:portra:v1",
   "presetVersion": "v1",
+  "gradeSourceVideoRelPath": "videos/IMG_0513.MOV",
+  "gradeSourceVideoWidth": 3840,
+  "gradeSourceVideoHeight": 2160,
   "lutCubeRelPath": "luts/warm-cinematic.cube",
   "lutEnabled": true,
   "lutIntensity": 1,
