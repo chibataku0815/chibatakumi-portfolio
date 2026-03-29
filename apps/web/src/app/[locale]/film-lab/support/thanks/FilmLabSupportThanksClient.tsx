@@ -24,6 +24,8 @@ export function FilmLabSupportThanksClient({ checkoutSessionId }: FilmLabSupport
   const tDonation = useTranslations("film-lab.donation");
   const locale = useLocale();
   const [verifyState, setVerifyState] = useState<"idle" | "pending" | "ok" | "error">("idle");
+  /** @description 本番では出さない。verify 失敗時の HTTP と API `code` をローカルで即特定するため。 */
+  const [verifyDiag, setVerifyDiag] = useState<{ httpStatus: number; code: string } | null>(null);
 
   useEffect(() => {
     trackFilmLabDonationEvent("donation_thanks_page_view", {
@@ -38,6 +40,7 @@ export function FilmLabSupportThanksClient({ checkoutSessionId }: FilmLabSupport
     }
     let cancelled = false;
     setVerifyState("pending");
+    setVerifyDiag(null);
     void (async () => {
       try {
         const res = await fetch("/api/film-lab/donation/verify", {
@@ -46,7 +49,20 @@ export function FilmLabSupportThanksClient({ checkoutSessionId }: FilmLabSupport
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ sessionId: checkoutSessionId }),
         });
-        const data = (await res.json()) as { ok?: boolean };
+        const rawBody = await res.text();
+        let data: { ok?: boolean; code?: string } = {};
+        try {
+          data = JSON.parse(rawBody) as { ok?: boolean; code?: string };
+        } catch {
+          data = { ok: false, code: "non_json_body" };
+          if (process.env.NODE_ENV === "development") {
+            console.warn("FilmLabSupportThanksClient: verify response was not JSON", {
+              functionName: "FilmLabSupportThanksClient.useEffect.verify",
+              httpStatus: res.status,
+              bodySnippet: rawBody.slice(0, 240),
+            });
+          }
+        }
         if (cancelled) return;
         if (data.ok === true) {
           setVerifyState("ok");
@@ -60,9 +76,27 @@ export function FilmLabSupportThanksClient({ checkoutSessionId }: FilmLabSupport
           window.history.replaceState({}, "", url.pathname + (qs ? `?${qs}` : "") + url.hash);
         } else {
           setVerifyState("error");
+          const apiCode = typeof data.code === "string" && data.code.length > 0 ? data.code : "unknown";
+          setVerifyDiag({ httpStatus: res.status, code: apiCode });
+          if (process.env.NODE_ENV === "development") {
+            console.warn("FilmLabSupportThanksClient: verify did not return ok", {
+              functionName: "FilmLabSupportThanksClient.useEffect.verify",
+              httpStatus: res.status,
+              code: apiCode,
+            });
+          }
         }
-      } catch {
-        if (!cancelled) setVerifyState("error");
+      } catch (err) {
+        if (!cancelled) {
+          setVerifyState("error");
+          setVerifyDiag({ httpStatus: 0, code: "network_or_fetch_error" });
+          if (process.env.NODE_ENV === "development") {
+            console.warn("FilmLabSupportThanksClient: verify fetch failed", {
+              functionName: "FilmLabSupportThanksClient.useEffect.verify",
+              error: err instanceof Error ? err.message : String(err),
+            });
+          }
+        }
       }
     })();
     return () => {
@@ -79,7 +113,14 @@ export function FilmLabSupportThanksClient({ checkoutSessionId }: FilmLabSupport
         <p className="mt-2 text-xs text-[var(--text-base-50)]">{t("verifyPending")}</p>
       ) : null}
       {verifyState === "error" ? (
-        <p className="mt-2 text-xs text-amber-200/80">{t("verifyFailed")}</p>
+        <>
+          <p className="mt-2 text-xs text-amber-200/80">{t("verifyFailed")}</p>
+          {process.env.NODE_ENV === "development" && verifyDiag ? (
+            <p className="mt-1 font-mono text-[10px] text-[var(--text-base-40)]">
+              [dev] verify HTTP {verifyDiag.httpStatus} · code {verifyDiag.code}
+            </p>
+          ) : null}
+        </>
       ) : null}
       <Link
         href={verifyState === "ok" ? "/film-lab" : "/film-lab?donationThanks=1"}

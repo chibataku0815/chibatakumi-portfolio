@@ -105,6 +105,8 @@ export class Viewport {
 
   private renderer: THREE.WebGLRenderer | null = null;
   private histogramBuffer: Float32Array | null = null;
+  /** HalfFloat RT 読み戻し用（readPixels は RGBA + HALF_FLOAT + Uint16 が正系） */
+  private histogramHalfBuffer: Uint16Array | null = null;
 
   constructor(options: ViewportOptions) {
     this.width = options.width;
@@ -711,19 +713,23 @@ export class Viewport {
     const rt = this.rtColorGraded;
     const w = rt.width;
     const h = rt.height;
+    if (w <= 0 || h <= 0) return null;
     const size = w * h * 4;
+    if (!this.histogramHalfBuffer || this.histogramHalfBuffer.length !== size) {
+      this.histogramHalfBuffer = new Uint16Array(size);
+    }
     if (!this.histogramBuffer || this.histogramBuffer.length !== size) {
       this.histogramBuffer = new Float32Array(size);
     }
-    // Three.js readRenderTargetPixels passes HALF_FLOAT type to gl.readPixels (from RT texture type),
-    // but HALF_FLOAT requires Uint16Array. ANGLE/Metal also rejects UNSIGNED_BYTE on RGBA16F.
-    // Direct gl.readPixels with FLOAT type + Float32Array works on RGBA16F framebuffers.
-    const prevRT = this.renderer.getRenderTarget();
-    this.renderer.setRenderTarget(rt);
-    const gl = this.renderer.getContext() as WebGL2RenderingContext;
-    gl.readPixels(0, 0, w, h, gl.RGBA, gl.FLOAT, this.histogramBuffer);
-    this.renderer.setRenderTarget(prevRT);
-    return { pixels: this.histogramBuffer, width: w, height: h };
+    // RGBA16F（HalfFloatType）に対し gl.RGBA + gl.FLOAT は環境によって無効（Electron / Metal で空振りしがち）。
+    // WebGLRenderer.readRenderTargetPixels が型に合う readPixels を選び、Uint16 を FP32 に戻す。
+    this.renderer.readRenderTargetPixels(rt, 0, 0, w, h, this.histogramHalfBuffer);
+    const half = this.histogramHalfBuffer;
+    const out = this.histogramBuffer;
+    for (let i = 0; i < size; i++) {
+      out[i] = THREE.DataUtils.fromHalfFloat(half[i]!);
+    }
+    return { pixels: out, width: w, height: h };
   }
 
   // ===== Dispose =====
@@ -747,6 +753,7 @@ export class Viewport {
     const mediaTexture = this.material.uniforms.uTexture?.value as THREE.Texture | null;
     if (mediaTexture) mediaTexture.dispose();
     this.histogramBuffer = null;
+    this.histogramHalfBuffer = null;
     this.renderer = null;
   }
 }

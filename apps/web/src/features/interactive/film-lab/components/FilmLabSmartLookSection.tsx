@@ -13,6 +13,7 @@ import type { PresetName } from "../preset-data";
 import type { Params } from "../types";
 import type { Action, GradeSlotState } from "./film-lab-reducer";
 import {
+  FILM_LAB_SMART_LOOK_ERROR_CODES,
   SMART_LOOK_CONSENT_VERSION,
   applySmartLookDelta,
   filmLabReadSmartLookConsent,
@@ -103,14 +104,23 @@ export function FilmLabSmartLookSection({
       };
 
       if (!res.ok || !json.ok || json.delta === undefined) {
+        const code = json.code ?? String(res.status);
         trackFilmLabSmartLookEvent("film_lab_smart_look_request", {
           locale,
           ok: false,
-          provider: json.code ?? String(res.status),
+          provider: code,
           latency_bucket: latencyBucket,
           preset_id: activePreset,
         });
-        setError(t("errorGeneric"));
+        if (code === FILM_LAB_SMART_LOOK_ERROR_CODES.rateLimitExceeded) {
+          setError(t("errorRateLimit"));
+        } else if (code === FILM_LAB_SMART_LOOK_ERROR_CODES.providerError) {
+          setError(t("errorProvider"));
+        } else if (code === FILM_LAB_SMART_LOOK_ERROR_CODES.smartLookInvalidResponse) {
+          setError(t("errorInvalidResponse"));
+        } else {
+          setError(t("errorGeneric"));
+        }
         return;
       }
 

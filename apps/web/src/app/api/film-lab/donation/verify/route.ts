@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
   }
 
   const piRaw = session.payment_intent;
-  const piId =
+  let piId =
     typeof piRaw === "string"
       ? piRaw
       : piRaw &&
@@ -66,6 +66,46 @@ export async function POST(req: NextRequest) {
           typeof (piRaw as { id: unknown }).id === "string"
         ? (piRaw as { id: string }).id
         : "";
+
+  /**
+   * @description subscription モードの Checkout ではトップレベルの `payment_intent` が空のことがある。
+   * Payment Link が「定期」になっている場合でも、最新請求の PI で Cookie を発行できるようにする。
+   */
+  if (!piId.startsWith("pi_")) {
+    const subRaw = session.subscription;
+    const subscriptionId =
+      typeof subRaw === "string"
+        ? subRaw
+        : subRaw &&
+            typeof subRaw === "object" &&
+            "id" in subRaw &&
+            typeof (subRaw as { id: unknown }).id === "string"
+          ? (subRaw as { id: string }).id
+          : "";
+    if (subscriptionId.startsWith("sub_")) {
+      try {
+        const subscription = await stripe.subscriptions.retrieve(subscriptionId, {
+          expand: ["latest_invoice.payment_intent"],
+        });
+        const latestInvoice = subscription.latest_invoice;
+        if (typeof latestInvoice === "object" && latestInvoice !== null && "payment_intent" in latestInvoice) {
+          const invPi = (latestInvoice as { payment_intent: unknown }).payment_intent;
+          if (typeof invPi === "string") {
+            piId = invPi;
+          } else if (
+            invPi &&
+            typeof invPi === "object" &&
+            "id" in invPi &&
+            typeof (invPi as { id: unknown }).id === "string"
+          ) {
+            piId = (invPi as { id: string }).id;
+          }
+        }
+      } catch {
+        return NextResponse.json({ ok: false as const, code: "stripe_subscription_pi_failed" }, { status: 502 });
+      }
+    }
+  }
 
   if (!piId.startsWith("pi_")) {
     return NextResponse.json({ ok: false as const, code: "no_payment_intent" }, { status: 422 });

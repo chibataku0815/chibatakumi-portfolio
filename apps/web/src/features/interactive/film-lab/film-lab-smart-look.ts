@@ -11,6 +11,26 @@ import { PRESETS, type PresetName } from "./preset-data";
 /** @description 同意文の版。API と localStorage で一致させる。 */
 export const SMART_LOOK_CONSENT_VERSION = 1 as const;
 
+/**
+ * @description BFF が返す `code` 文字列（API 契約）。クライアントの表示分岐と計測で共通利用する。
+ * @limitations 値は snake_case のまま JSON で送る（既存の `forbidden_not_supporter` 等と揃える）。
+ */
+export const FILM_LAB_SMART_LOOK_ERROR_CODES = {
+  notConfigured: "not_configured",
+  forbiddenNotSupporter: "forbidden_not_supporter",
+  badJson: "bad_json",
+  invalidBody: "invalid_body",
+  consentRequired: "consent_required",
+  invalidPreset: "invalid_preset",
+  providerError: "provider_error",
+  smartLookInvalidResponse: "smart_look_invalid_response",
+  rateLimitExceeded: "rate_limit_exceeded",
+} as const;
+
+/** @description `FILM_LAB_SMART_LOOK_ERROR_CODES` の値だけを集めた型。 */
+export type FilmLabSmartLookApiErrorCode =
+  (typeof FILM_LAB_SMART_LOOK_ERROR_CODES)[keyof typeof FILM_LAB_SMART_LOOK_ERROR_CODES];
+
 const deltaValueSchema = z.number().finite();
 
 /**
@@ -94,6 +114,101 @@ export function parseAndClampSmartLookDelta(raw: unknown): FilmLabSmartLookDelta
     out[key] = stepped;
   }
   return out;
+}
+
+/**
+ * @description 文字列の先頭から、文字列リテラル内を無視しながら対応する `{`〜`}` ブロックを 1 つ切り出す。
+ * @param {string} source - モデル出力やその一部
+ * @returns {string | null} 見つからない・括弧が閉じないときは null
+ */
+function extractFirstBalancedJsonObject(source: string): string | null {
+  const start = source.indexOf("{");
+  if (start === -1) return null;
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+  for (let i = start; i < source.length; i++) {
+    const ch = source[i];
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+    if (inString) {
+      if (ch === "\\") {
+        escaped = true;
+        continue;
+      }
+      if (ch === '"') {
+        inString = false;
+      }
+      continue;
+    }
+    if (ch === '"') {
+      inString = true;
+      continue;
+    }
+    if (ch === "{") depth++;
+    else if (ch === "}") {
+      depth--;
+      if (depth === 0) return source.slice(start, i + 1);
+    }
+  }
+  return null;
+}
+
+/**
+ * @description Vision モデルが返す本文から JSON オブジェクトを読み取る。markdown のコードフェンスや前後の説明文に強くする。
+ * @param {string} raw - `choices[0].message.content` 相当
+ * @returns {{ ok: true, value: unknown } | { ok: false }} パースに成功したオブジェクト（配列もあり得るが上位で検証する）
+ */
+export function parseJsonObjectFromAssistantText(
+  raw: string,
+): { ok: true; value: unknown } | { ok: false } {
+  const trimmed = raw.trim();
+  let body = trimmed;
+  const openFence = /^```(?:json)?\s*\r?\n/;
+  const closeFence = /\r?\n```\s*$/;
+  if (openFence.test(body) && closeFence.test(body)) {
+    body = body.replace(openFence, "").replace(closeFence, "").trim();
+  }
+
+  const tryParse = (s: string): unknown | null => {
+    try {
+      return JSON.parse(s);
+    } catch {
+      return null;
+    }
+  };
+
+  const direct = tryParse(body);
+  if (direct !== null && typeof direct === "object" && !Array.isArray(direct)) {
+    return { ok: true, value: direct };
+  }
+
+  const slice = extractFirstBalancedJsonObject(body);
+  if (slice != null) {
+    const nested = tryParse(slice);
+    if (nested !== null && typeof nested === "object" && !Array.isArray(nested)) {
+      return { ok: true, value: nested };
+    }
+  }
+
+  return { ok: false };
+}
+
+/**
+ * @description アシスタント JSON のルートまたは `delta` プロパティから、検証＋クリップ済みデルタを得る。
+ * @param {unknown} parsed - `parseJsonObjectFromAssistantText` の `value`
+ * @returns {FilmLabSmartLookDelta | null} 有効なキーが 1 つも無いオブジェクトは null（空応答は失敗扱い）
+ */
+export function extractSmartLookDeltaFromAssistantJson(parsed: unknown): FilmLabSmartLookDelta | null {
+  if (parsed == null || typeof parsed !== "object") return null;
+  const root = parsed as Record<string, unknown>;
+  const deltaRaw = "delta" in root ? root.delta : parsed;
+  const clamped = parseAndClampSmartLookDelta(deltaRaw);
+  if (clamped == null) return null;
+  if (Object.keys(clamped).length === 0) return null;
+  return clamped;
 }
 
 /**

@@ -25,6 +25,11 @@ interface FilmLabCanvasProps {
   fullScreen?: boolean;
   onViewportReady?: (viewport: Viewport | null) => void;
   /**
+   * @description デスクトップ等でツールバーを画像の上に重ねないときに `stacked`。
+   * `overlay`（既定）は Web 本番どおり左上オーバーレイ。
+   */
+  chromeLayout?: "overlay" | "stacked";
+  /**
    * URL 共有で復元した grade。指定時はプリセット prop による上書きを止め、
    * デフォルト画像読み込み後の setParams もこの値に合わせる（ControlPanel と競合しないようにする）。
    */
@@ -73,6 +78,7 @@ export const FilmLabCanvas = forwardRef<FilmLabCanvasRef | null, FilmLabCanvasPr
       initialGradeParams = null,
       onCubeLutLoaded,
       compareHud = null,
+      chromeLayout = "overlay",
     },
     ref,
   ) {
@@ -363,47 +369,42 @@ export const FilmLabCanvas = forwardRef<FilmLabCanvasRef | null, FilmLabCanvasPr
     );
   }
 
-  return (
+  const viewportHostClassName = `relative ${fullScreen ? "h-full min-h-0" : "aspect-[4/3] sm:aspect-[16/9]"} w-full touch-none cursor-col-resize overflow-hidden rounded-lg bg-[#0a0a0a] ${chromeLayout === "stacked" ? "min-h-[200px] sm:min-h-[240px]" : ""}`;
+
+  const toolbarClassName =
+    chromeLayout === "stacked"
+      ? "z-10 flex shrink-0 flex-wrap gap-1.5"
+      : "absolute left-3 top-3 z-10 flex gap-1.5";
+
+  const toolbar = (
     <div
-      ref={containerRef}
-      data-testid="film-lab-viewport"
-      className={`relative ${fullScreen ? "h-full" : "aspect-[4/3] sm:aspect-[16/9]"} w-full touch-none cursor-col-resize overflow-hidden rounded-lg bg-[#0a0a0a] ${className ?? ""}`}
-      onDragOver={(e) => {
-        e.preventDefault();
-        setIsDragging(true);
-      }}
-      onDragLeave={() => setIsDragging(false)}
-      onDrop={handleDrop}
-      onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUp}
-      onPointerCancel={handlePointerUp}
-      onLostPointerCapture={handleLostPointerCapture}
+      className={toolbarClassName}
+      onPointerDown={(e) => e.stopPropagation()}
+      onPointerMove={(e) => e.stopPropagation()}
+      onPointerUp={(e) => e.stopPropagation()}
+      onPointerCancel={(e) => e.stopPropagation()}
     >
-      {/* Toolbar: stop pointer propagation so split-drag on the canvas does not steal taps from Open/Save */}
-      <div
-        className="absolute left-3 top-3 z-10 flex gap-1.5"
-        onPointerDown={(e) => e.stopPropagation()}
-        onPointerMove={(e) => e.stopPropagation()}
-        onPointerUp={(e) => e.stopPropagation()}
-        onPointerCancel={(e) => e.stopPropagation()}
+      <button
+        type="button"
+        data-testid="film-lab-open"
+        onClick={handleFileClick}
+        className={FILM_LAB_TOOLBAR_BUTTON_CLASS}
       >
-        <button
-          type="button"
-          data-testid="film-lab-open"
-          onClick={handleFileClick}
-          className={FILM_LAB_TOOLBAR_BUTTON_CLASS}
-        >
-          {tFilmLab("toolbar.open")}
-        </button>
-        <button
-          type="button"
-          onClick={handleDownload}
-          className={FILM_LAB_TOOLBAR_BUTTON_CLASS}
-        >
-          {tFilmLab("toolbar.savePng")}
-        </button>
-      </div>
+        {tFilmLab("toolbar.open")}
+      </button>
+      <button
+        type="button"
+        onClick={handleDownload}
+        className={FILM_LAB_TOOLBAR_BUTTON_CLASS}
+      >
+        {tFilmLab("toolbar.savePng")}
+      </button>
+    </div>
+  );
+
+  const viewportBody = (
+    <>
+      {chromeLayout === "overlay" ? toolbar : null}
 
       {/* 比較モード: 編集中がどちらか + 左右ラベル + 境界操作のヒント */}
       {compareHud != null && (
@@ -474,6 +475,47 @@ export const FilmLabCanvas = forwardRef<FilmLabCanvasRef | null, FilmLabCanvasPr
           </div>
         </div>
       )}
+    </>
+  );
+
+  const viewportPointerAndDragProps = {
+    onDragOver: (e: React.DragEvent) => {
+      e.preventDefault();
+      setIsDragging(true);
+    },
+    onDragLeave: () => setIsDragging(false),
+    onDrop: handleDrop,
+    onPointerDown: handlePointerDown,
+    onPointerMove: handlePointerMove,
+    onPointerUp: handlePointerUp,
+    onPointerCancel: handlePointerUp,
+    onLostPointerCapture: handleLostPointerCapture,
+  };
+
+  if (chromeLayout === "stacked") {
+    return (
+      <div className={`flex w-full flex-col gap-2 ${className ?? ""}`}>
+        {toolbar}
+        <div
+          ref={containerRef}
+          data-testid="film-lab-viewport"
+          className={viewportHostClassName}
+          {...viewportPointerAndDragProps}
+        >
+          {viewportBody}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      ref={containerRef}
+      data-testid="film-lab-viewport"
+      className={`${viewportHostClassName} ${className ?? ""}`}
+      {...viewportPointerAndDragProps}
+    >
+      {viewportBody}
     </div>
   );
 });
