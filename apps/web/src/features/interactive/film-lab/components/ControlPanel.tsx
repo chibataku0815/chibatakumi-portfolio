@@ -1066,6 +1066,16 @@ function HueSlider({
   );
 }
 
+/**
+ * セクション見出しと ON/OFF スイッチを並べる行。
+ * スイッチのノブはトラック内で常に左右端に等しい余白になるよう `left/right` で直接固定する。
+ * 縦位置は `top` 固定ではなく `inset-y-0 my-auto` で中央揃えにし、
+ * 画面倍率やボーダー解釈の差で下方向へずれて見える問題を防ぐ。
+ * `translate` で距離を計算すると、ズームや境界線幅の差でノブが端にはみ出して見えることがあるため、
+ * ON/OFF は `left-0.5` と `right-0.5` を切り替えるだけにして位置ずれを防ぐ。
+ *
+ * @param {{ title: string; enabled: boolean; onToggle: (on: boolean) => void }} props
+ */
 function ToggleHeader({
   title,
   enabled,
@@ -1083,7 +1093,7 @@ function ToggleHeader({
       <button
         type="button"
         onClick={() => onToggle(!enabled)}
-        className={`relative h-5 w-9 shrink-0 rounded-full border transition-colors ${
+        className={`relative box-border h-5 w-9 shrink-0 rounded-full border transition-colors ${
           enabled
             ? "border-[color-mix(in_srgb,var(--accent-amber1)_70%,transparent)] bg-[var(--accent-amber1)]"
             : "border-white/25 bg-[#1c1c1c] hover:border-white/35"
@@ -1091,8 +1101,9 @@ function ToggleHeader({
         aria-pressed={enabled}
       >
         <span
-          className={`absolute top-0.5 block h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${
-            enabled ? "translate-x-4" : "translate-x-0.5"
+          aria-hidden
+          className={`pointer-events-none absolute inset-y-0 my-auto block h-4 w-4 rounded-full bg-white transition-all ${
+            enabled ? "right-0.5 left-auto" : "left-0.5 right-auto"
           }`}
         />
       </button>
