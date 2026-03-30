@@ -35,6 +35,7 @@ export default async function FilmLabDesktopDownloadPage({
   }
 
   const t = await getTranslations({ locale, namespace: "film-lab.desktopRelease.downloadPage" });
+  const tRelease = await getTranslations({ locale, namespace: "film-lab.desktopRelease" });
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-3xl items-center px-4 py-16 sm:px-6">
@@ -66,12 +67,22 @@ export default async function FilmLabDesktopDownloadPage({
         </div>
 
         <p className="mt-6 text-sm leading-relaxed text-white/65">{t("pendingLead")}</p>
-        <ul className="mt-3 space-y-1 text-sm leading-relaxed text-white/60">
-          <li>{t("notes.releaseNotes")}</li>
-          <li>{t("notes.lut")}</li>
-          <li>{t("notes.donationAndSharing")}</li>
-          <li>{t("notes.smartLook")}</li>
-        </ul>
+
+        <div className="mt-5 border-t border-white/10 pt-4">
+          <h2 className="text-xs font-semibold text-white/75">{tRelease("supplement.title")}</h2>
+          <ul className="mt-2 list-disc space-y-2 pl-4 text-sm leading-relaxed text-white/60 marker:text-white/35">
+            <li>{tRelease("supplement.trust")}</li>
+            <li>{tRelease("supplement.handoff")}</li>
+            <li>{tRelease("supplement.browserAndDesktop")}</li>
+          </ul>
+        </div>
+
+        <div className="mt-4 rounded-xl border border-white/6 bg-black/10 px-3 py-3">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/40">
+            {tRelease("releaseNotesEyebrow")}
+          </p>
+          <p className="mt-1 text-sm leading-relaxed text-white/55">{tRelease("releaseNotesLead")}</p>
+        </div>
 
         <div className="mt-6 flex flex-wrap items-center gap-3">
           <Link

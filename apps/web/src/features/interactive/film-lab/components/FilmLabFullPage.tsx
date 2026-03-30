@@ -107,7 +107,8 @@ function FilmLabFullPageHydrationPlaceholder() {
 }
 
 /**
- * @description Desktop 公開版の条件を、Web の Film Lab ページでも短く案内するカードです。
+ * @description Desktop 公開版の条件を Web の Film Lab ページで案内するカード。情報順は
+ *   「価値 → 要件 → 行動（DL・問い合わせ）→ 補足（3 点）→ リリースノート（SHA-256）」で、末尾が免責の羅列に見えないようにする。
  * @limitations 実ファイル URL は固定ルート `/film-lab/download` 側で環境変数を見て解決します。
  */
 function FilmLabDesktopReleaseNotice() {
@@ -121,24 +122,24 @@ function FilmLabDesktopReleaseNotice() {
       <h2 className="mt-2 text-lg font-semibold text-white">{t("title")}</h2>
       <p className="mt-2 max-w-3xl text-sm leading-relaxed text-white/70">{t("body")}</p>
 
-      <div className="mt-4 space-y-2 rounded-xl border border-white/8 bg-black/20 px-3 py-3 text-sm leading-relaxed text-white/80">
-        <p>
-          <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/40">
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <div className="rounded-xl border border-white/8 bg-black/20 px-3 py-3 text-sm leading-relaxed text-white/85">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/40">
             {t("essentials.environmentLabel")}
-          </span>
-          <br />
-          {t("essentials.environmentBody", {
-            minMacos: filmLabDesktopMinimumMacos,
-            arch: filmLabDesktopArchitecture,
-          })}
-        </p>
-        <p>
-          <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/40">
+          </p>
+          <p className="mt-1">
+            {t("essentials.environmentBody", {
+              minMacos: filmLabDesktopMinimumMacos,
+              arch: filmLabDesktopArchitecture,
+            })}
+          </p>
+        </div>
+        <div className="rounded-xl border border-white/8 bg-black/20 px-3 py-3 text-sm leading-relaxed text-white/85">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/40">
             {t("essentials.distributionLabel")}
-          </span>
-          <br />
-          {t("essentials.distributionBody")}
-        </p>
+          </p>
+          <p className="mt-1">{t("essentials.distributionBody")}</p>
+        </div>
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
@@ -156,12 +157,21 @@ function FilmLabDesktopReleaseNotice() {
         </a>
       </div>
 
-      <p className="mt-4 text-xs leading-relaxed text-white/55">{t("releaseNotesLead")}</p>
-      <ul className="mt-2 space-y-1 text-xs leading-relaxed text-white/60">
-        <li>{t("notes.lut")}</li>
-        <li>{t("notes.donationAndSharing")}</li>
-        <li>{t("notes.smartLook")}</li>
-      </ul>
+      <div className="mt-5 border-t border-white/10 pt-4">
+        <h3 className="text-xs font-semibold text-white/75">{t("supplement.title")}</h3>
+        <ul className="mt-2 list-disc space-y-2 pl-4 text-xs leading-relaxed text-white/60 marker:text-white/35">
+          <li>{t("supplement.trust")}</li>
+          <li>{t("supplement.handoff")}</li>
+          <li>{t("supplement.browserAndDesktop")}</li>
+        </ul>
+      </div>
+
+      <div className="mt-4 rounded-xl border border-white/6 bg-black/10 px-3 py-3">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/40">
+          {t("releaseNotesEyebrow")}
+        </p>
+        <p className="mt-1 text-xs leading-relaxed text-white/55">{t("releaseNotesLead")}</p>
+      </div>
     </section>
   );
 }
