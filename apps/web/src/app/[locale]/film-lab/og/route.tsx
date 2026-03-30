@@ -27,6 +27,18 @@ const NOTO_FILES = {
   w700: "noto-sans-jp-japanese-700-normal.woff",
 } as const;
 
+/** Preset characteristic colors for the OG palette visualization */
+const OG_PRESET_PALETTE = [
+  { label: "Cinematic", color: "#b87a3a" },
+  { label: "Portra", color: "#c9a08e" },
+  { label: "Gold 200", color: "#b89a4a" },
+  { label: "Pro 400H", color: "#7a98aa" },
+  { label: "Ektar", color: "#b85a3e" },
+  { label: "Superia", color: "#6a906a" },
+  { label: "CineStill", color: "#c48a42" },
+  { label: "B&W", color: "#888" },
+] as const;
+
 /**
  * Node の Buffer を Satori が受け取る ArrayBuffer に変換する（共有バッファを切り離す）。
  * @param buf - readFile の結果
@@ -140,6 +152,199 @@ async function buildOgImageResponse(
 
   const fontFamily = isJa && fonts.length > 0 ? "Noto Sans JP" : "system-ui, sans-serif";
 
+  const ogOptions = {
+    width: OG_WIDTH,
+    height: OG_HEIGHT,
+    headers: { "Cache-Control": CACHE_CONTROL },
+    ...(fonts.length > 0 ? { fonts } : {}),
+  };
+
+  // Default card: clean layout with preset palette (Product Hunt, generic sharing)
+  if (!decoded) {
+    return new ImageResponse(
+      (
+        <div
+          style={{
+            width: OG_WIDTH,
+            height: OG_HEIGHT,
+            display: "flex",
+            background:
+              "linear-gradient(145deg, #0a0a0a 0%, #1a1510 45%, #221a12 100%)",
+            padding: "48px 64px",
+            color: "#f5f0e8",
+            fontFamily,
+          }}
+        >
+          {/* Left column: text */}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              flex: 1,
+            }}
+          >
+            {/* Brand badge */}
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 9,
+                  background: "#151515",
+                  border: "1.5px solid rgba(234,230,221,0.25)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <div
+                  style={{
+                    width: 18,
+                    height: 18,
+                    borderRadius: 5,
+                    border: "1.5px solid rgba(234,230,221,0.5)",
+                  }}
+                />
+              </div>
+              <span
+                style={{
+                  fontSize: 14,
+                  color: "rgba(245,240,232,0.45)",
+                  letterSpacing: "0.1em",
+                  fontWeight: 500,
+                }}
+              >
+                macOS + Browser
+              </span>
+            </div>
+
+            {/* Title */}
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <div
+                style={{
+                  fontSize: 72,
+                  fontWeight: 700,
+                  letterSpacing: "-0.03em",
+                  lineHeight: 1,
+                }}
+              >
+                Filmtone
+              </div>
+              <div
+                style={{
+                  fontSize: 26,
+                  color: "rgba(245,240,232,0.7)",
+                  fontWeight: 500,
+                  marginTop: 16,
+                  lineHeight: 1.35,
+                  maxWidth: 500,
+                }}
+              >
+                {subFinal}
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div style={{ fontSize: 14, color: "rgba(245,240,232,0.3)" }}>
+              {brand}
+            </div>
+          </div>
+
+          {/* Right column: preset palette */}
+          <div
+            style={{
+              width: 380,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: 12,
+            }}
+          >
+            <div style={{ display: "flex", gap: 12 }}>
+              {OG_PRESET_PALETTE.slice(0, 4).map(({ label, color }) => (
+                <div
+                  key={label}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 6,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 64,
+                      height: 64,
+                      borderRadius: 14,
+                      background: color,
+                      border: "1px solid rgba(255,255,255,0.08)",
+                    }}
+                  />
+                  <span
+                    style={{
+                      fontSize: 10,
+                      color: "rgba(245,240,232,0.35)",
+                      fontWeight: 500,
+                    }}
+                  >
+                    {label}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <div style={{ display: "flex", gap: 12 }}>
+              {OG_PRESET_PALETTE.slice(4).map(({ label, color }) => (
+                <div
+                  key={label}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 6,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 64,
+                      height: 64,
+                      borderRadius: 14,
+                      background: color,
+                      border: "1px solid rgba(255,255,255,0.08)",
+                    }}
+                  />
+                  <span
+                    style={{
+                      fontSize: 10,
+                      color: "rgba(245,240,232,0.35)",
+                      fontWeight: 500,
+                    }}
+                  >
+                    {label}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <span
+              style={{
+                fontSize: 13,
+                color: "rgba(245,240,232,0.4)",
+                marginTop: 8,
+              }}
+            >
+              {isJa
+                ? "9 プリセット · バッチ書き出し"
+                : "9 presets · Batch export"}
+            </span>
+          </div>
+        </div>
+      ),
+      ogOptions,
+    );
+  }
+
+  // Preset card (shared look): hero image background with grade summary
   return new ImageResponse(
     (
       <div
@@ -150,7 +355,6 @@ async function buildOgImageResponse(
           display: "flex",
         }}
       >
-        {/* Satori が同一オリジン画像を取得して背景に使う（next/og では img が必須） */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           alt=""
@@ -187,22 +391,39 @@ async function buildOgImageResponse(
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <div style={{ fontSize: 56, fontWeight: 700 }}>Filmtone</div>
             {headline ? (
-              <div style={{ fontSize: 38, color: "rgba(245,240,232,0.88)", fontWeight: 600 }}>{headline}</div>
+              <div
+                style={{
+                  fontSize: 38,
+                  color: "rgba(245,240,232,0.88)",
+                  fontWeight: 600,
+                }}
+              >
+                {headline}
+              </div>
             ) : null}
-            <div style={{ fontSize: 28, color: "rgba(245,240,232,0.55)", fontWeight: 500 }}>{subFinal}</div>
+            <div
+              style={{
+                fontSize: 28,
+                color: "rgba(245,240,232,0.55)",
+                fontWeight: 500,
+              }}
+            >
+              {subFinal}
+            </div>
           </div>
-          <div style={{ fontSize: 22, color: "rgba(245,240,232,0.4)", fontWeight: 500 }}>{brand}</div>
+          <div
+            style={{
+              fontSize: 22,
+              color: "rgba(245,240,232,0.4)",
+              fontWeight: 500,
+            }}
+          >
+            {brand}
+          </div>
         </div>
       </div>
     ),
-    {
-      width: OG_WIDTH,
-      height: OG_HEIGHT,
-      headers: {
-        "Cache-Control": CACHE_CONTROL,
-      },
-      ...(fonts.length > 0 ? { fonts } : {}),
-    },
+    ogOptions,
   );
 }
 
