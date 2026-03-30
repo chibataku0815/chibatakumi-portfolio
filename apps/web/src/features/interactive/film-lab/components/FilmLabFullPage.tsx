@@ -699,22 +699,24 @@ export function FilmLabFullPage({
           {tLp("faqTitle")}
         </h2>
         <dl className="film-lab-lp-body mt-8 space-y-6 text-sm leading-relaxed">
-          <div className="film-lab-liquid-glass relative z-10 rounded-2xl p-5 sm:p-6">
-            <dt className="font-medium text-white">{tLp("faqQwebVsDesktop")}</dt>
-            <dd className="mt-2 text-white/65">{tLp("faqAwebVsDesktop")}</dd>
-          </div>
-          <div className="film-lab-liquid-glass relative z-10 rounded-2xl p-5 sm:p-6">
-            <dt className="font-medium text-white">{tLp("faqQsmartLookDesktop")}</dt>
-            <dd className="mt-2 text-white/65">{tLp("faqAsmartLookDesktop")}</dd>
-          </div>
-          <div className="film-lab-liquid-glass relative z-10 rounded-2xl p-5 sm:p-6">
-            <dt className="font-medium text-white">{tLp("faqQupdates")}</dt>
-            <dd className="mt-2 text-white/65">{tLp("faqAupdates")}</dd>
-          </div>
-          <div className="film-lab-liquid-glass relative z-10 rounded-2xl p-5 sm:p-6">
-            <dt className="font-medium text-white">{tLp("faqQlimitations")}</dt>
-            <dd className="mt-2 text-white/65">{tLp("faqAlimitations")}</dd>
-          </div>
+          {(
+            [
+              ["faqQfree", "faqAfree"],
+              ["faqQformats", "faqAformats"],
+              ["faqQwhichVersion", "faqAwhichVersion"],
+              ["faqQpresets", "faqApresets"],
+              ["faqQvideo", "faqAvideo"],
+              ["faqQwindows", "faqAwindows"],
+            ] as const
+          ).map(([qKey, aKey]) => (
+            <div
+              key={qKey}
+              className="film-lab-liquid-glass relative z-10 rounded-2xl p-5 sm:p-6"
+            >
+              <dt className="font-medium text-white">{tLp(qKey)}</dt>
+              <dd className="mt-2 text-white/65">{tLp(aKey)}</dd>
+            </div>
+          ))}
         </dl>
       </section>
 
