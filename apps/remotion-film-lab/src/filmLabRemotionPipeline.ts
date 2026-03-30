@@ -26,8 +26,11 @@ const RT_OPTIONS: THREE.WebGLRenderTargetOptions = {
   type: THREE.HalfFloatType,
 };
 
-/** Web の Viewport.ABERRATION_EDGE_SOFTEN_SCALE と同値（rgbShift→composite 周辺ソフト） */
-const ABERRATION_EDGE_SOFTEN_SCALE = 22;
+/**
+ * Web の Viewport.ABERRATION_EDGE_SOFTEN_SCALE と同値。
+ * 新 UI 上限 0.01 でも、rgbShift を上げたときの周辺柔らかさが少し分かる量に合わせる。
+ */
+const ABERRATION_EDGE_SOFTEN_SCALE = 32;
 
 let blackTexture: THREE.DataTexture | null = null;
 function getBlackTexture(): THREE.DataTexture {

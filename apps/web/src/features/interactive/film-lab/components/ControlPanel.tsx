@@ -42,6 +42,38 @@ import {
 /** UI の見せ方だけを切り替える。グレードの数値（reducer）は Quick でも Pro でも同じ */
 type UiMode = "quick" | "pro";
 
+/**
+ * RGB Shift の通常操作で見せる上限。
+ * 保存値そのものは変えず、UI だけを実用帯に寄せる。
+ */
+const RGB_SHIFT_UI_MAX = 0.01;
+
+/** RGB Shift を細かく調整できるようにする刻み幅。 */
+const RGB_SHIFT_UI_STEP = 0.0001;
+
+/**
+ * 旧 share URL や保存データで 0.01 を超える値が来ても、
+ * いまの見た目を壊さずにスライダーへ載せるための上限を返す。
+ * ふだんの新規操作では 0.01 が上限になる。
+ *
+ * @param {number} rgbShift - 現在の保存値
+ * @returns {number} スライダーに渡す上限値
+ */
+function getRgbShiftSliderMax(rgbShift: number): number {
+  return Math.max(RGB_SHIFT_UI_MAX, rgbShift);
+}
+
+/**
+ * 小さい値の差が見えるように、通常上限 0.01 を 100% として表示する。
+ * 旧データが 0.01 を超えると 100% を超えて表示される。
+ *
+ * @param {number} rgbShift - 右側ラベルに出す現在値
+ * @returns {string} 表示用のパーセント文字列
+ */
+function formatRgbShiftValue(rgbShift: number): string {
+  return `${Math.round((rgbShift / RGB_SHIFT_UI_MAX) * 100)}%`;
+}
+
 /** フルページ用: プレゼンモード（寄付 UI 全消し）のトグルをコントロールパネルに出す */
 export type FilmLabDonationUiBinding = {
   presentMode: boolean;
@@ -690,9 +722,10 @@ export function ControlPanel({
                   hint={tFilmLab("effects.rgbShiftHint")}
                   value={params.rgbShift}
                   min={0}
-                  max={0.05}
-                  step={0.001}
+                  max={getRgbShiftSliderMax(params.rgbShift)}
+                  step={RGB_SHIFT_UI_STEP}
                   defaultValue={0}
+                  formatValue={formatRgbShiftValue}
                   onChange={(v) => updateParam("rgbShift", v)}
                   onCommit={commit}
                 />

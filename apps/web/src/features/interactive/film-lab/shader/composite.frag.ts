@@ -2,6 +2,7 @@
  * @fileoverview Film Lab Pass8 用フラグメントシェーダ（bloom / halation / vignette / grain / 分割）。
  * @description グレインは画像の cover 空間で径方向マスクを掛け、色収差 Pass1（rgbShiftSampleRadial）と同じ 1.65 べきで中心弱・周辺強にする。
  * uGrainRadialMix で一様（0）とフル径方向（1）をブレンドできる（Params.grainRadialMix、既定1）。
+ * 色収差オン時の周辺ソフトは、混色量だけでなくブラー半径も少しだけ連動して増やす。
  * @limitations 分割表示時も vUv ベースでノイズを振る（従来どおり）。Remotion は本文字列を import 共有する。
  */
 export const compositeFragmentShader = /* glsl */ `
@@ -26,7 +27,7 @@ uniform float uSplitPosition;
 uniform float uAbCompare;
 uniform vec2 uResolution;
 uniform vec2 uImageResolution;
-/** 色収差オン時の周辺のみシャープと微ブラーを混ぜる量（0〜1、JS 側で rgbShift に比例） */
+/** 色収差オン時の周辺のみシャープと微ブラーを混ぜる量（0〜1、JS 側で rgbShift に比例。大きいほどブラー半径も少し広げる） */
 uniform float uAberrationEdgeSoften;
 
 in vec2 vUv;
@@ -46,13 +47,17 @@ float grain(vec2 uv, float time) {
 }
 
 void main() {
-  // 周辺だけごく弱いブラー（色収差と併せたフィルム的周辺柔らかさ）
+  // 周辺だけごく弱いブラー（色収差と併せたフィルム的周辺柔らかさ）。
+  // 色収差が強いほど、混色量に加えてサンプル半径も少しだけ広げる。
   vec2 edgeDelta = vUv - 0.5;
   edgeDelta.x *= uResolution.x / max(uResolution.y, 1.0);
   float edgeR = clamp(length(edgeDelta) * 1.414, 0.0, 1.0);
   float edgeMask = smoothstep(0.25, 1.0, edgeR);
   vec3 sharpRgb = texture(uSource, vUv).rgb;
-  vec2 px = vec2(1.0 / max(uResolution.x, 1.0), 1.0 / max(uResolution.y, 1.0)) * 1.5;
+  float blurRadiusPx = mix(1.5, 2.75, clamp(uAberrationEdgeSoften, 0.0, 1.0));
+  vec2 px =
+    vec2(1.0 / max(uResolution.x, 1.0), 1.0 / max(uResolution.y, 1.0)) *
+    blurRadiusPx;
   vec3 blurRgb =
     (texture(uSource, vUv + vec2(px.x, 0.0)).rgb +
      texture(uSource, vUv - vec2(px.x, 0.0)).rgb +

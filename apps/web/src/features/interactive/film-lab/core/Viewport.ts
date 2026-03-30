@@ -52,8 +52,9 @@ const RT_OPTIONS: THREE.RenderTargetOptions = {
 /**
  * 色収差スライダに連動して composite で周辺ソフトを掛ける混色率のゲイン。
  * rgbShift が 0 のときはユニフォーム 0（ソフトなし）。
+ * 新 UI 上限 0.01 でも、上げたときの周辺柔らかさが分かるよう少しだけ強める。
  */
-const ABERRATION_EDGE_SOFTEN_SCALE = 22;
+const ABERRATION_EDGE_SOFTEN_SCALE = 32;
 
 function hexToVec3(hex: string): THREE.Vector3 {
   const c = new THREE.Color(hex);
