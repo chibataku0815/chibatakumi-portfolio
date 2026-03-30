@@ -8,7 +8,7 @@ Bun workspaces monorepo. The public site (`www.chibatakumi.studio`) lives in **`
 - 対応: macOS のみ / `11.0+` / Apple Silicon (`arm64`)
 - 正規配布物: 署名・公証済み `DMG`
 - 更新方針: 当面は手動更新（download page / release notes で差し替え）
-- 窓口（Film Lab Desktop）: `info@fores-tone.co.jp`
+- 窓口（Film Lab Desktop）: `chiba@fores-tone.co.jp`
 
 > 版差分とチェックサムの正本は、各ビルドの release notes です。Desktop 版には Smart Look AI を含めません。
 
