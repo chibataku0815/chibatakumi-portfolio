@@ -107,8 +107,8 @@ function FilmLabFullPageHydrationPlaceholder() {
 }
 
 /**
- * @description Desktop 公開版の条件を Web の Film Lab ページで案内するカード。情報順は
- *   「価値 → 要件 → 行動（DL・問い合わせ）→ 補足（3 点）→ リリースノート（SHA-256）」で、末尾が免責の羅列に見えないようにする。
+ * @description Desktop 公開版の条件を Web の Film Lab ページで案内するカード。
+ *   公開面は「価値 → 要件 → 行動（DL・問い合わせ）」までに留め、LUT/寄付/製品差分の細部はアプリ内ヘルプ等へ寄せる。
  * @limitations 実ファイル URL は固定ルート `/film-lab/download` 側で環境変数を見て解決します。
  */
 function FilmLabDesktopReleaseNotice() {
@@ -155,22 +155,6 @@ function FilmLabDesktopReleaseNotice() {
         >
           {t("supportCtaPrefix")} {filmLabDesktopSupportEmail}
         </a>
-      </div>
-
-      <div className="mt-5 border-t border-white/10 pt-4">
-        <h3 className="text-xs font-semibold text-white/75">{t("supplement.title")}</h3>
-        <ul className="mt-2 list-disc space-y-2 pl-4 text-xs leading-relaxed text-white/60 marker:text-white/35">
-          <li>{t("supplement.trust")}</li>
-          <li>{t("supplement.handoff")}</li>
-          <li>{t("supplement.browserAndDesktop")}</li>
-        </ul>
-      </div>
-
-      <div className="mt-4 rounded-xl border border-white/6 bg-black/10 px-3 py-3">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/40">
-          {t("releaseNotesEyebrow")}
-        </p>
-        <p className="mt-1 text-xs leading-relaxed text-white/55">{t("releaseNotesLead")}</p>
       </div>
     </section>
   );
