@@ -845,3 +845,30 @@ body:has(.photography-page) {
     height: 12px;
   }
 }
+
+/* === Film Lab — Desktop 公開カード（/film-lab の DL 導線） === */
+/* 目的: アクセント色のごく弱い box-shadow の脈動で視線を集める（主役のキャンバスを汚さない）。 */
+@keyframes film-lab-desktop-release-glow {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--accent-amber1) 22%, transparent),
+      0 0 28px -10px color-mix(in srgb, var(--accent-amber1) 28%, transparent);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--accent-amber1) 32%, transparent),
+      0 0 44px -8px color-mix(in srgb, var(--accent-amber1) 40%, transparent);
+  }
+}
+
+.film-lab-desktop-release-notice {
+  animation: film-lab-desktop-release-glow 3.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .film-lab-desktop-release-notice {
+    animation: none;
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent-amber1) 20%, transparent);
+  }
+}

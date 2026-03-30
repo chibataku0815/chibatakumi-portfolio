@@ -109,13 +109,14 @@ function FilmLabFullPageHydrationPlaceholder() {
 /**
  * @description Desktop 公開版の条件を Web の Film Lab ページで案内するカード。
  *   公開面は「価値 → 要件 → 行動（DL・問い合わせ）」までに留め、LUT/寄付/製品差分の細部はアプリ内ヘルプ等へ寄せる。
+ *   DL 導線の視認性のため `film-lab-desktop-release-notice` でごく弱い box-shadow パルス（`globals.css`、 reduced-motion 時は停止）。
  * @limitations 実ファイル URL は固定ルート `/film-lab/download` 側で環境変数を見て解決します。
  */
 function FilmLabDesktopReleaseNotice() {
   const t = useTranslations("film-lab.desktopRelease");
 
   return (
-    <section className="mt-6 rounded-2xl border border-white/10 bg-white/[0.035] p-4 sm:p-5">
+    <section className="film-lab-desktop-release-notice mt-6 rounded-2xl border border-white/10 bg-white/[0.035] p-4 sm:p-5">
       <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-white/45">
         {t("eyebrow")}
       </p>
@@ -127,7 +128,7 @@ function FilmLabDesktopReleaseNotice() {
           <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/40">
             {t("essentials.environmentLabel")}
           </p>
-          <p className="mt-1">
+          <p className="mt-1 text-pretty">
             {t("essentials.environmentBody", {
               minMacos: filmLabDesktopMinimumMacos,
               arch: filmLabDesktopArchitecture,
@@ -138,7 +139,7 @@ function FilmLabDesktopReleaseNotice() {
           <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/40">
             {t("essentials.distributionLabel")}
           </p>
-          <p className="mt-1">{t("essentials.distributionBody")}</p>
+          <p className="mt-1 text-pretty">{t("essentials.distributionBody")}</p>
         </div>
       </div>
 
