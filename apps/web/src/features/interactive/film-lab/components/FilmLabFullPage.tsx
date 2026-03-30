@@ -1,6 +1,6 @@
 /**
- * @file /film-lab 専用のフルレイアウト。
- * @description ヒストグラム・共有パラメータ・比較 UI を含む。任意寄付（Stripe / BMC）・プレゼンモードは環境変数で有効化する。
+ * @file /film-lab 専用のフルレイアウト（Desktop-first LP + 下段 Web デモ）。
+ * @description ヒーロー直下は 1 行ティーザーのみ（未完成の証拠ゾーンは置かない）。続けてデスクトップ価値 → Capabilities / Grid / Workflow → 補助として Web デモ（初期は Quick＋補助パネル折りたたみ）→ Trust / FAQ。任意寄付・プレゼンモードは環境変数で有効化する。
  * @limitations Phase 2 は Checkout 検証 Cookie（任意 env）。未設定時は Phase 1.5 の localStorage と同じ見え方。
  */
 "use client";
@@ -111,12 +111,19 @@ function FilmLabFullPageHydrationPlaceholder() {
  *   公開面は「価値 → 要件 → 行動（DL・問い合わせ）」までに留め、LUT/寄付/製品差分の細部はアプリ内ヘルプ等へ寄せる。
  *   DL 導線の視認性のため `film-lab-desktop-release-notice` でごく弱い box-shadow パルス（`globals.css`、 reduced-motion 時は停止）。
  * @limitations 実ファイル URL は固定ルート `/film-lab/download` 側で環境変数を見て解決します。
+ * @param root0 - オプション
+ * @param root0.suppressTopMargin - LP 内で trust 見出し直後に置くときなど、上マージンを消す
  */
-function FilmLabDesktopReleaseNotice() {
+function FilmLabDesktopReleaseNotice({ suppressTopMargin = false }: { suppressTopMargin?: boolean } = {}) {
   const t = useTranslations("film-lab.desktopRelease");
 
   return (
-    <section className="film-lab-desktop-release-notice mt-6 rounded-2xl border border-white/10 bg-white/[0.035] p-4 sm:p-5">
+    <section
+      className={
+        "film-lab-desktop-release-notice rounded-2xl border border-white/10 bg-white/[0.035] p-4 sm:p-5 " +
+        (suppressTopMargin ? "mt-0" : "mt-6")
+      }
+    >
       <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-white/45">
         {t("eyebrow")}
       </p>
@@ -181,6 +188,8 @@ export function FilmLabFullPage({
   serverVerifiedSupporter?: boolean;
 } = {}) {
   const t = useTranslations("film-lab");
+  /** LP（ヒーロー〜FAQ）。Hooks は early return より前で呼ぶ */
+  const tLp = useTranslations("film-lab.lp");
   const locale = useLocale();
   const resolvedDonation = useMemo(() => {
     if (donationRuntime != null) {
@@ -200,7 +209,8 @@ export function FilmLabFullPage({
 
   const [viewport, setViewport] = useState<Viewport | null>(null);
   const filmLabCanvasRef = useRef<FilmLabCanvasRef | null>(null);
-  const [histogramVisible, setHistogramVisible] = useState(true);
+  /** LP では最初はオフ。詳しい調整を開いた人だけヒストグラムトグルが意味を持つ。 */
+  const [histogramVisible, setHistogramVisible] = useState(false);
   /** 比較オン・編集スロット（キャンバス HUD 用） */
   const [compareUi, setCompareUi] = useState<{
     compareMode: boolean;
@@ -439,48 +449,271 @@ export function FilmLabFullPage({
   }
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-4 pt-20 pb-8 sm:px-6 sm:pt-32 sm:pb-12">
-      {/* Canvas + Histogram overlay */}
-      <div className="relative">
-        <FilmLabCanvas
-          ref={filmLabCanvasRef}
-          preset="cinematic"
-          initialGradeParams={initialSharedParams}
-          onViewportReady={setViewport}
-          compareHud={
-            compareUi.compareMode ? { activeSlot: compareUi.activeSlot } : null
-          }
-          onCubeLutLoaded={donationEnabled ? onLutLoadSuccess : undefined}
-        />
-        <Histogram viewport={viewport} visible={histogramVisible} />
-      </div>
+    <div className="film-lab-lp-body mx-auto w-full max-w-7xl px-4 pb-14 pt-14 sm:px-6 sm:pb-20 sm:pt-20">
+      {/* ヒーロー — オーロラ背景 + liquid glass（/film-lab layout でフォント変数が有効） */}
+      <section
+        id="film-lab-hero"
+        className="relative scroll-mt-28 overflow-hidden rounded-3xl sm:rounded-[2rem]"
+        aria-labelledby="film-lab-hero-title"
+      >
+        <div className="film-lab-lp-hero-aurora pointer-events-none absolute inset-0" aria-hidden />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-40 bg-gradient-to-b from-transparent to-[var(--bg-dark)]" aria-hidden />
+        <div className="relative z-10 px-5 py-14 sm:px-10 sm:py-20 lg:px-12 lg:py-24">
+          <div
+            className="film-lab-liquid-glass relative z-10 inline-flex max-w-full flex-wrap items-center gap-2 rounded-full py-1.5 pl-1.5 pr-4"
+            aria-label={tLp("premiumHeroBadgeLine")}
+          >
+            <span className="rounded-full bg-white px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-wide text-neutral-950">
+              {tLp("premiumHeroBadgeNew")}
+            </span>
+            <span className="text-xs text-white/85 sm:text-sm">{tLp("premiumHeroBadgeLine")}</span>
+          </div>
+          <p className="mt-8 text-[10px] font-semibold uppercase tracking-[0.24em] text-white/40">
+            {tLp("heroEyebrow")}
+          </p>
+          <h1
+            id="film-lab-hero-title"
+            className="film-lab-lp-heading-xl mt-3 max-w-4xl text-4xl text-white md:text-6xl lg:text-[4.25rem]"
+          >
+            {tLp("heroTitle")}
+          </h1>
+          <p className="mt-6 max-w-2xl text-base leading-relaxed text-white/65 sm:text-lg">
+            {tLp("heroBody")}
+          </p>
+          <div className="relative z-10 mt-8 flex flex-wrap items-center gap-3">
+            <Link
+              href={filmLabDesktopDownloadRoute}
+              className="film-lab-liquid-glass-strong relative z-10 inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-medium text-white transition-opacity hover:opacity-95"
+            >
+              {tLp("heroPrimaryCta")}
+            </Link>
+            <a
+              href="#film-lab-demo"
+              className="film-lab-liquid-glass relative z-10 inline-flex items-center justify-center rounded-full px-5 py-2.5 text-sm font-medium text-white/90 transition-opacity hover:opacity-90"
+            >
+              {tLp("premiumCtaTryDemo")}
+            </a>
+          </div>
+          <p className="mt-4 text-xs text-white/45">
+            {tLp("heroSecondaryLine", { minMacos: filmLabDesktopMinimumMacos })}
+          </p>
+          <p className="mt-5 max-w-2xl text-xs leading-relaxed text-white/50 sm:text-sm">
+            {tLp("proofTeaserLine")}
+          </p>
+        </div>
+      </section>
 
-      {/* ControlPanel */}
-      <div className="mt-3">
-        <p className="mb-2 text-xs leading-relaxed text-[var(--text-base-60)]">
-          {t("sampleHint")}
+      {/* Desktop 価値 — ヒーロー直後で主戦場を肯定形で明示 */}
+      <section
+        id="film-lab-desktop-value"
+        className="mt-16 scroll-mt-28 sm:mt-24"
+        aria-labelledby="film-lab-value-title"
+      >
+        <h2 id="film-lab-value-title" className="film-lab-lp-section-badge mb-6">
+          {tLp("valueTitle")}
+        </h2>
+        <div className="grid gap-4 md:grid-cols-3">
+          {(["valueBullet1", "valueBullet2", "valueBullet3"] as const).map((key) => (
+            <div key={key} className="film-lab-liquid-glass relative z-10 rounded-2xl p-5">
+              <p className="film-lab-lp-body text-sm leading-relaxed text-white/70">{tLp(key)}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Capabilities — 見出し + チェスレイアウト */}
+      <section className="mt-20 sm:mt-28" aria-labelledby="film-lab-capabilities-title">
+        <p className="film-lab-lp-section-badge mb-3">{tLp("premiumCapabilitiesEyebrow")}</p>
+        <h2
+          id="film-lab-capabilities-title"
+          className="film-lab-lp-heading-xl max-w-4xl text-3xl text-white md:text-5xl lg:text-6xl"
+        >
+          {tLp("premiumCapabilitiesTitle")}
+        </h2>
+
+        <div className="mt-14 grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
+          <div>
+            <h3 className="film-lab-lp-heading-xl text-2xl text-white md:text-3xl">
+              {tLp("premiumFeature1Title")}
+            </h3>
+            <p className="mt-4 text-sm leading-relaxed text-white/60 md:text-base">
+              {tLp("premiumFeature1Body")}
+            </p>
+          </div>
+          <div className="film-lab-liquid-glass relative z-10 overflow-hidden rounded-2xl">
+            <div className="film-lab-lp-card-media rounded-t-2xl rounded-b-none" aria-hidden />
+            <p className="film-lab-lp-body px-4 py-3 text-center text-xs text-white/45">
+              {tLp("premiumMediaPlaceholder")}
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-16 grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
+          <div className="film-lab-liquid-glass relative z-10 order-2 overflow-hidden rounded-2xl lg:order-1">
+            <div className="film-lab-lp-card-media rounded-t-2xl rounded-b-none" aria-hidden />
+            <p className="film-lab-lp-body px-4 py-3 text-center text-xs text-white/45">
+              {tLp("premiumMediaPlaceholder")}
+            </p>
+          </div>
+          <div className="order-1 lg:order-2">
+            <h3 className="film-lab-lp-heading-xl text-2xl text-white md:text-3xl">
+              {tLp("premiumFeature2Title")}
+            </h3>
+            <p className="mt-4 text-sm leading-relaxed text-white/60 md:text-base">
+              {tLp("premiumFeature2Body")}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* 4 カードグリッド */}
+      <section className="mt-24 sm:mt-32" aria-labelledby="film-lab-grid-title">
+        <p className="film-lab-lp-section-badge">{tLp("premiumGridEyebrow")}</p>
+        <h2
+          id="film-lab-grid-title"
+          className="film-lab-lp-heading-xl mt-3 max-w-3xl text-3xl text-white md:text-5xl"
+        >
+          {tLp("premiumGridTitle")}
+        </h2>
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {(
+            [
+              ["premiumCard1Title", "premiumCard1Body"],
+              ["premiumCard2Title", "premiumCard2Body"],
+              ["premiumCard3Title", "premiumCard3Body"],
+              ["premiumCard4Title", "premiumCard4Body"],
+            ] as const
+          ).map(([titleKey, bodyKey]) => (
+            <div
+              key={titleKey}
+              className="film-lab-liquid-glass relative z-10 flex flex-col rounded-2xl p-6"
+            >
+              <h3 className="film-lab-lp-heading-xl text-lg text-white">{tLp(titleKey)}</h3>
+              <p className="film-lab-lp-body mt-3 flex-1 text-sm leading-relaxed text-white/60">
+                {tLp(bodyKey)}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section
+        id="film-lab-workflow-proof"
+        className="mt-12 scroll-mt-28 sm:mt-16"
+        aria-labelledby="film-lab-workflow-title"
+      >
+        <div className="film-lab-liquid-glass relative z-10 rounded-2xl p-6 sm:p-8">
+          <h2
+            id="film-lab-workflow-title"
+            className="film-lab-lp-heading-xl text-xl text-white md:text-2xl"
+          >
+            {tLp("workflowTitle")}
+          </h2>
+          <p className="film-lab-lp-body mt-3 text-sm text-white/60">{tLp("workflowLead")}</p>
+          <ul className="film-lab-lp-body mt-4 list-disc space-y-2 pl-5 text-sm text-white/65">
+            <li>{tLp("workflowBullet1")}</li>
+            <li>{tLp("workflowBullet2")}</li>
+            <li>{tLp("workflowBullet3")}</li>
+          </ul>
+        </div>
+      </section>
+
+      <section
+        id="film-lab-demo"
+        className="mt-12 scroll-mt-28 border-t border-white/[0.06] pt-12 sm:mt-16 sm:pt-16"
+        aria-labelledby="film-lab-demo-title"
+      >
+        <p className="film-lab-lp-section-badge">{tLp("demoEyebrow")}</p>
+        <h2
+          id="film-lab-demo-title"
+          className="film-lab-lp-heading-xl mt-3 text-2xl text-white md:text-4xl"
+        >
+          {tLp("demoTitle")}
+        </h2>
+        <p className="film-lab-lp-body mt-3 max-w-3xl text-sm leading-relaxed text-white/65 md:text-base">
+          {tLp("demoBody")}
         </p>
-        <ControlPanel
-          viewport={viewport}
-          histogramVisible={histogramVisible}
-          onHistogramToggle={toggleHistogram}
-          initialSharedParams={initialSharedParams}
-          onCompareUiChange={setCompareUi}
-          donationUi={presentModeBinding}
-          onLutLoadSuccess={donationEnabled ? onLutLoadSuccess : undefined}
-          onBrowserSaveSuccess={onBrowserSaveSuccess}
-          serverVerifiedSupporter={serverVerifiedSupporter}
-          filmLabCanvasRef={filmLabCanvasRef}
-        />
-      </div>
 
-      <FilmLabDesktopReleaseNotice />
+        <div className="film-lab-liquid-glass relative z-10 mt-8 overflow-hidden rounded-2xl p-3 sm:p-4">
+          <div className="relative">
+            <FilmLabCanvas
+              ref={filmLabCanvasRef}
+              preset="cinematic"
+              initialGradeParams={initialSharedParams}
+              onViewportReady={setViewport}
+              compareHud={
+                compareUi.compareMode ? { activeSlot: compareUi.activeSlot } : null
+              }
+              onCubeLutLoaded={donationEnabled ? onLutLoadSuccess : undefined}
+            />
+            <Histogram viewport={viewport} visible={histogramVisible} />
+          </div>
+          <div className="mt-3">
+            <p className="film-lab-lp-body mb-2 text-xs text-[var(--text-base-60)]">
+              {t("sampleHint")}
+            </p>
+            <ControlPanel
+              viewport={viewport}
+              histogramVisible={histogramVisible}
+              onHistogramToggle={toggleHistogram}
+              initialSharedParams={initialSharedParams}
+              onCompareUiChange={setCompareUi}
+              donationUi={presentModeBinding}
+              onLutLoadSuccess={donationEnabled ? onLutLoadSuccess : undefined}
+              onBrowserSaveSuccess={onBrowserSaveSuccess}
+              serverVerifiedSupporter={serverVerifiedSupporter}
+              filmLabCanvasRef={filmLabCanvasRef}
+              tryFirstLayout={initialSharedParams == null}
+            />
+          </div>
+        </div>
+      </section>
 
-      {/* Back link */}
-      <div className="mt-6">
+      <section
+        id="film-lab-desktop-trust"
+        className="mt-16 scroll-mt-28 sm:mt-24"
+        aria-labelledby="film-lab-trust-heading"
+      >
+        <h2
+          id="film-lab-trust-heading"
+          className="film-lab-lp-heading-xl text-xl text-white md:text-2xl"
+        >
+          {tLp("trustHeading")}
+        </h2>
+        <FilmLabDesktopReleaseNotice suppressTopMargin />
+      </section>
+
+      <section id="film-lab-faq" className="mt-14 scroll-mt-28 sm:mt-20" aria-labelledby="film-lab-faq-title">
+        <h2
+          id="film-lab-faq-title"
+          className="film-lab-lp-heading-xl text-xl text-white md:text-3xl"
+        >
+          {tLp("faqTitle")}
+        </h2>
+        <dl className="film-lab-lp-body mt-8 space-y-6 text-sm leading-relaxed">
+          <div className="film-lab-liquid-glass relative z-10 rounded-2xl p-5 sm:p-6">
+            <dt className="font-medium text-white">{tLp("faqQwebVsDesktop")}</dt>
+            <dd className="mt-2 text-white/65">{tLp("faqAwebVsDesktop")}</dd>
+          </div>
+          <div className="film-lab-liquid-glass relative z-10 rounded-2xl p-5 sm:p-6">
+            <dt className="font-medium text-white">{tLp("faqQsmartLookDesktop")}</dt>
+            <dd className="mt-2 text-white/65">{tLp("faqAsmartLookDesktop")}</dd>
+          </div>
+          <div className="film-lab-liquid-glass relative z-10 rounded-2xl p-5 sm:p-6">
+            <dt className="font-medium text-white">{tLp("faqQupdates")}</dt>
+            <dd className="mt-2 text-white/65">{tLp("faqAupdates")}</dd>
+          </div>
+          <div className="film-lab-liquid-glass relative z-10 rounded-2xl p-5 sm:p-6">
+            <dt className="font-medium text-white">{tLp("faqQlimitations")}</dt>
+            <dd className="mt-2 text-white/65">{tLp("faqAlimitations")}</dd>
+          </div>
+        </dl>
+      </section>
+
+      <div className="mt-12 border-t border-white/10 pt-8">
         <Link
           href="/interactive"
-          className="text-xs text-[var(--text-base-60)] transition-colors hover:text-[var(--text-base)]"
+          className="film-lab-lp-body text-xs text-[var(--text-base-60)] transition-colors hover:text-[var(--text-base)]"
         >
           {t("back")}
         </Link>

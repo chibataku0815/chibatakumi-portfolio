@@ -109,6 +109,11 @@ interface ControlPanelProps {
    * @description `false` のとき、localStorage の Film Lab セッションを起動時に自動復元しない（Electron で Web とストレージを共有するときの compare 残留防止）。
    */
   autoRestoreStoredSession?: boolean;
+  /**
+   * @description `/film-lab` LP 用。Quick を既定にし、LUT・比較・共有・ヒストグラム操作などを折りたたみ、最初はプリセット＋かんたんスライダー中心にする。
+   * @limitations 共有 URL（initialSharedParams あり）でオフにするとフル表示に戻すのが安全なため、親で `initialSharedParams == null` のときだけ渡す想定。
+   */
+  tryFirstLayout?: boolean;
 }
 
 export function ControlPanel({
@@ -124,6 +129,7 @@ export function ControlPanel({
   filmLabCanvasRef,
   smartLookApiBaseUrl,
   autoRestoreStoredSession = true,
+  tryFirstLayout = false,
 }: ControlPanelProps) {
   const pathname = usePathname();
   const tFilmLab = useTranslations("film-lab");
@@ -151,17 +157,35 @@ export function ControlPanel({
   const prevBeforeAfterActiveRef = useRef(false);
   /** デスクトップは Pro、狭い画面は Quick を初期表示（SSR と一致させるため初回は Pro → effect で Quick に寄せる） */
   const [uiMode, setUiMode] = useState<UiMode>("pro");
+  /**
+   * LP の「試す」レイアウトでは LUT 以下を最初は隠す。Pro に切り替えたら必ず開く。
+   */
+  const [lpAuxPanelsOpen, setLpAuxPanelsOpen] = useState(() => !tryFirstLayout);
 
   // Mobile: close Effects section by default + Quick モードを既定に
+  // LP tryFirstLayout: デスクトップでも Quick + 補助パネル閉を既定に
   // matchMedia はクライアント専用のため effect で寄せる（SSR は Pro / Effects 開を仮定しハイドレーション後に修正）
   useEffect(() => {
     /* eslint-disable react-hooks/set-state-in-effect -- intentional client-only media default */
+    if (tryFirstLayout) {
+      setEffectsOpen(false);
+      setUiMode("quick");
+      setLpAuxPanelsOpen(false);
+      return;
+    }
+    setLpAuxPanelsOpen(true);
     if (!window.matchMedia("(min-width: 768px)").matches) {
       setEffectsOpen(false);
       setUiMode("quick");
     }
     /* eslint-enable react-hooks/set-state-in-effect */
-  }, []);
+  }, [tryFirstLayout]);
+
+  useEffect(() => {
+    if (uiMode === "pro") {
+      setLpAuxPanelsOpen(true);
+    }
+  }, [uiMode]);
 
   /**
    * localStorage から読んだセッションを盤面と UI 補助 state に反映する。
@@ -592,7 +616,7 @@ export function ControlPanel({
           ) : null}
         </div>
 
-        {smartLookSlotAllowed && smartLookProminent ? (
+        {smartLookSlotAllowed && smartLookProminent && (!tryFirstLayout || lpAuxPanelsOpen) ? (
           <div className="mb-4 min-w-0 border-b border-white/[0.06] pb-4">
             <FilmLabSmartLookSection
               serverVerifiedSupporter={serverVerifiedSupporter}
@@ -779,6 +803,22 @@ export function ControlPanel({
           ) : null}
 
           {/* === LUT（プリセットはパネル上段へ移動・ここでは .cube のみ） === */}
+          {tryFirstLayout && uiMode === "quick" && !lpAuxPanelsOpen ? (
+            <div className="min-w-0 @min-[560px]:col-span-2">
+              <button
+                type="button"
+                onClick={() => setLpAuxPanelsOpen(true)}
+                className="w-full rounded-xl border border-white/12 bg-white/[0.04] px-4 py-3.5 text-left transition-colors hover:bg-white/[0.07] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-amber1)]/50"
+              >
+                <span className="block text-[11px] font-semibold text-white/88">
+                  {tFilmLab("lp.expandAuxiliaryPanelsTitle")}
+                </span>
+                <span className="mt-1 block text-[10px] leading-snug text-white/48">
+                  {tFilmLab("lp.expandAuxiliaryPanelsHint")}
+                </span>
+              </button>
+            </div>
+          ) : (
           <div
             className={`min-w-0 ${isPro ? "@min-[560px]:col-span-2" : "order-1 @min-[560px]:order-1"}`}
           >
@@ -907,6 +947,7 @@ export function ControlPanel({
               <ToggleHeader title={tFilmLab("controls.histogram")} enabled={histogramVisible} onToggle={() => onHistogramToggle?.()} />
             </div>
           </div>
+          )}
         </div>
       </div>
       <ShortcutHelp open={showHelp} onClose={() => setShowHelp(false)} />
