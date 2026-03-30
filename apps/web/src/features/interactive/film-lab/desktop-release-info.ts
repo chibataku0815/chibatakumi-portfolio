@@ -4,7 +4,8 @@
  * @limitations 実際の配布ファイル URL はデプロイ環境変数で渡します。未設定のときは案内ページだけを表示します。
  */
 
-export const filmLabDesktopSupportEmail = "hello@takumichiba.com";
+/** Desktop 配布・不具合の窓口（Web の Film Lab カード・ダウンロード案内と同期すること） */
+export const filmLabDesktopSupportEmail = "info@fores-tone.co.jp";
 export const filmLabDesktopMinimumMacos = "11.0";
 export const filmLabDesktopArchitecture = "Apple Silicon (arm64)";
 export const filmLabDesktopDownloadRoute = "/film-lab/download";

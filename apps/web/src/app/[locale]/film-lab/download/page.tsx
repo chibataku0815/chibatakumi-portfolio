@@ -45,34 +45,25 @@ export default async function FilmLabDesktopDownloadPage({
         <h1 className="mt-3 text-2xl font-semibold text-white sm:text-3xl">{t("title")}</h1>
         <p className="mt-3 text-sm leading-relaxed text-white/70">{t("body")}</p>
 
-        <dl className="mt-6 grid gap-3 sm:grid-cols-2">
+        <div className="mt-6 grid gap-3 sm:grid-cols-2">
           <div className="rounded-2xl border border-white/8 bg-black/20 px-4 py-3">
-            <dt className="text-[10px] uppercase tracking-[0.18em] text-white/40">
-              {t("specs.minimumMacosLabel")}
-            </dt>
-            <dd className="mt-1 text-sm text-white/85">
-              {t("specs.minimumMacosValuePrefix")} {filmLabDesktopMinimumMacos}+
-            </dd>
+            <p className="text-[10px] uppercase tracking-[0.18em] text-white/40">
+              {t("specs.environmentLabel")}
+            </p>
+            <p className="mt-1 text-sm text-white/85">
+              {t("specs.environmentBody", {
+                minMacos: filmLabDesktopMinimumMacos,
+                arch: filmLabDesktopArchitecture,
+              })}
+            </p>
           </div>
           <div className="rounded-2xl border border-white/8 bg-black/20 px-4 py-3">
-            <dt className="text-[10px] uppercase tracking-[0.18em] text-white/40">
-              {t("specs.architectureLabel")}
-            </dt>
-            <dd className="mt-1 text-sm text-white/85">{filmLabDesktopArchitecture}</dd>
+            <p className="text-[10px] uppercase tracking-[0.18em] text-white/40">
+              {t("specs.distributionLabel")}
+            </p>
+            <p className="mt-1 text-sm text-white/85">{t("specs.distributionBody")}</p>
           </div>
-          <div className="rounded-2xl border border-white/8 bg-black/20 px-4 py-3">
-            <dt className="text-[10px] uppercase tracking-[0.18em] text-white/40">
-              {t("specs.platformLabel")}
-            </dt>
-            <dd className="mt-1 text-sm text-white/85">{t("specs.platformValue")}</dd>
-          </div>
-          <div className="rounded-2xl border border-white/8 bg-black/20 px-4 py-3">
-            <dt className="text-[10px] uppercase tracking-[0.18em] text-white/40">
-              {t("specs.updatesLabel")}
-            </dt>
-            <dd className="mt-1 text-sm text-white/85">{t("specs.updatesValue")}</dd>
-          </div>
-        </dl>
+        </div>
 
         <p className="mt-6 text-sm leading-relaxed text-white/65">{t("pendingLead")}</p>
         <ul className="mt-3 space-y-1 text-sm leading-relaxed text-white/60">

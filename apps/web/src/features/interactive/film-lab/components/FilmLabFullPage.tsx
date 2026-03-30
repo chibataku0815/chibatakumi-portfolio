@@ -112,28 +112,6 @@ function FilmLabFullPageHydrationPlaceholder() {
  */
 function FilmLabDesktopReleaseNotice() {
   const t = useTranslations("film-lab.desktopRelease");
-  const specItems = [
-    {
-      label: t("specs.minimumMacosLabel"),
-      value: `${t("specs.minimumMacosValuePrefix")} ${filmLabDesktopMinimumMacos}+`,
-    },
-    {
-      label: t("specs.architectureLabel"),
-      value: filmLabDesktopArchitecture,
-    },
-    {
-      label: t("specs.platformLabel"),
-      value: t("specs.platformValue"),
-    },
-    {
-      label: t("specs.artifactLabel"),
-      value: t("specs.artifactValue"),
-    },
-    {
-      label: t("specs.updatesLabel"),
-      value: t("specs.updatesValue"),
-    },
-  ];
 
   return (
     <section className="mt-6 rounded-2xl border border-white/10 bg-white/[0.035] p-4 sm:p-5">
@@ -143,17 +121,25 @@ function FilmLabDesktopReleaseNotice() {
       <h2 className="mt-2 text-lg font-semibold text-white">{t("title")}</h2>
       <p className="mt-2 max-w-3xl text-sm leading-relaxed text-white/70">{t("body")}</p>
 
-      <dl className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-        {specItems.map((item) => (
-          <div
-            key={item.label}
-            className="rounded-xl border border-white/8 bg-black/20 px-3 py-2"
-          >
-            <dt className="text-[10px] uppercase tracking-[0.18em] text-white/40">{item.label}</dt>
-            <dd className="mt-1 text-sm text-white/85">{item.value}</dd>
-          </div>
-        ))}
-      </dl>
+      <div className="mt-4 space-y-2 rounded-xl border border-white/8 bg-black/20 px-3 py-3 text-sm leading-relaxed text-white/80">
+        <p>
+          <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/40">
+            {t("essentials.environmentLabel")}
+          </span>
+          <br />
+          {t("essentials.environmentBody", {
+            minMacos: filmLabDesktopMinimumMacos,
+            arch: filmLabDesktopArchitecture,
+          })}
+        </p>
+        <p>
+          <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/40">
+            {t("essentials.distributionLabel")}
+          </span>
+          <br />
+          {t("essentials.distributionBody")}
+        </p>
+      </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <Link
