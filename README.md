@@ -2,6 +2,23 @@
 
 Bun workspaces monorepo. The public site (`www.chibatakumi.studio`) lives in **`apps/web`** (Next.js 16).
 
+## Film Lab Desktop（公開導線）
+
+- 固定ダウンロード URL: `https://www.chibatakumi.studio/film-lab/download`
+- 対応: macOS のみ / `11.0+` / Apple Silicon (`arm64`)
+- 正規配布物: 署名・公証済み `DMG`
+- 更新方針: 当面は手動更新（download page / release notes で差し替え）
+- 窓口: `hello@takumichiba.com`
+
+> 版差分とチェックサムの正本は、各ビルドの release notes です。Desktop 版には Smart Look AI を含めません。
+
+### DMG / リリース作業
+
+作業手順は **短縮ドキュメントのみ**参照（長文は置かない）。
+
+- [リリース・Blob・コマンド列](docs/guides/film-lab-desktop-release-min-decisions.md)
+- [公証・1Password・`.notary.env`](docs/guides/film-lab-desktop-notarization-and-secrets.md)
+
 ## Development (`apps/web`)
 
 From **this directory** (repository root):

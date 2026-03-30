@@ -21,6 +21,12 @@ import { trackFilmLabDonationEvent } from "@/shared/analytics";
 import type { Viewport } from "../core/Viewport";
 import type { Params } from "../types";
 import {
+  filmLabDesktopArchitecture,
+  filmLabDesktopDownloadRoute,
+  filmLabDesktopMinimumMacos,
+  filmLabDesktopSupportEmail,
+} from "../desktop-release-info";
+import {
   filmLabDonationBmcUrl,
   filmLabDonationClientPublicEnvStatus,
   filmLabDonationStripeTiers,
@@ -97,6 +103,80 @@ function FilmLabFullPageHydrationPlaceholder() {
         <div className="min-h-[220px] w-full rounded-xl bg-white/[0.03]" aria-hidden />
       </div>
     </div>
+  );
+}
+
+/**
+ * @description Desktop 公開版の条件を、Web の Film Lab ページでも短く案内するカードです。
+ * @limitations 実ファイル URL は固定ルート `/film-lab/download` 側で環境変数を見て解決します。
+ */
+function FilmLabDesktopReleaseNotice() {
+  const t = useTranslations("film-lab.desktopRelease");
+  const specItems = [
+    {
+      label: t("specs.minimumMacosLabel"),
+      value: `${t("specs.minimumMacosValuePrefix")} ${filmLabDesktopMinimumMacos}+`,
+    },
+    {
+      label: t("specs.architectureLabel"),
+      value: filmLabDesktopArchitecture,
+    },
+    {
+      label: t("specs.platformLabel"),
+      value: t("specs.platformValue"),
+    },
+    {
+      label: t("specs.artifactLabel"),
+      value: t("specs.artifactValue"),
+    },
+    {
+      label: t("specs.updatesLabel"),
+      value: t("specs.updatesValue"),
+    },
+  ];
+
+  return (
+    <section className="mt-6 rounded-2xl border border-white/10 bg-white/[0.035] p-4 sm:p-5">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-white/45">
+        {t("eyebrow")}
+      </p>
+      <h2 className="mt-2 text-lg font-semibold text-white">{t("title")}</h2>
+      <p className="mt-2 max-w-3xl text-sm leading-relaxed text-white/70">{t("body")}</p>
+
+      <dl className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+        {specItems.map((item) => (
+          <div
+            key={item.label}
+            className="rounded-xl border border-white/8 bg-black/20 px-3 py-2"
+          >
+            <dt className="text-[10px] uppercase tracking-[0.18em] text-white/40">{item.label}</dt>
+            <dd className="mt-1 text-sm text-white/85">{item.value}</dd>
+          </div>
+        ))}
+      </dl>
+
+      <div className="mt-4 flex flex-wrap items-center gap-3">
+        <Link
+          href={filmLabDesktopDownloadRoute}
+          className="inline-flex items-center justify-center rounded-full border border-white/14 bg-white/8 px-4 py-2 text-sm text-white transition-colors hover:bg-white/14"
+        >
+          {t("downloadCta")}
+        </Link>
+        <a
+          href={`mailto:${filmLabDesktopSupportEmail}`}
+          className="text-sm text-white/70 underline decoration-white/20 underline-offset-4 transition-colors hover:text-white"
+        >
+          {t("supportCtaPrefix")} {filmLabDesktopSupportEmail}
+        </a>
+      </div>
+
+      <p className="mt-4 text-xs leading-relaxed text-white/55">{t("releaseNotesLead")}</p>
+      <ul className="mt-2 space-y-1 text-xs leading-relaxed text-white/60">
+        <li>{t("notes.lut")}</li>
+        <li>{t("notes.donationAndSharing")}</li>
+        <li>{t("notes.smartLook")}</li>
+      </ul>
+    </section>
   );
 }
 
@@ -412,6 +492,8 @@ export function FilmLabFullPage({
           filmLabCanvasRef={filmLabCanvasRef}
         />
       </div>
+
+      <FilmLabDesktopReleaseNotice />
 
       {/* Back link */}
       <div className="mt-6">
