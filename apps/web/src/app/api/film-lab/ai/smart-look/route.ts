@@ -420,6 +420,12 @@ export async function POST(req: NextRequest) {
     referenceImageBase64,
     referenceMimeType,
   } = parsed.data;
+  /**
+   * @description `filmLabParamsSchema` は `ZodRawShape` 経由のため、型推論上は `Record<string, unknown>`
+   *   も混ざることがあります。ここは `safeParse` 後で runtime 検証済みなので、BFF 内では `Params`
+   *   として扱って問題ありません。
+   */
+  const normalizedCurrentGrade = currentGrade as Params | undefined;
   if (!consentAcknowledged) {
     return smartLookJson(
       req,
@@ -469,17 +475,22 @@ export async function POST(req: NextRequest) {
   if (provider === "openai") {
     let openAiCtx: SmartLookOpenAiContext;
     if (referencePayload != null) {
-      const gradeForPrompt = currentGrade ?? smartLookBaseline;
+      /**
+       * @description `normalizedCurrentGrade` は Zod 推論上 `Record<string, unknown>` が混ざるため、`??` の結果が
+       *   `Params` とみなされない。runtime は `safeParse` 済みなので `Params` に固定する。
+       */
+      const gradeForPrompt: Params = (normalizedCurrentGrade ??
+        smartLookBaseline) as Params;
       openAiCtx = {
         semantics: "referenceStyle",
         baselineGrade: smartLookBaseline,
         currentGrade: gradeForPrompt,
       };
-    } else if (currentGrade != null) {
+    } else if (normalizedCurrentGrade != null) {
       openAiCtx = {
         semantics: "presetBaseline",
         baselineGrade: smartLookBaseline,
-        currentGrade,
+        currentGrade: normalizedCurrentGrade,
       };
     } else {
       openAiCtx = { semantics: "legacy" };
