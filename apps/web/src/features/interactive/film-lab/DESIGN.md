@@ -3,7 +3,7 @@
 > **対象**: `apps/web/src/features/interactive/film-lab/`  
 > **製品表示名**: Filmtone。URL・パッケージ名は従来どおり `film-lab` 系スラッグ。  
 > **パラメータの単一ソース**: `packages/film-lab-core`（`Params`・`PARAM_KEYS`）。Web は `types.ts` から re-export。  
-> **関連 Issue（life）**: [chibataku0815/life#28](https://github.com/chibataku0815/life/issues/28) — 本ファイルで仕様面の一次情報を置く。
+> **関連 Issue（life・クローズ済み）**: [chibataku0815/life#28](https://github.com/chibataku0815/life/issues/28) — 本ファイルで仕様面の一次情報を置く。
 
 ---
 
