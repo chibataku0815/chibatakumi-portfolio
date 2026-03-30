@@ -12,6 +12,12 @@ Bun workspaces monorepo. The public site (`www.chibatakumi.studio`) lives in **`
 
 > 版差分とチェックサムの正本は、各ビルドの release notes です。Desktop 版には Smart Look AI を含めません。
 
+### Life リポ（タスク・運用・索引）
+
+Issue やセッション横断の handoff は **別リポ（life）** に集約。実装の正は **このリポ**。短い説明のみここに置く。
+
+- [Life リポとの役割分担](docs/guides/life-repository-connection.md)
+
 ### DMG / リリース作業
 
 作業手順は **短縮ドキュメントのみ**参照（長文は置かない）。
