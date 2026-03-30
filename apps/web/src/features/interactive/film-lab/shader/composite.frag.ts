@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Film Lab Pass8 用フラグメントシェーダ（bloom / halation / vignette / grain / 分割）。
+ * @description グレインは画像の cover 空間で径方向マスクを掛け、色収差 Pass1（rgbShiftSampleRadial）と同じ 1.65 べきで中心弱・周辺強にする。
+ * uGrainRadialMix で一様（0）とフル径方向（1）をブレンドできる（Params.grainRadialMix、既定1）。
+ * @limitations 分割表示時も vUv ベースでノイズを振る（従来どおり）。Remotion は本文字列を import 共有する。
+ */
 export const compositeFragmentShader = /* glsl */ `
 precision highp float;
 
@@ -11,6 +17,8 @@ uniform float uHalationIntensity;
 
 uniform float uVignette;
 uniform float uGrainIntensity;
+/** 0=径方向マスク無し（一様）、1=フル周辺強め。mix(1.0, grainRadialWeight, clamp(値,0,1)) に用いる */
+uniform float uGrainRadialMix;
 uniform float uTime;
 
 uniform float uSplitPosition;
@@ -63,8 +71,18 @@ void main() {
   float vig = 1.0 - uVignette * dist * dist;
   color.rgb *= clamp(vig, 0.0, 1.0);
 
-  // Grain
-  color.rgb += grain(vUv, uTime) * uGrainIntensity;
+  /**
+   * グレイン強度を Pass1 色収差と同型の径方向マスクで変調する。
+   * - coverUv 後の画像座標で中心からの距離を取り、アスペクトで円形化（filmlab.rgbShiftSampleRadial と同じ 1.65 べき）。
+   * - フレーム中心付近は弱く、周辺ほど uGrainIntensity に近づく（周辺で粒子が目立ちやすい見え方）。
+   */
+  vec2 grainCenterUv = coverUv(vUv, uResolution, uImageResolution);
+  vec2 grainDelta = grainCenterUv - 0.5;
+  grainDelta.x *= uImageResolution.x / max(uImageResolution.y, 1.0);
+  float grainRadial = clamp(length(grainDelta) * 2.0, 0.0, 1.0);
+  float grainRadialWeight = pow(grainRadial, 1.65);
+  float grainRadialEffective = mix(1.0, grainRadialWeight, clamp(uGrainRadialMix, 0.0, 1.0));
+  color.rgb += grain(vUv, uTime) * uGrainIntensity * grainRadialEffective;
   color.rgb = clamp(color.rgb, 0.0, 1.0);
 
   // Before/After または A/B 比較の分割

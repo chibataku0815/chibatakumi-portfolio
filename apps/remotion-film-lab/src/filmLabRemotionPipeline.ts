@@ -160,6 +160,7 @@ export class FilmLabRemotionPipeline {
         uHalationIntensity: { value: 0 },
         uVignette: { value: 0 },
         uGrainIntensity: { value: 0 },
+        uGrainRadialMix: { value: 1 },
         uTime: { value: 0 },
         uSplitPosition: { value: -1 },
         uAbCompare: { value: 0 },
@@ -250,6 +251,7 @@ export class FilmLabRemotionPipeline {
     const cu = this.compositeMaterial.uniforms;
     cu.uVignette!.value = grade.vignette;
     cu.uGrainIntensity!.value = grade.grainIntensity;
+    cu.uGrainRadialMix!.value = grade.grainRadialMix ?? 1;
     cu.uTime!.value = grainTime;
     cu.uBloomStrength!.value = this.bloomStrength;
     cu.uHalationIntensity!.value = this.halationIntensity;

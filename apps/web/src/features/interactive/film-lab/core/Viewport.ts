@@ -100,6 +100,11 @@ export class Viewport {
   private halationColor = new THREE.Vector3(0.91, 0.063, 0.125);
 
   /**
+   * composite の径方向グレイン混色（0=一様、1=周辺強め）。カラーパスには無く合成パスのみ。
+   */
+  private grainRadialMix = 1.0;
+
+  /**
    * シャドウ／ハイライトの色相は GPU から一意に逆算できないため、最後に `setParams` で適用した値を保持する。
    * `getParams` と「色相だけ更新」のときの強度維持に使う。
    */
@@ -214,6 +219,7 @@ export class Viewport {
         uHalationIntensity: { value: 0.0 },
         uVignette: { value: 0.0 },
         uGrainIntensity: { value: 0.0 },
+        uGrainRadialMix: { value: 1.0 },
         uTime: { value: 0.0 },
         uSplitPosition: { value: -1.0 },
         uAbCompare: { value: 0.0 },
@@ -278,6 +284,7 @@ export class Viewport {
     const mu = this.material.uniforms;
     cu.uVignette!.value = mu.uVignette!.value;
     cu.uGrainIntensity!.value = mu.uGrainIntensity!.value;
+    cu.uGrainRadialMix!.value = this.grainRadialMix;
     cu.uTime!.value = mu.uTime!.value;
     cu.uResolution!.value.copy(mu.uResolution!.value as THREE.Vector2);
     cu.uImageResolution!.value.copy(
@@ -546,6 +553,15 @@ export class Viewport {
     this.material.uniforms.uGrainIntensity!.value = value;
   }
 
+  /**
+   * @description Params.grainRadialMix を合成シェーダへ。0〜1 に丸める。
+   */
+  setGrainRadialMix(value: number): void {
+    const v = Math.min(1, Math.max(0, value));
+    this.grainRadialMix = v;
+    this.compositeMaterial.uniforms.uGrainRadialMix!.value = v;
+  }
+
   setVignette(value: number): void {
     this.material.uniforms.uVignette!.value = value;
   }
@@ -657,6 +673,7 @@ export class Viewport {
       })(),
       rgbShift: this.material.uniforms.uRGBShift!.value as number,
       grainIntensity: this.material.uniforms.uGrainIntensity!.value as number,
+      grainRadialMix: this.grainRadialMix,
       vignette: this.material.uniforms.uVignette!.value as number,
       fade: this.material.uniforms.uFade!.value as number,
       highlights: this.material.uniforms.uHighlights!.value as number,
@@ -723,6 +740,8 @@ export class Viewport {
       this.setRGBShift(params.rgbShift as number);
     if (params.grainIntensity !== undefined)
       this.setGrainIntensity(params.grainIntensity as number);
+    if (params.grainRadialMix !== undefined)
+      this.setGrainRadialMix(params.grainRadialMix as number);
     if (params.vignette !== undefined)
       this.setVignette(params.vignette as number);
     if (params.fade !== undefined) this.setFade(params.fade as number);

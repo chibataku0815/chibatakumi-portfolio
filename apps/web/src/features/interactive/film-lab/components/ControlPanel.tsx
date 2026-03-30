@@ -697,6 +697,17 @@ export function ControlPanel({
                   onCommit={commit}
                 />
                 <ControlSlider label={tFilmLab("controls.filmGrain")} value={params.grainIntensity} min={0} max={0.5} step={0.01} defaultValue={0} onChange={(v) => updateParam("grainIntensity", v)} onCommit={commit} />
+                <ControlSlider
+                  label={tFilmLab("controls.grainRadialMix")}
+                  hint={tFilmLab("controls.grainRadialMixHint")}
+                  value={params.grainRadialMix}
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  defaultValue={1}
+                  onChange={(v) => updateParam("grainRadialMix", v)}
+                  onCommit={commit}
+                />
                 <ControlSlider label={tFilmLab("controls.vignette")} value={params.vignette} min={0} max={1} step={0.01} defaultValue={0} onChange={(v) => updateParam("vignette", v)} onCommit={commit} />
               </div>
             )}
