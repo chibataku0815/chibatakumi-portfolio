@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
@@ -13,6 +14,71 @@ import {
  * @description 公開アセット URL が設定されているときはその DMG へリダイレクトし、未設定のときは案内ページを返します。
  * @limitations 実アセット自体のホスティングは別途必要です。このページは固定導線だけを提供します。
  */
+
+const BASE_URL = "https://www.chibatakumi.studio";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({
+    locale,
+    namespace: "film-lab.desktopRelease.downloadPage.metadata",
+  });
+  const isJa = locale === "ja";
+  const canonicalUrl = isJa
+    ? `${BASE_URL}/film-lab/download`
+    : `${BASE_URL}/en/film-lab/download`;
+
+  return {
+    title: t("title"),
+    description: t("description"),
+    icons: {
+      icon: [
+        {
+          url: "/brand/film-lab-symbol.svg",
+          type: "image/svg+xml",
+          sizes: "any",
+        },
+      ],
+      apple: [
+        {
+          url: "/brand/film-lab-apple-touch.png",
+          sizes: "180x180",
+          type: "image/png",
+        },
+      ],
+    },
+    openGraph: {
+      title: t("ogTitle"),
+      description: t("ogDescription"),
+      images: [
+        {
+          url: "/film-lab/og-image.jpg",
+          width: 1200,
+          height: 630,
+        },
+      ],
+      type: "website",
+      locale: isJa ? "ja_JP" : "en_US",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: t("ogTitle"),
+      description: t("ogDescription"),
+      images: ["/film-lab/og-image.jpg"],
+    },
+    alternates: {
+      canonical: canonicalUrl,
+      languages: {
+        ja: `${BASE_URL}/film-lab/download`,
+        en: `${BASE_URL}/en/film-lab/download`,
+      },
+    },
+  };
+}
 
 /**
  * 固定ダウンロード URL の本体ページです。

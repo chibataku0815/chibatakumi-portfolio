@@ -170,6 +170,63 @@ function FilmLabDesktopReleaseNotice({ suppressTopMargin = false }: { suppressTo
   );
 }
 
+/** Preset characteristic colors for the hero visual */
+const HERO_PRESET_SWATCHES = [
+  { n: "Cinematic", c: "#b87a3a" },
+  { n: "Portra", c: "#c9a08e" },
+  { n: "Gold", c: "#b89a4a" },
+  { n: "Pro 400H", c: "#7a98aa" },
+  { n: "Ektar", c: "#b85a3e" },
+  { n: "Superia", c: "#6a906a" },
+  { n: "CineStill", c: "#c48a42" },
+  { n: "B&W", c: "#888" },
+] as const;
+
+/** Hero visual — stylized product mockup: macOS window + before/after + preset palette */
+function FilmLabHeroVisual() {
+  return (
+    <div className="mx-auto mt-10 max-w-lg lg:max-w-2xl" aria-hidden>
+      <div className="film-lab-liquid-glass overflow-hidden rounded-2xl">
+        {/* macOS window chrome */}
+        <div className="flex items-center gap-1.5 px-4 py-2.5">
+          <div className="h-2.5 w-2.5 rounded-full bg-white/15" />
+          <div className="h-2.5 w-2.5 rounded-full bg-white/15" />
+          <div className="h-2.5 w-2.5 rounded-full bg-white/15" />
+          <span className="ml-auto text-[10px] text-white/25">Filmtone</span>
+        </div>
+        {/* Before / After split preview */}
+        <div className="mx-2 flex overflow-hidden rounded-lg sm:mx-3">
+          <div className="flex-1 bg-gradient-to-br from-[#8b9dc3]/20 to-[#6b7b9a]/10 px-3 pb-2 pt-16 sm:pt-20">
+            <span className="block text-[10px] font-medium text-white/35">
+              Original
+            </span>
+          </div>
+          <div className="w-px bg-white/15" />
+          <div className="flex-1 bg-gradient-to-br from-[#c4a35a]/20 to-[#8b6914]/10 px-3 pb-2 pt-16 text-right sm:pt-20">
+            <span className="block text-[10px] font-medium text-white/35">
+              Gold 200
+            </span>
+          </div>
+        </div>
+        {/* Preset palette strip */}
+        <div className="flex items-center gap-2 px-3 py-3 sm:px-4">
+          {HERO_PRESET_SWATCHES.map(({ n, c }) => (
+            <div key={n} className="flex flex-col items-center gap-1">
+              <div
+                className="h-6 w-6 rounded-md border border-white/[0.06] sm:h-7 sm:w-7"
+                style={{ background: c }}
+              />
+              <span className="hidden text-[7px] leading-none text-white/25 sm:block">
+                {n}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /**
  * @description Film Lab フルページ。コントロール直上に sampleHint を置く。コンテナは `max-w-7xl`（ナビと揃えつつ横幅を確保）。
  * @param root0 - ルート props
@@ -502,6 +559,7 @@ export function FilmLabFullPage({
           <p className="mt-5 max-w-2xl text-xs leading-relaxed text-white/50 sm:text-sm">
             {tLp("proofTeaserLine")}
           </p>
+          <FilmLabHeroVisual />
         </div>
       </section>
 
@@ -586,16 +644,21 @@ export function FilmLabFullPage({
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {(
             [
-              ["premiumCard1Title", "premiumCard1Body"],
-              ["premiumCard2Title", "premiumCard2Body"],
-              ["premiumCard3Title", "premiumCard3Body"],
-              ["premiumCard4Title", "premiumCard4Body"],
+              ["premiumCard1Title", "premiumCard1Body", "#b87a3a"],
+              ["premiumCard2Title", "premiumCard2Body", "#c9a08e"],
+              ["premiumCard3Title", "premiumCard3Body", "#7a98aa"],
+              ["premiumCard4Title", "premiumCard4Body", "#888"],
             ] as const
-          ).map(([titleKey, bodyKey]) => (
+          ).map(([titleKey, bodyKey, accent]) => (
             <div
               key={titleKey}
               className="film-lab-liquid-glass relative z-10 flex flex-col rounded-2xl p-6"
             >
+              <div
+                className="mb-3 h-1 w-8 rounded-full"
+                style={{ background: accent }}
+                aria-hidden
+              />
               <h3 className="film-lab-lp-heading-xl text-lg text-white">{tLp(titleKey)}</h3>
               <p className="film-lab-lp-body mt-3 flex-1 text-sm leading-relaxed text-white/60">
                 {tLp(bodyKey)}
