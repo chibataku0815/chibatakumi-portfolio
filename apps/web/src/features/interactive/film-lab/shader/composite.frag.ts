@@ -3,6 +3,8 @@
  * @description グレインは画像の cover 空間で径方向マスクを掛け、色収差 Pass1（rgbShiftSampleRadial）と同じ 1.65 べきで中心弱・周辺強にする。
  * uGrainRadialMix で一様（0）とフル径方向（1）をブレンドできる（Params.grainRadialMix、既定1）。
  * 色収差オン時の周辺ソフトは、混色量だけでなくブラー半径も少しだけ連動して増やす。
+ * Params.lensSoftness（uLensSoftness）で rgbShift と独立に周辺の等方ブラーを足せる（Pro）。
+ * 強度は控えめ（スライダー 100% でも周辺が潰れすぎないよう半径・混色を分離して足す）。
  * @limitations 分割表示時も vUv ベースでノイズを振る（従来どおり）。Remotion は本文字列を import 共有する。
  */
 export const compositeFragmentShader = /* glsl */ `
@@ -29,6 +31,8 @@ uniform vec2 uResolution;
 uniform vec2 uImageResolution;
 /** 色収差オン時の周辺のみシャープと微ブラーを混ぜる量（0〜1、JS 側で rgbShift に比例。大きいほどブラー半径も少し広げる） */
 uniform float uAberrationEdgeSoften;
+/** レンズの周辺ソフト（0〜1、Params.lensSoftness。色収差周辺ソフトとは別入力で合成する） */
+uniform float uLensSoftness;
 
 in vec2 vUv;
 out vec4 fragColor;
@@ -54,17 +58,36 @@ void main() {
   float edgeR = clamp(length(edgeDelta) * 1.414, 0.0, 1.0);
   float edgeMask = smoothstep(0.25, 1.0, edgeR);
   vec3 sharpRgb = texture(uSource, vUv).rgb;
-  float blurRadiusPx = mix(1.5, 2.75, clamp(uAberrationEdgeSoften, 0.0, 1.0));
+  // レンズ柔らかさ: 周辺ほど効く。べきを下げると内寄りにも効き、スライダーが「弱い」と言われたときの視認性が上がる。
+  float lensR = clamp(length(edgeDelta) * 2.0, 0.0, 1.0);
+  float lensW = pow(lensR, 1.52);
+  // γ を下げるほど中間スライダーでも強く見える（最大 1.0 は維持）。
+  float lensDrive = pow(clamp(uLensSoftness, 0.0, 1.0), 0.78);
+  float lensWeight = clamp(lensDrive * lensW, 0.0, 1.0);
+  float aberrAmt = clamp(uAberrationEdgeSoften, 0.0, 1.0);
+  // 8 タップのまま半径・混色を上げる（初版の 4px 張り付きよりは cap あり）。
+  float blurRadiusPx =
+    mix(1.5, 2.75, aberrAmt) + lensWeight * 1.35;
+  blurRadiusPx = min(blurRadiusPx, 4.2);
   vec2 px =
     vec2(1.0 / max(uResolution.x, 1.0), 1.0 / max(uResolution.y, 1.0)) *
     blurRadiusPx;
+  // 十字 4 タップだけだと HV 方向に振れ、細かい縞や葉で X 字っぽいモアレが出やすい。
+  // 斜め 4 点を足して 8 方向平均にし、等方性を上げる（半径は 1/√2 スケールでカードナルと揃える）。
+  vec2 d = px * 0.70710678;
   vec3 blurRgb =
     (texture(uSource, vUv + vec2(px.x, 0.0)).rgb +
      texture(uSource, vUv - vec2(px.x, 0.0)).rgb +
      texture(uSource, vUv + vec2(0.0, px.y)).rgb +
-     texture(uSource, vUv - vec2(0.0, px.y)).rgb) *
-    0.25;
-  float softenAmt = clamp(uAberrationEdgeSoften * edgeMask, 0.0, 1.0);
+     texture(uSource, vUv - vec2(0.0, px.y)).rgb +
+     texture(uSource, vUv + vec2(d.x, d.y)).rgb +
+     texture(uSource, vUv + vec2(d.x, -d.y)).rgb +
+     texture(uSource, vUv + vec2(-d.x, d.y)).rgb +
+     texture(uSource, vUv + vec2(-d.x, -d.y)).rgb) *
+    0.125;
+  // 混色は色収差と同じく edgeMask。
+  float lensMix = lensWeight * 0.72;
+  float softenAmt = clamp(uAberrationEdgeSoften * edgeMask + lensMix * edgeMask, 0.0, 1.0);
   vec4 color = vec4(mix(sharpRgb, blurRgb, softenAmt), texture(uSource, vUv).a);
 
   // Bloom + Halation additive (no branching — strength=0 naturally zeros out)

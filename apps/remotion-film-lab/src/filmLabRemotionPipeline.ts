@@ -170,6 +170,7 @@ export class FilmLabRemotionPipeline {
         uResolution: { value: new THREE.Vector2(width, height) },
         uImageResolution: { value: new THREE.Vector2(1280, 720) },
         uAberrationEdgeSoften: { value: 0.0 },
+        uLensSoftness: { value: 0.0 },
       },
     });
   }
@@ -262,6 +263,10 @@ export class FilmLabRemotionPipeline {
     cu.uAberrationEdgeSoften!.value = Math.min(
       1,
       Math.max(0, grade.rgbShift * ABERRATION_EDGE_SOFTEN_SCALE),
+    );
+    cu.uLensSoftness!.value = Math.min(
+      1,
+      Math.max(0, grade.lensSoftness ?? 0),
     );
   }
 

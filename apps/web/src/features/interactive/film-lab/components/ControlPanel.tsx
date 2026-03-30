@@ -729,6 +729,18 @@ export function ControlPanel({
                   onChange={(v) => updateParam("rgbShift", v)}
                   onCommit={commit}
                 />
+                <ControlSlider
+                  label={tFilmLab("controls.lensSoftness")}
+                  hint={tFilmLab("effects.lensSoftnessHint")}
+                  value={params.lensSoftness}
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  defaultValue={0}
+                  formatValue={(v) => `${Math.round(v * 100)}%`}
+                  onChange={(v) => updateParam("lensSoftness", v)}
+                  onCommit={commit}
+                />
                 <ControlSlider label={tFilmLab("controls.filmGrain")} value={params.grainIntensity} min={0} max={0.5} step={0.01} defaultValue={0} onChange={(v) => updateParam("grainIntensity", v)} onCommit={commit} />
                 <ControlSlider
                   label={tFilmLab("controls.grainRadialMix")}

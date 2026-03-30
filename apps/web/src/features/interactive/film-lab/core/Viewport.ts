@@ -106,6 +106,11 @@ export class Viewport {
   private grainRadialMix = 1.0;
 
   /**
+   * composite のレンズ周辺ソフト（0〜1）。色収差周辺ソフトとは別（Params.lensSoftness）。
+   */
+  private lensSoftness = 0.0;
+
+  /**
    * シャドウ／ハイライトの色相は GPU から一意に逆算できないため、最後に `setParams` で適用した値を保持する。
    * `getParams` と「色相だけ更新」のときの強度維持に使う。
    */
@@ -229,6 +234,7 @@ export class Viewport {
         },
         uImageResolution: { value: new THREE.Vector2(1280, 720) },
         uAberrationEdgeSoften: { value: 0.0 },
+        uLensSoftness: { value: 0.0 },
         uFlipY: { value: 0.0 },
       },
     });
@@ -298,6 +304,7 @@ export class Viewport {
       1,
       Math.max(0, rgbShift * ABERRATION_EDGE_SOFTEN_SCALE),
     );
+    cu.uLensSoftness!.value = this.lensSoftness;
   }
 
   /**
@@ -563,6 +570,15 @@ export class Viewport {
     this.compositeMaterial.uniforms.uGrainRadialMix!.value = v;
   }
 
+  /**
+   * @description Params.lensSoftness を合成シェーダへ。0〜1 に丸める。
+   */
+  setLensSoftness(value: number): void {
+    const v = Math.min(1, Math.max(0, value));
+    this.lensSoftness = v;
+    this.compositeMaterial.uniforms.uLensSoftness!.value = v;
+  }
+
   setVignette(value: number): void {
     this.material.uniforms.uVignette!.value = value;
   }
@@ -675,6 +691,7 @@ export class Viewport {
       rgbShift: this.material.uniforms.uRGBShift!.value as number,
       grainIntensity: this.material.uniforms.uGrainIntensity!.value as number,
       grainRadialMix: this.grainRadialMix,
+      lensSoftness: this.lensSoftness,
       vignette: this.material.uniforms.uVignette!.value as number,
       fade: this.material.uniforms.uFade!.value as number,
       highlights: this.material.uniforms.uHighlights!.value as number,
@@ -743,6 +760,8 @@ export class Viewport {
       this.setGrainIntensity(params.grainIntensity as number);
     if (params.grainRadialMix !== undefined)
       this.setGrainRadialMix(params.grainRadialMix as number);
+    if (params.lensSoftness !== undefined)
+      this.setLensSoftness(params.lensSoftness as number);
     if (params.vignette !== undefined)
       this.setVignette(params.vignette as number);
     if (params.fade !== undefined) this.setFade(params.fade as number);
