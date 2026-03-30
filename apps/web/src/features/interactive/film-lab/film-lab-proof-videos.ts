@@ -1,8 +1,9 @@
 /**
  * @file Film Lab LP の仮 proof 動画設定です。
- * @description ローカル保存の mp4 を route handler 経由で配信するために、
- *   動画 ID と元ファイルの絶対パスをまとめます。
- * @limitations いまはローカル環境向けの暫定設定です。公開前には `public` 配下や正式な配信先へ置き換える前提です。
+ * @description LP の proof セクションで使う短い mp4 clip の場所をまとめます。
+ *   元の長い graded export から切り出した短尺版を `public/film-lab/proof/` に置き、
+ *   LP 側はそこだけを参照します。
+ * @limitations いまは仮の clip 名です。公開前に asset 名や正式ソースを整理する前提です。
  */
 
 /**
@@ -12,14 +13,12 @@ export type FilmLabProofVideoId = "gradedLookA" | "gradedLookB";
 
 /**
  * @description proof 動画 1 本ぶんの設定です。
- * @property {FilmLabProofVideoId} id - クライアントと route で共有する固定 ID。
- * @property {string} sourcePath - ローカル環境で読みに行く元ファイルの絶対パス。
- * @property {number} previewStartSeconds - LP 上で見せ始める代表フレーム位置です。
+ * @property {FilmLabProofVideoId} id - LP と設定ファイルで共有する固定 ID。
+ * @property {string} publicPath - `apps/web/public` 配下から配信する mp4 の URL です。
  */
 interface FilmLabProofVideoDefinition {
   id: FilmLabProofVideoId;
-  sourcePath: string;
-  previewStartSeconds: number;
+  publicPath: string;
 }
 
 /**
@@ -28,13 +27,11 @@ interface FilmLabProofVideoDefinition {
 const filmLabProofVideoDefinitions: readonly FilmLabProofVideoDefinition[] = [
   {
     id: "gradedLookA",
-    sourcePath: "/Users/chibatakumi/Pictures/test-outputs/1769692582094-graded.mp4",
-    previewStartSeconds: 10,
+    publicPath: "/film-lab/proof/graded-look-a.mp4",
   },
   {
     id: "gradedLookB",
-    sourcePath: "/Users/chibatakumi/Pictures/test-outputs/dji_mimo_0_0_0_1769687084723-graded.mp4",
-    previewStartSeconds: 5,
+    publicPath: "/film-lab/proof/graded-look-b.mp4",
   },
 ] as const;
 
@@ -50,20 +47,11 @@ export function filmLabGetProofVideoDefinition(videoId: string): FilmLabProofVid
 }
 
 /**
- * @description クライアント側で使う proof 動画 URL を作ります。
+ * @description クライアント側で使う proof 動画 URL を返します。
  * @param {FilmLabProofVideoId} videoId - LP 側で参照する固定 ID。
- * @returns {string} route handler の URL。
+ * @returns {string} `public` から配信する mp4 の URL。未定義なら空文字。
  */
 export function filmLabBuildProofVideoUrl(videoId: FilmLabProofVideoId): string {
-  return `/api/film-lab/proof-videos/${videoId}`;
-}
-
-/**
- * @description proof 動画の見せ始め位置を返します。
- * @param {FilmLabProofVideoId} videoId - LP 側で参照する固定 ID。
- * @returns {number} 秒数。未定義時は 0。
- */
-export function filmLabGetProofVideoPreviewStartSeconds(videoId: FilmLabProofVideoId): number {
   const matchedVideo = filmLabGetProofVideoDefinition(videoId);
-  return matchedVideo?.previewStartSeconds ?? 0;
+  return matchedVideo?.publicPath ?? "";
 }

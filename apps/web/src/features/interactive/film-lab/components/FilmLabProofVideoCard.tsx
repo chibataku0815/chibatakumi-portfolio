@@ -6,13 +6,12 @@ import { getOptimalPixelRatio, isWebGL2Supported } from "@/shared/gl";
 
 /**
  * @description LP の proof セクションで使う WebGL 動画カードの props です。
- * @property {string} src - route handler 経由で読む mp4 の URL。
+ * @property {string} src - `public` 配下から読む mp4 の URL。
  * @property {string} title - 読み上げとデバッグで使う短い識別名です。
  */
 interface FilmLabProofVideoCardProps {
   src: string;
   title: string;
-  initialTimeSeconds?: number;
 }
 
 /**
@@ -52,11 +51,7 @@ function filmLabApplyVideoCoverScale(
  * 公開前の仮 asset を素早く差し込むための用途に限定します。
  * @param {FilmLabProofVideoCardProps} root0 - proof 動画カードの props。
  */
-export function FilmLabProofVideoCard({
-  src,
-  title,
-  initialTimeSeconds = 0,
-}: FilmLabProofVideoCardProps) {
+export function FilmLabProofVideoCard({ src, title }: FilmLabProofVideoCardProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [showFallbackVideo, setShowFallbackVideo] = useState(false);
 
@@ -87,14 +82,14 @@ export function FilmLabProofVideoCard({
     camera.position.z = 1;
 
     const geometry = new THREE.PlaneGeometry(2, 2);
-    const material = new THREE.MeshBasicMaterial({ color: 0x111111 });
+    const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
     const mesh = new THREE.Mesh(geometry, material);
     scene.add(mesh);
 
     const videoElement = document.createElement("video");
     videoElement.src = src;
     videoElement.muted = true;
-    videoElement.loop = false;
+    videoElement.loop = true;
     videoElement.playsInline = true;
     videoElement.preload = "auto";
     videoElement.crossOrigin = "anonymous";
@@ -103,7 +98,6 @@ export function FilmLabProofVideoCard({
     videoElement.setAttribute("aria-label", title);
 
     let videoTexture: THREE.VideoTexture | null = null;
-    let hasStartedPlayback = false;
 
     const syncRendererSize = () => {
       const containerWidth = Math.max(containerElement.clientWidth, 1);
@@ -127,9 +121,6 @@ export function FilmLabProofVideoCard({
     };
 
     const startWebglVideo = async () => {
-      if (hasStartedPlayback) return;
-      hasStartedPlayback = true;
-
       try {
         await videoElement.play();
       } catch {
@@ -139,7 +130,12 @@ export function FilmLabProofVideoCard({
       if (isDisposed) return;
 
       videoTexture = new THREE.VideoTexture(videoElement);
-      videoTexture.colorSpace = THREE.SRGBColorSpace;
+      /**
+       * @description DOM の `<video>` と同じ見え方を優先します。
+       * proof 用 clip はここで sRGB を明示すると暗く見えるケースがあったため、
+       * Three.js 側では追加の色空間変換をかけません。
+       */
+      videoTexture.colorSpace = THREE.NoColorSpace;
       videoTexture.minFilter = THREE.LinearFilter;
       videoTexture.magFilter = THREE.LinearFilter;
       material.map = videoTexture;
@@ -149,30 +145,7 @@ export function FilmLabProofVideoCard({
     };
 
     const handleLoadedMetadata = () => {
-      const targetStartSeconds =
-        initialTimeSeconds > 0 && videoElement.duration > initialTimeSeconds
-          ? initialTimeSeconds
-          : 0;
-
-      if (targetStartSeconds > 0) {
-        videoElement.currentTime = targetStartSeconds;
-        return;
-      }
-
       void startWebglVideo();
-    };
-
-    const handleSeeked = () => {
-      void startWebglVideo();
-    };
-
-    const handleEnded = () => {
-      const restartSeconds =
-        initialTimeSeconds > 0 && videoElement.duration > initialTimeSeconds
-          ? initialTimeSeconds
-          : 0;
-      videoElement.currentTime = restartSeconds;
-      void videoElement.play().catch(() => {});
     };
 
     const handleVideoError = () => {
@@ -180,8 +153,6 @@ export function FilmLabProofVideoCard({
     };
 
     videoElement.addEventListener("loadedmetadata", handleLoadedMetadata);
-    videoElement.addEventListener("seeked", handleSeeked);
-    videoElement.addEventListener("ended", handleEnded);
     videoElement.addEventListener("error", handleVideoError);
 
     syncRendererSize();
@@ -192,8 +163,6 @@ export function FilmLabProofVideoCard({
       isDisposed = true;
       window.removeEventListener("resize", syncRendererSize);
       videoElement.removeEventListener("loadedmetadata", handleLoadedMetadata);
-      videoElement.removeEventListener("seeked", handleSeeked);
-      videoElement.removeEventListener("ended", handleEnded);
       videoElement.removeEventListener("error", handleVideoError);
       window.cancelAnimationFrame(animationFrameId);
       videoElement.pause();
@@ -207,16 +176,17 @@ export function FilmLabProofVideoCard({
         containerElement.removeChild(renderer.domElement);
       }
     };
-  }, [initialTimeSeconds, src, title]);
+  }, [src, title]);
 
   return (
     <div className="relative min-h-[clamp(200px,36vw,320px)] overflow-hidden rounded-t-2xl rounded-b-none bg-black">
       <div ref={containerRef} className="absolute inset-0" aria-hidden={showFallbackVideo} />
       {showFallbackVideo ? (
         <video
-          src={initialTimeSeconds > 0 ? `${src}#t=${initialTimeSeconds}` : src}
+          src={src}
           className="absolute inset-0 h-full w-full object-cover"
           autoPlay
+          loop
           muted
           playsInline
           preload="metadata"

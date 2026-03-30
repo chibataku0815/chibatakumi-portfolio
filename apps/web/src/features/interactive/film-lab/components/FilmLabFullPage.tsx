@@ -27,10 +27,7 @@ import {
   filmLabDesktopMinimumMacos,
   filmLabDesktopSupportEmail,
 } from "../desktop-release-info";
-import {
-  filmLabBuildProofVideoUrl,
-  filmLabGetProofVideoPreviewStartSeconds,
-} from "../film-lab-proof-videos";
+import { filmLabBuildProofVideoUrl } from "../film-lab-proof-videos";
 import {
   filmLabDonationBmcUrl,
   filmLabDonationClientPublicEnvStatus,
@@ -549,7 +546,6 @@ export function FilmLabFullPage({
             <FilmLabProofVideoCard
               src={filmLabBuildProofVideoUrl("gradedLookA")}
               title={tLp("premiumFeature1Title")}
-              initialTimeSeconds={filmLabGetProofVideoPreviewStartSeconds("gradedLookA")}
             />
             <p className="film-lab-lp-body px-4 py-3 text-center text-xs text-white/45">
               {tLp("premiumMediaProofNote")}
@@ -562,7 +558,6 @@ export function FilmLabFullPage({
             <FilmLabProofVideoCard
               src={filmLabBuildProofVideoUrl("gradedLookB")}
               title={tLp("premiumFeature2Title")}
-              initialTimeSeconds={filmLabGetProofVideoPreviewStartSeconds("gradedLookB")}
             />
             <p className="film-lab-lp-body px-4 py-3 text-center text-xs text-white/45">
               {tLp("premiumMediaProofNote")}
