@@ -113,7 +113,7 @@ async function buildOgImageResponse(
     : isJa
       ? "ブラウザでルックを試す"
       : "Decide your look in seconds";
-  const brand = "chibatakumi.studio · Film Lab";
+  const brand = "chibatakumi.studio · Filmtone";
 
   const fonts: {
     name: string;
@@ -185,7 +185,7 @@ async function buildOgImageResponse(
           }}
         >
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            <div style={{ fontSize: 56, fontWeight: 700 }}>Film Lab</div>
+            <div style={{ fontSize: 56, fontWeight: 700 }}>Filmtone</div>
             {headline ? (
               <div style={{ fontSize: 38, color: "rgba(245,240,232,0.88)", fontWeight: 600 }}>{headline}</div>
             ) : null}

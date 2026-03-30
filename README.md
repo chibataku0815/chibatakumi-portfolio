@@ -2,13 +2,13 @@
 
 Bun workspaces monorepo. The public site (`www.chibatakumi.studio`) lives in **`apps/web`** (Next.js 16).
 
-## Film Lab Desktop（公開導線）
+## Filmtone Desktop（公開導線）
 
 - 固定ダウンロード URL: `https://www.chibatakumi.studio/film-lab/download`
 - 対応: macOS のみ / `11.0+` / Apple Silicon (`arm64`)
 - 正規配布物: 署名・公証済み `DMG`
 - 更新方針: 当面は手動更新（download page / release notes で差し替え）
-- 窓口（Film Lab Desktop）: `chiba@fores-tone.co.jp`
+- 窓口（Filmtone Desktop）: `chiba@fores-tone.co.jp`
 
 > 版差分とチェックサムの正本は、各ビルドの release notes です。Desktop 版には Smart Look AI を含めません。
 
@@ -30,7 +30,7 @@ bun run dev
 
 This runs `next dev` with **working directory `apps/web`**, so `apps/web/.env.local` is loaded correctly.
 
-Check cwd / `.env.local` (Film Lab donation debugging):
+Check cwd / `.env.local` (Filmtone donation debugging):
 
 ```bash
 bun run dev:context

@@ -38,9 +38,7 @@ export async function generateMetadata({
   const t = await getTranslations({ locale, namespace: "film-lab.metadata" });
   const isJa = locale === "ja";
 
-  const canonicalUrl = isJa
-    ? `${BASE_URL}/film-lab`
-    : `${BASE_URL}/en/film-lab`;
+  const canonicalUrl = isJa ? `${BASE_URL}/film-lab` : `${BASE_URL}/en/film-lab`;
 
   let ogImageUrl = "/film-lab/og-image.jpg";
   if (searchParams) {
@@ -94,27 +92,50 @@ export async function generateMetadata({
   };
 }
 
-function getJsonLd(locale: string) {
+/**
+ * @description 構造化データ。単独の WebApplication + operatingSystem:Any だけだと browser-first に読まれやすいため、
+ *   **Desktop（SoftwareApplication）** と **ブラウザデモ（WebApplication）** を `@graph` で分け、`isRelatedTo` で関連づける。
+ * @param locale - next-intl のロケール（`ja` / `en` など）。
+ */
+async function buildFilmLabJsonLd(locale: string) {
+  const t = await getTranslations({ locale, namespace: "film-lab.jsonLd" });
   const isJa = locale === "ja";
+  const pageUrl = isJa ? `${BASE_URL}/film-lab` : `${BASE_URL}/en/film-lab`;
+  const downloadUrl = isJa
+    ? `${BASE_URL}/film-lab/download`
+    : `${BASE_URL}/en/film-lab/download`;
   return {
     "@context": "https://schema.org",
-    "@type": "WebApplication",
-    name: "Film Lab",
-    description: isJa
-      ? "ブラウザで動くリアルタイムカラーグレーディング。クイックは3本のメタ調整とプリセット、プロでBloom・Halation・LUTまで。"
-      : "Real-time browser color grading—Quick meta sliders and presets, Pro for Bloom, Halation, LUT.",
-    url: isJa ? `${BASE_URL}/film-lab` : `${BASE_URL}/en/film-lab`,
-    applicationCategory: "PhotographyApplication",
-    operatingSystem: "Any",
-    browserRequirements: "WebGL2",
-    inLanguage: isJa ? "ja" : "en",
-    image: `${BASE_URL}/film-lab/og-image.jpg`,
-    screenshot: `${BASE_URL}/film-lab/og-image.jpg`,
-    author: {
-      "@type": "Person",
-      name: "Takumi Chiba",
-      url: BASE_URL,
-    },
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "@id": `${pageUrl}#desktop`,
+        name: t("desktopName"),
+        description: t("desktopDescription"),
+        applicationCategory: "PhotographyApplication",
+        operatingSystem: t("desktopOperatingSystem"),
+        url: downloadUrl,
+        image: `${BASE_URL}/film-lab/og-image.jpg`,
+        author: {
+          "@type": "Person",
+          name: "Takumi Chiba",
+          url: BASE_URL,
+        },
+      },
+      {
+        "@type": "WebApplication",
+        "@id": `${pageUrl}#webDemo`,
+        name: t("webDemoName"),
+        description: t("webDemoDescription"),
+        applicationCategory: "PhotographyApplication",
+        url: pageUrl,
+        browserRequirements: t("webDemoBrowserRequirements"),
+        operatingSystem: t("webDemoOperatingSystem"),
+        inLanguage: isJa ? "ja" : "en",
+        image: `${BASE_URL}/film-lab/og-image.jpg`,
+        isRelatedTo: { "@id": `${pageUrl}#desktop` },
+      },
+    ],
   };
 }
 
@@ -154,11 +175,13 @@ export default async function FilmLabPage({
       filmLabVerifySupporterCookieValue(supporterRaw, signSecret) !== null,
   );
 
+  const jsonLd = await buildFilmLabJsonLd(locale);
+
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(getJsonLd(locale)) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <FilmLabFullPage
         initialSharedParams={initialSharedParams}

@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="/src/styles.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Film Lab — WebView capability spike</title>
+    <script type="module" src="/src/main.ts" defer></script>
+  </head>
+
+  <body>
+    <main class="container spike">
+      <h1>Film Lab WebView 能力スパイク</h1>
+      <p class="hint">
+        Tauri が起動した OS WebView（macOS なら WKWebView）で WebGL2 /
+        WebCodecs の床を表示します。同じ内容を Safari / Chrome
+        のページとして開いた結果と差分比較してください。
+      </p>
+      <button type="button" id="reload" class="reload">再計測</button>
+      <pre id="report" class="report" aria-live="polite"></pre>
+    </main>
+  </body>
+</html>

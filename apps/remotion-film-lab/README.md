@@ -1,6 +1,6 @@
 # remotion-film-lab
 
-Film Lab のルック定義（`film-lab-core`）を Remotion で書き出すサブプロジェクト。
+Filmtone のルック定義（`film-lab-core`）を Remotion で書き出すサブプロジェクト。
 
 ## 前提
 
@@ -24,7 +24,7 @@ bun run still:grade:img0513   # 動画ソースありのとき（上記 MOV 必�
 
 `render:*` / `still:*` は **`--gl=angle`** を付与（ヘッドレスでの WebGL 安定化）。別バックエンドを試す場合は [Chromium flags](https://www.remotion.dev/docs/chromium-flags) を参照。
 
-## ブラウザ Film Lab との差（Tier A）
+## ブラウザ Filmtone との差（Tier A）
 
 同じ **JSON / `film-lab-core` の props** でも、**画が一致するとは限らない**。`GradeScene.tsx` は **多パス**（grade+LUT → bloom（しきい値＋H/V ブラー @ 1/2 解像度）→ halation（同 @ 1/4）→ composite）で `apps/web` の `Viewport.ts` と**同順**に寄せ、`bloom` / `halation` / `blur` / `composite` シェーダは web 本番と同一ソースを import。**残る差**: Pass1 の LUT は Remotion 用 **2D パック**、ブラウザ本番は **3D LUT**／色空間・GL 実装差・split tone 未配線など。詳細は life `docs/guides/2026-04-01-film-lab-remotion-film-aesthetic-gap-verification-handoff.md`。目視比較は `docs/remotion-film-lab-g2-golden.md`。
 

@@ -20,12 +20,17 @@ import { Link } from "@/i18n/navigation";
 import { trackFilmLabDonationEvent } from "@/shared/analytics";
 import type { Viewport } from "../core/Viewport";
 import type { Params } from "../types";
+import { FilmLabProofVideoCard } from "./FilmLabProofVideoCard";
 import {
   filmLabDesktopArchitecture,
   filmLabDesktopDownloadRoute,
   filmLabDesktopMinimumMacos,
   filmLabDesktopSupportEmail,
 } from "../desktop-release-info";
+import {
+  filmLabBuildProofVideoUrl,
+  filmLabGetProofVideoPreviewStartSeconds,
+} from "../film-lab-proof-videos";
 import {
   filmLabDonationBmcUrl,
   filmLabDonationClientPublicEnvStatus,
@@ -93,7 +98,7 @@ function filmLabEmptySubscribe(): () => void {
 function FilmLabFullPageHydrationPlaceholder() {
   return (
     <div className="mx-auto w-full max-w-7xl px-4 pt-20 pb-8 sm:px-6 sm:pt-32 sm:pb-12">
-      <p className="sr-only">Film Lab を読み込み中</p>
+      <p className="sr-only">Filmtone を読み込み中</p>
       <div
         className="relative min-h-[min(70vh,560px)] w-full rounded-xl bg-white/[0.03]"
         aria-hidden
@@ -406,7 +411,7 @@ export function FilmLabFullPage({
   useEffect(() => {
     if (!filmLabClientReady || filmLabDevClientUiLoggedRef.current) return;
     filmLabDevClientUiLoggedRef.current = true;
-    filmLabDonationDevTrace("Film Lab クライアント UI をマウントしました", {
+    filmLabDonationDevTrace("Filmtone クライアント UI をマウントしました", {
       donationEnabled,
       stripeTierCount: resolvedDonation.stripeTiers.length,
       runtimeFromServer: donationRuntime != null,
@@ -425,7 +430,7 @@ export function FilmLabFullPage({
 
   useEffect(() => {
     if (!donationDebugOn) return;
-    filmLabDonationDebugLog("Film Lab 寄付デバッグ ON", {
+    filmLabDonationDebugLog("Filmtone 寄付デバッグ ON", {
       donationEnabled,
       stripeTierCount: resolvedDonation.stripeTiers.length,
       hasBmc: resolvedDonation.bmcUrl.length > 0,
@@ -541,18 +546,26 @@ export function FilmLabFullPage({
             </p>
           </div>
           <div className="film-lab-liquid-glass relative z-10 overflow-hidden rounded-2xl">
-            <div className="film-lab-lp-card-media rounded-t-2xl rounded-b-none" aria-hidden />
+            <FilmLabProofVideoCard
+              src={filmLabBuildProofVideoUrl("gradedLookA")}
+              title={tLp("premiumFeature1Title")}
+              initialTimeSeconds={filmLabGetProofVideoPreviewStartSeconds("gradedLookA")}
+            />
             <p className="film-lab-lp-body px-4 py-3 text-center text-xs text-white/45">
-              {tLp("premiumMediaPlaceholder")}
+              {tLp("premiumMediaProofNote")}
             </p>
           </div>
         </div>
 
         <div className="mt-16 grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
           <div className="film-lab-liquid-glass relative z-10 order-2 overflow-hidden rounded-2xl lg:order-1">
-            <div className="film-lab-lp-card-media rounded-t-2xl rounded-b-none" aria-hidden />
+            <FilmLabProofVideoCard
+              src={filmLabBuildProofVideoUrl("gradedLookB")}
+              title={tLp("premiumFeature2Title")}
+              initialTimeSeconds={filmLabGetProofVideoPreviewStartSeconds("gradedLookB")}
+            />
             <p className="film-lab-lp-body px-4 py-3 text-center text-xs text-white/45">
-              {tLp("premiumMediaPlaceholder")}
+              {tLp("premiumMediaProofNote")}
             </p>
           </div>
           <div className="order-1 lg:order-2">

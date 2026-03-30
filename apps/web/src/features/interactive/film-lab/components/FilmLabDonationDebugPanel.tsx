@@ -71,7 +71,7 @@ export function FilmLabDonationDebugPanel({
     <div
       className="fixed bottom-2 right-2 z-[240] max-h-[min(80vh,420px)] w-[min(96vw,340px)] overflow-y-auto rounded-lg border border-amber-500/40 bg-black/92 p-3 text-[10px] text-amber-100 shadow-xl backdrop-blur-sm"
       role="region"
-      aria-label="Film Lab donation debug"
+      aria-label="Filmtone donation debug"
     >
       <p className="mb-2 font-semibold text-amber-300">Donation debug</p>
 
