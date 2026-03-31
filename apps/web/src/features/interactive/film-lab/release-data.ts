@@ -18,6 +18,19 @@ export interface ReleaseEntry {
  */
 export const releases: ReleaseEntry[] = [
   {
+    version: "0.2.0",
+    date: "2026-03-31",
+    titleKey: "v020Title",
+    changes: [
+      { type: "added", key: "v020DualLut" },
+      { type: "added", key: "v020LutSync" },
+      { type: "added", key: "v020InlineExportPanel" },
+      { type: "changed", key: "v020WebCodecsReEnabled" },
+      { type: "added", key: "v020UpdateNotify" },
+      { type: "changed", key: "v020PackageRefactor" },
+    ],
+  },
+  {
     version: "0.1.3",
     date: "2026-03-31",
     titleKey: "v013Title",
