@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type RefObject } from "react";
-import type { HeroMaskRect, HeroMaskSet } from "@/features/hero/shader/types";
+import type { HeroMaskRect, HeroMaskSet } from "@/shared/types/hero-frame";
 
 interface UseHeroFrameMetricsOptions {
   anchorRef: RefObject<HTMLElement | null>;

@@ -3,20 +3,8 @@
  */
 
 import type { Texture, Vector2, Vector4 } from "three";
-
-export interface HeroMaskRect {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-
-export interface HeroMaskSet {
-  maskRects: HeroMaskRect[];
-  anchorRect: HeroMaskRect | null;
-  interactionEnabled: boolean;
-  coarsePointer: boolean;
-}
+export type { HeroMaskRect, HeroMaskSet } from "@/shared/types/hero-frame";
+import type { HeroMaskRect } from "@/shared/types/hero-frame";
 
 export type HeroLineMaskRect = HeroMaskRect;
 
