@@ -10,13 +10,12 @@ import {
 } from "react";
 import { useTranslations } from "next-intl";
 import * as THREE from "three";
+import { parseCube, PRESETS, halationHueToHex, type PresetName } from "film-lab-core";
 import { isWebGL2Supported, getOptimalPixelRatio } from "@/shared/gl";
 import { Viewport } from "../core/Viewport";
 import { MediaLoader, MediaLoadError } from "../core/MediaLoader";
-import { parseCube } from "../core/cube-parser";
 import { filmlabVertexShader } from "../shader/filmlab.vert";
 import { filmlabFragmentShader } from "../shader/filmlab.frag";
-import { PRESETS, halationHueToHex, type PresetName } from "../preset-data";
 import type { Params } from "../types";
 
 interface FilmLabCanvasProps {

@@ -11,11 +11,11 @@ import {
 } from "react";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { PRESETS, findMatchingPreset, halationHueToHex, type PresetName } from "film-lab-core";
 import { ControlSlider } from "./ui/ControlSlider";
 import { LUTPanel } from "./LUTPanel";
 import { PresetBar } from "./PresetBar";
 import type { Viewport } from "../core/Viewport";
-import { PRESETS, findMatchingPreset, type PresetName, halationHueToHex } from "../preset-data";
 import { filmLabShareUiEnabled, filmLabSmartLookUiEnabled } from "../feature-flags";
 import {
   loadFilmLabStoredSession,

@@ -9,7 +9,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { findMatchingPreset, type PresetName } from "../preset-data";
+import { findMatchingPreset, type PresetName } from "film-lab-core";
 import {
   isFilmLabDonationDebugEnabled,
   filmLabDonationDebugLog,

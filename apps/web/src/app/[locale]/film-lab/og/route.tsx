@@ -8,9 +8,9 @@
 
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { findMatchingPreset, type PresetName } from "film-lab-core";
 import { ImageResponse } from "next/og";
 import { decodeSharedParamP } from "@/features/interactive/film-lab/params-codec";
-import { findMatchingPreset, type PresetName } from "@/features/interactive/film-lab/preset-data";
 import type { Params } from "@/features/interactive/film-lab/types";
 
 export const runtime = "nodejs";

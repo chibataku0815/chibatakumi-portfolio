@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { parseCube } from "film-lab-core";
 import { ControlSlider } from "./ui/ControlSlider";
 import type { Viewport } from "../core/Viewport";
 
@@ -35,7 +36,6 @@ export function LUTPanel({ viewport, onCubeLutLoaded }: LUTPanelProps) {
       }
 
       try {
-        const { parseCube } = await import("../core/cube-parser");
         const text = await file.text();
         const lut = parseCube(text);
         viewport.setLUT(lut.data, lut.size);

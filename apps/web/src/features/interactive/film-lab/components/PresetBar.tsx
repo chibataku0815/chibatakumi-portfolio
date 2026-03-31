@@ -4,7 +4,7 @@
  */
 "use client";
 
-import { PRESET_BUTTONS, type PresetName } from "../preset-data";
+import { PRESET_BUTTONS, type PresetName } from "film-lab-core";
 
 interface PresetBarProps {
   activePreset: PresetName | null;
