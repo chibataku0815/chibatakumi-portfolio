@@ -11,7 +11,8 @@ import {
 
 /**
  * @file Film Lab Desktop の固定ダウンロード URL ページ。
- * @description 公開アセット URL が設定されているときはその DMG へリダイレクトし、未設定のときは案内ページを返します。
+ * @description 公開アセット URL が設定されているときはダウンロード完了ページへリダイレクトし（DMG は完了ページ側で自動トリガー）、
+ *   未設定のときは案内ページを返します。
  * @limitations 実アセット自体のホスティングは別途必要です。このページは固定導線だけを提供します。
  */
 
@@ -97,7 +98,7 @@ export default async function FilmLabDesktopDownloadPage({
 
   const downloadUrl = filmLabReadDesktopDownloadUrl();
   if (downloadUrl.length > 0) {
-    redirect(downloadUrl);
+    redirect("/film-lab/download/complete");
   }
 
   const t = await getTranslations({ locale, namespace: "film-lab.desktopRelease.downloadPage" });
