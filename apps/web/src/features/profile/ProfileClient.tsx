@@ -18,7 +18,7 @@ import {
   setupTimelineEntry,
   setupProfileParallax,
 } from "./ProfileAnimations";
-import { MouseTextRing } from "@/features/skills/components";
+import { MouseTextRing } from "@/shared/components";
 import type { ProfilePageContent } from "@/shared/data/portfolio";
 
 if (typeof window !== "undefined") {

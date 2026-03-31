@@ -3,6 +3,7 @@ export { BrandMark } from "./BrandMark";
 export { BrandWordmark } from "./BrandWordmark";
 export { AnimatedHeading } from "./AnimatedHeading";
 export { BackgroundSwitcher } from "./BackgroundSwitcher";
+export { MouseTextRing } from "./MouseTextRing";
 export { MagneticButton } from "./MagneticButton";
 export { ShaderButton } from "./ShaderButton";
 export { GlowButton } from "./GlowButton";

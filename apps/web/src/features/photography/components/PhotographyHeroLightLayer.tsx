@@ -7,7 +7,7 @@ import {
   getOptimalPixelRatio,
   getRendererConfig,
 } from "@/shared/gl";
-import type { HeroMaskSet } from "@/features/hero/shader/types";
+import type { HeroMaskSet } from "@/shared/types/hero-frame";
 import { videoShaderConfig } from "../shader/config";
 import {
   videoVertexShader,
