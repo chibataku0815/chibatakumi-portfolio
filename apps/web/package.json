@@ -24,6 +24,8 @@
     "@vercel/kv": "^3.0.0",
     "date-fns": "^4.1.0",
     "film-lab-core": "workspace:*",
+    "film-lab-renderer": "workspace:*",
+    "film-lab-ui": "workspace:*",
     "film-lab-smart-look": "workspace:*",
     "gsap": "^3.13.0",
     "next": "16.0.7",
