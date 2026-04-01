@@ -198,6 +198,48 @@
   --nav-height: 3.75rem;
 }
 
+/**
+ * 検索付きプリセット一覧専用のスクロールバーです。
+ * 概要: 白い OS 既定バーが浮かないよう、暗いポップオーバーの中に細いレールとして沈めます。
+ * 主な仕様: Chromium 系では track と thumb を両方薄く調整し、Firefox では thin + color を使います。
+ * 制限事項: これはプリセット一覧専用です。ページ全体のスクロールバーは変えません。
+ */
+.film-lab-preset-search-scroll {
+  color-scheme: dark;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.08) rgba(255, 255, 255, 0.015);
+}
+
+.film-lab-preset-search-scroll:hover {
+  scrollbar-color: rgba(255, 255, 255, 0.22) rgba(255, 255, 255, 0.028);
+}
+
+.film-lab-preset-search-scroll::-webkit-scrollbar {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 6px;
+  background: transparent;
+}
+
+.film-lab-preset-search-scroll::-webkit-scrollbar-track {
+  margin: 4px 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.film-lab-preset-search-scroll::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.film-lab-preset-search-scroll:hover::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.028);
+}
+
+.film-lab-preset-search-scroll:hover::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.24);
+}
+
 @theme inline {
   --color-background: var(--bg-dark);
   --color-foreground: var(--text-base);
