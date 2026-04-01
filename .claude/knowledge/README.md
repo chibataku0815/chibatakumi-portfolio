@@ -10,6 +10,7 @@
 | `2025-12-03-hero-bg-unification.md` | Hero/背景統合の知見 |
 | `2025-12-03-next-webgl-handoff.md` | WebGL保守性ハンドオフ |
 | `2026-03-14-photography-motion-first-agent-teams.md` | Photography の motion-first 改修を Agent Teams で分担する知見 |
+| `2026-04-01-filmtone-web-visual-parity-agent-teams.md` | Filmtone Web visual parity を Agent Teams で分担する知見 |
 
 ## 推奨構成
 

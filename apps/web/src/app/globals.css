@@ -13,6 +13,24 @@
   --accent-amber1: var(--amber-9);
   --accent-amber2: var(--amber-10);
 
+  /* Filmtone Desktop 系パネルと揃えるガラス UI トークン（Web デモ・/film-lab） */
+  --fl-bg-app: var(--slate-1);
+  --fl-bg-subtle: var(--slate-2);
+  --fl-bg-raised: var(--slate-3);
+  --fl-bg-interactive: var(--slate-4);
+  --fl-bg-interactive-hover: var(--slate-5);
+  --fl-border-subtle: var(--slate-6);
+  --fl-border-default: var(--slate-7);
+  --fl-border-strong: var(--slate-8);
+  --fl-text-primary: var(--slate-12);
+  --fl-text-secondary: var(--slate-11);
+  --fl-text-tertiary: var(--slate-10);
+  --fl-accent: var(--amber-9);
+  --fl-accent-emphasis: var(--amber-10);
+  --fl-on-accent: #14110a;
+  --fl-focus-ring: color-mix(in srgb, var(--amber-9) 45%, transparent);
+  --fl-frost-blur: 28px;
+
   /* ==========================================================================
      Font Family Stacks
      ========================================================================== */
@@ -870,6 +888,127 @@ body:has(.photography-page) {
   .film-lab-desktop-release-notice {
     animation: none;
     box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent-amber1) 20%, transparent);
+  }
+}
+
+/* === Filmtone Web デモ — Desktop 編集タブに寄せた背景 + フロストカード（life#85） === */
+.film-lab-web-demo-root {
+  background:
+    radial-gradient(circle at top left, rgba(255, 206, 94, 0.08), transparent 34%),
+    linear-gradient(180deg, rgba(10, 13, 18, 0.16), rgba(10, 13, 18, 0.08));
+}
+
+.fl-card.fl-card--frost {
+  background: color-mix(in srgb, var(--fl-bg-raised) 72%, transparent);
+  border: 1px solid color-mix(in srgb, var(--fl-border-default) 50%, transparent);
+  backdrop-filter: blur(var(--fl-frost-blur)) saturate(1.2);
+  -webkit-backdrop-filter: blur(var(--fl-frost-blur)) saturate(1.2);
+  box-shadow:
+    inset 0 1px 0 0 color-mix(in srgb, var(--slate-12) 5%, transparent),
+    0 8px 32px -10px color-mix(in srgb, black 52%, transparent);
+}
+
+/* Desktop 同等: muted frost — パネル背景がより透明で画像が透ける */
+.fl-card.fl-card-muted.fl-card--frost {
+  background: rgba(30, 30, 42, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* パネルツールバー — frost 上で透明背景 */
+.fl-edit-pane-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.fl-edit-pane-toolbar-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.5rem;
+  color: var(--fl-text-tertiary);
+  transition: background 0.12s, color 0.12s;
+}
+.fl-edit-pane-toolbar-btn:hover {
+  background: var(--fl-bg-interactive);
+  color: var(--fl-text-primary);
+}
+
+.fl-edit-pane-toggle-chip {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 25;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid color-mix(in srgb, var(--fl-border-default) 62%, transparent);
+  border-radius: 0.75rem;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--fl-bg-raised) 82%, transparent),
+    color-mix(in srgb, var(--fl-bg-subtle) 76%, transparent)
+  );
+  color: var(--fl-text-primary);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 12px 30px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(var(--fl-frost-blur)) saturate(1.15);
+  -webkit-backdrop-filter: blur(var(--fl-frost-blur)) saturate(1.15);
+  transition:
+    background 0.12s ease,
+    border-color 0.12s ease,
+    color 0.12s ease;
+}
+
+.fl-edit-pane-toggle-chip:hover {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--fl-bg-interactive) 86%, transparent),
+    color-mix(in srgb, var(--fl-bg-raised) 82%, transparent)
+  );
+  border-color: color-mix(in srgb, var(--fl-border-strong) 72%, transparent);
+}
+
+.fl-edit-pane-toggle-chip:focus-visible,
+.fl-edit-pane-toolbar-btn:focus-visible {
+  outline: 2px solid var(--fl-focus-ring);
+  outline-offset: 2px;
+}
+
+.fl-scroll-surface {
+  color-scheme: dark;
+  scrollbar-width: none;
+}
+
+.fl-scroll-surface::-webkit-scrollbar {
+  width: 6px;
+}
+.fl-scroll-surface::-webkit-scrollbar-track {
+  background: transparent;
+}
+.fl-scroll-surface::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+}
+.fl-scroll-surface::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+@keyframes fl-pulse-soft {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
   }
 }
 

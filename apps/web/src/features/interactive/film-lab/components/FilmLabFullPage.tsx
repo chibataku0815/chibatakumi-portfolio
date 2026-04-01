@@ -12,6 +12,7 @@ import {
   useMemo,
   useRef,
   useSyncExternalStore,
+  type CSSProperties,
 } from "react";
 import type { FilmLabCanvasRef } from "./FilmLabCanvas";
 import dynamic from "next/dynamic";
@@ -81,6 +82,12 @@ const FilmLabDonationLayer = dynamic(
     })),
   { ssr: false },
 );
+
+/**
+ * @description Web `/film-lab` が最初に読む canonical sample asset です。
+ * fallback を増やさず、この 1 本を直接読ませて rendering path を追えるようにします。
+ */
+const FILM_LAB_WEB_CANONICAL_SAMPLE_ASSET_URL = "/images/film-lab/default.jpg";
 
 /**
  * @description `useSyncExternalStore` 用の空購読（外部ソース無し・常に再描画しない）。
@@ -283,11 +290,37 @@ export function FilmLabFullPage({
   const filmLabCanvasRef = useRef<FilmLabCanvasRef | null>(null);
   /** LP では最初はオフ。詳しい調整を開いた人だけヒストグラムトグルが意味を持つ。 */
   const [histogramVisible, setHistogramVisible] = useState(false);
+  /**
+   * @description Desktop と同じく、広い画面では右パネルを開閉できるようにする。
+   * 小さい画面では縦積みになるため、常に表示のまま使う。
+   */
+  const [editRightPaneExpanded, setEditRightPaneExpanded] = useState(true);
+  /**
+   * @description `lg` 以上かどうかを持ち、Desktop と同じ absolute overlay レイアウトへ切り替える。
+   */
+  const [isLgLayout, setIsLgLayout] = useState(() =>
+    typeof window !== "undefined"
+      ? window.matchMedia("(min-width: 1024px)").matches
+      : false,
+  );
   /** 比較オン・編集スロット（キャンバス HUD 用） */
   const [compareUi, setCompareUi] = useState<{
     compareMode: boolean;
     activeSlot: "A" | "B";
   }>({ compareMode: false, activeSlot: "A" });
+  const demoCanvasStageStyle = useMemo<CSSProperties>(
+    () =>
+      isLgLayout
+        ? {
+            position: "absolute",
+            inset: 0,
+          }
+        : {
+            position: "relative",
+            height: "min(70vh, 540px)",
+          },
+    [isLgLayout],
+  );
 
   const [presentMode, setPresentMode] = useState(false);
   const [presentHydrated, setPresentHydrated] = useState(false);
@@ -318,6 +351,28 @@ export function FilmLabFullPage({
   const toggleHistogram = useCallback(() => {
     setHistogramVisible((prev) => !prev);
   }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const mediaQueryList = window.matchMedia("(min-width: 1024px)");
+    const syncLayout = () => {
+      setIsLgLayout(mediaQueryList.matches);
+    };
+
+    syncLayout();
+    mediaQueryList.addEventListener("change", syncLayout);
+
+    return () => {
+      mediaQueryList.removeEventListener("change", syncLayout);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isLgLayout) {
+      setEditRightPaneExpanded(true);
+    }
+  }, [isLgLayout]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -523,15 +578,6 @@ export function FilmLabFullPage({
     presentMode,
     resolvedDonation,
   ]);
-
-  /**
-   * プレゼンモードは寄付より独立: env で寄付を止めてもコントロールパネルから OFF にできないと
-   * localStorage が ON のまま固定され、寄付フッター・保存後モーダルが永続的に出ない。
-   */
-  const presentModeBinding = {
-    presentMode,
-    onPresentModeChange: setPresentMode,
-  };
 
   if (!filmLabClientReady) {
     return <FilmLabFullPageHydrationPlaceholder />;
@@ -748,28 +794,38 @@ export function FilmLabFullPage({
 
       <section
         id="film-lab-demo"
-        className="mt-12 scroll-mt-28 border-t border-white/[0.06] pt-12 sm:mt-16 sm:pt-16"
+        className="relative left-1/2 right-1/2 mt-12 w-screen -translate-x-1/2 scroll-mt-28 border-t border-white/[0.06] pt-12 sm:mt-16 sm:pt-16"
         aria-labelledby="film-lab-demo-title"
       >
-        <p className="film-lab-lp-section-badge">{tLp("demoEyebrow")}</p>
-        <h2
-          id="film-lab-demo-title"
-          className="film-lab-lp-heading-xl mt-3 text-2xl text-white md:text-4xl"
-        >
-          {tLp("demoTitle")}
-        </h2>
-        <p className="film-lab-lp-body mt-3 max-w-3xl text-sm leading-relaxed text-white/65 md:text-base">
-          {tLp("demoBody")}
-        </p>
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6">
+          <p className="film-lab-lp-section-badge">{tLp("demoEyebrow")}</p>
+          <h2
+            id="film-lab-demo-title"
+            className="film-lab-lp-heading-xl mt-3 text-2xl text-white md:text-4xl"
+          >
+            {tLp("demoTitle")}
+          </h2>
+          <p className="film-lab-lp-body mt-3 max-w-3xl text-sm leading-relaxed text-white/65 md:text-base">
+            {tLp("demoBody")}
+          </p>
+        </div>
 
-        <div className="relative z-10 mt-8 overflow-hidden rounded-[1.75rem] border border-white/[0.07] bg-[linear-gradient(180deg,rgba(22,22,22,0.84),rgba(10,10,10,0.76))] shadow-[0_24px_80px_rgba(0,0,0,0.32)]">
-          <div className="grid min-w-0 gap-0 lg:grid-cols-[minmax(0,1.42fr)_minmax(320px,0.9fr)]">
-            <div className="min-w-0 border-b border-white/[0.07] p-3 sm:p-4 lg:border-b-0 lg:border-r lg:p-5">
-              <div className="relative overflow-hidden rounded-[1.35rem] bg-black/25">
+        {/* Desktop 同等: 読み物の container を抜け、canvas を viewport 幅いっぱいで見せる */}
+        <div className="relative z-10 mt-8 w-full sm:px-6 lg:px-4">
+          <div className="relative overflow-hidden bg-[#080808] shadow-[0_24px_80px_rgba(0,0,0,0.32)] sm:rounded-2xl sm:border sm:border-white/[0.06] lg:rounded-3xl">
+            <div className="relative flex min-h-[440px] flex-col bg-[#080808] sm:min-h-[540px] lg:block lg:min-h-[720px] xl:min-h-[820px]">
+              <section
+                className="z-0 w-full min-w-0 overflow-hidden bg-[#080808]"
+                style={demoCanvasStageStyle}
+              >
                 <FilmLabCanvas
                   ref={filmLabCanvasRef}
                   preset="cinematic"
-                  className="rounded-[1.35rem] shadow-[0_18px_56px_rgba(0,0,0,0.3)]"
+                  chromeLayout="stacked"
+                  stackedToolbarVisible={false}
+                  defaultSampleAssetUrl={FILM_LAB_WEB_CANONICAL_SAMPLE_ASSET_URL}
+                  className="h-full w-full"
+                  fullScreen
                   initialGradeParams={initialSharedParams}
                   onViewportReady={setViewport}
                   compareHud={
@@ -780,31 +836,166 @@ export function FilmLabFullPage({
                   onCubeLutLoaded={
                     donationEnabled ? onLutLoadSuccess : undefined
                   }
-                  stackedToolbarVisible={false}
                 />
-                <Histogram viewport={viewport} visible={histogramVisible} />
+                <div className="pointer-events-none absolute bottom-4 left-4 z-10">
+                  <Histogram
+                    viewport={viewport}
+                    visible={histogramVisible}
+                    variant="inline"
+                  />
+                </div>
+              </section>
+
+              {isLgLayout && !editRightPaneExpanded ? (
+                <button
+                  type="button"
+                  className="fl-edit-pane-toggle-chip"
+                  aria-label={t("openParamsPanelAria")}
+                  aria-expanded={false}
+                  aria-controls="film-lab-web-controls-pane"
+                  title={t("openParamsPanelAria")}
+                  onClick={() => setEditRightPaneExpanded(true)}
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    aria-hidden
+                  >
+                    <path
+                      d="M4.75 5.75h14.5a1 1 0 0 1 1 1v10.5a1 1 0 0 1-1 1H4.75a1 1 0 0 1-1-1V6.75a1 1 0 0 1 1-1Z"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                    />
+                    <path
+                      d="M15.5 5.75v12.5"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                    />
+                    <path
+                      d="m12.5 9.5-3 2.5 3 2.5"
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="1.5"
+                    />
+                  </svg>
+                </button>
+              ) : null}
+
+              <div
+                id="film-lab-web-controls-pane"
+                role="complementary"
+                aria-label={t("paramsPanelAria")}
+                aria-hidden={Boolean(isLgLayout && !editRightPaneExpanded)}
+                className={`flex min-h-0 w-full min-w-0 flex-1 flex-col max-lg:relative lg:absolute lg:inset-y-0 lg:right-0 lg:z-20 lg:w-[clamp(320px,42vw,680px)] lg:max-w-[min(680px,calc(100%-1.5rem))] lg:min-w-0 lg:flex-none lg:py-4 lg:pr-4 lg:transition-transform lg:duration-300 lg:ease-out motion-reduce:lg:transition-none ${
+                  editRightPaneExpanded
+                    ? "lg:translate-x-0"
+                    : "lg:pointer-events-none lg:translate-x-full"
+                }`}
+              >
+                <section className="fl-card fl-card-muted fl-card--frost flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden border-t border-white/[0.07] p-0 sm:border-t-0 lg:rounded-xl lg:border lg:border-white/[0.08]">
+                  <div className="fl-edit-pane-toolbar hidden lg:flex">
+                    <button
+                      type="button"
+                      className="fl-edit-pane-toolbar-btn"
+                      aria-label={t("closeParamsPanelAria")}
+                      aria-expanded={editRightPaneExpanded}
+                      aria-controls="film-lab-web-controls-pane"
+                      title={t("closeParamsPanelAria")}
+                      onClick={() => setEditRightPaneExpanded(false)}
+                    >
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        aria-hidden
+                      >
+                        <path
+                          d="m9.25 7.5 5 4.5-5 4.5"
+                          stroke="currentColor"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="1.9"
+                        />
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      className="fl-edit-pane-toolbar-btn"
+                      aria-label={t("toolbar.open")}
+                      title={t("toolbar.open")}
+                      onClick={() => filmLabCanvasRef.current?.openMediaPicker()}
+                    >
+                      <svg
+                        width="15"
+                        height="15"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        aria-hidden
+                      >
+                        <path
+                          d="M4 7.5A2.5 2.5 0 0 1 6.5 5H10l2 2H17.5A2.5 2.5 0 0 1 20 9.5v7A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5v-9Z"
+                          stroke="currentColor"
+                          strokeLinejoin="round"
+                          strokeWidth="1.5"
+                        />
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      className="fl-edit-pane-toolbar-btn"
+                      aria-label={t("toolbar.savePng")}
+                      title={t("toolbar.savePng")}
+                      onClick={() => filmLabCanvasRef.current?.saveCurrentPng()}
+                    >
+                      <svg
+                        width="15"
+                        height="15"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        aria-hidden
+                      >
+                        <path
+                          d="M12 7.25v7M9.25 11.5 12 14.25 14.75 11.5"
+                          stroke="currentColor"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="1.5"
+                        />
+                        <path
+                          d="M6.5 19h11A1.5 1.5 0 0 0 19 17.5v-11A1.5 1.5 0 0 0 17.5 5h-11A1.5 1.5 0 0 0 5 6.5v11A1.5 1.5 0 0 0 6.5 19Z"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                        />
+                      </svg>
+                    </button>
+                    <div className="flex flex-1" />
+                  </div>
+                  <div className="fl-scroll-surface min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3 pr-5 lg:pr-8">
+                    <ControlPanel
+                      viewport={viewport}
+                      histogramVisible={histogramVisible}
+                      onHistogramToggle={toggleHistogram}
+                      initialSharedParams={initialSharedParams}
+                      onCompareUiChange={setCompareUi}
+                      onLutLoadSuccess={
+                        donationEnabled ? onLutLoadSuccess : undefined
+                      }
+                      onBrowserSaveSuccess={onBrowserSaveSuccess}
+                      serverVerifiedSupporter={serverVerifiedSupporter}
+                      filmLabCanvasRef={filmLabCanvasRef}
+                      tryFirstLayout={initialSharedParams == null}
+                    />
+                  </div>
+                </section>
               </div>
-              <p className="film-lab-lp-body mt-3 max-w-2xl text-xs leading-relaxed text-[var(--text-base-60)]">
-                {t("sampleHint")}
-              </p>
             </div>
-            <div className="min-w-0 p-3 sm:p-4 lg:p-5">
-              <ControlPanel
-                viewport={viewport}
-                histogramVisible={histogramVisible}
-                onHistogramToggle={toggleHistogram}
-                initialSharedParams={initialSharedParams}
-                onCompareUiChange={setCompareUi}
-                donationUi={presentModeBinding}
-                onLutLoadSuccess={
-                  donationEnabled ? onLutLoadSuccess : undefined
-                }
-                onBrowserSaveSuccess={onBrowserSaveSuccess}
-                serverVerifiedSupporter={serverVerifiedSupporter}
-                filmLabCanvasRef={filmLabCanvasRef}
-                tryFirstLayout={initialSharedParams == null}
-              />
-            </div>
+            <p className="film-lab-lp-body border-t border-white/[0.06] bg-black/60 px-4 py-2 text-xs leading-relaxed text-[var(--text-base-60)] lg:hidden">
+              {t("sampleHint")}
+            </p>
           </div>
         </div>
       </section>

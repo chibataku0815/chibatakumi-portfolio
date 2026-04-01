@@ -6,6 +6,23 @@
 
 ## 直近の完了タスク
 
+## Filmtone Web Visual Parity — Phase 1 (2026-04-01)
+- **Agent:** Cursor / GPT-5.4
+- **Started:** 2026-04-01T20:00:00+0900 (JST)
+- **Completed:** 2026-04-01T21:07:17+0900 (JST)
+- **Status:** Phase 1 完了 / Phase 2 へ引き継ぎ
+- **Files:**
+  - `apps/web/src/features/interactive/film-lab/components/FilmLabFullPage.tsx` (編集)
+  - `apps/web/src/app/globals.css` (編集)
+  - `packages/film-lab-ui/src/FilmLabCanvas.tsx` (編集)
+  - `packages/film-lab-ui/src/FilmLabControlPanelCore.tsx` (編集)
+  - `apps/web/messages/ja.json` (編集)
+  - `apps/web/messages/en.json` (編集)
+  - `.claude/tasks/archive/2026-04-01-filmtone-web-visual-parity-phase1.md` (新規)
+  - `docs/guides/2026-04-01-filmtone-web-visual-parity-phase2-handoff.md` (新規)
+  - `.claude/knowledge/2026-04-01-filmtone-web-visual-parity-agent-teams.md` (新規)
+- **Notes:** panel shell / overlay layout / i18n は改善したが、left canvas が黒いままで Desktop parity は未達。fallback は削除し、Phase 2 は canonical sample asset を前提に rendering path を直線的に debug する。
+
 ## Filmtone Web UI — desktop #72 edit-language port (2026-04-01)
 - **Agent:** Cursor / GPT-5.4
 - **Started:** 2026-04-01T09:48:00+0900 (JST)
@@ -485,6 +502,9 @@
 
 ### 2026-03-10
 - `archive/2026-03-10-photography-page-fixes.md` - Photography Page Fixes
+
+### 2026-04-01
+- `archive/2026-04-01-filmtone-web-visual-parity-phase1.md` - Filmtone Web Visual Parity Phase 1
 
 ### 2026-03-09
 - `archive/2026-03-09-photography-lp-design-polish.md` - Photography LP Design Polish
