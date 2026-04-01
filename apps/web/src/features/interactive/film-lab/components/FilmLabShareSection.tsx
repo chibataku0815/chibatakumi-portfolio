@@ -12,24 +12,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { buildFilmLabPostToXUrl, buildFilmLabShareUrl } from "../share-utils";
 import type { Params } from "../types";
+import { SectionHeader } from "film-lab-ui";
 
 interface FilmLabShareSectionProps {
   /** `usePathname()` の値。空のときは共有 URL を組み立てられない */
   pathname: string | null;
   /** 共有に使うグレード（アクティブスロット） */
   params: Params;
-}
-
-/**
- * セクション見出し（ControlPanel 内の SectionHeader と同じ見た目）
- * @param title - 見出し文言
- */
-function ShareSectionHeader({ title }: { title: string }) {
-  return (
-    <h3 className="mb-2 mt-3 text-[10px] font-medium uppercase tracking-[0.15em] text-white/40 first:mt-0">
-      {title}
-    </h3>
-  );
 }
 
 /**
@@ -76,7 +65,7 @@ export function FilmLabShareSection({ pathname, params }: FilmLabShareSectionPro
 
   return (
     <div className="mt-3 border-t border-white/[0.06] pt-3">
-      <ShareSectionHeader title={tShare("sectionTitle")} />
+      <SectionHeader title={tShare("sectionTitle")} />
       <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
         <button
           type="button"

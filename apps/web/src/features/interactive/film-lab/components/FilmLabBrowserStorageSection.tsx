@@ -27,6 +27,7 @@ import {
   type PresentState,
   type State,
 } from "./film-lab-reducer";
+import { SectionHeader } from "film-lab-ui";
 
 interface FilmLabBrowserStorageSectionProps {
   /** reducer の現在状態（保存に使う） */
@@ -45,18 +46,6 @@ interface FilmLabBrowserStorageSectionProps {
 }
 
 type FeedbackKind = "idle" | "saved" | "loaded" | "cleared" | "error";
-
-/**
- * 見出し（ControlPanel の SectionHeader と同系）
- * @param title - 表示文言
- */
-function BrowserSectionHeader({ title }: { title: string }) {
-  return (
-    <h3 className="mb-2 mt-0 text-[10px] font-medium uppercase tracking-[0.15em] text-white/40">
-      {title}
-    </h3>
-  );
-}
 
 /**
  * 復元した盤面からプリセットバー用ラベルを推定する
@@ -164,7 +153,7 @@ export function FilmLabBrowserStorageSection({
 
   return (
     <div className="mt-3 border-t border-white/[0.06] pt-3">
-      <BrowserSectionHeader title={t("sectionTitle")} />
+      <SectionHeader title={t("sectionTitle")} className="!mt-0" />
       <p className="mb-2.5 text-[10px] leading-snug text-white/35">{t("hint")}</p>
       <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
         <button
