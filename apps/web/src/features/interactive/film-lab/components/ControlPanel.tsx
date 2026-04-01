@@ -11,12 +11,20 @@ import {
 } from "react";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { PRESETS, findMatchingPreset, halationHueToHex, type PresetName } from "film-lab-core";
+import {
+  PRESETS,
+  findMatchingPreset,
+  halationHueToHex,
+  type PresetName,
+} from "film-lab-core";
 import { ControlSlider } from "./ui/ControlSlider";
 import { LUTPanel } from "./LUTPanel";
 import { PresetBar } from "./PresetBar";
 import type { Viewport } from "../core/Viewport";
-import { filmLabShareUiEnabled, filmLabSmartLookUiEnabled } from "../feature-flags";
+import {
+  filmLabShareUiEnabled,
+  filmLabSmartLookUiEnabled,
+} from "../feature-flags";
 import {
   loadFilmLabStoredSession,
   type FilmLabStoredSessionV1,
@@ -50,6 +58,19 @@ const RGB_SHIFT_UI_MAX = 0.01;
 
 /** RGB Shift を細かく調整できるようにする刻み幅。 */
 const RGB_SHIFT_UI_STEP = 0.0001;
+
+/**
+ * desktop #72 と同じ考え方で、右端の値ラベルが窮屈にならないよう
+ * スライダー行そのものに終端側の逃げを作る。
+ */
+const CONTROL_SLIDER_ROW_CLASS_NAME = "pr-2 sm:pr-3";
+
+/**
+ * canvas 内の別系統ボタンを減らし、編集コンテキストへ寄せるための
+ * compact action button の共通見た目です。
+ */
+const FILM_LAB_PANEL_TOOLBAR_BUTTON_CLASS_NAME =
+  "inline-flex min-h-[40px] items-center gap-1.5 rounded-lg border px-2.5 py-2 text-[11px] font-medium transition-colors sm:min-h-0 sm:py-1.5";
 
 /**
  * 旧 share URL や保存データで 0.01 を超える値が来ても、
@@ -90,7 +111,10 @@ interface ControlPanelProps {
    * 比較オン・編集スロットを親へ通知（キャンバス上の HUD と同期）。
    * 未指定なら何もしない（ショーケース埋め込みなど）。
    */
-  onCompareUiChange?: (ui: { compareMode: boolean; activeSlot: "A" | "B" }) => void;
+  onCompareUiChange?: (ui: {
+    compareMode: boolean;
+    activeSlot: "A" | "B";
+  }) => void;
   /** /film-lab のみ: プレゼンモード切替 */
   donationUi?: FilmLabDonationUiBinding;
   /** .cube 読み込み成功時（親が寄付バナー用） */
@@ -135,16 +159,15 @@ export function ControlPanel({
   const tFilmLab = useTranslations("film-lab");
 
   /** URL 共有が無いときは Cinematic＋basePreset、あるときはそのスナップショットで初期化 */
-  const [state, dispatch] = useReducer(
-    filmLabReducer,
-    undefined,
-    () =>
-      initialSharedParams
-        ? createInitialStateFromSharedParams(initialSharedParams)
-        : createInitialState({ ...PRESETS.cinematic } as Params, "cinematic"),
+  const [state, dispatch] = useReducer(filmLabReducer, undefined, () =>
+    initialSharedParams
+      ? createInitialStateFromSharedParams(initialSharedParams)
+      : createInitialState({ ...PRESETS.cinematic } as Params, "cinematic"),
   );
   const [activePreset, setActivePreset] = useState<PresetName>(() =>
-    initialSharedParams ? findMatchingPreset(initialSharedParams) ?? "reset" : "cinematic",
+    initialSharedParams
+      ? (findMatchingPreset(initialSharedParams) ?? "reset")
+      : "cinematic",
   );
   const [savedBloomStrength, setSavedBloomStrength] = useState(0.3);
   const [savedHalationIntensity, setSavedHalationIntensity] = useState(0.25);
@@ -191,14 +214,21 @@ export function ControlPanel({
    * localStorage から読んだセッションを盤面と UI 補助 state に反映する。
    * @param session - 検証済みの保存データ
    */
-  const restoreFromStoredSession = useCallback((session: FilmLabStoredSessionV1) => {
-    dispatch({ type: "RESTORE_PRESENT", present: session.present });
-    setSavedBloomStrength(session.savedBloomStrength);
-    setSavedHalationIntensity(session.savedHalationIntensity);
-    const slot =
-      session.present.activeSlot === "A" ? session.present.slotA : session.present.slotB;
-    setActivePreset(slot.basePreset ?? findMatchingPreset(slot.params) ?? "reset");
-  }, []);
+  const restoreFromStoredSession = useCallback(
+    (session: FilmLabStoredSessionV1) => {
+      dispatch({ type: "RESTORE_PRESENT", present: session.present });
+      setSavedBloomStrength(session.savedBloomStrength);
+      setSavedHalationIntensity(session.savedHalationIntensity);
+      const slot =
+        session.present.activeSlot === "A"
+          ? session.present.slotA
+          : session.present.slotB;
+      setActivePreset(
+        slot.basePreset ?? findMatchingPreset(slot.params) ?? "reset",
+      );
+    },
+    [],
+  );
 
   /** 共有 URL が無いとき、前回「ブラウザに保存」したルックを自動復元 */
   useEffect(() => {
@@ -231,7 +261,8 @@ export function ControlPanel({
 
   /** reset 以外のフィルムプリセット選択中だけ、reset→preset のブレンド率を変えられる */
   const presetIntensityAvailable =
-    activeSlotState.basePreset != null && activeSlotState.basePreset !== "reset";
+    activeSlotState.basePreset != null &&
+    activeSlotState.basePreset !== "reset";
 
   /**
    * プリセットボタンのリング表示: Undo 後も reducer の basePreset を優先し、手動編集後は従来どおり activePreset に従う
@@ -325,9 +356,15 @@ export function ControlPanel({
   /**
    * Quick のメタスライダー: ドラッグ中は MERGE_PARAMS のみ（プレビュー）、離したとき COMMIT で Undo 1 単位にまとめる。
    */
-  const applyQuickMetaChange = useCallback((axis: QuickMetaAxis, value01: number) => {
-    dispatch({ type: "MERGE_PARAMS", patch: quickMetaPatchForValue(axis, value01) });
-  }, []);
+  const applyQuickMetaChange = useCallback(
+    (axis: QuickMetaAxis, value01: number) => {
+      dispatch({
+        type: "MERGE_PARAMS",
+        patch: quickMetaPatchForValue(axis, value01),
+      });
+    },
+    [],
+  );
 
   const commitQuickMeta = useCallback(() => {
     dispatch({ type: "COMMIT" });
@@ -337,9 +374,14 @@ export function ControlPanel({
   const toggleBloom = useCallback(
     (on: boolean) => {
       if (on) {
-        dispatch({ type: "SET_PARAM", key: "bloomStrength", value: savedBloomStrength || 0.3 });
+        dispatch({
+          type: "SET_PARAM",
+          key: "bloomStrength",
+          value: savedBloomStrength || 0.3,
+        });
       } else {
-        if (params.bloomStrength > 0) setSavedBloomStrength(params.bloomStrength);
+        if (params.bloomStrength > 0)
+          setSavedBloomStrength(params.bloomStrength);
         dispatch({ type: "SET_PARAM", key: "bloomStrength", value: 0 });
       }
       dispatch({ type: "COMMIT" });
@@ -351,9 +393,14 @@ export function ControlPanel({
   const toggleHalation = useCallback(
     (on: boolean) => {
       if (on) {
-        dispatch({ type: "SET_PARAM", key: "halationIntensity", value: savedHalationIntensity || 0.25 });
+        dispatch({
+          type: "SET_PARAM",
+          key: "halationIntensity",
+          value: savedHalationIntensity || 0.25,
+        });
       } else {
-        if (params.halationIntensity > 0) setSavedHalationIntensity(params.halationIntensity);
+        if (params.halationIntensity > 0)
+          setSavedHalationIntensity(params.halationIntensity);
         dispatch({ type: "SET_PARAM", key: "halationIntensity", value: 0 });
       }
       dispatch({ type: "COMMIT" });
@@ -364,7 +411,11 @@ export function ControlPanel({
 
   const applyPreset = useCallback((name: PresetName) => {
     const preset = PRESETS[name];
-    dispatch({ type: "APPLY_PRESET", presetName: name, preset: { ...preset } as Params });
+    dispatch({
+      type: "APPLY_PRESET",
+      presetName: name,
+      preset: { ...preset } as Params,
+    });
     setActivePreset(name);
   }, []);
 
@@ -372,27 +423,33 @@ export function ControlPanel({
    * モバイル向け Before/After: 押している間だけリセットルックを表示する（キーボードの Space と同じ reducer アクション）。
    * 指が外れたら必ず復帰するよう pointer capture と cancel/lostcapture も処理する。
    */
-  const handleBeforeAfterPointerDown = useCallback((e: React.PointerEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    const target = e.currentTarget;
-    target.setPointerCapture(e.pointerId);
-    if (!beforeAfterPointerActiveRef.current) {
-      beforeAfterPointerActiveRef.current = true;
-      dispatch({ type: "BEFORE_AFTER_ON" });
-    }
-  }, []);
+  const handleBeforeAfterPointerDown = useCallback(
+    (e: React.PointerEvent<HTMLButtonElement>) => {
+      e.preventDefault();
+      const target = e.currentTarget;
+      target.setPointerCapture(e.pointerId);
+      if (!beforeAfterPointerActiveRef.current) {
+        beforeAfterPointerActiveRef.current = true;
+        dispatch({ type: "BEFORE_AFTER_ON" });
+      }
+    },
+    [],
+  );
 
-  const handleBeforeAfterPointerEnd = useCallback((e: React.PointerEvent<HTMLButtonElement>) => {
-    try {
-      e.currentTarget.releasePointerCapture(e.pointerId);
-    } catch {
-      /* capture が既に外れている環境向け（詳細は無視してよい） */
-    }
-    if (beforeAfterPointerActiveRef.current) {
-      beforeAfterPointerActiveRef.current = false;
-      dispatch({ type: "BEFORE_AFTER_OFF" });
-    }
-  }, []);
+  const handleBeforeAfterPointerEnd = useCallback(
+    (e: React.PointerEvent<HTMLButtonElement>) => {
+      try {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      } catch {
+        /* capture が既に外れている環境向け（詳細は無視してよい） */
+      }
+      if (beforeAfterPointerActiveRef.current) {
+        beforeAfterPointerActiveRef.current = false;
+        dispatch({ type: "BEFORE_AFTER_OFF" });
+      }
+    },
+    [],
+  );
 
   const handleBeforeAfterLostCapture = useCallback(() => {
     if (beforeAfterPointerActiveRef.current) {
@@ -404,8 +461,15 @@ export function ControlPanel({
   // Keyboard shortcuts
   useEffect(() => {
     const presetKeys: Record<string, PresetName> = {
-      "1": "cinematic", "2": "portra", "3": "gold200", "4": "pro400h",
-      "5": "ektar100", "6": "superia400", "7": "cinestill800t", "8": "bw", "0": "reset",
+      "1": "cinematic",
+      "2": "portra",
+      "3": "gold200",
+      "4": "pro400h",
+      "5": "ektar100",
+      "6": "superia400",
+      "7": "cinestill800t",
+      "8": "bw",
+      "0": "reset",
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -413,7 +477,8 @@ export function ControlPanel({
         e.target instanceof HTMLInputElement ||
         e.target instanceof HTMLTextAreaElement ||
         (e.target instanceof HTMLElement && e.target.isContentEditable)
-      ) return;
+      )
+        return;
 
       const meta = e.metaKey || e.ctrlKey;
 
@@ -521,6 +586,9 @@ export function ControlPanel({
     (smartLookPathOk || smartLookHasDesktopBff);
   /** @description Desktop は Presets 直下に置き、スクロールしなくても見えるようにする */
   const smartLookProminent = smartLookHasDesktopBff;
+  /** @description desktop #72 にならい、編集に近い utility を panel 冒頭へ寄せる */
+  const utilityActionsVisible =
+    filmLabCanvasRef != null || onHistogramToggle != null;
 
   return (
     <>
@@ -528,69 +596,128 @@ export function ControlPanel({
         @container + @min-[560px]: Color|Effects の 2 列は「パネル幅」基準。
         ビューポートだけが広いデスクトップ右ペインでは 1 列のままにし、ラベルとスライダーの重なりを防ぐ。
       */}
-      <div className="@container w-full min-w-0 rounded-lg border border-white/[0.06] bg-black/60 p-4 backdrop-blur-xl sm:p-5">
-        <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div
-            className="flex rounded-lg border border-white/10 p-0.5"
-            role="group"
-            aria-label={tFilmLab("mode.hintShort")}
-          >
-            <button
-              type="button"
-              onClick={() => setUiMode("quick")}
-              className={`flex-1 rounded-md px-3 py-2 text-center text-[11px] font-medium transition-colors sm:flex-none sm:px-4 ${
-                uiMode === "quick"
-                  ? "bg-[var(--accent-amber1)] text-black"
-                  : "text-white/55 hover:text-white/75"
-              }`}
-            >
-              {tFilmLab("mode.quick")}
-            </button>
-            <button
-              type="button"
-              onClick={() => setUiMode("pro")}
-              className={`flex-1 rounded-md px-3 py-2 text-center text-[11px] font-medium transition-colors sm:flex-none sm:px-4 ${
-                uiMode === "pro"
-                  ? "bg-[var(--accent-amber1)] text-black"
-                  : "text-white/55 hover:text-white/75"
-              }`}
-            >
-              {tFilmLab("mode.pro")}
-            </button>
+      <div className="@container w-full min-w-0 rounded-[1.5rem] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(18,18,18,0.92),rgba(10,10,10,0.82))] p-3 shadow-[0_18px_48px_rgba(0,0,0,0.24)] backdrop-blur-md sm:p-4">
+        <div className="mb-4 border-b border-white/[0.06] pb-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex flex-wrap items-center gap-2">
+              <div
+                className="flex rounded-full border border-white/10 bg-white/[0.03] p-0.5"
+                role="group"
+                aria-label={tFilmLab("mode.hintShort")}
+              >
+                <button
+                  type="button"
+                  onClick={() => setUiMode("quick")}
+                  className={`flex-1 rounded-full px-3 py-2 text-center text-[11px] font-medium transition-colors sm:flex-none sm:px-4 sm:py-1.5 ${
+                    uiMode === "quick"
+                      ? "bg-[var(--accent-amber1)] text-black"
+                      : "text-white/55 hover:text-white/75"
+                  }`}
+                >
+                  {tFilmLab("mode.quick")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setUiMode("pro")}
+                  className={`flex-1 rounded-full px-3 py-2 text-center text-[11px] font-medium transition-colors sm:flex-none sm:px-4 sm:py-1.5 ${
+                    uiMode === "pro"
+                      ? "bg-[var(--accent-amber1)] text-black"
+                      : "text-white/55 hover:text-white/75"
+                  }`}
+                >
+                  {tFilmLab("mode.pro")}
+                </button>
+              </div>
+              {utilityActionsVisible ? (
+                <div className="flex flex-wrap items-center gap-1">
+                  {filmLabCanvasRef ? (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        filmLabCanvasRef.current?.openMediaPicker()
+                      }
+                      aria-label={tFilmLab("toolbar.open")}
+                      title={tFilmLab("toolbar.open")}
+                      className={`${FILM_LAB_PANEL_TOOLBAR_BUTTON_CLASS_NAME} border-white/10 bg-white/[0.03] text-white/70 hover:bg-white/[0.08] hover:text-white`}
+                    >
+                      <PanelOpenMediaIcon />
+                      <span className="hidden sm:inline">
+                        {tFilmLab("toolbar.open")}
+                      </span>
+                    </button>
+                  ) : null}
+                  {filmLabCanvasRef ? (
+                    <button
+                      type="button"
+                      onClick={() => filmLabCanvasRef.current?.saveCurrentPng()}
+                      aria-label={tFilmLab("toolbar.savePng")}
+                      title={tFilmLab("toolbar.savePng")}
+                      className={`${FILM_LAB_PANEL_TOOLBAR_BUTTON_CLASS_NAME} border-white/10 bg-white/[0.03] text-white/70 hover:bg-white/[0.08] hover:text-white`}
+                    >
+                      <PanelSavePngIcon />
+                      <span className="hidden sm:inline">
+                        {tFilmLab("toolbar.savePng")}
+                      </span>
+                    </button>
+                  ) : null}
+                  {onHistogramToggle ? (
+                    <button
+                      type="button"
+                      onClick={onHistogramToggle}
+                      aria-label={tFilmLab("controls.histogram")}
+                      aria-pressed={histogramVisible}
+                      title={tFilmLab("controls.histogram")}
+                      className={`${FILM_LAB_PANEL_TOOLBAR_BUTTON_CLASS_NAME} ${
+                        histogramVisible
+                          ? "border-[color-mix(in_srgb,var(--accent-amber1)_55%,transparent)] bg-white/[0.08] text-white"
+                          : "border-white/10 bg-white/[0.03] text-white/60 hover:bg-white/[0.08] hover:text-white"
+                      }`}
+                    >
+                      <PanelHistogramIcon />
+                      <span className="hidden sm:inline">
+                        {tFilmLab("controls.histogram")}
+                      </span>
+                    </button>
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
+            <div className="flex items-start justify-end gap-1 sm:max-w-[260px]">
+              <p className="min-w-0 flex-1 text-right text-[10px] leading-snug text-white/35">
+                {tFilmLab("mode.hintShort")}
+              </p>
+              <FilmLabInfoTip
+                tip={tFilmLab("mode.hint")}
+                assistiveLabel={tFilmLab("mode.hintInfoAria")}
+                className="mt-0.5 text-white/35 hover:text-amber-200/80"
+              />
+            </div>
           </div>
-          <div className="flex items-start justify-end gap-1 sm:max-w-[260px]">
-            <p className="min-w-0 flex-1 text-right text-[10px] leading-snug text-white/35">
-              {tFilmLab("mode.hintShort")}
-            </p>
-            <FilmLabInfoTip
-              tip={tFilmLab("mode.hint")}
-              assistiveLabel={tFilmLab("mode.hintInfoAria")}
-              className="mt-0.5 text-white/35 hover:text-amber-200/80"
-            />
-          </div>
-        </div>
 
-        {donationUi ? (
-          <label className="mt-2 flex cursor-pointer items-start gap-2.5 rounded-lg border border-white/[0.06] bg-white/[0.03] p-2.5">
-            <input
-              type="checkbox"
-              checked={donationUi.presentMode}
-              onChange={(e) => donationUi.onPresentModeChange(e.target.checked)}
-              className="mt-0.5 h-4 w-4 shrink-0 rounded border-white/20 bg-black/40 text-[var(--accent-amber1)] focus:ring-[var(--accent-amber1)]"
-            />
-            <span className="min-w-0">
-              <span className="block text-[11px] font-medium text-white/80">
-                {tFilmLab("donation.present_mode.toggleLabel")}
+          {donationUi ? (
+            <label className="mt-3 flex cursor-pointer items-start gap-2.5 rounded-xl border border-white/[0.06] bg-white/[0.03] p-2.5">
+              <input
+                type="checkbox"
+                checked={donationUi.presentMode}
+                onChange={(e) =>
+                  donationUi.onPresentModeChange(e.target.checked)
+                }
+                className="mt-0.5 h-4 w-4 shrink-0 rounded border-white/20 bg-black/40 text-[var(--accent-amber1)] focus:ring-[var(--accent-amber1)]"
+              />
+              <span className="min-w-0">
+                <span className="block text-[11px] font-medium text-white/80">
+                  {tFilmLab("donation.present_mode.toggleLabel")}
+                </span>
+                <span className="mt-1 block text-[10px] leading-snug text-white/38">
+                  {tFilmLab("donation.present_mode.description")}
+                </span>
+                <span className="mt-0.5 block text-[10px] text-white/28">
+                  {tFilmLab("donation.present_mode.urlHint")}
+                </span>
               </span>
-              <span className="mt-1 block text-[10px] leading-snug text-white/38">
-                {tFilmLab("donation.present_mode.description")}
-              </span>
-              <span className="mt-0.5 block text-[10px] text-white/28">
-                {tFilmLab("donation.present_mode.urlHint")}
-              </span>
-            </span>
-          </label>
-        ) : null}
+            </label>
+          ) : null}
+        </div>
 
         {/*
           プリセットは Web / Desktop 共通でパネル最上部に置く（スクロールなしで選べる・バッチ反映の起点としても見つけやすい）。
@@ -602,6 +729,7 @@ export function ControlPanel({
           {presetIntensityAvailable ? (
             <div className="mt-3">
               <ControlSlider
+                className={CONTROL_SLIDER_ROW_CLASS_NAME}
                 label={tFilmLab("controls.presetIntensity")}
                 value={activeSlotState.intensity}
                 min={0}
@@ -616,7 +744,9 @@ export function ControlPanel({
           ) : null}
         </div>
 
-        {smartLookSlotAllowed && smartLookProminent && (!tryFirstLayout || lpAuxPanelsOpen) ? (
+        {smartLookSlotAllowed &&
+        smartLookProminent &&
+        (!tryFirstLayout || lpAuxPanelsOpen) ? (
           <div className="mb-4 min-w-0 border-b border-white/[0.06] pb-4">
             <FilmLabSmartLookSection
               serverVerifiedSupporter={serverVerifiedSupporter}
@@ -636,170 +766,340 @@ export function ControlPanel({
         */}
         <div className="grid w-full min-w-0 grid-cols-1 gap-4 @min-[560px]:grid-cols-2 @min-[560px]:gap-6">
           {/* === COLOR GRADING（Quick 時は視覚順を後ろに — order-2） === */}
-          <div className={`min-w-0 ${isPro ? "" : "order-2 @min-[560px]:order-2"}`}>
+          <div
+            className={`min-w-0 ${isPro ? "" : "order-2 @min-[560px]:order-2"}`}
+          >
             <SectionHeader title={tFilmLab("controls.color")} />
             {isPro ? (
-            <div className="flex flex-col gap-2.5">
-              <ControlSlider label={tFilmLab("controls.exposure")} value={params.exposure} min={-3} max={3} step={0.01} defaultValue={0} onChange={(v) => updateParam("exposure", v)} onCommit={commit} />
-              <ControlSlider label={tFilmLab("controls.contrast")} value={params.contrast} min={0} max={3} step={0.01} defaultValue={1} onChange={(v) => updateParam("contrast", v)} onCommit={commit} />
-              <ControlSlider label={tFilmLab("controls.saturation")} value={params.saturation} min={0} max={3} step={0.01} defaultValue={1} onChange={(v) => updateParam("saturation", v)} onCommit={commit} />
-              <ControlSlider label={tFilmLab("controls.temperature")} value={params.temperature} min={-1} max={1} step={0.01} defaultValue={0} onChange={(v) => updateParam("temperature", v)} onCommit={commit} />
-              <ControlSlider
-                label={tFilmLab("color.tint")}
-                value={params.tint}
-                min={-1}
-                max={1}
-                step={0.01}
-                defaultValue={0}
-                onChange={(v) => updateParam("tint", v)}
-                onCommit={commit}
-              />
-              <ControlSlider label={tFilmLab("controls.highlights")} value={params.highlights} min={-1} max={1} step={0.01} defaultValue={0} onChange={(v) => updateParam("highlights", v)} onCommit={commit} />
-              <ControlSlider label={tFilmLab("controls.shadows")} value={params.shadows} min={-1} max={1} step={0.01} defaultValue={0} onChange={(v) => updateParam("shadows", v)} onCommit={commit} />
-              <SplitToneHueSlider
-                label={tFilmLab("color.shadowHue")}
-                value={params.shadowHue}
-                onChange={(v) => updateParam("shadowHue", v)}
-                onCommit={commit}
-              />
-              <ControlSlider
-                label={tFilmLab("color.shadowTone")}
-                value={params.shadowTone}
-                min={-1}
-                max={1}
-                step={0.01}
-                defaultValue={0}
-                onChange={(v) => updateParam("shadowTone", v)}
-                onCommit={commit}
-              />
-              <SplitToneHueSlider
-                label={tFilmLab("color.highlightHue")}
-                value={params.highlightHue}
-                onChange={(v) => updateParam("highlightHue", v)}
-                onCommit={commit}
-              />
-              <ControlSlider
-                label={tFilmLab("color.highlightTone")}
-                value={params.highlightTone}
-                min={-1}
-                max={1}
-                step={0.01}
-                defaultValue={0}
-                onChange={(v) => updateParam("highlightTone", v)}
-                onCommit={commit}
-              />
-              <ControlSlider label={tFilmLab("controls.fade")} value={params.fade} min={0} max={0.3} step={0.01} defaultValue={0} onChange={(v) => updateParam("fade", v)} onCommit={commit} />
-            </div>
+              <div className="flex flex-col gap-2.5">
+                <ControlSlider
+                  className={CONTROL_SLIDER_ROW_CLASS_NAME}
+                  label={tFilmLab("controls.exposure")}
+                  value={params.exposure}
+                  min={-3}
+                  max={3}
+                  step={0.01}
+                  defaultValue={0}
+                  onChange={(v) => updateParam("exposure", v)}
+                  onCommit={commit}
+                />
+                <ControlSlider
+                  className={CONTROL_SLIDER_ROW_CLASS_NAME}
+                  label={tFilmLab("controls.contrast")}
+                  value={params.contrast}
+                  min={0}
+                  max={3}
+                  step={0.01}
+                  defaultValue={1}
+                  onChange={(v) => updateParam("contrast", v)}
+                  onCommit={commit}
+                />
+                <ControlSlider
+                  className={CONTROL_SLIDER_ROW_CLASS_NAME}
+                  label={tFilmLab("controls.saturation")}
+                  value={params.saturation}
+                  min={0}
+                  max={3}
+                  step={0.01}
+                  defaultValue={1}
+                  onChange={(v) => updateParam("saturation", v)}
+                  onCommit={commit}
+                />
+                <ControlSlider
+                  className={CONTROL_SLIDER_ROW_CLASS_NAME}
+                  label={tFilmLab("controls.temperature")}
+                  value={params.temperature}
+                  min={-1}
+                  max={1}
+                  step={0.01}
+                  defaultValue={0}
+                  onChange={(v) => updateParam("temperature", v)}
+                  onCommit={commit}
+                />
+                <ControlSlider
+                  className={CONTROL_SLIDER_ROW_CLASS_NAME}
+                  label={tFilmLab("color.tint")}
+                  value={params.tint}
+                  min={-1}
+                  max={1}
+                  step={0.01}
+                  defaultValue={0}
+                  onChange={(v) => updateParam("tint", v)}
+                  onCommit={commit}
+                />
+                <ControlSlider
+                  className={CONTROL_SLIDER_ROW_CLASS_NAME}
+                  label={tFilmLab("controls.highlights")}
+                  value={params.highlights}
+                  min={-1}
+                  max={1}
+                  step={0.01}
+                  defaultValue={0}
+                  onChange={(v) => updateParam("highlights", v)}
+                  onCommit={commit}
+                />
+                <ControlSlider
+                  className={CONTROL_SLIDER_ROW_CLASS_NAME}
+                  label={tFilmLab("controls.shadows")}
+                  value={params.shadows}
+                  min={-1}
+                  max={1}
+                  step={0.01}
+                  defaultValue={0}
+                  onChange={(v) => updateParam("shadows", v)}
+                  onCommit={commit}
+                />
+                <SplitToneHueSlider
+                  className={CONTROL_SLIDER_ROW_CLASS_NAME}
+                  label={tFilmLab("color.shadowHue")}
+                  value={params.shadowHue}
+                  onChange={(v) => updateParam("shadowHue", v)}
+                  onCommit={commit}
+                />
+                <ControlSlider
+                  className={CONTROL_SLIDER_ROW_CLASS_NAME}
+                  label={tFilmLab("color.shadowTone")}
+                  value={params.shadowTone}
+                  min={-1}
+                  max={1}
+                  step={0.01}
+                  defaultValue={0}
+                  onChange={(v) => updateParam("shadowTone", v)}
+                  onCommit={commit}
+                />
+                <SplitToneHueSlider
+                  className={CONTROL_SLIDER_ROW_CLASS_NAME}
+                  label={tFilmLab("color.highlightHue")}
+                  value={params.highlightHue}
+                  onChange={(v) => updateParam("highlightHue", v)}
+                  onCommit={commit}
+                />
+                <ControlSlider
+                  className={CONTROL_SLIDER_ROW_CLASS_NAME}
+                  label={tFilmLab("color.highlightTone")}
+                  value={params.highlightTone}
+                  min={-1}
+                  max={1}
+                  step={0.01}
+                  defaultValue={0}
+                  onChange={(v) => updateParam("highlightTone", v)}
+                  onCommit={commit}
+                />
+                <ControlSlider
+                  className={CONTROL_SLIDER_ROW_CLASS_NAME}
+                  label={tFilmLab("controls.fade")}
+                  value={params.fade}
+                  min={0}
+                  max={0.3}
+                  step={0.01}
+                  defaultValue={0}
+                  onChange={(v) => updateParam("fade", v)}
+                  onCommit={commit}
+                />
+              </div>
             ) : (
-            <div className="flex flex-col gap-2.5">
-              <p className="text-[10px] leading-snug text-white/45">
-                {tFilmLab("controls.quick.summary")}
-              </p>
-              <ControlSlider
-                label={tFilmLab("controls.quick.filmLook")}
-                hint={tFilmLab("controls.quick.filmLookHint")}
-                value={quickMetaDisplayValue("filmLook", params)}
-                min={0}
-                max={1}
-                step={0.01}
-                defaultValue={0.5}
-                formatValue={(v) => `${Math.round(v * 100)}%`}
-                onChange={(v) => applyQuickMetaChange("filmLook", v)}
-                onCommit={commitQuickMeta}
-              />
-              <ControlSlider
-                label={tFilmLab("controls.quick.era")}
-                hint={tFilmLab("controls.quick.eraHint")}
-                value={quickMetaDisplayValue("era", params)}
-                min={0}
-                max={1}
-                step={0.01}
-                defaultValue={0.5}
-                formatValue={(v) => `${Math.round(v * 100)}%`}
-                onChange={(v) => applyQuickMetaChange("era", v)}
-                onCommit={commitQuickMeta}
-              />
-              <ControlSlider
-                label={tFilmLab("controls.quick.dynamics")}
-                hint={tFilmLab("controls.quick.dynamicsHint")}
-                value={quickMetaDisplayValue("dynamics", params)}
-                min={0}
-                max={1}
-                step={0.01}
-                defaultValue={0.5}
-                formatValue={(v) => `${Math.round(v * 100)}%`}
-                onChange={(v) => applyQuickMetaChange("dynamics", v)}
-                onCommit={commitQuickMeta}
-              />
-            </div>
+              <div className="flex flex-col gap-2.5">
+                <p className="text-[10px] leading-snug text-white/45">
+                  {tFilmLab("controls.quick.summary")}
+                </p>
+                <ControlSlider
+                  className={CONTROL_SLIDER_ROW_CLASS_NAME}
+                  label={tFilmLab("controls.quick.filmLook")}
+                  hint={tFilmLab("controls.quick.filmLookHint")}
+                  value={quickMetaDisplayValue("filmLook", params)}
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  defaultValue={0.5}
+                  formatValue={(v) => `${Math.round(v * 100)}%`}
+                  onChange={(v) => applyQuickMetaChange("filmLook", v)}
+                  onCommit={commitQuickMeta}
+                />
+                <ControlSlider
+                  className={CONTROL_SLIDER_ROW_CLASS_NAME}
+                  label={tFilmLab("controls.quick.era")}
+                  hint={tFilmLab("controls.quick.eraHint")}
+                  value={quickMetaDisplayValue("era", params)}
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  defaultValue={0.5}
+                  formatValue={(v) => `${Math.round(v * 100)}%`}
+                  onChange={(v) => applyQuickMetaChange("era", v)}
+                  onCommit={commitQuickMeta}
+                />
+                <ControlSlider
+                  className={CONTROL_SLIDER_ROW_CLASS_NAME}
+                  label={tFilmLab("controls.quick.dynamics")}
+                  hint={tFilmLab("controls.quick.dynamicsHint")}
+                  value={quickMetaDisplayValue("dynamics", params)}
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  defaultValue={0.5}
+                  formatValue={(v) => `${Math.round(v * 100)}%`}
+                  onChange={(v) => applyQuickMetaChange("dynamics", v)}
+                  onCommit={commitQuickMeta}
+                />
+              </div>
             )}
           </div>
 
           {/* === EFFECTS（Pro のみ） === */}
           {isPro ? (
-          <div className="min-w-0">
-            <CollapsibleHeader title={tFilmLab("controls.effects")} open={effectsOpen} onToggle={() => setEffectsOpen(!effectsOpen)} />
-            {effectsOpen && (
-              <div className="flex flex-col gap-2.5">
-                <ControlSlider
-                  label={tFilmLab("controls.rgbShift")}
-                  hint={tFilmLab("effects.rgbShiftHint")}
-                  value={params.rgbShift}
-                  min={0}
-                  max={getRgbShiftSliderMax(params.rgbShift)}
-                  step={RGB_SHIFT_UI_STEP}
-                  defaultValue={0}
-                  formatValue={formatRgbShiftValue}
-                  onChange={(v) => updateParam("rgbShift", v)}
-                  onCommit={commit}
-                />
-                <ControlSlider
-                  label={tFilmLab("controls.lensSoftness")}
-                  hint={tFilmLab("effects.lensSoftnessHint")}
-                  value={params.lensSoftness}
-                  min={0}
-                  max={1}
-                  step={0.01}
-                  defaultValue={0}
-                  formatValue={(v) => `${Math.round(v * 100)}%`}
-                  onChange={(v) => updateParam("lensSoftness", v)}
-                  onCommit={commit}
-                />
-                <ControlSlider label={tFilmLab("controls.filmGrain")} value={params.grainIntensity} min={0} max={0.5} step={0.01} defaultValue={0} onChange={(v) => updateParam("grainIntensity", v)} onCommit={commit} />
-                <ControlSlider
-                  label={tFilmLab("controls.grainRadialMix")}
-                  hint={tFilmLab("controls.grainRadialMixHint")}
-                  value={params.grainRadialMix}
-                  min={0}
-                  max={1}
-                  step={0.01}
-                  defaultValue={1}
-                  onChange={(v) => updateParam("grainRadialMix", v)}
-                  onCommit={commit}
-                />
-                <ControlSlider label={tFilmLab("controls.vignette")} value={params.vignette} min={0} max={1} step={0.01} defaultValue={0} onChange={(v) => updateParam("vignette", v)} onCommit={commit} />
-              </div>
-            )}
-
-            <ToggleHeader title={tFilmLab("controls.bloom")} enabled={bloomEnabled} onToggle={toggleBloom} />
-            <div className={`flex flex-col gap-2.5 ${!bloomEnabled ? "pointer-events-none opacity-30" : ""}`}>
-              <ControlSlider label={tFilmLab("controls.strength")} value={params.bloomStrength} min={0} max={3} step={0.01} defaultValue={0} onChange={(v) => updateParam("bloomStrength", v)} onCommit={commit} />
-              <ControlSlider label={tFilmLab("controls.threshold")} value={params.bloomThreshold} min={0} max={1} step={0.01} defaultValue={0.8} onChange={(v) => updateParam("bloomThreshold", v)} onCommit={commit} />
-              <ControlSlider label={tFilmLab("controls.radius")} value={params.bloomRadius} min={0} max={1} step={0.01} defaultValue={0.4} onChange={(v) => updateParam("bloomRadius", v)} onCommit={commit} />
-            </div>
-
-            <ToggleHeader title={tFilmLab("controls.halation")} enabled={halationEnabled} onToggle={toggleHalation} />
-            <div className={`flex flex-col gap-2.5 ${!halationEnabled ? "pointer-events-none opacity-30" : ""}`}>
-              <ControlSlider label={tFilmLab("controls.intensity")} value={params.halationIntensity} min={0} max={1} step={0.01} defaultValue={0} onChange={(v) => updateParam("halationIntensity", v)} onCommit={commit} />
-              <ControlSlider label={tFilmLab("controls.spread")} value={params.halationSpread} min={0} max={50} step={0.5} defaultValue={15} onChange={(v) => updateParam("halationSpread", v)} onCommit={commit} />
-              <HueSlider
-                label={tFilmLab("controls.halationHue")}
-                value={params.halationHue}
-                onChange={updateHalationHue}
-                onCommit={commit}
+            <div className="min-w-0">
+              <CollapsibleHeader
+                title={tFilmLab("controls.effects")}
+                open={effectsOpen}
+                onToggle={() => setEffectsOpen(!effectsOpen)}
               />
+              {effectsOpen && (
+                <div className="flex flex-col gap-2.5">
+                  <ControlSlider
+                    className={CONTROL_SLIDER_ROW_CLASS_NAME}
+                    label={tFilmLab("controls.rgbShift")}
+                    hint={tFilmLab("effects.rgbShiftHint")}
+                    value={params.rgbShift}
+                    min={0}
+                    max={getRgbShiftSliderMax(params.rgbShift)}
+                    step={RGB_SHIFT_UI_STEP}
+                    defaultValue={0}
+                    formatValue={formatRgbShiftValue}
+                    onChange={(v) => updateParam("rgbShift", v)}
+                    onCommit={commit}
+                  />
+                  <ControlSlider
+                    className={CONTROL_SLIDER_ROW_CLASS_NAME}
+                    label={tFilmLab("controls.lensSoftness")}
+                    hint={tFilmLab("effects.lensSoftnessHint")}
+                    value={params.lensSoftness}
+                    min={0}
+                    max={1}
+                    step={0.01}
+                    defaultValue={0}
+                    formatValue={(v) => `${Math.round(v * 100)}%`}
+                    onChange={(v) => updateParam("lensSoftness", v)}
+                    onCommit={commit}
+                  />
+                  <ControlSlider
+                    className={CONTROL_SLIDER_ROW_CLASS_NAME}
+                    label={tFilmLab("controls.filmGrain")}
+                    value={params.grainIntensity}
+                    min={0}
+                    max={0.5}
+                    step={0.01}
+                    defaultValue={0}
+                    onChange={(v) => updateParam("grainIntensity", v)}
+                    onCommit={commit}
+                  />
+                  <ControlSlider
+                    className={CONTROL_SLIDER_ROW_CLASS_NAME}
+                    label={tFilmLab("controls.grainRadialMix")}
+                    hint={tFilmLab("controls.grainRadialMixHint")}
+                    value={params.grainRadialMix}
+                    min={0}
+                    max={1}
+                    step={0.01}
+                    defaultValue={1}
+                    onChange={(v) => updateParam("grainRadialMix", v)}
+                    onCommit={commit}
+                  />
+                  <ControlSlider
+                    className={CONTROL_SLIDER_ROW_CLASS_NAME}
+                    label={tFilmLab("controls.vignette")}
+                    value={params.vignette}
+                    min={0}
+                    max={1}
+                    step={0.01}
+                    defaultValue={0}
+                    onChange={(v) => updateParam("vignette", v)}
+                    onCommit={commit}
+                  />
+                </div>
+              )}
+
+              <ToggleHeader
+                title={tFilmLab("controls.bloom")}
+                enabled={bloomEnabled}
+                onToggle={toggleBloom}
+              />
+              <div
+                className={`flex flex-col gap-2.5 ${!bloomEnabled ? "pointer-events-none opacity-30" : ""}`}
+              >
+                <ControlSlider
+                  className={CONTROL_SLIDER_ROW_CLASS_NAME}
+                  label={tFilmLab("controls.strength")}
+                  value={params.bloomStrength}
+                  min={0}
+                  max={3}
+                  step={0.01}
+                  defaultValue={0}
+                  onChange={(v) => updateParam("bloomStrength", v)}
+                  onCommit={commit}
+                />
+                <ControlSlider
+                  className={CONTROL_SLIDER_ROW_CLASS_NAME}
+                  label={tFilmLab("controls.threshold")}
+                  value={params.bloomThreshold}
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  defaultValue={0.8}
+                  onChange={(v) => updateParam("bloomThreshold", v)}
+                  onCommit={commit}
+                />
+                <ControlSlider
+                  className={CONTROL_SLIDER_ROW_CLASS_NAME}
+                  label={tFilmLab("controls.radius")}
+                  value={params.bloomRadius}
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  defaultValue={0.4}
+                  onChange={(v) => updateParam("bloomRadius", v)}
+                  onCommit={commit}
+                />
+              </div>
+
+              <ToggleHeader
+                title={tFilmLab("controls.halation")}
+                enabled={halationEnabled}
+                onToggle={toggleHalation}
+              />
+              <div
+                className={`flex flex-col gap-2.5 ${!halationEnabled ? "pointer-events-none opacity-30" : ""}`}
+              >
+                <ControlSlider
+                  className={CONTROL_SLIDER_ROW_CLASS_NAME}
+                  label={tFilmLab("controls.intensity")}
+                  value={params.halationIntensity}
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  defaultValue={0}
+                  onChange={(v) => updateParam("halationIntensity", v)}
+                  onCommit={commit}
+                />
+                <ControlSlider
+                  className={CONTROL_SLIDER_ROW_CLASS_NAME}
+                  label={tFilmLab("controls.spread")}
+                  value={params.halationSpread}
+                  min={0}
+                  max={50}
+                  step={0.5}
+                  defaultValue={15}
+                  onChange={(v) => updateParam("halationSpread", v)}
+                  onCommit={commit}
+                />
+                <HueSlider
+                  className={CONTROL_SLIDER_ROW_CLASS_NAME}
+                  label={tFilmLab("controls.halationHue")}
+                  value={params.halationHue}
+                  onChange={updateHalationHue}
+                  onCommit={commit}
+                />
+              </div>
             </div>
-          </div>
           ) : null}
 
           {/* === LUT（プリセットはパネル上段へ移動・ここでは .cube のみ） === */}
@@ -819,134 +1119,154 @@ export function ControlPanel({
               </button>
             </div>
           ) : (
-          <div
-            className={`min-w-0 ${isPro ? "@min-[560px]:col-span-2" : "order-1 @min-[560px]:order-1"}`}
-          >
-            <LUTPanel viewport={viewport} onCubeLutLoaded={onLutLoadSuccess} />
-            <FilmLabBrowserStorageSection
-              state={state}
-              dispatch={dispatch}
-              savedBloomStrength={savedBloomStrength}
-              savedHalationIntensity={savedHalationIntensity}
-              onAfterRestore={handleBrowserRestoreUi}
-              onSaveSuccess={onBrowserSaveSuccess}
-            />
-            {smartLookSlotAllowed && !smartLookProminent ? (
-              <FilmLabSmartLookSection
-                serverVerifiedSupporter={serverVerifiedSupporter}
-                filmLabCanvasRef={filmLabCanvasRef}
-                activePreset={presetBarActive}
-                activeSlotState={activeSlotState}
-                dispatch={dispatch}
-                smartLookApiBaseUrl={smartLookApiBaseUrl}
+            <div
+              className={`min-w-0 ${isPro ? "@min-[560px]:col-span-2" : "order-1 @min-[560px]:order-1"}`}
+            >
+              <LUTPanel
+                viewport={viewport}
+                onCubeLutLoaded={onLutLoadSuccess}
               />
-            ) : null}
-            <div className="mt-3 rounded-xl border border-white/[0.08] bg-gradient-to-b from-white/[0.04] to-black/20 p-3">
-              <p className="mb-3 text-[10px] font-medium uppercase tracking-[0.12em] text-white/60">
-                {tFilmLab("compare.sectionTitle")}
-              </p>
+              <FilmLabBrowserStorageSection
+                state={state}
+                dispatch={dispatch}
+                savedBloomStrength={savedBloomStrength}
+                savedHalationIntensity={savedHalationIntensity}
+                onAfterRestore={handleBrowserRestoreUi}
+                onSaveSuccess={onBrowserSaveSuccess}
+              />
+              {smartLookSlotAllowed && !smartLookProminent ? (
+                <FilmLabSmartLookSection
+                  serverVerifiedSupporter={serverVerifiedSupporter}
+                  filmLabCanvasRef={filmLabCanvasRef}
+                  activePreset={presetBarActive}
+                  activeSlotState={activeSlotState}
+                  dispatch={dispatch}
+                  smartLookApiBaseUrl={smartLookApiBaseUrl}
+                />
+              ) : null}
+              <div className="mt-3 rounded-2xl border border-white/[0.08] bg-white/[0.03] p-3.5">
+                <p className="mb-3 text-[10px] font-medium uppercase tracking-[0.12em] text-white/60">
+                  {tFilmLab("compare.sectionTitle")}
+                </p>
 
-              <div className="flex gap-3 rounded-lg border border-white/12 bg-[#111]/90 p-2.5">
-                <BeforeAfterPreviewIcon />
-                <div className="min-w-0 flex-1">
-                  <p className="text-[11px] font-medium leading-snug text-white/85">
-                    {tFilmLab("compare.beforeAfterTitle")}
-                  </p>
-                  <p className="mt-0.5 text-[10px] leading-snug text-white/52">
-                    {tFilmLab("compare.beforeAfterHint")}
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onPointerDown={handleBeforeAfterPointerDown}
-                onPointerUp={handleBeforeAfterPointerEnd}
-                onPointerCancel={handleBeforeAfterPointerEnd}
-                onLostPointerCapture={handleBeforeAfterLostCapture}
-                className="mt-2 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-left text-[11px] text-white/65 transition-colors hover:bg-white/8 hover:text-white/80 active:bg-white/12 sm:py-2"
-              >
-                <span className="font-medium text-white/85">{tFilmLab("compare.holdTitle")}</span>
-                <span className="mt-0.5 block text-[10px] text-white/52">{tFilmLab("compare.holdHint")}</span>
-              </button>
-
-              <div className="my-3 h-px bg-white/[0.08]" />
-
-              <div className="flex gap-3">
-                <SplitLooksPreviewIcon />
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className="text-[11px] font-medium leading-snug text-white/85">
-                      {tFilmLab("compare.title")}
-                    </h3>
-                    <button
-                      type="button"
-                      role="switch"
-                      aria-checked={state.compareMode}
-                      onClick={() =>
-                        dispatch({ type: state.compareMode ? "COMPARE_OFF" : "COMPARE_ON" })
-                      }
-                      className={`mt-0.5 h-4 w-7 shrink-0 rounded-full transition-colors ${
-                        state.compareMode ? "bg-[var(--accent-amber1)]" : "bg-white/15"
-                      }`}
-                    >
-                      <span className="sr-only">{tFilmLab("compare.title")}</span>
-                      <span
-                        className={`block h-3 w-3 rounded-full bg-white transition-transform ${
-                          state.compareMode ? "translate-x-3.5" : "translate-x-0.5"
-                        }`}
-                      />
-                    </button>
+                <div className="flex gap-3 rounded-xl border border-white/10 bg-black/35 p-2.5">
+                  <BeforeAfterPreviewIcon />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[11px] font-medium leading-snug text-white/85">
+                      {tFilmLab("compare.beforeAfterTitle")}
+                    </p>
+                    <p className="mt-0.5 text-[10px] leading-snug text-white/52">
+                      {tFilmLab("compare.beforeAfterHint")}
+                    </p>
                   </div>
-                  <p className="mt-1.5 text-[10px] leading-relaxed text-white/52">
-                    {state.compareMode ? tFilmLab("compare.taglineOn") : tFilmLab("compare.taglineOff")}
-                  </p>
-                  {state.compareMode ? (
-                    <div className="mt-2 flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between">
-                      <span className="text-[10px] font-medium text-white/55">
-                        {tFilmLab("compare.editLabel")}
-                      </span>
-                      <div
-                        className="inline-flex rounded-lg border border-white/18 bg-black/50 p-0.5 shadow-inner shadow-black/30"
-                        role="group"
-                        aria-label={tFilmLab("compare.editLabel")}
+                </div>
+                <button
+                  type="button"
+                  onPointerDown={handleBeforeAfterPointerDown}
+                  onPointerUp={handleBeforeAfterPointerEnd}
+                  onPointerCancel={handleBeforeAfterPointerEnd}
+                  onLostPointerCapture={handleBeforeAfterLostCapture}
+                  className="mt-2 w-full rounded-xl border border-white/10 bg-white/[0.04] px-3 py-3 text-left text-[11px] text-white/65 transition-colors hover:bg-white/[0.08] hover:text-white/80 active:bg-white/[0.12] sm:py-2"
+                >
+                  <span className="font-medium text-white/85">
+                    {tFilmLab("compare.holdTitle")}
+                  </span>
+                  <span className="mt-0.5 block text-[10px] text-white/52">
+                    {tFilmLab("compare.holdHint")}
+                  </span>
+                </button>
+
+                <div className="my-3 h-px bg-white/[0.08]" />
+
+                <div className="flex gap-3">
+                  <SplitLooksPreviewIcon />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-start justify-between gap-2">
+                      <h3 className="text-[11px] font-medium leading-snug text-white/85">
+                        {tFilmLab("compare.title")}
+                      </h3>
+                      <button
+                        type="button"
+                        role="switch"
+                        aria-checked={state.compareMode}
+                        onClick={() =>
+                          dispatch({
+                            type: state.compareMode
+                              ? "COMPARE_OFF"
+                              : "COMPARE_ON",
+                          })
+                        }
+                        className={`mt-0.5 h-4 w-7 shrink-0 rounded-full transition-colors ${
+                          state.compareMode
+                            ? "bg-[var(--accent-amber1)]"
+                            : "bg-white/15"
+                        }`}
                       >
-                        <button
-                          type="button"
-                          title={tFilmLab("compare.slotTooltipLeft")}
-                          onClick={() => dispatch({ type: "SWITCH_SLOT", slot: "A" })}
-                          className={`min-w-[3rem] rounded-md px-2.5 py-1.5 text-[11px] font-semibold transition-colors sm:py-1.5 ${
-                            state.activeSlot === "A"
-                              ? "bg-[var(--accent-amber1)] text-black shadow-sm"
-                              : "bg-transparent text-white/88 hover:bg-white/10 hover:text-white"
+                        <span className="sr-only">
+                          {tFilmLab("compare.title")}
+                        </span>
+                        <span
+                          className={`block h-3 w-3 rounded-full bg-white transition-transform ${
+                            state.compareMode
+                              ? "translate-x-3.5"
+                              : "translate-x-0.5"
                           }`}
-                        >
-                          {tFilmLab("compare.slotLeft")}
-                        </button>
-                        <button
-                          type="button"
-                          title={tFilmLab("compare.slotTooltipRight")}
-                          onClick={() => dispatch({ type: "SWITCH_SLOT", slot: "B" })}
-                          className={`min-w-[3rem] rounded-md px-2.5 py-1.5 text-[11px] font-semibold transition-colors sm:py-1.5 ${
-                            state.activeSlot === "B"
-                              ? "bg-[var(--accent-amber1)] text-black shadow-sm"
-                              : "bg-transparent text-white/88 hover:bg-white/10 hover:text-white"
-                          }`}
-                        >
-                          {tFilmLab("compare.slotRight")}
-                        </button>
-                      </div>
+                        />
+                      </button>
                     </div>
-                  ) : null}
+                    <p className="mt-1.5 text-[10px] leading-relaxed text-white/52">
+                      {state.compareMode
+                        ? tFilmLab("compare.taglineOn")
+                        : tFilmLab("compare.taglineOff")}
+                    </p>
+                    {state.compareMode ? (
+                      <div className="mt-2 flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between">
+                        <span className="text-[10px] font-medium text-white/55">
+                          {tFilmLab("compare.editLabel")}
+                        </span>
+                        <div
+                          className="inline-flex rounded-lg border border-white/18 bg-black/50 p-0.5 shadow-inner shadow-black/30"
+                          role="group"
+                          aria-label={tFilmLab("compare.editLabel")}
+                        >
+                          <button
+                            type="button"
+                            title={tFilmLab("compare.slotTooltipLeft")}
+                            onClick={() =>
+                              dispatch({ type: "SWITCH_SLOT", slot: "A" })
+                            }
+                            className={`min-w-[3rem] rounded-md px-2.5 py-1.5 text-[11px] font-semibold transition-colors sm:py-1.5 ${
+                              state.activeSlot === "A"
+                                ? "bg-[var(--accent-amber1)] text-black shadow-sm"
+                                : "bg-transparent text-white/88 hover:bg-white/10 hover:text-white"
+                            }`}
+                          >
+                            {tFilmLab("compare.slotLeft")}
+                          </button>
+                          <button
+                            type="button"
+                            title={tFilmLab("compare.slotTooltipRight")}
+                            onClick={() =>
+                              dispatch({ type: "SWITCH_SLOT", slot: "B" })
+                            }
+                            className={`min-w-[3rem] rounded-md px-2.5 py-1.5 text-[11px] font-semibold transition-colors sm:py-1.5 ${
+                              state.activeSlot === "B"
+                                ? "bg-[var(--accent-amber1)] text-black shadow-sm"
+                                : "bg-transparent text-white/88 hover:bg-white/10 hover:text-white"
+                            }`}
+                          >
+                            {tFilmLab("compare.slotRight")}
+                          </button>
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
                 </div>
               </div>
+              {filmLabShareUiEnabled ? (
+                <FilmLabShareSection pathname={pathname} params={params} />
+              ) : null}
             </div>
-            {filmLabShareUiEnabled ? (
-              <FilmLabShareSection pathname={pathname} params={params} />
-            ) : null}
-            <div className="mt-3 border-t border-white/[0.06] pt-3">
-              <ToggleHeader title={tFilmLab("controls.histogram")} enabled={histogramVisible} onToggle={() => onHistogramToggle?.()} />
-            </div>
-          </div>
           )}
         </div>
       </div>
@@ -956,6 +1276,87 @@ export function ControlPanel({
 }
 
 /* ── Sub-components ───────────────────────────────────────────── */
+
+/**
+ * panel 冒頭の compact action 用アイコン。文字が隠れる幅でも意味が分かるようにする。
+ */
+function PanelOpenMediaIcon() {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden
+      className="shrink-0 opacity-90"
+    >
+      <path
+        d="M4 7.5A2.5 2.5 0 0 1 6.5 5H10l2 2H17.5A2.5 2.5 0 0 1 20 9.5v7A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5v-9Z"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M12 10.25v5.5M9.25 13h5.5"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+/**
+ * 現在の preview を PNG で保存する action の小さなアイコン。
+ */
+function PanelSavePngIcon() {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden
+      className="shrink-0 opacity-90"
+    >
+      <path
+        d="M6.5 19h11A1.5 1.5 0 0 0 19 17.5v-11A1.5 1.5 0 0 0 17.5 5h-11A1.5 1.5 0 0 0 5 6.5v11A1.5 1.5 0 0 0 6.5 19Z"
+        stroke="currentColor"
+        strokeWidth="1.7"
+      />
+      <path
+        d="M12 7.25v7M9.25 11.5 12 14.25 14.75 11.5"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+/**
+ * histogram overlay の ON/OFF を示す小さなアイコン。
+ */
+function PanelHistogramIcon() {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden
+      className="shrink-0 opacity-90"
+    >
+      <path
+        d="M5 18V9.5M10 18V6M15 18v-4.5M20 18V11"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
 
 /**
  * 「元の写真 | いまのルック」の並びを示すミニ図。比べ方カードで視覚的に役割を伝える。
@@ -969,8 +1370,24 @@ function BeforeAfterPreviewIcon() {
       className="shrink-0 text-white/30"
       aria-hidden
     >
-      <rect x="1" y="5" width="19" height="22" rx="3" fill="currentColor" opacity="0.45" />
-      <rect x="24" y="5" width="19" height="22" rx="3" fill="var(--accent-amber1)" opacity="0.55" />
+      <rect
+        x="1"
+        y="5"
+        width="19"
+        height="22"
+        rx="3"
+        fill="currentColor"
+        opacity="0.45"
+      />
+      <rect
+        x="24"
+        y="5"
+        width="19"
+        height="22"
+        rx="3"
+        fill="var(--accent-amber1)"
+        opacity="0.55"
+      />
     </svg>
   );
 }
@@ -987,10 +1404,42 @@ function SplitLooksPreviewIcon() {
       className="shrink-0 text-white/30"
       aria-hidden
     >
-      <rect x="1" y="5" width="42" height="22" rx="3" fill="currentColor" opacity="0.15" />
-      <rect x="1" y="5" width="20" height="22" rx="3" fill="var(--accent-amber1)" opacity="0.35" />
-      <rect x="23" y="5" width="20" height="22" rx="3" fill="var(--accent-amber1)" opacity="0.6" />
-      <line x1="22" y1="5" x2="22" y2="27" stroke="white" strokeWidth="1.2" opacity="0.45" />
+      <rect
+        x="1"
+        y="5"
+        width="42"
+        height="22"
+        rx="3"
+        fill="currentColor"
+        opacity="0.15"
+      />
+      <rect
+        x="1"
+        y="5"
+        width="20"
+        height="22"
+        rx="3"
+        fill="var(--accent-amber1)"
+        opacity="0.35"
+      />
+      <rect
+        x="23"
+        y="5"
+        width="20"
+        height="22"
+        rx="3"
+        fill="var(--accent-amber1)"
+        opacity="0.6"
+      />
+      <line
+        x1="22"
+        y1="5"
+        x2="22"
+        y2="27"
+        stroke="white"
+        strokeWidth="1.2"
+        opacity="0.45"
+      />
     </svg>
   );
 }
@@ -1017,7 +1466,9 @@ function CollapsibleHeader({
       className="mb-2 mt-3 flex w-full items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.15em] text-white/40 transition-colors hover:text-white/60 first:mt-0"
       onClick={onToggle}
     >
-      <span className={`text-[8px] transition-transform duration-150 ${open ? "rotate-90" : ""}`}>
+      <span
+        className={`text-[8px] transition-transform duration-150 ${open ? "rotate-90" : ""}`}
+      >
         &#9654;
       </span>
       {title}
@@ -1033,16 +1484,24 @@ function SplitToneHueSlider({
   value,
   onChange,
   onCommit,
+  className,
 }: {
   label: string;
   value: number;
   onChange: (v: number) => void;
   onCommit?: () => void;
+  className?: string;
 }) {
   const h = ((value % 360) + 360) % 360;
   return (
-    <div className="flex min-h-[44px] items-center gap-3 sm:min-h-0">
-      <span className="w-16 shrink-0 text-[11px] text-white/50 sm:w-24">{label}</span>
+    <div
+      className={["flex min-h-[44px] items-center gap-3 sm:min-h-0", className]
+        .filter(Boolean)
+        .join(" ")}
+    >
+      <span className="w-16 shrink-0 text-[11px] text-white/50 sm:w-24">
+        {label}
+      </span>
       <div className="relative flex-1">
         <input
           type="range"
@@ -1073,16 +1532,24 @@ function HueSlider({
   value,
   onChange,
   onCommit,
+  className,
 }: {
   label: string;
   value: number;
   onChange: (v: number) => void;
   onCommit?: () => void;
+  className?: string;
 }) {
   const hex = halationHueToHex(value);
   return (
-    <div className="flex min-h-[44px] items-center gap-3 sm:min-h-0">
-      <span className="w-16 shrink-0 text-[11px] text-white/50 sm:w-24">{label}</span>
+    <div
+      className={["flex min-h-[44px] items-center gap-3 sm:min-h-0", className]
+        .filter(Boolean)
+        .join(" ")}
+    >
+      <span className="w-16 shrink-0 text-[11px] text-white/50 sm:w-24">
+        {label}
+      </span>
       <div className="relative flex-1">
         <input
           type="range"
@@ -1155,12 +1622,20 @@ function ToggleHeader({
 /**
  * ショートカット一覧モーダル。文言は next-intl（film-lab.shortcuts）に寄せる。
  */
-function ShortcutHelp({ open, onClose }: { open: boolean; onClose: () => void }) {
+function ShortcutHelp({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}) {
   const t = useTranslations("film-lab.shortcuts");
 
   if (!open) return null;
 
-  const isMac = typeof navigator !== "undefined" && /Mac|iPod|iPhone|iPad/.test(navigator.userAgent);
+  const isMac =
+    typeof navigator !== "undefined" &&
+    /Mac|iPod|iPhone|iPad/.test(navigator.userAgent);
   const mod = isMac ? "\u2318" : "Ctrl";
 
   const shortcuts: { key: string; action: string }[] = [
@@ -1190,7 +1665,10 @@ function ShortcutHelp({ open, onClose }: { open: boolean; onClose: () => void })
         <h2 className="mb-4 text-sm font-medium text-white/80">{t("title")}</h2>
         <div className="space-y-2.5">
           {shortcuts.map((s) => (
-            <div key={s.key} className="flex items-center justify-between gap-8">
+            <div
+              key={s.key}
+              className="flex items-center justify-between gap-8"
+            >
               <kbd className="rounded bg-white/10 px-2 py-0.5 font-mono text-xs text-white/60">
                 {s.key}
               </kbd>

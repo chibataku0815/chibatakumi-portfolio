@@ -75,7 +75,10 @@ const Histogram = dynamic(
 );
 
 const FilmLabDonationLayer = dynamic(
-  () => import("./FilmLabDonationLayer").then((m) => ({ default: m.FilmLabDonationLayer })),
+  () =>
+    import("./FilmLabDonationLayer").then((m) => ({
+      default: m.FilmLabDonationLayer,
+    })),
   { ssr: false },
 );
 
@@ -101,8 +104,14 @@ function FilmLabFullPageHydrationPlaceholder() {
         aria-hidden
       />
       <div className="mt-3 space-y-2">
-        <div className="h-3 w-2/3 max-w-md rounded bg-white/[0.06]" aria-hidden />
-        <div className="min-h-[220px] w-full rounded-xl bg-white/[0.03]" aria-hidden />
+        <div
+          className="h-3 w-2/3 max-w-md rounded bg-white/[0.06]"
+          aria-hidden
+        />
+        <div
+          className="min-h-[220px] w-full rounded-xl bg-white/[0.03]"
+          aria-hidden
+        />
       </div>
     </div>
   );
@@ -116,7 +125,9 @@ function FilmLabFullPageHydrationPlaceholder() {
  * @param root0 - オプション
  * @param root0.suppressTopMargin - LP 内で trust 見出し直後に置くときなど、上マージンを消す
  */
-function FilmLabDesktopReleaseNotice({ suppressTopMargin = false }: { suppressTopMargin?: boolean } = {}) {
+function FilmLabDesktopReleaseNotice({
+  suppressTopMargin = false,
+}: { suppressTopMargin?: boolean } = {}) {
   const t = useTranslations("film-lab.desktopRelease");
 
   return (
@@ -130,7 +141,9 @@ function FilmLabDesktopReleaseNotice({ suppressTopMargin = false }: { suppressTo
         {t("eyebrow")}
       </p>
       <h2 className="mt-2 text-lg font-semibold text-white">{t("title")}</h2>
-      <p className="mt-2 max-w-3xl text-sm leading-relaxed text-white/70">{t("body")}</p>
+      <p className="mt-2 max-w-3xl text-sm leading-relaxed text-white/70">
+        {t("body")}
+      </p>
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <div className="rounded-xl border border-white/8 bg-black/20 px-3 py-3 text-sm leading-relaxed text-white/85">
@@ -342,7 +355,9 @@ export function FilmLabFullPage({
       setPresentMode(filmLabReadPresentMode());
     }
     const presentOn =
-      p === "1" || p === "true" || (p !== "0" && p !== "false" && filmLabReadPresentMode());
+      p === "1" ||
+      p === "true" ||
+      (p !== "0" && p !== "false" && filmLabReadPresentMode());
     if (!presentOn && !filmLabReadPresentHintDismissed()) {
       setShowPresentHint(true);
     }
@@ -404,7 +419,9 @@ export function FilmLabFullPage({
       donationEnabled,
       presentMode,
     });
-    const diagBefore = donationDebugOn ? filmLabDiagnosePresetSaveModal() : null;
+    const diagBefore = donationDebugOn
+      ? filmLabDiagnosePresetSaveModal()
+      : null;
     if (donationDebugOn) {
       filmLabDonationDebugLog("onBrowserSaveSuccess: 呼ばれた", {
         donationEnabled,
@@ -413,9 +430,12 @@ export function FilmLabFullPage({
       });
     }
     if (!donationEnabled) {
-      filmLabDonationDevTrace("onBrowserSaveSuccess: ここで終了（寄付 UI OFF のためコールバック未接続の可能性）", {
-        hint: "NEXT_PUBLIC_* または Vercel の FILM_LAB_* を確認",
-      });
+      filmLabDonationDevTrace(
+        "onBrowserSaveSuccess: ここで終了（寄付 UI OFF のためコールバック未接続の可能性）",
+        {
+          hint: "NEXT_PUBLIC_* または Vercel の FILM_LAB_* を確認",
+        },
+      );
       if (donationDebugOn) {
         filmLabDonationDebugLog(
           "onBrowserSaveSuccess: 中止 — donationEnabled=false（env / FILM_LAB_* を確認）",
@@ -424,9 +444,13 @@ export function FilmLabFullPage({
       return;
     }
     if (presentMode) {
-      filmLabDonationDevTrace("onBrowserSaveSuccess: ここで終了（プレゼンモード ON）");
+      filmLabDonationDevTrace(
+        "onBrowserSaveSuccess: ここで終了（プレゼンモード ON）",
+      );
       if (donationDebugOn) {
-        filmLabDonationDebugLog("onBrowserSaveSuccess: 中止 — プレゼンモード ON");
+        filmLabDonationDebugLog(
+          "onBrowserSaveSuccess: 中止 — プレゼンモード ON",
+        );
       }
       return;
     }
@@ -492,7 +516,13 @@ export function FilmLabFullPage({
       presentMode,
       diagnose: filmLabDiagnosePresetSaveModal(),
     });
-  }, [donationDebugOn, donationEnabled, donationRuntime, presentMode, resolvedDonation]);
+  }, [
+    donationDebugOn,
+    donationEnabled,
+    donationRuntime,
+    presentMode,
+    resolvedDonation,
+  ]);
 
   /**
    * プレゼンモードは寄付より独立: env で寄付を止めてもコントロールパネルから OFF にできないと
@@ -515,8 +545,14 @@ export function FilmLabFullPage({
         className="relative scroll-mt-28 overflow-hidden rounded-3xl sm:rounded-[2rem]"
         aria-labelledby="film-lab-hero-title"
       >
-        <div className="film-lab-lp-hero-aurora pointer-events-none absolute inset-0" aria-hidden />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-40 bg-gradient-to-b from-transparent to-[var(--bg-dark)]" aria-hidden />
+        <div
+          className="film-lab-lp-hero-aurora pointer-events-none absolute inset-0"
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-40 bg-gradient-to-b from-transparent to-[var(--bg-dark)]"
+          aria-hidden
+        />
         <div className="relative z-10 px-5 py-14 sm:px-10 sm:py-20 lg:px-12 lg:py-24">
           <div
             className="film-lab-liquid-glass relative z-10 inline-flex max-w-full flex-wrap items-center gap-2 rounded-full py-1.5 pl-1.5 pr-4"
@@ -525,7 +561,9 @@ export function FilmLabFullPage({
             <span className="rounded-full bg-white px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-wide text-neutral-950">
               {tLp("premiumHeroBadgeNew")}
             </span>
-            <span className="text-xs text-white/85 sm:text-sm">{tLp("premiumHeroBadgeLine")}</span>
+            <span className="text-xs text-white/85 sm:text-sm">
+              {tLp("premiumHeroBadgeLine")}
+            </span>
           </div>
           <p className="mt-8 text-[10px] font-semibold uppercase tracking-[0.24em] text-white/40">
             {tLp("heroEyebrow")}
@@ -569,21 +607,36 @@ export function FilmLabFullPage({
         className="mt-16 scroll-mt-28 sm:mt-24"
         aria-labelledby="film-lab-value-title"
       >
-        <h2 id="film-lab-value-title" className="film-lab-lp-section-badge mb-6">
+        <h2
+          id="film-lab-value-title"
+          className="film-lab-lp-section-badge mb-6"
+        >
           {tLp("valueTitle")}
         </h2>
         <div className="grid gap-4 md:grid-cols-3">
-          {(["valueBullet1", "valueBullet2", "valueBullet3"] as const).map((key) => (
-            <div key={key} className="film-lab-liquid-glass relative z-10 rounded-2xl p-5">
-              <p className="film-lab-lp-body text-sm leading-relaxed text-white/70">{tLp(key)}</p>
-            </div>
-          ))}
+          {(["valueBullet1", "valueBullet2", "valueBullet3"] as const).map(
+            (key) => (
+              <div
+                key={key}
+                className="film-lab-liquid-glass relative z-10 rounded-2xl p-5"
+              >
+                <p className="film-lab-lp-body text-sm leading-relaxed text-white/70">
+                  {tLp(key)}
+                </p>
+              </div>
+            ),
+          )}
         </div>
       </section>
 
       {/* Capabilities — 見出し + チェスレイアウト */}
-      <section className="mt-20 sm:mt-28" aria-labelledby="film-lab-capabilities-title">
-        <p className="film-lab-lp-section-badge mb-3">{tLp("premiumCapabilitiesEyebrow")}</p>
+      <section
+        className="mt-20 sm:mt-28"
+        aria-labelledby="film-lab-capabilities-title"
+      >
+        <p className="film-lab-lp-section-badge mb-3">
+          {tLp("premiumCapabilitiesEyebrow")}
+        </p>
         <h2
           id="film-lab-capabilities-title"
           className="film-lab-lp-heading-xl max-w-4xl text-3xl text-white md:text-5xl lg:text-6xl"
@@ -659,7 +712,9 @@ export function FilmLabFullPage({
                 style={{ background: accent }}
                 aria-hidden
               />
-              <h3 className="film-lab-lp-heading-xl text-lg text-white">{tLp(titleKey)}</h3>
+              <h3 className="film-lab-lp-heading-xl text-lg text-white">
+                {tLp(titleKey)}
+              </h3>
               <p className="film-lab-lp-body mt-3 flex-1 text-sm leading-relaxed text-white/60">
                 {tLp(bodyKey)}
               </p>
@@ -680,7 +735,9 @@ export function FilmLabFullPage({
           >
             {tLp("workflowTitle")}
           </h2>
-          <p className="film-lab-lp-body mt-3 text-sm text-white/60">{tLp("workflowLead")}</p>
+          <p className="film-lab-lp-body mt-3 text-sm text-white/60">
+            {tLp("workflowLead")}
+          </p>
           <ul className="film-lab-lp-body mt-4 list-disc space-y-2 pl-5 text-sm text-white/65">
             <li>{tLp("workflowBullet1")}</li>
             <li>{tLp("workflowBullet2")}</li>
@@ -705,37 +762,49 @@ export function FilmLabFullPage({
           {tLp("demoBody")}
         </p>
 
-        <div className="film-lab-liquid-glass relative z-10 mt-8 overflow-hidden rounded-2xl p-3 sm:p-4">
-          <div className="relative">
-            <FilmLabCanvas
-              ref={filmLabCanvasRef}
-              preset="cinematic"
-              initialGradeParams={initialSharedParams}
-              onViewportReady={setViewport}
-              compareHud={
-                compareUi.compareMode ? { activeSlot: compareUi.activeSlot } : null
-              }
-              onCubeLutLoaded={donationEnabled ? onLutLoadSuccess : undefined}
-            />
-            <Histogram viewport={viewport} visible={histogramVisible} />
-          </div>
-          <div className="mt-3">
-            <p className="film-lab-lp-body mb-2 text-xs text-[var(--text-base-60)]">
-              {t("sampleHint")}
-            </p>
-            <ControlPanel
-              viewport={viewport}
-              histogramVisible={histogramVisible}
-              onHistogramToggle={toggleHistogram}
-              initialSharedParams={initialSharedParams}
-              onCompareUiChange={setCompareUi}
-              donationUi={presentModeBinding}
-              onLutLoadSuccess={donationEnabled ? onLutLoadSuccess : undefined}
-              onBrowserSaveSuccess={onBrowserSaveSuccess}
-              serverVerifiedSupporter={serverVerifiedSupporter}
-              filmLabCanvasRef={filmLabCanvasRef}
-              tryFirstLayout={initialSharedParams == null}
-            />
+        <div className="relative z-10 mt-8 overflow-hidden rounded-[1.75rem] border border-white/[0.07] bg-[linear-gradient(180deg,rgba(22,22,22,0.84),rgba(10,10,10,0.76))] shadow-[0_24px_80px_rgba(0,0,0,0.32)]">
+          <div className="grid min-w-0 gap-0 lg:grid-cols-[minmax(0,1.42fr)_minmax(320px,0.9fr)]">
+            <div className="min-w-0 border-b border-white/[0.07] p-3 sm:p-4 lg:border-b-0 lg:border-r lg:p-5">
+              <div className="relative overflow-hidden rounded-[1.35rem] bg-black/25">
+                <FilmLabCanvas
+                  ref={filmLabCanvasRef}
+                  preset="cinematic"
+                  className="rounded-[1.35rem] shadow-[0_18px_56px_rgba(0,0,0,0.3)]"
+                  initialGradeParams={initialSharedParams}
+                  onViewportReady={setViewport}
+                  compareHud={
+                    compareUi.compareMode
+                      ? { activeSlot: compareUi.activeSlot }
+                      : null
+                  }
+                  onCubeLutLoaded={
+                    donationEnabled ? onLutLoadSuccess : undefined
+                  }
+                  stackedToolbarVisible={false}
+                />
+                <Histogram viewport={viewport} visible={histogramVisible} />
+              </div>
+              <p className="film-lab-lp-body mt-3 max-w-2xl text-xs leading-relaxed text-[var(--text-base-60)]">
+                {t("sampleHint")}
+              </p>
+            </div>
+            <div className="min-w-0 p-3 sm:p-4 lg:p-5">
+              <ControlPanel
+                viewport={viewport}
+                histogramVisible={histogramVisible}
+                onHistogramToggle={toggleHistogram}
+                initialSharedParams={initialSharedParams}
+                onCompareUiChange={setCompareUi}
+                donationUi={presentModeBinding}
+                onLutLoadSuccess={
+                  donationEnabled ? onLutLoadSuccess : undefined
+                }
+                onBrowserSaveSuccess={onBrowserSaveSuccess}
+                serverVerifiedSupporter={serverVerifiedSupporter}
+                filmLabCanvasRef={filmLabCanvasRef}
+                tryFirstLayout={initialSharedParams == null}
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -754,7 +823,11 @@ export function FilmLabFullPage({
         <FilmLabDesktopReleaseNotice suppressTopMargin />
       </section>
 
-      <section id="film-lab-faq" className="mt-14 scroll-mt-28 sm:mt-20" aria-labelledby="film-lab-faq-title">
+      <section
+        id="film-lab-faq"
+        className="mt-14 scroll-mt-28 sm:mt-20"
+        aria-labelledby="film-lab-faq-title"
+      >
         <h2
           id="film-lab-faq-title"
           className="film-lab-lp-heading-xl text-xl text-white md:text-3xl"
