@@ -64,6 +64,7 @@ import {
   runFilmLabWebVideoExport,
   WebFilmLabExportError,
 } from "../film-lab-web-video-export";
+import { FilmLabWebglPanelBackdrop } from "./FilmLabWebglPanelBackdrop";
 
 const FilmLabCanvas = dynamic(
   () => import("./FilmLabCanvas").then((m) => ({ default: m.FilmLabCanvas })),
@@ -293,6 +294,8 @@ export function FilmLabFullPage({
 
   const [viewport, setViewport] = useState<Viewport | null>(null);
   const filmLabCanvasRef = useRef<FilmLabCanvasRef | null>(null);
+  /** @description 右パネル `section.fl-card--frost` — WebGL 切り出しブラー PoC の矩形用 */
+  const frostPanelSectionRef = useRef<HTMLElement | null>(null);
   /** LP では最初はオフ。詳しい調整を開いた人だけヒストグラムトグルが意味を持つ。 */
   const [histogramVisible, setHistogramVisible] = useState(false);
   /**
@@ -980,7 +983,22 @@ export function FilmLabFullPage({
                     : "lg:pointer-events-none lg:translate-x-full"
                 }`}
               >
-                <section className="fl-card fl-card-muted fl-card--frost flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden border-t border-white/[0.07] p-0 sm:border-t-0 lg:rounded-xl lg:border lg:border-white/[0.08]">
+                <section
+                  ref={frostPanelSectionRef}
+                  className={`fl-card fl-card-muted fl-card--frost flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden border-t border-white/[0.07] p-0 sm:border-t-0 lg:rounded-xl lg:border lg:border-white/[0.08] ${
+                    isLgLayout && editRightPaneExpanded
+                      ? "fl-card--frost-webgl-backdrop"
+                      : ""
+                  }`}
+                >
+                  {isLgLayout && editRightPaneExpanded ? (
+                    <FilmLabWebglPanelBackdrop
+                      filmLabCanvasRef={filmLabCanvasRef}
+                      panelRef={frostPanelSectionRef}
+                      enabled
+                    />
+                  ) : null}
+                  <div className="relative z-10 flex min-h-0 min-w-0 flex-1 flex-col">
                   <div className="fl-edit-pane-toolbar hidden lg:flex">
                     <button
                       type="button"
@@ -1121,6 +1139,7 @@ export function FilmLabFullPage({
                       filmLabCanvasRef={filmLabCanvasRef}
                       tryFirstLayout={initialSharedParams == null}
                     />
+                  </div>
                   </div>
                 </section>
               </div>

@@ -82,18 +82,20 @@ export function ControlPanel({
   const pathname = usePathname();
   const tFilmLab = useTranslations("film-lab");
 
-  const [auxPanelsOpen, setAuxPanelsOpen] = useState(!tryFirstLayout);
+  /**
+   * LP（tryFirstLayout）でもデュアル LUT などを最初から見せる。クイック用の「補助パネルを閉じた初期状態」は廃止。
+   */
+  const [auxPanelsOpen, setAuxPanelsOpen] = useState(true);
 
-  const handleUiModeChange = useCallback(
-    (mode: "quick" | "pro") => {
-      if (!tryFirstLayout) {
-        return;
-      }
-
-      setAuxPanelsOpen(mode === "pro");
-    },
-    [tryFirstLayout],
-  );
+  /**
+   * LP では Quick / Pro を切り替えてもデュアル LUT を畳まない（hideAux を常に外す）。
+   */
+  const handleUiModeChange = useCallback(() => {
+    if (!tryFirstLayout) {
+      return;
+    }
+    setAuxPanelsOpen(true);
+  }, [tryFirstLayout]);
 
   /* Smart Look の可視判定 */
   const smartLookPathOk =
@@ -217,6 +219,7 @@ export function ControlPanel({
       slots={{
         donationUi,
         hideAuxPanels: tryFirstLayout && !auxPanelsOpen,
+        hideQuickMetaSliders: tryFirstLayout,
         lpExpandButton,
         renderAfterPresets,
         renderAfterLut,
