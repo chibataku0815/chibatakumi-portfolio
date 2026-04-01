@@ -1023,16 +1023,15 @@ export function BatchTabPanel(props: BatchTabPanelProps) {
           <p className="text-sm font-semibold text-[var(--fl-text-primary)]">
             {lookStatusBanner.title}
           </p>
-          <p className="fl-caption mt-0.5 max-w-prose text-[var(--fl-text-secondary)]">
-            {lookStatusBanner.body}
-          </p>
+          {lookStatusBanner.body.trim().length > 0 ? (
+            <p className="fl-caption mt-0.5 max-w-prose text-[var(--fl-text-secondary)]">
+              {lookStatusBanner.body}
+            </p>
+          ) : null}
         </div>
       </div>
 
       <div className="flex flex-col gap-2 border-t border-white/[0.06] pt-3">
-        <p className="text-xs font-semibold uppercase tracking-wide text-[var(--fl-text-secondary)]">
-          {t("lookFromEditHeading")}
-        </p>
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
@@ -1054,9 +1053,6 @@ export function BatchTabPanel(props: BatchTabPanelProps) {
             assistiveLabel={t("applyEditHintAria")}
           />
         </div>
-        <p className="fl-caption text-[var(--fl-text-secondary)]">
-          {t("sameAsFooterSend")}
-        </p>
       </div>
 
       {importedGradeLabel == null &&
