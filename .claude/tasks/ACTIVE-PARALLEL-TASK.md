@@ -6,6 +6,18 @@
 
 ## 直近の完了タスク
 
+## Filmtone Web UI — desktop #72 edit-language port (2026-04-01)
+- **Agent:** Cursor / GPT-5.4
+- **Started:** 2026-04-01T09:48:00+0900 (JST)
+- **Completed:** 2026-04-01T10:00:45+0900 (JST)
+- **Status:** 完了
+- **Files:**
+  - `apps/web/src/features/interactive/film-lab/components/FilmLabFullPage.tsx` (編集)
+  - `apps/web/src/features/interactive/film-lab/components/ControlPanel.tsx` (編集)
+  - `.claude/tasks/ACTIVE-PARALLEL-TASK.md` (編集)
+- **Worktree:** `filmtone-web-ui-72-port`
+- **Notes:** desktop issue #72 の design language を web 側へ移植。preview-first の構図へ整理し、canvas 内 stacked toolbar を panel 冒頭の compact actions へ寄せた。`apps/web` の `bun run build` は通過。main には commit `0409abb` として反映済み。`filmtone-export-webgpu-phase0` にも merge commit `ade9c94` で取り込み済みだが、main 向けの正本は cherry-pick 済みの main とする。
+
 ## Photography Evidence Reframe (2026-03-13)
 - **Agent:** Codex CLI (`orchestrator-director` 相当)
 - **Started:** 2026-03-13T22:57:24+0900 (JST)
