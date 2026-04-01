@@ -62,8 +62,8 @@ describe("BatchTabPanel accordion layout", () => {
   it("renders all 5 sections without wizard navigation", () => {
     const html = renderBatchPanel(<BatchTabPanel {...baseProps} />);
 
-    // All accordion sections present
-    expect(html).toContain("export-step-jobType");
+    // ジョブ種別はアコーディオン外のセクション、手順は sources / look / output
+    expect(html).toContain("export-job-selector-heading");
     expect(html).toContain("export-step-sources");
     expect(html).toContain("export-step-look");
     expect(html).toContain("export-step-output");
