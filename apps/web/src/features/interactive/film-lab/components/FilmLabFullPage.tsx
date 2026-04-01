@@ -15,6 +15,7 @@ import {
   type CSSProperties,
 } from "react";
 import { flushSync } from "react-dom";
+import { FilmLabWebglPanelBackdrop } from "film-lab-ui";
 import type { FilmLabCanvasRef } from "./FilmLabCanvas";
 import dynamic from "next/dynamic";
 import { useLocale, useTranslations } from "next-intl";
@@ -64,7 +65,6 @@ import {
   runFilmLabWebVideoExport,
   WebFilmLabExportError,
 } from "../film-lab-web-video-export";
-import { FilmLabWebglPanelBackdrop } from "./FilmLabWebglPanelBackdrop";
 
 const FilmLabCanvas = dynamic(
   () => import("./FilmLabCanvas").then((m) => ({ default: m.FilmLabCanvas })),

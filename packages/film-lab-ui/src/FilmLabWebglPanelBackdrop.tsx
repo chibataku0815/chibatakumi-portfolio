@@ -1,27 +1,31 @@
 "use client";
 
 /**
- * @fileoverview WebGL プレビュー canvas の画をパネル領域に切り出し、2D + CSS blur で「すりガラス」相当を試す最短 PoC。
+ * @fileoverview Web / Desktop 共有 — WebGL プレビュー canvas の画をパネル領域に切り出し、2D + CSS blur ですりガラス近似。
  *
  * @description
- * `backdrop-filter` は WebGL 背面で壊れやすいため、毎フレーム `drawImage` で取り込み、
- * 小さめバッファへ縮小してから `filter: blur()` を掛ける粗い近似です。
+ * `backdrop-filter` は WebGL 背面や Transform を挟んだレイヤーで壊れやすい。
+ * 毎フレーム `drawImage` で取り込み、バッファへ縮小してから `filter: blur()` を掛ける。
+ * Web の `FilmLabFullPage` lg 展開時と同じ手法を Desktop でも共用する。
  *
  * @limitations
- * - CPU/GPU 負荷あり。本番品質ではシェーダー 1 パスが望ましい。
- * - パネルとキャンバスが画面内で重ならないときは描画をスキップする。
+ * - CPU/GPU 負荷あり。
+ * - パネルとキャンバスが画面内で重ならないときはインターセクションが小さく描画をスキップする。
  */
 
 import { useEffect, useRef, type RefObject } from "react";
 import type { FilmLabCanvasRef } from "./FilmLabCanvas";
 
-/** @description lg でデモパネルが WebGL 上に載るとき true。モバイル縦積みではオフ推奨。 */
+/** @description 右パネルがキャンバス上に載るとき true を渡す */
 export type FilmLabWebglPanelBackdropProps = {
   filmLabCanvasRef: RefObject<FilmLabCanvasRef | null>;
   panelRef: RefObject<HTMLElement | null>;
   enabled: boolean;
 };
 
+/**
+ * @description パネル矩形いっぱいに、背後 WebGL のスナップショット＋スクリムを敷く canvas。
+ */
 export function FilmLabWebglPanelBackdrop({
   filmLabCanvasRef,
   panelRef,
@@ -87,7 +91,7 @@ export function FilmLabWebglPanelBackdrop({
         ctx.fillStyle = "rgba(6, 8, 12, 0.58)";
         ctx.fillRect(0, 0, destW, destH);
       } catch {
-        /* drawImage が弾かれる環境は無視（PoC） */
+        /* drawImage が弾かれる環境は無視 */
       }
     };
 
