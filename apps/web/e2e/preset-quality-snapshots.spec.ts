@@ -63,6 +63,8 @@ test.describe("Film Lab preset quality snapshots", () => {
     await expect(viewport).toBeVisible();
 
     for (const name of PRESET_NAMES) {
+      await page.getByTestId("film-lab-preset-select-trigger").click();
+      await page.getByTestId("film-lab-preset-search-input").fill(name);
       await page.getByTestId(`film-lab-preset-${name}`).click();
       await page.waitForTimeout(800);
       const filePath = path.join(OUT_DIR, `${name}.png`);
