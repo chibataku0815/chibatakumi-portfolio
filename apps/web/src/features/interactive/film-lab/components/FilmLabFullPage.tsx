@@ -985,7 +985,7 @@ export function FilmLabFullPage({
               >
                 <section
                   ref={frostPanelSectionRef}
-                  className={`fl-card fl-card-muted fl-card--frost flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden border-t border-white/[0.07] p-0 sm:border-t-0 lg:rounded-xl lg:border lg:border-white/[0.08] ${
+                  className={`fl-card fl-card-muted fl-card--frost flex h-full min-h-0 min-w-0 flex-1 flex-col border-t border-white/[0.07] p-0 sm:border-t-0 lg:rounded-xl lg:border lg:border-white/[0.08] ${
                     isLgLayout && editRightPaneExpanded
                       ? "fl-card--frost-webgl-backdrop"
                       : ""
@@ -998,7 +998,7 @@ export function FilmLabFullPage({
                       enabled
                     />
                   ) : null}
-                  <div className="relative z-10 flex min-h-0 min-w-0 flex-1 flex-col">
+                  <div className="relative z-10 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-[inherit]">
                   <div className="fl-edit-pane-toolbar hidden lg:flex">
                     <button
                       type="button"

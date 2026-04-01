@@ -84,7 +84,7 @@ export function FilmLabWebglPanelBackdrop({
       try {
         ctx.clearRect(0, 0, destW, destH);
         ctx.drawImage(src, sx, sy, sw, sh, 0, 0, destW, destH);
-        ctx.fillStyle = "rgba(10, 12, 18, 0.38)";
+        ctx.fillStyle = "rgba(6, 8, 12, 0.58)";
         ctx.fillRect(0, 0, destW, destH);
       } catch {
         /* drawImage が弾かれる環境は無視（PoC） */
@@ -111,6 +111,8 @@ export function FilmLabWebglPanelBackdrop({
         height: "100%",
         filter: "blur(22px) saturate(1.28)",
         transform: "scale(1.06)",
+        boxShadow:
+          "inset 0 0 48px rgba(0, 0, 0, 0.38), inset 0 0 0 1px rgba(255, 255, 255, 0.09)",
       }}
       aria-hidden
     />
