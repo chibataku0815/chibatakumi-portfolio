@@ -27,6 +27,7 @@ export const releases: ReleaseEntry[] = [
       { type: "changed", key: "v030VisualPolish" },
       { type: "added", key: "v030PresetSearch" },
       { type: "changed", key: "v030ExportBusyPause" },
+      { type: "changed", key: "v030WebPreview" },
     ],
   },
   {

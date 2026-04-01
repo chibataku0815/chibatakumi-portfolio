@@ -17,9 +17,13 @@ const items: RoadmapItem[] = [
   { key: "fourPresets", status: "released" },
   { key: "browserDemo", status: "released" },
   { key: "shareLook", status: "released" },
+  { key: "desktopExportWorkflow033", status: "released" },
+  { key: "webFilmLabPreview033", status: "released" },
   // In Development
   { key: "presetExpansion", status: "inDevelopment" },
   { key: "exportQuality", status: "inDevelopment" },
+  { key: "verticalVideoExportQuality", status: "inDevelopment" },
+  { key: "videoPreviewControls", status: "inDevelopment" },
   // Planned
   { key: "smartLookAi", status: "planned" },
   { key: "dngRawSupport", status: "planned" },
