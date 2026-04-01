@@ -1,4 +1,7 @@
 @import "tailwindcss";
+/* Web で workspace の film-lab-ui をビルド対象に含める（未指定だと Tailwind クラスが生成されずトグル等が崩れる） */
+@source "../../../../packages/film-lab-ui/src";
+@source "../**/*.{js,ts,jsx,tsx,mdx}";
 @import "@radix-ui/colors/slate-dark.css";
 @import "@radix-ui/colors/amber-dark.css";
 
