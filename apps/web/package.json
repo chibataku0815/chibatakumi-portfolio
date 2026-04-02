@@ -25,16 +25,18 @@
     "date-fns": "^4.1.0",
     "film-lab-core": "workspace:*",
     "film-lab-renderer": "workspace:*",
-    "film-lab-ui": "workspace:*",
     "film-lab-smart-look": "workspace:*",
+    "film-lab-ui": "workspace:*",
     "gsap": "^3.13.0",
+    "mp4-muxer": "5.2.2",
     "next": "16.0.7",
     "next-intl": "^4.8.3",
     "react": "19.2.1",
     "react-dom": "19.2.1",
     "sharp": "^0.34.5",
     "stripe": "^17.5.0",
-    "three": "^0.181.2"
+    "three": "^0.181.2",
+    "webm-muxer": "5.1.4"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",

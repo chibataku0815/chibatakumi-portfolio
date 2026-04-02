@@ -14,6 +14,8 @@ import {
   useSyncExternalStore,
   type CSSProperties,
 } from "react";
+import { flushSync } from "react-dom";
+import { FilmLabWebglPanelBackdrop } from "film-lab-ui";
 import type { FilmLabCanvasRef } from "./FilmLabCanvas";
 import dynamic from "next/dynamic";
 import { useLocale, useTranslations } from "next-intl";
@@ -59,6 +61,10 @@ import {
   filmLabWriteSupporterAck,
 } from "../film-lab-donation-logic";
 import { FilmLabDonationDebugPanel } from "./FilmLabDonationDebugPanel";
+import {
+  runFilmLabWebVideoExport,
+  WebFilmLabExportError,
+} from "../film-lab-web-video-export";
 
 const FilmLabCanvas = dynamic(
   () => import("./FilmLabCanvas").then((m) => ({ default: m.FilmLabCanvas })),
@@ -288,6 +294,8 @@ export function FilmLabFullPage({
 
   const [viewport, setViewport] = useState<Viewport | null>(null);
   const filmLabCanvasRef = useRef<FilmLabCanvasRef | null>(null);
+  /** @description 右パネル `section.fl-card--frost` — WebGL 切り出しブラー PoC の矩形用 */
+  const frostPanelSectionRef = useRef<HTMLElement | null>(null);
   /** LP では最初はオフ。詳しい調整を開いた人だけヒストグラムトグルが意味を持つ。 */
   const [histogramVisible, setHistogramVisible] = useState(false);
   /**
@@ -308,6 +316,11 @@ export function FilmLabFullPage({
     compareMode: boolean;
     activeSlot: "A" | "B";
   }>({ compareMode: false, activeSlot: "A" });
+  /** デモでユーザーが動画ファイルを開いているとき true（Web MP4 書き出しボタン用） */
+  const [demoHasUserVideo, setDemoHasUserVideo] = useState(false);
+  /** Web 動画書き出し中（プレビュー動画を止める） */
+  const [webExportBusy, setWebExportBusy] = useState(false);
+  const [webExportStatus, setWebExportStatus] = useState<string | null>(null);
   const demoCanvasStageStyle = useMemo<CSSProperties>(
     () =>
       isLgLayout
@@ -351,6 +364,72 @@ export function FilmLabFullPage({
   const toggleHistogram = useCallback(() => {
     setHistogramVisible((prev) => !prev);
   }, []);
+
+  const handleWebVideoExport = useCallback(async () => {
+    if (compareUi.compareMode) {
+      setWebExportStatus(t("webExport.errorCompareMode"));
+      return;
+    }
+    const vid = filmLabCanvasRef.current?.getActiveVideoElement();
+    const vp = viewport;
+    if (!vid || !vp) {
+      setWebExportStatus(t("webExport.errorNoVideo"));
+      return;
+    }
+
+    /**
+     * @description `dynamic()` 越しの子は flushSync だけでは RAF 用 ref がまだ古い場合がある。
+     *   `holdPreviewRendering` は同一コールスタックで `previewRenderingHoldRef` を立て、確実に `viewport.render` を止める。
+     */
+    filmLabCanvasRef.current?.holdPreviewRendering(true);
+    /**
+     * @description ツールバー無効化・`pauseVideoPreview`・`<video pause>`（useEffect）用。hold と併用。
+     */
+    flushSync(() => {
+      setWebExportBusy(true);
+      setWebExportStatus(t("webExport.preparing"));
+    });
+
+    try {
+      await runFilmLabWebVideoExport({
+        sourceVideo: vid,
+        sourceViewport: vp,
+        maxDurationSec: 90,
+        targetFps: 30,
+        maxLongEdge: 1920,
+        onProgress: (p) => {
+          if (p.phase === "encode") {
+            setWebExportStatus(
+              t("webExport.progressEncode", {
+                current: p.frameIndex,
+                total: p.frameCount,
+              }),
+            );
+          } else if (p.phase === "finalize") {
+            setWebExportStatus(t("webExport.finalizing"));
+          }
+        },
+      });
+      setWebExportStatus(t("webExport.done"));
+      window.setTimeout(() => setWebExportStatus(null), 4000);
+    } catch (err) {
+      if (err instanceof WebFilmLabExportError) {
+        const key =
+          err.code === "TOO_LONG"
+            ? "webExport.errorTooLong"
+            : err.code === "NO_WEBCODECS"
+              ? "webExport.errorNoWebCodecs"
+              : "webExport.errorGeneric";
+        setWebExportStatus(t(key, { message: err.message }));
+      } else {
+        const msg = err instanceof Error ? err.message : String(err);
+        setWebExportStatus(t("webExport.errorGeneric", { message: msg }));
+      }
+    } finally {
+      setWebExportBusy(false);
+      filmLabCanvasRef.current?.holdPreviewRendering(false);
+    }
+  }, [compareUi.compareMode, t, viewport]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -828,6 +907,15 @@ export function FilmLabFullPage({
                   fullScreen
                   initialGradeParams={initialSharedParams}
                   onViewportReady={setViewport}
+                  pauseVideoPreview={webExportBusy}
+                  onInteractiveSourceChange={(info) => {
+                    if (info.kind === "file") {
+                      const lower = info.fileName.toLowerCase();
+                      setDemoHasUserVideo(/\.(mp4|webm|m4v|mov)$/.test(lower));
+                    } else {
+                      setDemoHasUserVideo(false);
+                    }
+                  }}
                   compareHud={
                     compareUi.compareMode
                       ? { activeSlot: compareUi.activeSlot }
@@ -895,7 +983,22 @@ export function FilmLabFullPage({
                     : "lg:pointer-events-none lg:translate-x-full"
                 }`}
               >
-                <section className="fl-card fl-card-muted fl-card--frost flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden border-t border-white/[0.07] p-0 sm:border-t-0 lg:rounded-xl lg:border lg:border-white/[0.08]">
+                <section
+                  ref={frostPanelSectionRef}
+                  className={`fl-card fl-card-muted fl-card--frost flex h-full min-h-0 min-w-0 flex-1 flex-col border-t border-white/[0.07] p-0 sm:border-t-0 lg:rounded-xl lg:border lg:border-white/[0.08] ${
+                    isLgLayout && editRightPaneExpanded
+                      ? "fl-card--frost-webgl-backdrop"
+                      : ""
+                  }`}
+                >
+                  {isLgLayout && editRightPaneExpanded ? (
+                    <FilmLabWebglPanelBackdrop
+                      filmLabCanvasRef={filmLabCanvasRef}
+                      panelRef={frostPanelSectionRef}
+                      enabled
+                    />
+                  ) : null}
+                  <div className="relative z-10 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-[inherit]">
                   <div className="fl-edit-pane-toolbar hidden lg:flex">
                     <button
                       type="button"
@@ -972,8 +1075,55 @@ export function FilmLabFullPage({
                         />
                       </svg>
                     </button>
+                    <button
+                      type="button"
+                      className="fl-edit-pane-toolbar-btn disabled:opacity-35"
+                      disabled={
+                        !demoHasUserVideo ||
+                        webExportBusy ||
+                        compareUi.compareMode
+                      }
+                      aria-label={t("toolbar.exportMp4")}
+                      title={t("toolbar.exportMp4")}
+                      onClick={() => void handleWebVideoExport()}
+                    >
+                      <svg
+                        width="15"
+                        height="15"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        aria-hidden
+                      >
+                        <path
+                          d="M7 4.75h10A2.25 2.25 0 0 1 19.25 7v6.5A2.25 2.25 0 0 1 17 15.75H7A2.25 2.25 0 0 1 4.75 13.5V7A2.25 2.25 0 0 1 7 4.75Z"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                        />
+                        <path
+                          d="M9.75 18.25v2M14.25 18.25v2M9.5 20.25h5"
+                          stroke="currentColor"
+                          strokeLinecap="round"
+                          strokeWidth="1.5"
+                        />
+                        <path
+                          d="m10.25 9.25 1.75 1.5 2.75-4"
+                          stroke="currentColor"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="1.5"
+                        />
+                      </svg>
+                    </button>
                     <div className="flex flex-1" />
                   </div>
+                  {webExportStatus ? (
+                    <p
+                      className="border-b border-white/6 px-3 py-1.5 text-[10px] leading-snug text-amber-200/90"
+                      role="status"
+                    >
+                      {webExportStatus}
+                    </p>
+                  ) : null}
                   <div className="fl-scroll-surface min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3 pr-5 lg:pr-8">
                     <ControlPanel
                       viewport={viewport}
@@ -990,12 +1140,33 @@ export function FilmLabFullPage({
                       tryFirstLayout={initialSharedParams == null}
                     />
                   </div>
+                  </div>
                 </section>
               </div>
             </div>
-            <p className="film-lab-lp-body border-t border-white/[0.06] bg-black/60 px-4 py-2 text-xs leading-relaxed text-[var(--text-base-60)] lg:hidden">
-              {t("sampleHint")}
-            </p>
+            <div className="border-t border-white/[0.06] bg-black/60 px-4 py-2 lg:hidden">
+              <p className="film-lab-lp-body text-xs leading-relaxed text-[var(--text-base-60)]">
+                {t("sampleHint")}
+              </p>
+              {demoHasUserVideo ? (
+                <button
+                  type="button"
+                  className="mt-2 w-full rounded-lg border border-white/12 bg-white/[0.06] px-3 py-2 text-xs text-white/85 disabled:opacity-40"
+                  disabled={webExportBusy || compareUi.compareMode}
+                  onClick={() => void handleWebVideoExport()}
+                >
+                  {t("toolbar.exportMp4")}
+                </button>
+              ) : null}
+              {webExportStatus ? (
+                <p
+                  className="mt-2 text-[10px] leading-snug text-amber-200/90"
+                  role="status"
+                >
+                  {webExportStatus}
+                </p>
+              ) : null}
+            </div>
           </div>
         </div>
       </section>
