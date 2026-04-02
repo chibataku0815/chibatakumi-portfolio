@@ -1,3 +1,14 @@
+// TODO(life#92): Filmtone 0.4.0 — Remotion parity required
+// The following new Params keys need to be forwarded to gradeOnlyMultipass.frag.ts uniforms:
+//   compressionAmount → uCompressionAmount
+//   compressionRange  → uCompressionRange
+//   printContrast     → uPrintContrast
+//   cyan              → uCyan
+//   magenta           → uMagenta
+//   yellow            → uYellow
+// gradeOnlyMultipass.frag.ts also needs the same uniform declarations + helper functions
+// as filmlab.frag.ts. DO NOT merge this worktree until Remotion sync is verified.
+
 /**
  * @fileoverview ブラウザ {@link Viewport} と同順の **多パス**（grade → bloom → halation → composite）を Remotion 上で実行する。
  *
