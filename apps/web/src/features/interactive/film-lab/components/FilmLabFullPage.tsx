@@ -61,6 +61,7 @@ import {
   filmLabWriteSupporterAck,
 } from "../film-lab-donation-logic";
 import { FilmLabDonationDebugPanel } from "./FilmLabDonationDebugPanel";
+import { isSafariOnlyForWebVideoExport } from "../film-lab-web-export-browser";
 import {
   runFilmLabWebVideoExport,
   WebFilmLabExportError,
@@ -321,6 +322,13 @@ export function FilmLabFullPage({
   /** Web 動画書き出し中（プレビュー動画を止める） */
   const [webExportBusy, setWebExportBusy] = useState(false);
   const [webExportStatus, setWebExportStatus] = useState<string | null>(null);
+  /** @description SSR とのズレを避けつつ、マウント後に Safari 単体か判定（Web VideoEncoder ベータは Chromium 想定） */
+  const [clientSafariBlocksWebExport, setClientSafariBlocksWebExport] =
+    useState(false);
+
+  useEffect(() => {
+    setClientSafariBlocksWebExport(isSafariOnlyForWebVideoExport());
+  }, []);
   const demoCanvasStageStyle = useMemo<CSSProperties>(
     () =>
       isLgLayout
@@ -366,6 +374,11 @@ export function FilmLabFullPage({
   }, []);
 
   const handleWebVideoExport = useCallback(async () => {
+    if (clientSafariBlocksWebExport) {
+      setWebExportStatus(t("webExport.safariAttempted"));
+      window.setTimeout(() => setWebExportStatus(null), 8000);
+      return;
+    }
     if (compareUi.compareMode) {
       setWebExportStatus(t("webExport.errorCompareMode"));
       return;
@@ -429,7 +442,7 @@ export function FilmLabFullPage({
       setWebExportBusy(false);
       filmLabCanvasRef.current?.holdPreviewRendering(false);
     }
-  }, [compareUi.compareMode, t, viewport]);
+  }, [clientSafariBlocksWebExport, compareUi.compareMode, t, viewport]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -1081,10 +1094,19 @@ export function FilmLabFullPage({
                       disabled={
                         !demoHasUserVideo ||
                         webExportBusy ||
-                        compareUi.compareMode
+                        compareUi.compareMode ||
+                        clientSafariBlocksWebExport
                       }
-                      aria-label={t("toolbar.exportMp4")}
-                      title={t("toolbar.exportMp4")}
+                      aria-label={
+                        clientSafariBlocksWebExport
+                          ? t("webExport.exportTitleSafari")
+                          : t("toolbar.exportMp4")
+                      }
+                      title={
+                        clientSafariBlocksWebExport
+                          ? t("webExport.exportTitleSafari")
+                          : t("toolbar.exportMp4")
+                      }
                       onClick={() => void handleWebVideoExport()}
                     >
                       <svg
@@ -1116,6 +1138,14 @@ export function FilmLabFullPage({
                     </button>
                     <div className="flex flex-1" />
                   </div>
+                  {clientSafariBlocksWebExport ? (
+                    <p
+                      className="border-b border-amber-500/15 px-3 py-1.5 text-[10px] leading-snug text-amber-200/90"
+                      role="note"
+                    >
+                      {t("webExport.safariBanner")}
+                    </p>
+                  ) : null}
                   {webExportStatus ? (
                     <p
                       className="border-b border-white/6 px-3 py-1.5 text-[10px] leading-snug text-amber-200/90"
@@ -1148,11 +1178,28 @@ export function FilmLabFullPage({
               <p className="film-lab-lp-body text-xs leading-relaxed text-[var(--text-base-60)]">
                 {t("sampleHint")}
               </p>
+              {clientSafariBlocksWebExport ? (
+                <p
+                  className="mt-2 text-[10px] leading-snug text-amber-200/90"
+                  role="note"
+                >
+                  {t("webExport.safariBanner")}
+                </p>
+              ) : null}
               {demoHasUserVideo ? (
                 <button
                   type="button"
                   className="mt-2 w-full rounded-lg border border-white/12 bg-white/[0.06] px-3 py-2 text-xs text-white/85 disabled:opacity-40"
-                  disabled={webExportBusy || compareUi.compareMode}
+                  disabled={
+                    webExportBusy ||
+                    compareUi.compareMode ||
+                    clientSafariBlocksWebExport
+                  }
+                  title={
+                    clientSafariBlocksWebExport
+                      ? t("webExport.exportTitleSafari")
+                      : undefined
+                  }
                   onClick={() => void handleWebVideoExport()}
                 >
                   {t("toolbar.exportMp4")}

@@ -386,6 +386,9 @@ function triggerDownload(blob: Blob, filename: string): void {
 
 /**
  * @description エクスポート解像度（縦横偶数・長辺制限）。
+ *   H.264 4:2:0 の `VideoEncoder` は **16 の倍数**が安全。8 だけ揃えると 1920×1080 のように
+ *   高さが 16 で割り切れない出力になり、`isConfigSupported` は true でも `encode` で
+ *   「VideoEncoder is not configured」等の失敗になるブラウザがある（Chrome 系の既知のすり抜け）。
  */
 function computeExportSize(
   srcW: number,
@@ -404,8 +407,8 @@ function computeExportSize(
   }
   w -= w % 2;
   h -= h % 2;
-  w = Math.max(16, (w >> 3) << 3);
-  h = Math.max(16, (h >> 3) << 3);
+  w = Math.max(16, (w >> 4) << 4);
+  h = Math.max(16, (h >> 4) << 4);
   return { width: w, height: h };
 }
 
@@ -531,6 +534,13 @@ export async function runFilmLabWebVideoExport(
 
     /** @description `resolveExportEncoder` 失敗時も GPU 資源を必ず解放する */
     let encoder: VideoEncoder | null = null;
+    /**
+     * @description `error` コールバックから代入する。`let` + null チェックだと TS がループ以降を常に null と狭め、
+     *   `encode` 中の非同期エラーを参照できないため box に入れる。
+     */
+    const encoderErrorBox: { current: Error | null } = { current: null };
+    /** @description コールバックで `current` が更新されるため、プロパティ直読みだと TS が誤狭めしないよう関数経由で読む */
+    const peekEncoderError = (): Error | null => encoderErrorBox.current;
 
     try {
       const exportPick = await resolveExportEncoder({
@@ -569,6 +579,8 @@ export async function runFilmLabWebVideoExport(
           muxer.addVideoChunk(chunk, meta);
         },
         error: (err) => {
+          encoderErrorBox.current =
+            err instanceof Error ? err : new Error(String(err));
           console.error("FilmLabWebVideoExport: VideoEncoder error", err);
         },
       });
@@ -577,10 +589,31 @@ export async function runFilmLabWebVideoExport(
       const keyframeEvery = Math.max(1, fps * 2);
 
       encoder.configure(exportPick.config);
+      if (encoder.state !== "configured") {
+        throw new WebFilmLabExportError(
+          `VideoEncoder が構成できませんでした (state=${encoder.state} codec=${exportPick.config.codec})`,
+          "ENCODER_CONFIG",
+        );
+      }
+      await new Promise<void>((r) => queueMicrotask(r));
+      const errAfterConfigure = peekEncoderError();
+      if (errAfterConfigure) {
+        throw new WebFilmLabExportError(
+          errAfterConfigure.message,
+          "ENCODER_CONFIG",
+        );
+      }
 
       for (let i = 0; i < frameCount; i++) {
         if (i % 8 === 0) {
           await new Promise<void>((r) => window.setTimeout(r, 0));
+        }
+        const errBeforeFrame = peekEncoderError();
+        if (errBeforeFrame) {
+          throw new WebFilmLabExportError(
+            errBeforeFrame.message,
+            "ENCODE",
+          );
         }
 
         const t = Math.min((i + 0.5) / fps, exportDuration - 1e-6);
