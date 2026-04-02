@@ -18,6 +18,17 @@ export interface ReleaseEntry {
  */
 export const releases: ReleaseEntry[] = [
   {
+    version: "0.3.1",
+    date: "2026-04-02",
+    titleKey: "v031Title",
+    changes: [
+      { type: "added", key: "v031WebVideoExportBeta" },
+      { type: "changed", key: "v031WebBrowserReliability" },
+      { type: "fixed", key: "v031FinderThumb" },
+      { type: "changed", key: "v031MovHandling" },
+    ],
+  },
+  {
     version: "0.3.0",
     date: "2026-04-01",
     titleKey: "v030Title",
