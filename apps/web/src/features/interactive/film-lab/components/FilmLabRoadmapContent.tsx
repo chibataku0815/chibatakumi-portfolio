@@ -19,6 +19,8 @@ const items: RoadmapItem[] = [
   { key: "shareLook", status: "released" },
   { key: "desktopExportWorkflow033", status: "released" },
   { key: "webFilmLabPreview033", status: "released" },
+  { key: "desktopFilmProcess040", status: "released" },
+  { key: "quickProFilmStock040", status: "released" },
   // In Development
   { key: "presetExpansion", status: "inDevelopment" },
   { key: "exportQuality", status: "inDevelopment" },
@@ -29,6 +31,7 @@ const items: RoadmapItem[] = [
   { key: "dngRawSupport", status: "planned" },
   { key: "windowsSupport", status: "planned" },
   { key: "lutExport", status: "planned" },
+  { key: "filmDeveloperFuture", status: "planned" },
   // Considering
   { key: "mobileApp", status: "considering" },
   { key: "cloudSync", status: "considering" },
