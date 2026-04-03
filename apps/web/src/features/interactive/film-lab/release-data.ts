@@ -18,6 +18,15 @@ export interface ReleaseEntry {
  */
 export const releases: ReleaseEntry[] = [
   {
+    version: "0.4.1",
+    date: "2026-04-03",
+    titleKey: "v041Title",
+    changes: [
+      { type: "changed", key: "v041ProToneLabels" },
+      { type: "changed", key: "v041SliderTooltipReset" },
+    ],
+  },
+  {
     version: "0.4.0",
     date: "2026-04-03",
     titleKey: "v040Title",
