@@ -219,7 +219,6 @@ export function ControlPanel({
       slots={{
         donationUi,
         hideAuxPanels: tryFirstLayout && !auxPanelsOpen,
-        hideQuickMetaSliders: tryFirstLayout,
         lpExpandButton,
         renderAfterPresets,
         renderAfterLut,
