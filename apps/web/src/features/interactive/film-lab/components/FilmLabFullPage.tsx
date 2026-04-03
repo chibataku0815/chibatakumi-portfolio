@@ -15,7 +15,7 @@ import {
   type CSSProperties,
 } from "react";
 import { flushSync } from "react-dom";
-import { FilmLabWebglPanelBackdrop } from "film-lab-ui";
+import { FilmLabWebglPanelBackdrop, VideoTransportControls } from "film-lab-ui";
 import type { FilmLabCanvasRef } from "./FilmLabCanvas";
 import dynamic from "next/dynamic";
 import { useLocale, useTranslations } from "next-intl";
@@ -938,13 +938,19 @@ export function FilmLabFullPage({
                     donationEnabled ? onLutLoadSuccess : undefined
                   }
                 />
-                <div className="pointer-events-none absolute bottom-4 left-4 z-10">
+                <div
+                  className={`pointer-events-none absolute left-4 z-10 ${demoHasUserVideo ? "bottom-14" : "bottom-4"}`}
+                >
                   <Histogram
                     viewport={viewport}
                     visible={histogramVisible}
                     variant="inline"
                   />
                 </div>
+                <VideoTransportControls
+                  filmLabCanvasRef={filmLabCanvasRef}
+                  className="absolute bottom-0 left-0 right-0 z-[18]"
+                />
               </section>
 
               {isLgLayout && !editRightPaneExpanded ? (
@@ -1168,6 +1174,7 @@ export function FilmLabFullPage({
                       serverVerifiedSupporter={serverVerifiedSupporter}
                       filmLabCanvasRef={filmLabCanvasRef}
                       tryFirstLayout={initialSharedParams == null}
+                      canvasHasUserVideo={demoHasUserVideo}
                     />
                   </div>
                   </div>

@@ -60,6 +60,8 @@ interface ControlPanelProps {
   smartLookApiBaseUrl?: string;
   autoRestoreStoredSession?: boolean;
   tryFirstLayout?: boolean;
+  /** @description ユーザー動画プレビュー中は Space を再生トグルへ回す（life#75） */
+  canvasHasUserVideo?: boolean;
 }
 
 /* ── Main Component ───────────────────────────────────────────── */
@@ -78,6 +80,7 @@ export function ControlPanel({
   smartLookApiBaseUrl,
   autoRestoreStoredSession = true,
   tryFirstLayout = false,
+  canvasHasUserVideo = false,
 }: ControlPanelProps) {
   const pathname = usePathname();
   const tFilmLab = useTranslations("film-lab");
@@ -216,6 +219,7 @@ export function ControlPanel({
       onLutLoadSuccess={onLutLoadSuccess}
       defaultUiMode={tryFirstLayout ? "quick" : "pro"}
       onUiModeChange={handleUiModeChange}
+      deferSpaceKeyToVideoTransportWhenNoCompare={canvasHasUserVideo}
       slots={{
         donationUi,
         hideAuxPanels: tryFirstLayout && !auxPanelsOpen,
