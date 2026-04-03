@@ -342,7 +342,17 @@ export function FilmLabFullPage({
           },
     [isLgLayout],
   );
-
+  /**
+   * @description 右パネル展開中は filmstrip / transport だけを左の可視レーンへ収める。
+   * preview 本体は従来どおり全面表示のままにして、ユーザーの視線を壊さない。
+   */
+  const demoTransportClassName = useMemo(
+    () =>
+      isLgLayout && editRightPaneExpanded
+        ? "absolute bottom-0 left-0 z-[18] right-[min(clamp(320px,42vw,680px),calc(100%-1.5rem))]"
+        : "absolute bottom-0 left-0 right-0 z-[18]",
+    [editRightPaneExpanded, isLgLayout],
+  );
   const [presentMode, setPresentMode] = useState(false);
   const [presentHydrated, setPresentHydrated] = useState(false);
   /** Phase 1.5: Thanks `donationThanks` または localStorage。Phase 2 Cookie とは別（`serverVerifiedSupporter`）。 */
@@ -939,7 +949,7 @@ export function FilmLabFullPage({
                   }
                 />
                 <div
-                  className={`pointer-events-none absolute left-4 z-10 ${demoHasUserVideo ? "bottom-14" : "bottom-4"}`}
+                  className={`pointer-events-none absolute left-4 z-[24] ${demoHasUserVideo ? "bottom-52" : "bottom-4"}`}
                 >
                   <Histogram
                     viewport={viewport}
@@ -949,7 +959,7 @@ export function FilmLabFullPage({
                 </div>
                 <VideoTransportControls
                   filmLabCanvasRef={filmLabCanvasRef}
-                  className="absolute bottom-0 left-0 right-0 z-[18]"
+                  className={demoTransportClassName}
                 />
               </section>
 
