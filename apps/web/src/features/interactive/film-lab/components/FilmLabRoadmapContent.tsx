@@ -21,11 +21,12 @@ const items: RoadmapItem[] = [
   { key: "webFilmLabPreview033", status: "released" },
   { key: "desktopFilmProcess040", status: "released" },
   { key: "quickProFilmStock040", status: "released" },
+  { key: "videoTransport042", status: "released" },
+  { key: "proPanelVocabulary042", status: "released" },
   // In Development
   { key: "presetExpansion", status: "inDevelopment" },
   { key: "exportQuality", status: "inDevelopment" },
   { key: "verticalVideoExportQuality", status: "inDevelopment" },
-  { key: "videoPreviewControls", status: "inDevelopment" },
   // Planned
   { key: "smartLookAi", status: "planned" },
   { key: "dngRawSupport", status: "planned" },

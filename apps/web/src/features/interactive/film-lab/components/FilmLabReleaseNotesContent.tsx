@@ -11,11 +11,30 @@ const changeTypeConfig: Record<ChangeType, { labelKey: string; dotClass: string 
   changed: { labelKey: "typeChanged", dotClass: "bg-blue-400" },
 };
 
+/**
+ * @description リリース番号を目次リンク用の id に変える。
+ * 版番号の "." を "-" に変えて、URL の断片として安全に使う。
+ * @param {string} version - 版番号
+ * @returns {string} anchor id
+ */
+function filmLabReleaseNoteAnchorId(version: string): string {
+  return `release-${version.replace(/\./g, "-")}`;
+}
+
+/**
+ * @description Filmtone の公開リリース履歴を、目次付きの 2 カラムで見やすく出す画面。
+ * 左に目次、右に本文カードを置き、スマホでは縦に積む。
+ */
 export function FilmLabReleaseNotesContent() {
   const t = useTranslations("film-lab.releaseNotes");
+  const tocEntries = releases.map((release) => ({
+    id: filmLabReleaseNoteAnchorId(release.version),
+    version: release.version,
+    title: t(`entries.${release.titleKey}`),
+  }));
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-3xl px-4 py-16 sm:px-6">
+    <main className="mx-auto min-h-screen w-full max-w-5xl px-4 py-16 sm:px-6">
       <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-white/45">
         {t("eyebrow")}
       </p>
@@ -26,51 +45,87 @@ export function FilmLabReleaseNotesContent() {
         {t("heroBody")}
       </p>
 
-      <div className="mt-12 space-y-8">
-        {releases.map((release, index) => (
-          <article
-            key={release.version}
-            className={`rounded-2xl border p-5 sm:p-6 ${
-              index === 0
-                ? "border-white/16 bg-white/[0.055]"
-                : "border-white/8 bg-white/[0.035]"
-            }`}
+      <div className="mt-12 flex flex-col gap-8 lg:grid lg:grid-cols-[17rem_minmax(0,1fr)] lg:items-start lg:gap-10">
+        <aside className="w-full lg:sticky lg:top-24 lg:self-start lg:pr-2">
+          <h2
+            id="release-notes-toc"
+            className="text-[10px] font-semibold uppercase tracking-[0.24em] text-white/35"
           >
-            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <h2 className="text-lg font-semibold text-white">
-                v{release.version}
-              </h2>
-              {index === 0 && (
-                <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-emerald-400">
-                  {t("latestBadge")}
-                </span>
-              )}
-              <span className="text-xs text-white/40">{release.date}</span>
-            </div>
-            <p className="mt-1 text-sm text-white/60">
-              {t(`entries.${release.titleKey}`)}
-            </p>
+            {t("tocTitle")}
+          </h2>
+          <nav aria-labelledby="release-notes-toc" className="mt-4">
+            <ol className="border-l border-white/8 pl-4">
+              {tocEntries.map((entry) => (
+                <li key={entry.id} className="pb-2 last:pb-0">
+                  <a
+                    href={`#${entry.id}`}
+                    className="group block py-1 transition-colors"
+                  >
+                    <p className="text-sm font-medium text-white/70 transition-colors group-hover:text-white">
+                      v{entry.version}
+                    </p>
+                    <p className="mt-0.5 text-sm leading-snug text-white/55 transition-colors group-hover:text-white/80">
+                      {entry.title}
+                    </p>
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </nav>
+        </aside>
 
-            <ul className="mt-4 space-y-2">
-              {release.changes.map((change) => {
-                const config = changeTypeConfig[change.type];
-                return (
-                  <li key={change.key} className="flex items-start gap-2.5 text-sm">
-                    <span className="mt-0.5 flex items-center gap-1.5">
-                      <span className={`inline-block h-1.5 w-1.5 rounded-full ${config.dotClass}`} />
-                      <span className="text-[10px] font-medium uppercase tracking-wider text-white/40">
-                        {t(config.labelKey)}
+        <section className="space-y-8 lg:min-w-0">
+          {releases.map((release, index) => (
+            <article
+              id={filmLabReleaseNoteAnchorId(release.version)}
+              key={release.version}
+              className={`scroll-mt-28 rounded-2xl border p-5 sm:p-6 ${
+                index === 0
+                  ? "border-white/16 bg-white/[0.055]"
+                  : "border-white/8 bg-white/[0.035]"
+              }`}
+            >
+              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <h2 className="text-lg font-semibold text-white">
+                  v{release.version}
+                </h2>
+                {index === 0 && (
+                  <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-emerald-400">
+                    {t("latestBadge")}
+                  </span>
+                )}
+                <span className="text-xs text-white/40">{release.date}</span>
+              </div>
+              <p className="mt-1 text-sm text-white/60">
+                {t(`entries.${release.titleKey}`)}
+              </p>
+
+              <ul className="mt-4 space-y-2">
+                {release.changes.map((change) => {
+                  const config = changeTypeConfig[change.type];
+                  return (
+                    <li
+                      key={change.key}
+                      className="flex items-start gap-2.5 text-sm"
+                    >
+                      <span className="mt-0.5 flex items-center gap-1.5">
+                        <span
+                          className={`inline-block h-1.5 w-1.5 rounded-full ${config.dotClass}`}
+                        />
+                        <span className="text-[10px] font-medium uppercase tracking-wider text-white/40">
+                          {t(config.labelKey)}
+                        </span>
                       </span>
-                    </span>
-                    <span className="text-white/70">
-                      {t(`entries.${change.key}`)}
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
-          </article>
-        ))}
+                      <span className="text-white/70">
+                        {t(`entries.${change.key}`)}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </article>
+          ))}
+        </section>
       </div>
 
       <div className="mt-8 border-t border-white/10 pt-6">

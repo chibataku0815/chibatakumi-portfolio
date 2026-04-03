@@ -30,7 +30,7 @@ import { filmlabVertexShader } from "../../web/src/features/interactive/film-lab
 import { halationFragmentShader } from "../../web/src/features/interactive/film-lab/shader/halation.frag";
 import { gradeOnlyMultipassFragmentShader } from "./shaders/gradeOnlyMultipass.frag";
 
-const RT_OPTIONS: THREE.WebGLRenderTargetOptions = {
+const RT_OPTIONS: THREE.RenderTargetOptions = {
   minFilter: THREE.LinearFilter,
   magFilter: THREE.LinearFilter,
   format: THREE.RGBAFormat,
@@ -38,10 +38,25 @@ const RT_OPTIONS: THREE.WebGLRenderTargetOptions = {
 };
 
 /**
- * Web の Viewport.ABERRATION_EDGE_SOFTEN_SCALE と同値。
- * 新 UI 上限 0.01 でも、rgbShift を上げたときの周辺柔らかさが少し分かる量に合わせる。
+ * Web の Viewport と同じ安全域。
+ * rgbShift をそのまま強く足さず、少し上がってから周辺ソフトが見え始めるようにする。
  */
-const ABERRATION_EDGE_SOFTEN_SCALE = 32;
+const ABERRATION_EDGE_SOFTEN_SCALE = 18;
+const ABERRATION_EDGE_SOFTEN_START = 0.001;
+const ABERRATION_EDGE_SOFTEN_MAX = 0.1;
+
+/**
+ * @description 色収差の値を、合成パスの周辺ソフト量へゆっくり変える。
+ * @param {number} rgbShift - 保存された色収差の強さ。
+ * @returns {number} 0〜0.1 の周辺ソフト量。
+ */
+function getAberrationEdgeSoften(rgbShift: number): number {
+  const effectiveShift = Math.max(0, rgbShift - ABERRATION_EDGE_SOFTEN_START);
+  return Math.min(
+    ABERRATION_EDGE_SOFTEN_MAX,
+    Math.max(0, effectiveShift * ABERRATION_EDGE_SOFTEN_SCALE),
+  );
+}
 
 let blackTexture: THREE.DataTexture | null = null;
 function getBlackTexture(): THREE.DataTexture {
@@ -271,10 +286,7 @@ export class FilmLabRemotionPipeline {
     cu.uBloomStrength!.value = this.bloomStrength;
     cu.uHalationIntensity!.value = this.halationIntensity;
     cu.uResolution!.value.set(this.width, this.height);
-    cu.uAberrationEdgeSoften!.value = Math.min(
-      1,
-      Math.max(0, grade.rgbShift * ABERRATION_EDGE_SOFTEN_SCALE),
-    );
+    cu.uAberrationEdgeSoften!.value = getAberrationEdgeSoften(grade.rgbShift);
     cu.uLensSoftness!.value = Math.min(
       1,
       Math.max(0, grade.lensSoftness ?? 0),
