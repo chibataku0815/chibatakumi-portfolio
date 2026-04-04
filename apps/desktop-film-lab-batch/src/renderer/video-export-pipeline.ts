@@ -66,8 +66,12 @@ const SEEK_TIMEOUT_MS = 90_000;
 const RVFC_TIMEOUT_MS = 250;
 
 export type VideoExportProgress = {
+  /** @description 進み具合。frames なら 1 始まり、mezzanine なら 0-99 を入れる */
   currentFrame: number;
+  /** @description 総数。frames は総フレーム数、mezzanine は 100 固定 */
   totalFrames: number;
+  /** @description いまの進捗の種類。mezzanine か frames かを App 側で見分ける。 */
+  phase?: "mezzanine" | "frames";
 };
 
 /**
@@ -691,6 +695,24 @@ export function shouldRetryWithSeekAfterWebCodecsRuntimeFailure(
 }
 
 /**
+ * @description WebCodecs で高速デコードできないコーデックを判定する。
+ *   該当時は ProRes 422 mezzanine に事前変換して seek 速度を改善する。
+ */
+export function needsMezzanineTranscode(opts: {
+  videoCodec: string;
+  fileSizeBytes: number;
+  absPath: string;
+}): boolean {
+  const c = opts.videoCodec.toLowerCase();
+  // H.264: WebCodecs or HTMLVideoElement で十分速い → 不要
+  if (c === "h264" || c === "avc") return false;
+  // ProRes: macOS AVFoundation で既に高速 decode → 不要
+  if (c === "prores") return false;
+  // HEVC, VP9, AV1, DNxHD 等: mezzanine 必要
+  return true;
+}
+
+/**
  * @description `<video>` を停止して `src` を外す。seek 経路への再試行時に古いデコーダを残しにくくする。
  */
 function disposeVideoElement(video: HTMLVideoElement | null): void {
@@ -792,6 +814,52 @@ export async function runVideoExportPipeline(options: {
         : `, ソースFPS不信任（ソースフレーム索引の再利用なし）`),
   );
 
+  // --- Mezzanine transcode (ProRes 422) for heavy codecs ---
+  let mezzaninePath: string | null = null;
+  if (
+    needsMezzanineTranscode({
+      videoCodec: probe.videoCodec,
+      fileSizeBytes: probe.fileSizeBytes,
+      absPath: inputVideoPath,
+    })
+  ) {
+    onLog(
+      `[動画][mezzanine] codec=${probe.videoCodec} → H.264 all-I-frame mezzanine を生成します...`,
+    );
+    const unsubscribeMezzanineProgress = onProgress
+      ? api.subscribeMezzanineProgress((payload) => {
+          onProgress({
+            currentFrame: payload.current,
+            totalFrames: payload.total,
+            phase: "mezzanine",
+          });
+        })
+      : null;
+    try {
+      const t0 = performance.now();
+      const result = await api.videoExportTranscodeMezzanine({
+        filePath: inputVideoPath,
+        durationSec: probe.durationSec,
+        outW,
+        outH,
+      });
+      const elapsedSec = ((performance.now() - t0) / 1000).toFixed(1);
+      mezzaninePath = result.mezzaninePath;
+      onLog(
+        `[動画][mezzanine] 完了 size=${(result.mezzanineSizeBytes / 1024 / 1024).toFixed(0)}MB elapsed=${elapsedSec}s`,
+      );
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      onLog(
+        `[動画][mezzanine] 生成失敗、オリジナルソースで続行 — ${msg}`,
+      );
+      mezzaninePath = null;
+    } finally {
+      unsubscribeMezzanineProgress?.();
+    }
+  }
+  const effectiveInputPath = mezzaninePath ?? inputVideoPath;
+
   let stagedPath: string | null = null;
   const tryWebCodecs = shouldAttemptWebCodecsAccurateExport({
     videoCodec: probe.videoCodec,
@@ -809,7 +877,7 @@ export async function runVideoExportPipeline(options: {
     for (let attemptIndex = 0; attemptIndex < maxAttempts; attemptIndex++) {
       const allowWebCodecs = tryWebCodecs && attemptIndex === 0;
       let video: HTMLVideoElement | null = null;
-      let pathForFfmpeg = stagedPath ?? inputVideoPath;
+      let pathForFfmpeg = stagedPath ?? effectiveInputPath;
       let webCodecsSession: WebCodecsMp4ExportSession | null = null;
       let srcTexture: THREE.Texture | null = null;
       let viewport: Viewport | null = null;
@@ -821,7 +889,7 @@ export async function runVideoExportPipeline(options: {
         if (allowWebCodecs) {
           try {
             let fileBytes: Uint8Array;
-            const readSourcePath = stagedPath ?? inputVideoPath;
+            const readSourcePath = stagedPath ?? effectiveInputPath;
             try {
               fileBytes = await api.readFileBuffer(readSourcePath);
               pathForFfmpeg = readSourcePath;
@@ -829,7 +897,7 @@ export async function runVideoExportPipeline(options: {
               onLog(
                 `[動画][WebCodecs] ソース直接 read 失敗 → ステージング（${readErr instanceof Error ? readErr.message : String(readErr)}）`,
               );
-              const st = await api.videoExportStageSource(inputVideoPath);
+              const st = await api.videoExportStageSource(effectiveInputPath);
               stagedPath = st.stagedPath;
               pathForFfmpeg = st.stagedPath;
               fileBytes = await api.readFileBuffer(st.stagedPath);
@@ -855,7 +923,7 @@ export async function runVideoExportPipeline(options: {
               wcErr instanceof Error ? wcErr.message : String(wcErr);
             onLog(`[動画][WebCodecs] 失敗、従来経路へ — ${detail}`);
             webCodecsSession = null;
-            pathForFfmpeg = stagedPath ?? inputVideoPath;
+            pathForFfmpeg = stagedPath ?? effectiveInputPath;
           }
         } else if (attemptIndex > 0) {
           onLog(
@@ -867,7 +935,7 @@ export async function runVideoExportPipeline(options: {
           try {
             const opened = await openVideoForExport(
               api,
-              stagedPath ?? inputVideoPath,
+              stagedPath ?? effectiveInputPath,
               onLog,
             );
             video = opened.video;
@@ -1317,7 +1385,7 @@ export async function runVideoExportPipeline(options: {
             i === totalFrames - 1 ||
             (i + 1) % VIDEO_EXPORT_PROGRESS_CALLBACK_INTERVAL_FRAMES === 0
           ) {
-            onProgress?.({ currentFrame: i + 1, totalFrames });
+            onProgress?.({ currentFrame: i + 1, totalFrames, phase: "frames" });
           }
         }
 
@@ -1424,6 +1492,9 @@ export async function runVideoExportPipeline(options: {
   } finally {
     if (stagedPath) {
       await api.videoExportUnlinkStaged(stagedPath).catch(() => {});
+    }
+    if (mezzaninePath) {
+      await api.videoExportUnlinkStaged(mezzaninePath).catch(() => {});
     }
   }
 }
