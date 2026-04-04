@@ -23,6 +23,7 @@ const items: RoadmapItem[] = [
   { key: "quickProFilmStock040", status: "released" },
   { key: "videoTransport042", status: "released" },
   { key: "proPanelVocabulary042", status: "released" },
+  { key: "fasterVideoExport043", status: "released" },
   // In Development
   { key: "presetExpansion", status: "inDevelopment" },
   { key: "exportQuality", status: "inDevelopment" },
