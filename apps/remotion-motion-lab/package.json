@@ -1,0 +1,41 @@
+{
+  "name": "remotion-motion-lab",
+  "version": "0.1.0",
+  "private": true,
+  "sideEffects": false,
+  "scripts": {
+    "dev": "remotion studio",
+    "render:09": "remotion render src/index.ts BarLineChart out/09-bar-line-chart.mp4 --gl=angle",
+    "render:06": "remotion render src/index.ts CtaOverlay out/06-cta-overlay.mov --gl=angle --codec=prores --prores-profile=4444",
+    "render:10": "remotion render src/index.ts ApplePromo out/10-apple-promo.mp4 --gl=angle",
+    "render:11": "remotion render src/index.ts FlubberMorph out/11-flubber-morph.mp4 --gl=angle",
+    "render:04": "remotion render src/index.ts LaunchVideo out/04-launch-video.mp4 --gl=angle",
+    "render:07": "remotion render src/index.ts CinematicIntro out/07-cinematic-intro.mp4 --gl=angle",
+    "render:01": "remotion render src/index.ts NewsHeadline out/01-news-headline.mp4 --gl=angle",
+    "render:12": "remotion render src/index.ts MusicCdPromo out/12-music-cd-promo.mp4 --gl=angle",
+    "render:03": "remotion render src/index.ts ProductDemo out/03-product-demo.mp4 --gl=angle",
+    "render:05": "remotion render src/index.ts RocketTimeline out/05-rocket-timeline.mp4 --gl=angle",
+    "render:08": "remotion render src/index.ts ThreeRanking out/08-three-ranking.mp4 --gl=angle",
+    "render:02": "remotion render src/index.ts TravelRoute out/02-travel-route.mp4 --gl=angle"
+  },
+  "dependencies": {
+    "@react-three/drei": "10.7.7",
+    "@react-three/fiber": "9.4.2",
+    "@remotion/cli": "4.0.441",
+    "@remotion/google-fonts": "4.0.441",
+    "@remotion/media-utils": "4.0.441",
+    "@remotion/three": "4.0.441",
+    "flubber": "^0.4.2",
+    "react": "19.2.1",
+    "react-dom": "19.2.1",
+    "remotion": "4.0.441",
+    "roughjs": "^4.6.6",
+    "three": "0.181.2"
+  },
+  "devDependencies": {
+    "@types/flubber": "^0.4.0",
+    "@types/react": "^19",
+    "@types/three": "0.181.0",
+    "typescript": "^5.7.2"
+  }
+}
