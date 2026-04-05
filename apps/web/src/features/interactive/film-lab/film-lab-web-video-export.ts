@@ -532,6 +532,9 @@ export async function runFilmLabWebVideoExport(
     viewport.setImageResolution(vw, vh);
     viewport.setResolution(outW, outH);
 
+    // Reset motion blur accumulation so export starts from a clean state
+    viewport.resetMotionBlurHistory();
+
     /** @description `resolveExportEncoder` 失敗時も GPU 資源を必ず解放する */
     let encoder: VideoEncoder | null = null;
     /**
