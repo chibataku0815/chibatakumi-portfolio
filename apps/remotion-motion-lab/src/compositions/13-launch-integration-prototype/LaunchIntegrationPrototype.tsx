@@ -824,7 +824,7 @@ function HookBeat(): React.ReactElement {
                 const exitDrift = exitProgress * 100 * driftDirection;
 
                 const totalBlur = revealBlur + exitBlur;
-                const reps = Math.ceil(2800 / (row.size * 5.5)) + 1;
+                const reps = Math.ceil(2800 / (row.size * 4.8)) + 1;
                 return (
                   <div
                     key={rowIdx}
@@ -853,7 +853,7 @@ function HookBeat(): React.ReactElement {
                             : "none",
                         }}
                       >
-                        Film looks.
+                        Filmtone
                       </span>
                     ))}
                   </div>
@@ -863,7 +863,7 @@ function HookBeat(): React.ReactElement {
           </AbsoluteFill>
         )}
 
-        {/* Settled header "Film looks." */}
+        {/* Settled header "Film looks, made easy." */}
         <div
           style={{
             position: "absolute",
@@ -882,9 +882,10 @@ function HookBeat(): React.ReactElement {
               fontWeight: 700,
               color: COLORS.warmWhite,
               textShadow: "0 2px 20px rgba(0,0,0,0.5)",
+              whiteSpace: "nowrap",
             }}
           >
-            Film looks.
+            Film looks, made easy.
           </span>
         </div>
 
