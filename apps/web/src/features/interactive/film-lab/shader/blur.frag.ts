@@ -1,4 +1,4 @@
 /**
  * Bridge: re-exports from the shared renderer package.
  */
-export { blurFragmentShader } from "film-lab-renderer";
+export { downsampleFragmentShader, upsampleFragmentShader } from "film-lab-renderer";
