@@ -77,4 +77,28 @@ describe("params-codec（life#93 surface / 共有 URL）", () => {
     expect(decoded.compressionAmount).toBe(PRESETS.reset.compressionAmount);
     expect(decoded.compressionRange).toBe(PRESETS.reset.compressionRange);
   });
+
+  // === 0.5.0 後方互換: grainSize / diffusion ===
+
+  test("v0.4.5 旧 URL（grainSize/diffusion 無し）でもデコードでき、reset 基底値で補填される", () => {
+    const legacy = { ...PRESETS.cinematic } as Record<string, unknown>;
+    delete legacy.grainSize;
+    delete legacy.diffusion;
+    const encoded = encodeParams(legacy as (typeof PRESETS)["reset"]);
+    const decoded = decodeParams(encoded);
+    expect(decoded).not.toBeNull();
+    if (!decoded) return;
+    expect(decoded.grainSize).toBe(PRESETS.reset.grainSize);
+    expect(decoded.diffusion).toBe(PRESETS.reset.diffusion);
+  });
+
+  test("v0.5.0 パラメータ（grainSize/diffusion）の encode → decode で値が保持される", () => {
+    const original = { ...PRESETS.cinematic, grainSize: 0.6, diffusion: 0.15 };
+    const encoded = encodeParams(original);
+    const decoded = decodeParams(encoded);
+    expect(decoded).not.toBeNull();
+    if (!decoded) return;
+    expect(decoded.grainSize).toBe(0.6);
+    expect(decoded.diffusion).toBe(0.15);
+  });
 });
