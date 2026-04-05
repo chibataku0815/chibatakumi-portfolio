@@ -27,6 +27,7 @@ v0.5.0 で非表示にした UI コントロールの一覧と理由。
 | コントロール | params key | 移動元 | 移動先 |
 |-------------|-----------|--------|--------|
 | 残像の強さ (slider) | motionBlurAmount | POST EFFECTS セクション | ARTIFACTS セクション末尾 |
+| LUT パネル (Creative + Log) | — | パネル最下部（全モード共通） | Pro: プリセット直下 / Quick: 従来位置に残留 |
 
 ## Renderer Guard
 
