@@ -11,6 +11,21 @@ const pages = [
   { path: "/works", changeFrequency: "monthly" as const, priority: 0.7 },
   { path: "/interactive", changeFrequency: "monthly" as const, priority: 0.8 },
   { path: "/film-lab", changeFrequency: "monthly" as const, priority: 0.8 },
+  {
+    path: "/film-lab/download",
+    changeFrequency: "monthly" as const,
+    priority: 0.7,
+  },
+  {
+    path: "/film-lab/release-notes",
+    changeFrequency: "monthly" as const,
+    priority: 0.5,
+  },
+  {
+    path: "/film-lab/roadmap",
+    changeFrequency: "monthly" as const,
+    priority: 0.5,
+  },
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
