@@ -18,6 +18,9 @@ import {
 import {
   LaunchIntegrationAudioPreview,
 } from "./compositions/13-launch-integration-prototype/LaunchIntegrationAudioPreview";
+import { TemplateReproTest } from "./compositions/14-template-repro-test/TemplateReproTest";
+import { FilmtoneCountdown } from "./compositions/15-filmtone-countdown/FilmtoneCountdown";
+import { totalFrames as filmtoneFrames } from "./compositions/15-filmtone-countdown/config";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -163,6 +166,24 @@ export const RemotionRoot: React.FC = () => {
         defaultProps={{
           showHud: true,
         }}
+      />
+      {/* #14 Template reproduction test — Gemini analysis → Remotion pipeline validation */}
+      <Composition
+        id="TemplateReproTest"
+        component={TemplateReproTest}
+        durationInFrames={300}
+        fps={30}
+        width={1920}
+        height={1080}
+      />
+      {/* #15 Filmtone countdown — 5→1 + finale, config-driven text/color */}
+      <Composition
+        id="FilmtoneCountdown"
+        component={FilmtoneCountdown}
+        durationInFrames={filmtoneFrames}
+        fps={30}
+        width={1920}
+        height={1080}
       />
     </>
   );
