@@ -11,6 +11,13 @@ import { ProductDemo } from "./compositions/03-product-demo/ProductDemo";
 import { RocketTimeline } from "./compositions/05-rocket-timeline/RocketTimeline";
 import { ThreeRanking } from "./compositions/08-three-ranking/ThreeRanking";
 import { TravelRoute } from "./compositions/02-travel-route/TravelRoute";
+import {
+  LaunchIntegrationPrototype,
+  launchIntegrationPrototypeDurationInFrames,
+} from "./compositions/13-launch-integration-prototype/LaunchIntegrationPrototype";
+import {
+  LaunchIntegrationAudioPreview,
+} from "./compositions/13-launch-integration-prototype/LaunchIntegrationAudioPreview";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -133,6 +140,29 @@ export const RemotionRoot: React.FC = () => {
         fps={30}
         width={1920}
         height={1080}
+      />
+
+      {/* Phase 5: launch integration — proof-first master prototype */}
+      <Composition
+        id="LaunchIntegrationPrototype"
+        component={LaunchIntegrationPrototype}
+        durationInFrames={launchIntegrationPrototypeDurationInFrames}
+        fps={30}
+        width={1920}
+        height={1080}
+      />
+
+      {/* Phase 5: AI audio preview — selected cues + HUD for soundtrack candidate review */}
+      <Composition
+        id="LaunchIntegrationAudioPreview"
+        component={LaunchIntegrationAudioPreview}
+        durationInFrames={launchIntegrationPrototypeDurationInFrames}
+        fps={30}
+        width={1920}
+        height={1080}
+        defaultProps={{
+          showHud: true,
+        }}
       />
     </>
   );
