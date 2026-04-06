@@ -39,6 +39,11 @@ export function coerceParams(value: unknown): Params | null {
     found = true;
   }
 
+  // Migration: motionBlurAmount (0-1) → shutterAngle (0-360°)
+  if (params.shutterAngle === 0 && candidate.motionBlurAmount !== undefined && (candidate.motionBlurAmount as number) > 0) {
+    params.shutterAngle = Math.round((candidate.motionBlurAmount as number) * 360);
+  }
+
   return found ? params : null;
 }
 
