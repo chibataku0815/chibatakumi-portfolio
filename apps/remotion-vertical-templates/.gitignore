@@ -1,0 +1,4 @@
+# Local dependencies and generated artifacts for the vertical template app.
+node_modules/
+build/
+out/

@@ -1,0 +1,24 @@
+{
+  "name": "remotion-vertical-templates",
+  "version": "0.1.0",
+  "private": true,
+  "sideEffects": false,
+  "scripts": {
+    "dev": "remotion studio",
+    "render:product": "remotion render src/index.ts ProductDemoSabrina out/product-demo.mp4 --gl=angle",
+    "render:testimonial": "remotion render src/index.ts TestimonialSabrina out/testimonial.mp4 --gl=angle",
+    "still:product": "remotion still src/index.ts ProductDemoSabrina out/stills/product-f120.png --frame=120 --gl=angle",
+    "still:testimonial": "remotion still src/index.ts TestimonialSabrina out/stills/testimonial-f120.png --frame=120 --gl=angle"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.441",
+    "@remotion/google-fonts": "4.0.441",
+    "react": "19.2.1",
+    "react-dom": "19.2.1",
+    "remotion": "4.0.441"
+  },
+  "devDependencies": {
+    "@types/react": "^19",
+    "typescript": "^5.7.2"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "businessName": "Fixture Coffee Lab",
+  "category": "Coffee shop",
+  "rating": 4.8,
+  "reviewCount": 2340,
+  "statsUsers": 12000,
+  "cityState": "Portland, OR",
+  "ctaLabel": "Book Now",
+  "phoneOrUrl": "(555) 321-7890",
+  "distribution5": 0.78,
+  "distribution4": 0.14,
+  "distribution3": 0.05,
+  "distribution2": 0.02,
+  "distribution1": 0.01,
+  "reviews": [
+    {
+      "stars": 5,
+      "text": "Best latte in town — calm space and friendly baristas. I come here before every shoot.",
+      "firstName": "Alex"
+    },
+    {
+      "stars": 5,
+      "text": "Quick service and the pastries are always fresh. Great spot to meet clients.",
+      "firstName": "Jordan"
+    },
+    {
+      "stars": 5,
+      "text": "Consistent quality every visit. The outdoor seating is perfect on sunny days.",
+      "firstName": "Sam"
+    }
+  ]
+}

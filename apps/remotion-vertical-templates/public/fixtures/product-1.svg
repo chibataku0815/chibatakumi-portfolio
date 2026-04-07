@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200" viewBox="0 0 900 1200">
+  <defs>
+    <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4f46e5"/>
+      <stop offset="100%" style="stop-color:#7c3aed"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="1200" rx="24" fill="url(#g1)"/>
+  <text x="450" y="580" fill="white" font-size="56" font-family="Inter, sans-serif" font-weight="800" text-anchor="middle">Product UI</text>
+  <text x="450" y="660" fill="rgba(255,255,255,0.9)" font-size="36" font-family="Inter, sans-serif" text-anchor="middle">Fixture asset 1</text>
+</svg>
