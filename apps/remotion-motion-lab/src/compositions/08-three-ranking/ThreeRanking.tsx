@@ -1,5 +1,6 @@
-import React from "react";
+import React, { createContext, useContext, useMemo } from "react";
 import { AbsoluteFill, Easing, useCurrentFrame, useVideoConfig } from "remotion";
+import { threeRankingLogicMaxFrame } from "./threeRankingCaptureTimeline";
 import { ThreeCanvas } from "@remotion/three";
 import { RoundedBox } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
@@ -23,7 +24,31 @@ import { FONTS, TYPE_SCALE } from "../../lib/typography";
  * 制限事項:
  * - ranking data は motion study 用の placeholder です
  * - title text は 2D overlay に置き、3D scene 内では tower の量感だけを見せます
+ * - `mapTimelineToReferenceCapture` 時は、論理タイムライン（元 30fps×210 の 0..209）へ正規化した値で 3D を駆動します
  */
+
+/** 子コンポーネントへ渡す「論理フレーム」（小数可）です。 */
+const MotionFrameContext = createContext<number>(0);
+
+/**
+ * ThreeRanking 内の CameraRig / Track / Overlay が参照する論理フレームです。
+ *
+ * @returns {number} 正規化後またはそのままのフレーム値です。
+ */
+function useThreeRankingMotionFrame(): number {
+  return useContext(MotionFrameContext);
+}
+
+/**
+ * `ThreeRanking` に渡すオプションです。
+ */
+export interface ThreeRankingProps {
+  /**
+   * true のとき、`useCurrentFrame()` を composition 全尺で 0..209 に線形マップします。
+   * 参考 CleanShot の duration / fps と揃えたコンポで使います。
+   */
+  mapTimelineToReferenceCapture?: boolean;
+}
 
 /**
  * 1 本分の rank data です。
@@ -110,7 +135,7 @@ function getTowerColor(index: number): string {
  * @returns {null} 描画物は持たず、camera だけ更新します。
  */
 function CameraRig(): null {
-  const frame = useCurrentFrame();
+  const frame = useThreeRankingMotionFrame();
   const { camera } = useThree();
   const focusIndex = getCameraFocusIndex(frame);
   const nearestIndex = Math.min(
@@ -136,7 +161,7 @@ function CameraRig(): null {
  * @returns {React.ReactElement} 3D tower scene です。
  */
 function RankingTrack(): React.ReactElement {
-  const frame = useCurrentFrame();
+  const frame = useThreeRankingMotionFrame();
   const focusIndex = getCameraFocusIndex(frame);
 
   return (
@@ -223,11 +248,12 @@ function getActiveEntry(frame: number): RankedEntry {
  * @returns {React.ReactElement} overlay 部分です。
  */
 function RankingOverlay(): React.ReactElement {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const frame = useThreeRankingMotionFrame();
   const activeEntry = getActiveEntry(frame);
-  const titleOpacity = filmtoneFadeIn(frame, 0, fps, 0.7);
-  const panelOpacity = filmtoneFadeIn(frame, 14, fps, 0.7);
+  /** フェードは元設計どおり「30fps 論理フレーム」上の区間で計算します。 */
+  const logicFps = 30;
+  const titleOpacity = filmtoneFadeIn(frame, 0, logicFps, 0.7);
+  const panelOpacity = filmtoneFadeIn(frame, 14, logicFps, 0.7);
 
   return (
     <>
@@ -355,16 +381,35 @@ function RankingOverlay(): React.ReactElement {
 /**
  * Three ranking の本体です。
  *
+ * @param props.mapTimelineToReferenceCapture 参考キャプチャ尺への線形マップの有無です。
  * @returns {React.ReactElement} Three.js ranking composition です。
  */
-export function ThreeRanking(): React.ReactElement {
+export function ThreeRanking({
+  mapTimelineToReferenceCapture = false,
+}: ThreeRankingProps = {}): React.ReactElement {
+  const frame = useCurrentFrame();
+  const { durationInFrames } = useVideoConfig();
+
+  const motionFrame = useMemo(() => {
+    if (!mapTimelineToReferenceCapture) {
+      return frame;
+    }
+    const lastIndex = durationInFrames - 1;
+    if (lastIndex <= 0) {
+      return 0;
+    }
+    return (frame / lastIndex) * threeRankingLogicMaxFrame;
+  }, [mapTimelineToReferenceCapture, frame, durationInFrames]);
+
   return (
-    <AbsoluteFill style={{ backgroundColor: COLORS.bgDeep }}>
-      <ThreeCanvas width={1920} height={1080}>
-        <CameraRig />
-        <RankingTrack />
-      </ThreeCanvas>
-      <RankingOverlay />
-    </AbsoluteFill>
+    <MotionFrameContext.Provider value={motionFrame}>
+      <AbsoluteFill style={{ backgroundColor: COLORS.bgDeep }}>
+        <ThreeCanvas width={1920} height={1080}>
+          <CameraRig />
+          <RankingTrack />
+        </ThreeCanvas>
+        <RankingOverlay />
+      </AbsoluteFill>
+    </MotionFrameContext.Provider>
   );
 }

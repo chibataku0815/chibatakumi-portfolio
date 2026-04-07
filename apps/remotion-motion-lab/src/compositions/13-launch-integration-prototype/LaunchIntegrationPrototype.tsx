@@ -8,9 +8,11 @@ import React, { useMemo } from "react";
 import {
   AbsoluteFill,
   Easing,
+  OffthreadVideo,
   Sequence,
   interpolate,
   spring,
+  staticFile,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
@@ -238,12 +240,15 @@ function WindowShell(props: {
         borderRadius: 28,
         overflow: "hidden",
         background: isDesktop
-          ? "linear-gradient(180deg, rgba(22, 20, 18, 0.99) 0%, rgba(12, 10, 8, 0.99) 100%)"
-          : "linear-gradient(180deg, rgba(28, 25, 23, 0.98) 0%, rgba(16, 14, 13, 0.98) 100%)",
+          ? "linear-gradient(180deg, rgba(22, 20, 18, 0.78) 0%, rgba(12, 10, 8, 0.80) 100%)"
+          : "linear-gradient(180deg, rgba(28, 25, 23, 0.74) 0%, rgba(16, 14, 13, 0.76) 100%)",
         border: isDesktop
-          ? "2px solid rgba(255, 255, 255, 0.10)"
-          : "1px solid rgba(255, 255, 255, 0.08)",
-        boxShadow: "0 30px 90px rgba(0, 0, 0, 0.36)",
+          ? "2px solid rgba(255, 255, 255, 0.12)"
+          : "1px solid rgba(255, 255, 255, 0.12)",
+        boxShadow:
+          "0 8px 32px rgba(0,0,0,0.2), 0 20px 64px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.06)",
+        backdropFilter: "blur(20px) saturate(1.4)",
+        WebkitBackdropFilter: "blur(20px) saturate(1.4)",
       }}
     >
       <div
@@ -260,7 +265,7 @@ function WindowShell(props: {
             width: 10,
             height: 10,
             borderRadius: "50%",
-            backgroundColor: "rgba(255,255,255,0.16)",
+            backgroundColor: "rgba(255, 95, 87, 0.80)",
           }}
         />
         <div
@@ -268,7 +273,7 @@ function WindowShell(props: {
             width: 10,
             height: 10,
             borderRadius: "50%",
-            backgroundColor: "rgba(255,255,255,0.16)",
+            backgroundColor: "rgba(255, 189, 46, 0.80)",
           }}
         />
         <div
@@ -276,7 +281,7 @@ function WindowShell(props: {
             width: 10,
             height: 10,
             borderRadius: "50%",
-            backgroundColor: "rgba(255,255,255,0.16)",
+            backgroundColor: "rgba(40, 200, 64, 0.80)",
           }}
         />
         {isDesktop ? (
@@ -367,7 +372,9 @@ function PresetStrip(props: { startFrame: number }): React.ReactElement {
                 height: 28,
                 borderRadius: 8,
                 backgroundColor: chip.color,
-                border: "1px solid rgba(255,255,255,0.08)",
+                border: "1px solid rgba(255,255,255,0.12)",
+                boxShadow:
+                  "inset 0 1px 2px rgba(255,255,255,0.15), 0 2px 6px rgba(0,0,0,0.25)",
               }}
             />
             <div
@@ -542,10 +549,14 @@ function PanelCard(props: {
     <div
       style={{
         borderRadius: 18,
-        border: "1px solid rgba(255,255,255,0.08)",
+        border: "1px solid rgba(255,255,255,0.10)",
         background:
-          "linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0.10) 100%)",
+          "linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0.12) 100%)",
         padding: "16px 16px 14px",
+        boxShadow:
+          "inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 16px rgba(0,0,0,0.15)",
+        backdropFilter: "blur(16px)",
+        WebkitBackdropFilter: "blur(16px)",
         opacity: progress,
         transform: `translateY(${interpolate(progress, [0, 1], [12, 0])}px)`,
       }}
@@ -1443,7 +1454,10 @@ function ScopeBeat(): React.ReactElement {
 function DetailBeat(): React.ReactElement {
   const frame = useCurrentFrame();
 
-  // --- Per-label animation helper ---
+  // --- 2-clip layout: Festival(0-89, 3s) → Sakura(90-149, 2s) → close(150-180, 1s) ---
+  // TODO: When Skin clip is shot, switch to 3-clip: Skin(0-74) → Festival(75-149) → close(150-180)
+
+  // --- Per-label animation helper (subtle 42px, bottom-left) ---
   const labelAnim = (start: number, end: number) => {
     const fadeInEnd = start + 15;
     const fadeOutStart = end - 12;
@@ -1458,13 +1472,27 @@ function DetailBeat(): React.ReactElement {
       easing: Easing.in(Easing.cubic),
     });
     const opacity = Math.min(inOp, outOp);
-    const translateY = interpolate(inOp, [0, 1], [14, 0]);
+    const translateY = interpolate(inOp, [0, 1], [8, 0]);
     return { opacity, translateY };
   };
 
-  const skin = labelAnim(0, 55);
-  const highlights = labelAnim(55, 110);
-  const texture = labelAnim(110, 150);
+  const lightLabel = labelAnim(0, 89);
+  const bloomLabel = labelAnim(90, 149);
+
+  // --- Video clip opacity (fade in/out per segment) ---
+  const clipOpacity = (start: number, end: number) => {
+    const fadeIn = interpolate(frame, [start, start + 10], [0, 1], {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+      easing: Easing.out(Easing.cubic),
+    });
+    const fadeOut = interpolate(frame, [end - 8, end], [1, 0], {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+      easing: Easing.in(Easing.cubic),
+    });
+    return Math.min(fadeIn, fadeOut);
+  };
 
   // --- Closing hero text ---
   const heroOpacity = interpolate(frame, [150, 168], [0, 1], {
@@ -1482,63 +1510,94 @@ function DetailBeat(): React.ReactElement {
   let activeText = "";
   let activeOpacity = 0;
   let activeTranslateY = 0;
-  if (frame < 55) {
-    activeText = "Skin.";
-    activeOpacity = skin.opacity;
-    activeTranslateY = skin.translateY;
-  } else if (frame < 110) {
-    activeText = "Highlights.";
-    activeOpacity = highlights.opacity;
-    activeTranslateY = highlights.translateY;
-  } else if (frame < 150) {
-    activeText = "Texture.";
-    activeOpacity = texture.opacity;
-    activeTranslateY = texture.translateY;
+  if (frame < 89) {
+    activeText = "Light";
+    activeOpacity = lightLabel.opacity;
+    activeTranslateY = lightLabel.translateY;
+  } else if (frame < 149) {
+    activeText = "Bloom";
+    activeOpacity = bloomLabel.opacity;
+    activeTranslateY = bloomLabel.translateY;
   }
+
+  // Shared video style — fill the frame, centered
+  const videoStyle: React.CSSProperties = {
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+    objectPosition: "center",
+  };
 
   return (
     <BeatFrame durationInFrames={beatFrames.detail} transition="soft">
-      <AbsoluteFill
-        style={{
-          background:
-            "radial-gradient(circle at 50% 0%, rgba(255, 243, 199, 0.09) 0%, rgba(12, 10, 9, 0) 30%), #0c0a09",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        {/* Sequential quality labels */}
+      <AbsoluteFill style={{ backgroundColor: COLORS.bgDeep }}>
+        {/* --- Clip 1: Festival Night (f0-89, 3s) — startFrom 90 for wipe mid-action --- */}
+        {frame < 89 && (
+          <AbsoluteFill style={{ opacity: clipOpacity(0, 89) }}>
+            <OffthreadVideo
+              src={staticFile("detail-festival.mp4")}
+              style={videoStyle}
+              startFrom={90}
+              muted
+            />
+          </AbsoluteFill>
+        )}
+
+        {/* --- Clip 2: Sakura (f90-149, 2s) — startFrom 75 for halation visible --- */}
+        {frame >= 90 && frame < 150 && (
+          <AbsoluteFill style={{ opacity: clipOpacity(90, 150) }}>
+            <OffthreadVideo
+              src={staticFile("detail-sakura.mp4")}
+              style={videoStyle}
+              startFrom={75}
+              muted
+            />
+          </AbsoluteFill>
+        )}
+
+        {/* --- Dark gradient overlay for text readability --- */}
+        <AbsoluteFill
+          style={{
+            background:
+              "linear-gradient(to top, rgba(12,10,9,0.55) 0%, rgba(12,10,9,0.05) 35%, rgba(12,10,9,0.05) 65%, rgba(12,10,9,0.35) 100%)",
+          }}
+        />
+
+        {/* --- Subtle quality labels (42px, bottom-left) --- */}
         {activeOpacity > 0 ? (
           <div
             style={{
+              position: "absolute",
+              bottom: 64,
+              left: 72,
               fontFamily: FONTS.inter,
-              fontSize: 96,
+              fontSize: 42,
               fontWeight: 700,
               color: COLORS.warmWhite,
               letterSpacing: "-0.02em",
-              opacity: activeOpacity,
+              opacity: activeOpacity * 0.85,
               transform: `translateY(${activeTranslateY}px)`,
+              textShadow: "0 1px 16px rgba(0,0,0,0.5)",
             }}
           >
             {activeText}
           </div>
         ) : null}
 
-        {/* Closing hero text */}
+        {/* --- Closing hero text --- */}
         {frame >= 150 ? (
-          <div
+          <AbsoluteFill
             style={{
-              position: "absolute",
-              inset: 0,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
+              backgroundColor: COLORS.bgDeep,
             }}
           >
             <div
               style={{
                 fontFamily: FONTS.inter,
-                fontSize: 52,
+                fontSize: 48,
                 fontWeight: 700,
                 color: COLORS.warmWhite,
                 letterSpacing: "-0.02em",
@@ -1546,9 +1605,9 @@ function DetailBeat(): React.ReactElement {
                 transform: `translateY(${heroTranslateY}px)`,
               }}
             >
-              See it in the details.
+              Real footage. Real results.
             </div>
-          </div>
+          </AbsoluteFill>
         ) : null}
       </AbsoluteFill>
     </BeatFrame>

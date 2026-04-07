@@ -16,6 +16,11 @@
     "render:03": "remotion render src/index.ts ProductDemo out/03-product-demo.mp4 --gl=angle",
     "render:05": "remotion render src/index.ts RocketTimeline out/05-rocket-timeline.mp4 --gl=angle",
     "render:08": "remotion render src/index.ts ThreeRanking out/08-three-ranking.mp4 --gl=angle",
+    "render:cleanshot-ref": "remotion render src/index.ts CleanShotReferencePlayback out/cleanshot-reference-playback.mp4 --gl=angle",
+    "render:08-from-capture": "remotion render src/index.ts ThreeRankingFromCapture out/08-three-ranking-from-capture.mp4 --gl=angle",
+    "frame-table:08": "bun run scripts/generate-three-ranking-frame-table.ts",
+    "capture-stills:08": "bash scripts/capture-three-ranking-stills.sh",
+    "verify-stills:08": "bash scripts/verify-three-ranking-stills.sh",
     "render:02": "remotion render src/index.ts TravelRoute out/02-travel-route.mp4 --gl=angle",
     "render:14": "remotion render src/index.ts TemplateReproTest out/14-template-repro-test.mp4 --gl=angle",
     "render:15": "remotion render src/index.ts FilmtoneCountdown out/15-filmtone-countdown.mp4 --gl=angle",
@@ -40,7 +45,8 @@
     "render:34": "remotion render src/index.ts GlitchTransition out/34-glitch-transition.mp4 --gl=angle",
     "render:35": "remotion render src/index.ts PushInPullOut out/35-push-in-pull-out.mp4 --gl=angle",
     "render:36": "remotion render src/index.ts ParallaxDrift out/36-parallax-drift.mp4 --gl=angle",
-    "render:37": "remotion render src/index.ts HandheldShake out/37-handheld-shake.mp4 --gl=angle"
+    "render:37": "remotion render src/index.ts HandheldShake out/37-handheld-shake.mp4 --gl=angle",
+    "render:41": "remotion render src/index.ts RecraftSvgMotion out/41-recraft-svg-motion.mp4 --gl=angle"
   },
   "dependencies": {
     "@react-three/drei": "10.7.7",

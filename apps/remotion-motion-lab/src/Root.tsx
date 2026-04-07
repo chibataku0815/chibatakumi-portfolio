@@ -10,6 +10,15 @@ import { MusicCdPromo } from "./compositions/12-music-cd-promo/MusicCdPromo";
 import { ProductDemo } from "./compositions/03-product-demo/ProductDemo";
 import { RocketTimeline } from "./compositions/05-rocket-timeline/RocketTimeline";
 import { ThreeRanking } from "./compositions/08-three-ranking/ThreeRanking";
+import {
+  CleanShotReferencePlayback,
+  cleanshotReferenceDurationInFrames,
+} from "./compositions/cleanshot-remotion-hybrid/CleanShotReferencePlayback";
+import {
+  cleanshotReferenceHeightPx,
+  cleanshotReferenceWidthPx,
+} from "./compositions/cleanshot-remotion-hybrid/cleanshotReferenceTimeline";
+import { ThreeRankingFromCapture } from "./compositions/08-three-ranking/ThreeRankingFromCapture";
 import { TravelRoute } from "./compositions/02-travel-route/TravelRoute";
 import {
   LaunchIntegrationPrototype,
@@ -64,6 +73,23 @@ import { ParallaxDrift } from "./compositions/36-parallax-drift/Composition";
 import { config as parallaxDriftConfig } from "./compositions/36-parallax-drift/config";
 import { HandheldShake } from "./compositions/37-handheld-shake/Composition";
 import { config as handheldShakeConfig } from "./compositions/37-handheld-shake/config";
+import { IsshinReelIntro } from "./compositions/38-isshin-reel-intro/Composition";
+import { config as isshinReelIntroConfig } from "./compositions/38-isshin-reel-intro/config";
+import { IsshinReelPackage } from "./compositions/39-isshin-reel-package/Composition";
+import { config as isshinReelPackageConfig } from "./compositions/39-isshin-reel-package/config";
+import { IsshinReelCredits } from "./compositions/40-isshin-reel-credits/Composition";
+import { config as isshinReelCreditsConfig } from "./compositions/40-isshin-reel-credits/config";
+import { RecraftSvgMotion } from "./compositions/41-recraft-svg-motion/Composition";
+import { config as recraftSvgMotionConfig } from "./compositions/41-recraft-svg-motion/config";
+import { MooographGeometric } from "./compositions/42-mooograph-geometric/Composition";
+import { MooographOverlay } from "./compositions/42-mooograph-geometric/MooographOverlay";
+import { config as mooographGeometricConfig } from "./compositions/42-mooograph-geometric/config";
+import { MooographGroupA } from "./compositions/42a-mooograph-group-a/Composition";
+import { config as groupAConfig } from "./compositions/42a-mooograph-group-a/config";
+import { CalibrationDebug } from "./compositions/calibration-debug/Composition";
+import { CalibrationOverlay } from "./compositions/calibration-debug/CalibrationOverlay";
+import { IsshinReelPackageOverlay } from "./compositions/39-isshin-reel-package/Overlay";
+import { config as isshinOverlayConfig } from "./compositions/39-isshin-reel-package/config";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -172,6 +198,26 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="ThreeRanking"
         component={ThreeRanking}
+        durationInFrames={210}
+        fps={30}
+        width={1920}
+        height={1080}
+      />
+
+      {/* CleanShot 参照 mp4 の再生のみ（ThreeRanking とは無関係） */}
+      <Composition
+        id="CleanShotReferencePlayback"
+        component={CleanShotReferencePlayback}
+        durationInFrames={cleanshotReferenceDurationInFrames}
+        fps={50}
+        width={cleanshotReferenceWidthPx}
+        height={cleanshotReferenceHeightPx}
+      />
+
+      {/* #8 コード正本と同一タイミング（30×210）。キャプチャ全尺への引き伸ばしは行わない */}
+      <Composition
+        id="ThreeRankingFromCapture"
+        component={ThreeRankingFromCapture}
         durationInFrames={210}
         fps={30}
         width={1920}
@@ -448,6 +494,123 @@ export const RemotionRoot: React.FC = () => {
         component={HandheldShake}
         durationInFrames={handheldShakeConfig.totalFrames}
         fps={30}
+        width={1920}
+        height={1080}
+      />
+
+      {/* ================================================================== */}
+      {/* Phase 3: Target Mograph Recreation (#38+)                         */}
+      {/* ================================================================== */}
+
+      {/* #38 Isshin Reel Intro — bar→card expansion, multi-texture block grid (0-15s) */}
+      <Composition
+        id="IsshinReelIntro"
+        component={IsshinReelIntro}
+        durationInFrames={isshinReelIntroConfig.totalFrames}
+        fps={50}
+        width={1920}
+        height={1080}
+      />
+
+      {/* #39 Isshin Reel Package — warning label, package design, title card (15-25.5s) */}
+      <Composition
+        id="IsshinReelPackage"
+        component={IsshinReelPackage}
+        durationInFrames={isshinReelPackageConfig.totalFrames}
+        fps={50}
+        width={1920}
+        height={1080}
+      />
+
+      {/* #40 Isshin Reel Credits — year counter, credit panel, dispersal outro (25.5-33.4s) */}
+      <Composition
+        id="IsshinReelCredits"
+        component={IsshinReelCredits}
+        durationInFrames={isshinReelCreditsConfig.totalFrames}
+        fps={50}
+        width={1920}
+        height={1080}
+      />
+      {/* ================================================================== */}
+      {/* Recraft API SVG Integration Tests (#41)                           */}
+      {/* ================================================================== */}
+
+      {/* #41 Recraft SVG Motion — Recraft API SVG x Remotion animation test */}
+      <Composition
+        id="RecraftSvgMotion"
+        component={RecraftSvgMotion}
+        durationInFrames={recraftSvgMotionConfig.totalFrames}
+        fps={30}
+        width={1920}
+        height={1080}
+      />
+
+      {/* ================================================================== */}
+      {/* MOOOGRAPH Recreation (#42)                                        */}
+      {/* ================================================================== */}
+
+      {/* #42 MOOOGRAPH Geometric — halftone blobs + geometric shapes + Recraft assets */}
+      <Composition
+        id="MooographGeometric"
+        component={MooographGeometric}
+        durationInFrames={mooographGeometricConfig.totalFrames}
+        fps={mooographGeometricConfig.fps}
+        width={1920}
+        height={1080}
+      />
+
+      {/* #42 MOOOGRAPH Overlay — reference video + reproduction canvas for comparison */}
+      <Composition
+        id="MooographOverlay"
+        component={MooographOverlay}
+        durationInFrames={mooographGeometricConfig.totalFrames}
+        fps={mooographGeometricConfig.fps}
+        width={1920}
+        height={1080}
+        defaultProps={{ showRef: true }}
+      />
+
+      {/* #42a MOOOGRAPH Group A — isolated left cluster (5a star, 5b rect, 5c arch, 5d triangle) */}
+      <Composition
+        id="MooographGroupA"
+        component={MooographGroupA}
+        durationInFrames={groupAConfig.totalFrames}
+        fps={groupAConfig.fps}
+        width={1920}
+        height={1080}
+        defaultProps={{ showRef: true }}
+      />
+
+      {/* ================================================================== */}
+      {/* Debug / Calibration                                                */}
+      {/* ================================================================== */}
+
+      {/* Calibration markers at known coordinates for pipeline verification */}
+      <Composition
+        id="CalibrationDebug"
+        component={CalibrationDebug}
+        durationInFrames={50}
+        fps={50}
+        width={1920}
+        height={1080}
+      />
+
+      {/* Calibration markers overlaid on reference video */}
+      <Composition
+        id="CalibrationOverlay"
+        component={CalibrationOverlay}
+        durationInFrames={isshinOverlayConfig.totalFrames}
+        fps={50}
+        width={1920}
+        height={1080}
+      />
+
+      {/* #39 Package — reference video + reproduction canvas overlay */}
+      <Composition
+        id="IsshinReelPackageOverlay"
+        component={IsshinReelPackageOverlay}
+        durationInFrames={isshinOverlayConfig.totalFrames}
+        fps={50}
         width={1920}
         height={1080}
       />

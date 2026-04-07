@@ -1,0 +1,133 @@
+{
+  "generatedAt": "2026-04-05",
+  "compositionId": "LaunchIntegrationPrototype",
+  "publicDirectory": "apps/remotion-motion-lab/public",
+  "notes": [
+    "All staticFile() references must use literal strings.",
+    "This manifest fixes the target filenames before the next code-integration chat.",
+    "Only the scope photo framegrab is generated in-repo in this session."
+  ],
+  "assets": [
+    {
+      "id": "hookF03",
+      "beat": "hook",
+      "status": "copied_into_public",
+      "targetFile": "launch-live-hook-kimono.mp4",
+      "sourcePath": "/Users/chibatakumi/Documents/flimtone03.mp4",
+      "publicPath": "apps/remotion-motion-lab/public/launch-live-hook-kimono.mp4",
+      "role": "HookBeat hero wipe",
+      "captureType": "existingVideo"
+    },
+    {
+      "id": "showcasePortra",
+      "beat": "showcase",
+      "status": "needs_capture",
+      "targetFile": "launch-live-showcase-portra.mp4",
+      "sourcePath": null,
+      "role": "ShowcaseBeat named wipe: Portra",
+      "captureType": "newScreenRecording"
+    },
+    {
+      "id": "showcaseEktar",
+      "beat": "showcase",
+      "status": "needs_capture",
+      "targetFile": "launch-live-showcase-ektar.mp4",
+      "sourcePath": null,
+      "role": "ShowcaseBeat named wipe: Ektar",
+      "captureType": "newScreenRecording"
+    },
+    {
+      "id": "showcaseCineStill",
+      "beat": "showcase",
+      "status": "needs_capture",
+      "targetFile": "launch-live-showcase-cinestill.mp4",
+      "sourcePath": null,
+      "role": "ShowcaseBeat named wipe: CineStill",
+      "captureType": "newScreenRecording"
+    },
+    {
+      "id": "showcaseBw",
+      "beat": "showcase",
+      "status": "needs_capture",
+      "targetFile": "launch-live-showcase-bw.mp4",
+      "sourcePath": null,
+      "role": "ShowcaseBeat named wipe: B&W",
+      "captureType": "newScreenRecording"
+    },
+    {
+      "id": "scopePhoto",
+      "beat": "scope",
+      "status": "generated_in_public",
+      "targetFile": "launch-live-scope-photo-framegrab.jpg",
+      "sourcePath": "/Users/chibatakumi/Documents/flimtone03.mp4",
+      "publicPath": "apps/remotion-motion-lab/public/launch-live-scope-photo-framegrab.jpg",
+      "role": "ScopeBeat photo-side proof",
+      "captureType": "frameGrab",
+      "sourceTimestamp": "00:00:02.000"
+    },
+    {
+      "id": "scopeVideoF01",
+      "beat": "scope",
+      "status": "copied_into_public",
+      "targetFile": "launch-live-scope-diver.mp4",
+      "sourcePath": "/Users/chibatakumi/Documents/flimtone01.mp4",
+      "publicPath": "apps/remotion-motion-lab/public/launch-live-scope-diver.mp4",
+      "role": "ScopeBeat video-side proof",
+      "captureType": "existingVideo"
+    },
+    {
+      "id": "detailSkin",
+      "beat": "detail",
+      "status": "needs_capture",
+      "targetFile": "launch-live-detail-skin.mp4",
+      "sourcePath": null,
+      "role": "DetailBeat skin close-up wipe",
+      "captureType": "newScreenRecording"
+    },
+    {
+      "id": "detailFestival",
+      "beat": "detail",
+      "status": "already_in_public",
+      "targetFile": "detail-festival.mp4",
+      "sourcePath": "/Users/chibatakumi/Documents/flimtone04.mp4",
+      "publicPath": "apps/remotion-motion-lab/public/detail-festival.mp4",
+      "role": "DetailBeat bloom / halation proof",
+      "captureType": "existingPublicVideo"
+    },
+    {
+      "id": "browserF02",
+      "beat": "browser",
+      "status": "copied_into_public",
+      "targetFile": "launch-live-browser-sakura-workflow.mp4",
+      "sourcePath": "/Users/chibatakumi/Documents/flimtone02.mp4",
+      "publicPath": "apps/remotion-motion-lab/public/launch-live-browser-sakura-workflow.mp4",
+      "role": "BrowserBeat workflow clip",
+      "captureType": "existingVideo"
+    },
+    {
+      "id": "productionDesktop",
+      "beat": "production",
+      "status": "needs_capture",
+      "targetFile": "launch-live-production-desktop-batch.mp4",
+      "sourcePath": null,
+      "role": "ProductionBeat desktop batch workflow",
+      "captureType": "newScreenRecording"
+    }
+  ],
+  "spares": [
+    {
+      "id": "detailSakuraSpare",
+      "status": "already_in_public",
+      "targetFile": "detail-sakura.mp4",
+      "sourcePath": "/Users/chibatakumi/Documents/flimtone02.mp4",
+      "publicPath": "apps/remotion-motion-lab/public/detail-sakura.mp4",
+      "role": "Spare for browser comparison or close montage"
+    }
+  ],
+  "fallbacks": [
+    {
+      "if": "F02 reads weak as BrowserBeat",
+      "then": "Record one additional browser workflow clip and import it as launch-live-browser-sakura-workflow.mp4"
+    }
+  ]
+}

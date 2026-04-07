@@ -1,0 +1,7 @@
+# Local dependencies and generated artifacts.
+node_modules/
+analysis/
+out/
+
+# Reference video captures are local-only. Commit the README, not the mp4.
+public/reference/*.mp4
