@@ -106,6 +106,8 @@ import { AETipExpandingRingReveal } from "./compositions/47-ae-tip-expanding-rin
 import { config as aeTipExpandingRingRevealConfig } from "./compositions/47-ae-tip-expanding-ring-reveal/config";
 import { OverlayRingTitleGradientLed } from "./compositions/53-overlay-ring-title-gradient-led/Composition";
 import { config as overlayRingTitleGradientLedConfig } from "./compositions/53-overlay-ring-title-gradient-led/config";
+import { AETipEchoTextTrain } from "./compositions/56-ae-tip-echo-text-train/Composition";
+import { config as aeTipEchoTextTrainConfig } from "./compositions/56-ae-tip-echo-text-train/config";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -676,6 +678,16 @@ export const RemotionRoot: React.FC = () => {
         fps={overlayRingTitleGradientLedConfig.fps}
         width={overlayRingTitleGradientLedConfig.width}
         height={overlayRingTitleGradientLedConfig.height}
+      />
+
+      {/* #56 AE Tip — 2.5D text train with composite-in-front echo and neo-brutalist editorial poster styling */}
+      <Composition
+        id="AETipEchoTextTrain"
+        component={AETipEchoTextTrain}
+        durationInFrames={aeTipEchoTextTrainConfig.totalFrames}
+        fps={aeTipEchoTextTrainConfig.fps}
+        width={aeTipEchoTextTrainConfig.width}
+        height={aeTipEchoTextTrainConfig.height}
       />
 
       {/* ================================================================== */}
