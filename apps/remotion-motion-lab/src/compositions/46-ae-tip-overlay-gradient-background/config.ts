@@ -67,6 +67,9 @@ export const config = {
   panelStroke: "rgba(255,255,255,0.08)",
   stageBaseColor: "#1a1020",
   stageSingleBaseColor: "#17111d",
+  stageGradientLeftColor: "rgba(17,35,61,0.26)",
+  stageGradientRightColor: "rgba(74,38,31,0.24)",
+  stageGradientBottomColor: "rgba(5,7,12,0.42)",
   textColor: "#f8f0e8",
   labelColor: "#ddd4cc",
   accentColor: "#ff9a62",
@@ -83,6 +86,7 @@ export const config = {
   distortEvolutionSpeed: 0.7,
   layerOpacity: 0.88,
   singleLayerOpacity: 0.96,
+  layerPresence: 0.14,
   layerCount: layerPalette.length,
 } as const;
 

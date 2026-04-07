@@ -104,6 +104,8 @@ import { AETipOverlayGradientBackground } from "./compositions/46-ae-tip-overlay
 import { config as aeTipOverlayGradientBackgroundConfig } from "./compositions/46-ae-tip-overlay-gradient-background/config";
 import { AETipExpandingRingReveal } from "./compositions/47-ae-tip-expanding-ring-reveal/Composition";
 import { config as aeTipExpandingRingRevealConfig } from "./compositions/47-ae-tip-expanding-ring-reveal/config";
+import { OverlayRingTitleGradientLed } from "./compositions/53-overlay-ring-title-gradient-led/Composition";
+import { config as overlayRingTitleGradientLedConfig } from "./compositions/53-overlay-ring-title-gradient-led/config";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -664,6 +666,16 @@ export const RemotionRoot: React.FC = () => {
         fps={aeTipExpandingRingRevealConfig.fps}
         width={aeTipExpandingRingRevealConfig.width}
         height={aeTipExpandingRingRevealConfig.height}
+      />
+
+      {/* #53 shortest production example variant — #46 overlay gradient motion is promoted as the visible shot context */}
+      <Composition
+        id="OverlayRingTitleGradientLed"
+        component={OverlayRingTitleGradientLed}
+        durationInFrames={overlayRingTitleGradientLedConfig.durationFrames}
+        fps={overlayRingTitleGradientLedConfig.fps}
+        width={overlayRingTitleGradientLedConfig.width}
+        height={overlayRingTitleGradientLedConfig.height}
       />
 
       {/* ================================================================== */}

@@ -105,7 +105,7 @@ const renderGradientLayer = ({
   const gradientAngle = degToRad(
     config.gradientAngleDeg +
       layer.angleOffsetDeg * 0.5 +
-      Math.sin(time * 0.23 + layer.phase) * 12,
+      Math.sin(time * 0.23 + layer.phase) * 20,
   );
   const wipeAngle = degToRad(
     (layerIndex + 1) * config.angleStepDeg +
@@ -117,7 +117,7 @@ const renderGradientLayer = ({
   const wipeAxisY = Math.sin(wipeAngle);
   const completion =
     config.wipeCompletion + Math.sin(time * 0.55 + layer.phase * 2.1) * 4;
-  const colorDrift = Math.sin(time * 0.6 + layer.phase) * 0.08;
+  const colorDrift = Math.sin(time * 0.72 + layer.phase) * 0.14;
 
   for (let y = 0; y < height; y += 1) {
     const baseY = ((y + 0.5) / height) * 2 - 1;
@@ -140,7 +140,9 @@ const renderGradientLayer = ({
       const wipeProjection = warped.x * wipeAxisX + warped.y * wipeAxisY;
       const mix = clamp01(0.5 + gradientProjection * 0.58 + colorDrift);
       const rgb = mixRgb(colorA, colorB, mix);
-      const alpha = getWipeAlpha(wipeProjection, completion, featherPx) * opacity;
+      const wipe = getWipeAlpha(wipeProjection, completion, featherPx);
+      const alpha =
+        (config.layerPresence + wipe * (1 - config.layerPresence)) * opacity;
       const offset = (y * width + x) * 4;
 
       data[offset] = rgb.r;
@@ -175,6 +177,24 @@ const renderPanelSource = ({
     mode === "single" ? config.stageSingleBaseColor : config.stageBaseColor;
   ctx.fillRect(0, 0, surface.width, surface.height);
 
+  const stageGradient = ctx.createLinearGradient(
+    surface.width * (0.14 + Math.sin(frame / config.fps * 0.24) * 0.06),
+    surface.height * 0.08,
+    surface.width * (0.86 + Math.cos(frame / config.fps * 0.19) * 0.05),
+    surface.height * 0.88,
+  );
+  stageGradient.addColorStop(0, config.stageGradientLeftColor);
+  stageGradient.addColorStop(0.55, "rgba(37,27,34,0.26)");
+  stageGradient.addColorStop(1, config.stageGradientRightColor);
+  ctx.fillStyle = stageGradient;
+  ctx.fillRect(0, 0, surface.width, surface.height);
+
+  const stageFalloff = ctx.createLinearGradient(0, surface.height * 0.18, 0, surface.height);
+  stageFalloff.addColorStop(0, "rgba(0,0,0,0)");
+  stageFalloff.addColorStop(1, config.stageGradientBottomColor);
+  ctx.fillStyle = stageFalloff;
+  ctx.fillRect(0, 0, surface.width, surface.height);
+
   const activeLayers = mode === "single" ? layerPalette.slice(0, 1) : layerPalette;
 
   activeLayers.forEach((layer, index) => {
@@ -198,10 +218,11 @@ const renderPanelSource = ({
     });
 
     ctx.save();
-    ctx.globalCompositeOperation =
-      mode === "single" || index === 0 ? "source-over" : "overlay";
-    ctx.drawImage(layerCanvas, 0, 0);
-    ctx.restore();
+      ctx.globalAlpha = mode === "single" || index === 0 ? 1 : 0.84;
+      ctx.globalCompositeOperation =
+        mode === "single" || index === 0 ? "source-over" : "screen";
+      ctx.drawImage(layerCanvas, 0, 0);
+      ctx.restore();
   });
 
   return surface;

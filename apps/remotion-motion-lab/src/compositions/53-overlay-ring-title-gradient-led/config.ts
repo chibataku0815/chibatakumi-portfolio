@@ -1,0 +1,94 @@
+import type { RingEasing } from "../47-ae-tip-expanding-ring-reveal/lib/ring-progress";
+
+export type BackgroundLayerConfig = {
+  readonly name: string;
+  readonly colorA: string;
+  readonly colorB: string;
+  readonly opacity: number;
+  readonly angleOffsetDeg: number;
+  readonly rotationMultiplier: number;
+  readonly phase: number;
+};
+
+export const backgroundPalette: readonly BackgroundLayerConfig[] = [
+  {
+    name: "sky x amber",
+    colorA: "#7ce6ff",
+    colorB: "#ff8a3d",
+    opacity: 0.92,
+    angleOffsetDeg: 0,
+    rotationMultiplier: 1,
+    phase: 0,
+  },
+  {
+    name: "mint x coral",
+    colorA: "#95ffe0",
+    colorB: "#ff6f91",
+    opacity: 0.78,
+    angleOffsetDeg: 45,
+    rotationMultiplier: 2,
+    phase: 0.7,
+  },
+  {
+    name: "lavender x peach",
+    colorA: "#9b8cff",
+    colorB: "#ffd47a",
+    opacity: 0.72,
+    angleOffsetDeg: 92,
+    rotationMultiplier: 3,
+    phase: 1.3,
+  },
+  {
+    name: "cyan x rose",
+    colorA: "#66d7ff",
+    colorB: "#ff5b7f",
+    opacity: 0.64,
+    angleOffsetDeg: 136,
+    rotationMultiplier: 4,
+    phase: 1.9,
+  },
+] as const;
+
+export const config = {
+  fps: 30,
+  width: 1920,
+  height: 1080,
+  durationFrames: 84,
+  backgroundLayerCount: 4,
+  backgroundPalette,
+  backgroundInternalWidth: 640,
+  backgroundInternalHeight: 360,
+  backgroundBaseColor: "#07060b",
+  backgroundOverlayColor: "rgba(8,7,12,0.14)",
+  backgroundCenterGlowColor: "rgba(124,230,255,0.14)",
+  backgroundGradientAngleDeg: 24,
+  backgroundWipeCompletion: 50,
+  backgroundWipeFeatherPx: 1000,
+  backgroundRotationSpeedDegPerSec: 22,
+  backgroundDistortAmount: 64,
+  backgroundDistortSize: 104,
+  backgroundDistortEvolutionSpeed: 0.78,
+  backgroundOpacity: 0.9,
+  backgroundColorDrift: 0.08,
+  heroStartFrame: 18,
+  ringCount: 4,
+  ringStaggerFrames: 4,
+  ringDurationFrames: 26,
+  ringStartDiameter: 12,
+  ringEndDiameter: 760,
+  strokeStartWidth: 170,
+  strokeEndWidth: 1,
+  ringColor: "#f7efe4",
+  ringHighlightColor: "rgba(255,142,95,0.14)",
+  ringOpacityDecay: 0.16,
+  ringEase: "ae-like" as RingEasing,
+  titleText: "FILMTONE",
+  titleDelayFrames: 44,
+  titleDurationFrames: 16,
+  titleStartScale: 0.78,
+  titleMaxScale: 1,
+  titleColor: "#fff4ea",
+  titleLetterSpacingEm: 0.16,
+  titleFontSize: 96,
+  titleShadow: "0 0 26px rgba(255,142,95,0.14)",
+} as const;
