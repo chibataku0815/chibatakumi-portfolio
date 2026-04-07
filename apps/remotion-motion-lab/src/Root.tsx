@@ -86,12 +86,22 @@ import { MooographOverlay } from "./compositions/42-mooograph-geometric/Mooograp
 import { config as mooographGeometricConfig } from "./compositions/42-mooograph-geometric/config";
 import { MooographGroupA } from "./compositions/42a-mooograph-group-a/Composition";
 import { config as groupAConfig } from "./compositions/42a-mooograph-group-a/config";
+import { MooographGroupB } from "./compositions/42b-mooograph-group-b/Composition";
+import { config as groupBConfig } from "./compositions/42b-mooograph-group-b/config";
+import { MooographGroupC } from "./compositions/42c-mooograph-group-c/Composition";
+import { config as groupCConfig } from "./compositions/42c-mooograph-group-c/config";
+import { ObjectQualityBoard } from "./compositions/43-object-quality-board/Composition";
+import { config as objectQualityBoardConfig } from "./compositions/43-object-quality-board/config";
 import { CalibrationDebug } from "./compositions/calibration-debug/Composition";
 import { CalibrationOverlay } from "./compositions/calibration-debug/CalibrationOverlay";
 import { IsshinReelPackageOverlay } from "./compositions/39-isshin-reel-package/Overlay";
 import { config as isshinOverlayConfig } from "./compositions/39-isshin-reel-package/config";
 import { AETipEchoDitherTrail } from "./compositions/44-ae-tip-echo-dither-trail/Composition";
 import { config as aeTipEchoDitherTrailConfig } from "./compositions/44-ae-tip-echo-dither-trail/config";
+import { AETipTrimPathsRadialBurst } from "./compositions/45-ae-tip-trim-paths-radial-burst/Composition";
+import { config as aeTipTrimPathsRadialBurstConfig } from "./compositions/45-ae-tip-trim-paths-radial-burst/config";
+import { AETipOverlayGradientBackground } from "./compositions/46-ae-tip-overlay-gradient-background/Composition";
+import { config as aeTipOverlayGradientBackgroundConfig } from "./compositions/46-ae-tip-overlay-gradient-background/config";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -583,6 +593,37 @@ export const RemotionRoot: React.FC = () => {
         defaultProps={{ showRef: true }}
       />
 
+      <Composition
+        id="MooographGroupB"
+        component={MooographGroupB}
+        durationInFrames={groupBConfig.totalFrames}
+        fps={groupBConfig.fps}
+        width={1920}
+        height={1080}
+        defaultProps={{ showRef: true }}
+      />
+
+      <Composition
+        id="MooographGroupC"
+        component={MooographGroupC}
+        durationInFrames={groupCConfig.totalFrames}
+        fps={groupCConfig.fps}
+        width={1920}
+        height={1080}
+        defaultProps={{ showRef: true }}
+      />
+
+      {/* #43 Object Quality Board — Group A objects in cycle or single review mode */}
+      <Composition
+        id="ObjectQualityBoard"
+        component={ObjectQualityBoard}
+        durationInFrames={objectQualityBoardConfig.totalFrames}
+        fps={objectQualityBoardConfig.fps}
+        width={objectQualityBoardConfig.width}
+        height={objectQualityBoardConfig.height}
+        defaultProps={{ mode: "cycle" }}
+      />
+
       {/* #44 AE Tip — Echo trail + ordered dither comparison for knowledge-axis primitive extraction */}
       <Composition
         id="AETipEchoDitherTrail"
@@ -591,6 +632,26 @@ export const RemotionRoot: React.FC = () => {
         fps={aeTipEchoDitherTrailConfig.fps}
         width={aeTipEchoDitherTrailConfig.width}
         height={aeTipEchoDitherTrailConfig.height}
+      />
+
+      {/* #45 AE Tip — Trim Paths draw/erase timing study + radial repeater burst */}
+      <Composition
+        id="AETipTrimPathsRadialBurst"
+        component={AETipTrimPathsRadialBurst}
+        durationInFrames={aeTipTrimPathsRadialBurstConfig.totalFrames}
+        fps={aeTipTrimPathsRadialBurstConfig.fps}
+        width={aeTipTrimPathsRadialBurstConfig.width}
+        height={aeTipTrimPathsRadialBurstConfig.height}
+      />
+
+      {/* #46 AE Tip — overlay gradient stack with rotating wipe angles + soft distortion */}
+      <Composition
+        id="AETipOverlayGradientBackground"
+        component={AETipOverlayGradientBackground}
+        durationInFrames={aeTipOverlayGradientBackgroundConfig.totalFrames}
+        fps={aeTipOverlayGradientBackgroundConfig.fps}
+        width={aeTipOverlayGradientBackgroundConfig.width}
+        height={aeTipOverlayGradientBackgroundConfig.height}
       />
 
       {/* ================================================================== */}

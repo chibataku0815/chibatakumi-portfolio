@@ -47,7 +47,15 @@
     "render:36": "remotion render src/index.ts ParallaxDrift out/36-parallax-drift.mp4 --gl=angle",
     "render:37": "remotion render src/index.ts HandheldShake out/37-handheld-shake.mp4 --gl=angle",
     "render:41": "remotion render src/index.ts RecraftSvgMotion out/41-recraft-svg-motion.mp4 --gl=angle",
-    "render:44": "remotion render src/index.ts AETipEchoDitherTrail out/44-ae-tip-echo-dither-trail.mp4 --gl=angle"
+    "render:42": "remotion render src/index.ts MooographGeometric out/42-mooograph-geometric.mp4 --gl=angle",
+    "render:42a": "remotion render src/index.ts MooographGroupA out/42a-mooograph-group-a.mp4 --gl=angle",
+    "render:42b": "remotion render src/index.ts MooographGroupB out/42b-mooograph-group-b.mp4 --gl=angle",
+    "render:42c": "remotion render src/index.ts MooographGroupC out/42c-mooograph-group-c.mp4 --gl=angle",
+    "render:43": "remotion render src/index.ts ObjectQualityBoard out/43-object-quality-board.mp4 --gl=angle",
+    "review:42-groups": "bash scripts/capture-mooograph-group-review-sheets.sh",
+    "render:44": "remotion render src/index.ts AETipEchoDitherTrail out/44-ae-tip-echo-dither-trail.mp4 --gl=angle",
+    "render:45": "remotion render src/index.ts AETipTrimPathsRadialBurst out/45-ae-tip-trim-paths-radial-burst.mp4 --gl=angle",
+    "render:46": "remotion render src/index.ts AETipOverlayGradientBackground out/46-ae-tip-overlay-gradient-background.mp4 --gl=angle"
   },
   "dependencies": {
     "@react-three/drei": "10.7.7",
