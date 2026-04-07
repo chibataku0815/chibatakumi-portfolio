@@ -1,0 +1,85 @@
+import type { RingEasing } from "../47-ae-tip-expanding-ring-reveal/lib/ring-progress";
+
+export type BackgroundLayerConfig = {
+  readonly name: string;
+  readonly colorA: string;
+  readonly colorB: string;
+  readonly opacity: number;
+  readonly angleOffsetDeg: number;
+  readonly rotationMultiplier: number;
+  readonly phase: number;
+};
+
+export const backgroundPalette: readonly BackgroundLayerConfig[] = [
+  {
+    name: "ink x amber",
+    colorA: "#13203b",
+    colorB: "#ff8e5f",
+    opacity: 0.9,
+    angleOffsetDeg: 0,
+    rotationMultiplier: 1,
+    phase: 0,
+  },
+  {
+    name: "teal x rose",
+    colorA: "#14364f",
+    colorB: "#c56d8e",
+    opacity: 0.76,
+    angleOffsetDeg: 45,
+    rotationMultiplier: 1.45,
+    phase: 0.8,
+  },
+  {
+    name: "midnight x cream",
+    colorA: "#0f1630",
+    colorB: "#f6d2a6",
+    opacity: 0.66,
+    angleOffsetDeg: 92,
+    rotationMultiplier: 1.85,
+    phase: 1.6,
+  },
+] as const;
+
+export const config = {
+  fps: 30,
+  width: 1920,
+  height: 1080,
+  durationFrames: 84,
+  backgroundLayerCount: 3,
+  backgroundPalette,
+  backgroundInternalWidth: 640,
+  backgroundInternalHeight: 360,
+  backgroundBaseColor: "#09080d",
+  backgroundOverlayColor: "rgba(8,7,12,0.26)",
+  backgroundCenterGlowColor: "rgba(255,142,95,0.11)",
+  backgroundGradientAngleDeg: 18,
+  backgroundWipeCompletion: 50,
+  backgroundWipeFeatherPx: 940,
+  backgroundRotationSpeedDegPerSec: 10,
+  backgroundDistortAmount: 28,
+  backgroundDistortSize: 124,
+  backgroundDistortEvolutionSpeed: 0.34,
+  backgroundOpacity: 0.7,
+  backgroundColorDrift: 0.035,
+  heroStartFrame: 18,
+  ringCount: 4,
+  ringStaggerFrames: 4,
+  ringDurationFrames: 26,
+  ringStartDiameter: 12,
+  ringEndDiameter: 760,
+  strokeStartWidth: 170,
+  strokeEndWidth: 1,
+  ringColor: "#f7efe4",
+  ringHighlightColor: "rgba(255,142,95,0.14)",
+  ringOpacityDecay: 0.16,
+  ringEase: "ae-like" as RingEasing,
+  titleText: "FILMTONE",
+  titleDelayFrames: 42,
+  titleDurationFrames: 16,
+  titleStartScale: 0.78,
+  titleMaxScale: 1,
+  titleColor: "#fff4ea",
+  titleLetterSpacingEm: 0.16,
+  titleFontSize: 96,
+  titleShadow: "0 0 26px rgba(255,142,95,0.14)",
+} as const;
