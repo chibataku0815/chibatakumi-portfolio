@@ -90,6 +90,8 @@ import { CalibrationDebug } from "./compositions/calibration-debug/Composition";
 import { CalibrationOverlay } from "./compositions/calibration-debug/CalibrationOverlay";
 import { IsshinReelPackageOverlay } from "./compositions/39-isshin-reel-package/Overlay";
 import { config as isshinOverlayConfig } from "./compositions/39-isshin-reel-package/config";
+import { AETipEchoDitherTrail } from "./compositions/44-ae-tip-echo-dither-trail/Composition";
+import { config as aeTipEchoDitherTrailConfig } from "./compositions/44-ae-tip-echo-dither-trail/config";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -579,6 +581,16 @@ export const RemotionRoot: React.FC = () => {
         width={1920}
         height={1080}
         defaultProps={{ showRef: true }}
+      />
+
+      {/* #44 AE Tip — Echo trail + ordered dither comparison for knowledge-axis primitive extraction */}
+      <Composition
+        id="AETipEchoDitherTrail"
+        component={AETipEchoDitherTrail}
+        durationInFrames={aeTipEchoDitherTrailConfig.totalFrames}
+        fps={aeTipEchoDitherTrailConfig.fps}
+        width={aeTipEchoDitherTrailConfig.width}
+        height={aeTipEchoDitherTrailConfig.height}
       />
 
       {/* ================================================================== */}

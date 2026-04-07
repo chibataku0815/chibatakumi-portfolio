@@ -1,0 +1,35 @@
+export const config = {
+  fps: 30,
+  width: 1920,
+  height: 1080,
+  totalFrames: 180,
+  loopFrames: 120,
+  background: "#050505",
+  panelGap: 36,
+  panelInsetX: 72,
+  panelTop: 170,
+  panelHeight: 760,
+  panelRadius: 28,
+  echoCount: 14,
+  echoStepFrames: 2,
+  decay: 0.82,
+  ditherEnabled: true,
+  threshold: 0.54,
+  ditherPixelSize: 2,
+  shapeSize: 64,
+  rotationSpeed: 320,
+  shapeColor: "#f3efe5",
+  accentColor: "#ff7a45",
+  labelColor: "#d8d2c7",
+  guideColor: "rgba(255,255,255,0.08)",
+  path: {
+    xAmplitude: 240,
+    yAmplitude: 180,
+    secondaryXAmplitude: 56,
+    secondaryYAmplitude: 48,
+  },
+} as const;
+
+export const panelWidth = Math.floor(
+  (config.width - config.panelInsetX * 2 - config.panelGap) / 2,
+);

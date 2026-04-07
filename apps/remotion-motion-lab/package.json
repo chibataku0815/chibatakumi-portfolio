@@ -46,7 +46,8 @@
     "render:35": "remotion render src/index.ts PushInPullOut out/35-push-in-pull-out.mp4 --gl=angle",
     "render:36": "remotion render src/index.ts ParallaxDrift out/36-parallax-drift.mp4 --gl=angle",
     "render:37": "remotion render src/index.ts HandheldShake out/37-handheld-shake.mp4 --gl=angle",
-    "render:41": "remotion render src/index.ts RecraftSvgMotion out/41-recraft-svg-motion.mp4 --gl=angle"
+    "render:41": "remotion render src/index.ts RecraftSvgMotion out/41-recraft-svg-motion.mp4 --gl=angle",
+    "render:44": "remotion render src/index.ts AETipEchoDitherTrail out/44-ae-tip-echo-dither-trail.mp4 --gl=angle"
   },
   "dependencies": {
     "@react-three/drei": "10.7.7",
