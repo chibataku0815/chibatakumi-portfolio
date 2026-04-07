@@ -17,6 +17,7 @@ import {
 import { flushSync } from "react-dom";
 import { FilmLabWebglPanelBackdrop, VideoTransportControls } from "film-lab-ui";
 import type { FilmLabCanvasRef } from "./FilmLabCanvas";
+import type { FilmLabCoreRef } from "./ControlPanel";
 import dynamic from "next/dynamic";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
@@ -295,6 +296,8 @@ export function FilmLabFullPage({
 
   const [viewport, setViewport] = useState<Viewport | null>(null);
   const filmLabCanvasRef = useRef<FilmLabCanvasRef | null>(null);
+  /** @description compare HUD の解除ボタンから COMPARE_OFF を dispatch するための ref */
+  const filmLabCoreRef = useRef<FilmLabCoreRef | null>(null);
   /** @description 右パネル `section.fl-card--frost` — WebGL 切り出しブラー PoC の矩形用 */
   const frostPanelSectionRef = useRef<HTMLElement | null>(null);
   /** LP では最初はオフ。詳しい調整を開いた人だけヒストグラムトグルが意味を持つ。 */
@@ -941,7 +944,10 @@ export function FilmLabFullPage({
                   }}
                   compareHud={
                     compareUi.compareMode
-                      ? { activeSlot: compareUi.activeSlot }
+                      ? {
+                          activeSlot: compareUi.activeSlot,
+                          onDismiss: () => filmLabCoreRef.current?.compareOff(),
+                        }
                       : null
                   }
                   onCubeLutLoaded={
@@ -1172,6 +1178,7 @@ export function FilmLabFullPage({
                   ) : null}
                   <div className="fl-scroll-surface min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3 pr-5 lg:pr-8">
                     <ControlPanel
+                      ref={filmLabCoreRef}
                       viewport={viewport}
                       histogramVisible={histogramVisible}
                       onHistogramToggle={toggleHistogram}

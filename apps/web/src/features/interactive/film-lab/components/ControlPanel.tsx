@@ -12,7 +12,8 @@
  * パネル内には同等の操作を重複して置かない。
  */
 
-import {
+import React, {
+  forwardRef,
   useState,
   useCallback,
   useEffect,
@@ -23,6 +24,7 @@ import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
   FilmLabControlPanelCore,
+  type FilmLabCoreRef,
   type FilmLabCoreRenderContext,
   type FilmLabDonationUiBinding,
 } from "film-lab-ui";
@@ -39,7 +41,7 @@ import { FilmLabShareSection } from "./FilmLabShareSection";
 import type { FilmLabCanvasRef } from "./FilmLabCanvas";
 import { FilmLabSmartLookSection } from "./FilmLabSmartLookSection";
 
-export type { FilmLabDonationUiBinding };
+export type { FilmLabCoreRef, FilmLabDonationUiBinding };
 
 /* ── Props ────────────────────────────────────────────────────── */
 
@@ -66,7 +68,7 @@ interface ControlPanelProps {
 
 /* ── Main Component ───────────────────────────────────────────── */
 
-export function ControlPanel({
+export const ControlPanel = forwardRef<FilmLabCoreRef, ControlPanelProps>(function ControlPanel({
   viewport,
   histogramVisible = true,
   onHistogramToggle,
@@ -81,7 +83,7 @@ export function ControlPanel({
   autoRestoreStoredSession = true,
   tryFirstLayout = false,
   canvasHasUserVideo = false,
-}: ControlPanelProps) {
+}: ControlPanelProps, ref: React.Ref<FilmLabCoreRef>) {
   const pathname = usePathname();
   const tFilmLab = useTranslations("film-lab");
 
@@ -210,6 +212,7 @@ export function ControlPanel({
 
   return (
     <FilmLabControlPanelCore
+      ref={ref}
       viewport={viewport}
       histogramVisible={histogramVisible}
       onHistogramToggle={onHistogramToggle}
@@ -229,7 +232,7 @@ export function ControlPanel({
       }}
     />
   );
-}
+});
 
 /* ── Internal: auto-restore localStorage session on mount ──── */
 
