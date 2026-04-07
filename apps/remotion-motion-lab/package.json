@@ -57,8 +57,11 @@
     "render:45": "remotion render src/index.ts AETipTrimPathsRadialBurst out/45-ae-tip-trim-paths-radial-burst.mp4 --gl=angle",
     "render:46": "remotion render src/index.ts AETipOverlayGradientBackground out/46-ae-tip-overlay-gradient-background.mp4 --gl=angle",
     "render:47": "remotion render src/index.ts AETipExpandingRingReveal out/47-ae-tip-expanding-ring-reveal.mp4 --gl=angle",
+    "render:55": "remotion render src/index.ts AETipStickyMetaballBridge out/55-ae-tip-sticky-metaball-bridge.mp4 --gl=angle",
     "render:53": "remotion render src/index.ts OverlayRingTitleGradientLed out/53-overlay-ring-title-gradient-led.mp4 --gl=angle",
     "render:56": "remotion render src/index.ts AETipEchoTextTrain out/56-ae-tip-echo-text-train.mp4 --gl=angle",
+    "render:57": "remotion render src/index.ts AETipTextPathMorphing out/57-ae-tip-text-path-morphing.mp4 --gl=angle",
+    "render:58": "remotion render src/index.ts AETipBubblePopSilhouetteBurst out/58-ae-tip-bubble-pop-silhouette-burst.mp4 --gl=angle",
     "capture-stills:53": "bash scripts/capture-overlay-ring-title-gradient-led-stills.sh"
   },
   "dependencies": {

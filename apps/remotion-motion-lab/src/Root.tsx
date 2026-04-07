@@ -104,10 +104,16 @@ import { AETipOverlayGradientBackground } from "./compositions/46-ae-tip-overlay
 import { config as aeTipOverlayGradientBackgroundConfig } from "./compositions/46-ae-tip-overlay-gradient-background/config";
 import { AETipExpandingRingReveal } from "./compositions/47-ae-tip-expanding-ring-reveal/Composition";
 import { config as aeTipExpandingRingRevealConfig } from "./compositions/47-ae-tip-expanding-ring-reveal/config";
+import { AETipStickyMetaballBridge } from "./compositions/55-ae-tip-sticky-metaball-bridge/Composition";
+import { config as aeTipStickyMetaballBridgeConfig } from "./compositions/55-ae-tip-sticky-metaball-bridge/config";
 import { OverlayRingTitleGradientLed } from "./compositions/53-overlay-ring-title-gradient-led/Composition";
 import { config as overlayRingTitleGradientLedConfig } from "./compositions/53-overlay-ring-title-gradient-led/config";
 import { AETipEchoTextTrain } from "./compositions/56-ae-tip-echo-text-train/Composition";
 import { config as aeTipEchoTextTrainConfig } from "./compositions/56-ae-tip-echo-text-train/config";
+import { AETipTextPathMorphing } from "./compositions/57-ae-tip-text-path-morphing/Composition";
+import { config as aeTipTextPathMorphingConfig } from "./compositions/57-ae-tip-text-path-morphing/config";
+import { AETipBubblePopSilhouetteBurst } from "./compositions/58-ae-tip-bubble-pop-silhouette-burst/Composition";
+import { config as aeTipBubblePopSilhouetteBurstConfig } from "./compositions/58-ae-tip-bubble-pop-silhouette-burst/config";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -670,6 +676,16 @@ export const RemotionRoot: React.FC = () => {
         height={aeTipExpandingRingRevealConfig.height}
       />
 
+      {/* #55 AE Tip — sticky metaball bridge study with editorial neo-brutalist object grammar */}
+      <Composition
+        id="AETipStickyMetaballBridge"
+        component={AETipStickyMetaballBridge}
+        durationInFrames={aeTipStickyMetaballBridgeConfig.totalFrames}
+        fps={aeTipStickyMetaballBridgeConfig.fps}
+        width={aeTipStickyMetaballBridgeConfig.width}
+        height={aeTipStickyMetaballBridgeConfig.height}
+      />
+
       {/* #53 shortest production example variant — #46 overlay gradient motion is promoted as the visible shot context */}
       <Composition
         id="OverlayRingTitleGradientLed"
@@ -688,6 +704,26 @@ export const RemotionRoot: React.FC = () => {
         fps={aeTipEchoTextTrainConfig.fps}
         width={aeTipEchoTextTrainConfig.width}
         height={aeTipEchoTextTrainConfig.height}
+      />
+
+      {/* #57 AE Tip — editorial neo-brutalist slot-based path morph from BIG to MEDIUM to SMALL */}
+      <Composition
+        id="AETipTextPathMorphing"
+        component={AETipTextPathMorphing}
+        durationInFrames={aeTipTextPathMorphingConfig.totalFrames}
+        fps={aeTipTextPathMorphingConfig.fps}
+        width={aeTipTextPathMorphingConfig.width}
+        height={aeTipTextPathMorphingConfig.height}
+      />
+
+      {/* #58 AE Tip — bubble membrane punch-out using silhouette alpha mask expansion with distortion and rough print breakup */}
+      <Composition
+        id="AETipBubblePopSilhouetteBurst"
+        component={AETipBubblePopSilhouetteBurst}
+        durationInFrames={aeTipBubblePopSilhouetteBurstConfig.totalFrames}
+        fps={aeTipBubblePopSilhouetteBurstConfig.fps}
+        width={aeTipBubblePopSilhouetteBurstConfig.width}
+        height={aeTipBubblePopSilhouetteBurstConfig.height}
       />
 
       {/* ================================================================== */}
