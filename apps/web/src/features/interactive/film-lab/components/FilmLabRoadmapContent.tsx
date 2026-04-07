@@ -24,6 +24,10 @@ const items: RoadmapItem[] = [
   { key: "videoTransport042", status: "released" },
   { key: "proPanelVocabulary042", status: "released" },
   { key: "fasterVideoExport043", status: "released" },
+  { key: "progressivePreview051", status: "released" },
+  { key: "portraitMotionBlur051", status: "released" },
+  { key: "crossFilter060", status: "released" },
+  { key: "proxyCacheAndVideoUx060", status: "released" },
   // In Development
   { key: "presetExpansion", status: "inDevelopment" },
   { key: "exportQuality", status: "inDevelopment" },
