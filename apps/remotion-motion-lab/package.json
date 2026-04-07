@@ -55,7 +55,8 @@
     "review:42-groups": "bash scripts/capture-mooograph-group-review-sheets.sh",
     "render:44": "remotion render src/index.ts AETipEchoDitherTrail out/44-ae-tip-echo-dither-trail.mp4 --gl=angle",
     "render:45": "remotion render src/index.ts AETipTrimPathsRadialBurst out/45-ae-tip-trim-paths-radial-burst.mp4 --gl=angle",
-    "render:46": "remotion render src/index.ts AETipOverlayGradientBackground out/46-ae-tip-overlay-gradient-background.mp4 --gl=angle"
+    "render:46": "remotion render src/index.ts AETipOverlayGradientBackground out/46-ae-tip-overlay-gradient-background.mp4 --gl=angle",
+    "render:47": "remotion render src/index.ts AETipExpandingRingReveal out/47-ae-tip-expanding-ring-reveal.mp4 --gl=angle"
   },
   "dependencies": {
     "@react-three/drei": "10.7.7",

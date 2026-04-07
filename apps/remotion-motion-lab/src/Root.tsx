@@ -102,6 +102,8 @@ import { AETipTrimPathsRadialBurst } from "./compositions/45-ae-tip-trim-paths-r
 import { config as aeTipTrimPathsRadialBurstConfig } from "./compositions/45-ae-tip-trim-paths-radial-burst/config";
 import { AETipOverlayGradientBackground } from "./compositions/46-ae-tip-overlay-gradient-background/Composition";
 import { config as aeTipOverlayGradientBackgroundConfig } from "./compositions/46-ae-tip-overlay-gradient-background/config";
+import { AETipExpandingRingReveal } from "./compositions/47-ae-tip-expanding-ring-reveal/Composition";
+import { config as aeTipExpandingRingRevealConfig } from "./compositions/47-ae-tip-expanding-ring-reveal/config";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -652,6 +654,16 @@ export const RemotionRoot: React.FC = () => {
         fps={aeTipOverlayGradientBackgroundConfig.fps}
         width={aeTipOverlayGradientBackgroundConfig.width}
         height={aeTipOverlayGradientBackgroundConfig.height}
+      />
+
+      {/* #47 AE Tip — expanding ring reveal driven by diameter growth + stroke collapse */}
+      <Composition
+        id="AETipExpandingRingReveal"
+        component={AETipExpandingRingReveal}
+        durationInFrames={aeTipExpandingRingRevealConfig.totalFrames}
+        fps={aeTipExpandingRingRevealConfig.fps}
+        width={aeTipExpandingRingRevealConfig.width}
+        height={aeTipExpandingRingRevealConfig.height}
       />
 
       {/* ================================================================== */}
