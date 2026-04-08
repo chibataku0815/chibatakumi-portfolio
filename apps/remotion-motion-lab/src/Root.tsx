@@ -120,6 +120,8 @@ import { AETipPopShapeEffects } from "./compositions/65-ae-tip-pop-shape-effects
 import { config as aeTipPopShapeEffectsConfig } from "./compositions/65-ae-tip-pop-shape-effects/config";
 import { AETipBouncingRotationCharacter } from "./compositions/66-ae-tip-bouncing-rotation-character/Composition";
 import { config as aeTipBouncingRotationCharacterConfig } from "./compositions/66-ae-tip-bouncing-rotation-character/config";
+import { AETipMovingTexture } from "./compositions/67-ae-tip-moving-texture/Composition";
+import { config as aeTipMovingTextureConfig } from "./compositions/67-ae-tip-moving-texture/config";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -730,6 +732,16 @@ export const RemotionRoot: React.FC = () => {
         fps={aeTipBouncingRotationCharacterConfig.fps}
         width={aeTipBouncingRotationCharacterConfig.width}
         height={aeTipBouncingRotationCharacterConfig.height}
+      />
+
+      {/* #67 AE tip — recreate moving texture from a still using stepped crop looping plus posterized wiggle overlays on masked shapes */}
+      <Composition
+        id={aeTipMovingTextureConfig.id}
+        component={AETipMovingTexture}
+        durationInFrames={aeTipMovingTextureConfig.totalFrames}
+        fps={aeTipMovingTextureConfig.fps}
+        width={aeTipMovingTextureConfig.width}
+        height={aeTipMovingTextureConfig.height}
       />
 
       {/* #65 AE tip — 3 pop shape recipes from one tutorial extracted into reusable line-burst / outline / stagger primitives */}
