@@ -139,6 +139,8 @@ import { config as aeTipRetroTitleOpeningConfig } from "./compositions/68-ae-tip
 import { AETipLoopingPatternBackground } from "./compositions/69-ae-tip-looping-pattern-background/Composition";
 import { config as aeTipLoopingPatternBackgroundConfig } from "./compositions/69-ae-tip-looping-pattern-background/config";
 import { AETipFlowingNeonSushi } from "./compositions/70-ae-tip-flowing-neon-sushi/Composition";
+import { AETipFlowingNeonCaseStudy } from "./compositions/70-ae-tip-flowing-neon-sushi/CaseStudyComposition";
+import { flowingNeonCaseStudyConfig } from "./compositions/70-ae-tip-flowing-neon-sushi/case-study-config";
 import { config as aeTipFlowingNeonSushiConfig } from "./compositions/70-ae-tip-flowing-neon-sushi/config";
 import { AETipFlowingNeonWave } from "./compositions/70-ae-tip-flowing-neon-sushi/WaveComposition";
 import { flowingNeonWaveConfig } from "./compositions/70-ae-tip-flowing-neon-sushi/wave-config";
@@ -873,6 +875,16 @@ export const RemotionRoot: React.FC = () => {
         fps={aeTipFlowingNeonSushiConfig.fps}
         width={aeTipFlowingNeonSushiConfig.width}
         height={aeTipFlowingNeonSushiConfig.height}
+      />
+
+      {/* #70 CASE - edit the created neon studies into a short reference video with title, comparison, and generalized second pass */}
+      <Composition
+        id={flowingNeonCaseStudyConfig.id}
+        component={AETipFlowingNeonCaseStudy}
+        durationInFrames={flowingNeonCaseStudyConfig.totalFrames}
+        fps={flowingNeonCaseStudyConfig.fps}
+        width={flowingNeonCaseStudyConfig.width}
+        height={flowingNeonCaseStudyConfig.height}
       />
 
       {/* #70B AE tip — verify the SVG neon pipeline on a second real asset that has no ids and is matched by fill-paint selectors */}
