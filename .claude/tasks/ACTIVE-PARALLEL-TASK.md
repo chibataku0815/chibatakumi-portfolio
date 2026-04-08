@@ -6,6 +6,23 @@
 
 ## 直近の完了タスク
 
+## Remotion AE Pop Shape Easing Comparison (2026-04-08)
+- **Agent:** Codex / GPT-5
+- **Started:** 2026-04-08T13:41:35+0900 (JST)
+- **Completed:** 2026-04-08T13:48:40+0900 (JST)
+- **Status:** 完了
+- **Files:**
+  - `apps/remotion-motion-lab/src/compositions/65-ae-tip-pop-shape-effects/Composition.tsx` (新規)
+  - `apps/remotion-motion-lab/src/compositions/65-ae-tip-pop-shape-effects/config.ts` (新規)
+  - `apps/remotion-motion-lab/src/compositions/65-ae-tip-pop-shape-effects/lib/primitives.tsx` (新規)
+  - `apps/remotion-motion-lab/src/Root.tsx` (編集)
+  - `.claude/knowledge/2026-04-08-remotion-ae-pop-shape-easing-comparison.md` (新規)
+  - `.claude/knowledge/README.md` (編集)
+  - `.claude/tasks/ACTIVE-PARALLEL-TASK.md` (編集)
+- **Commits:**
+  - `20ae52c` `Add AE pop shape easing comparison study`
+- **Notes:** AE の pop shape tutorial を `#65` として Remotion へ移植し、`Trim Paths + Repeater`、`Scale + Stroke Shrink`、`Parented Rotation Chain` を easing comparison study として再構成した。見た目だけで差が潰れないように比較カード下部に progress meter を追加し、scene 尺も延長。実装上は shape primitive と comparison UI が分離されており、次の抽出対象は `ComparisonCard x 3` の row abstraction と scene variant の config 化。
+
 ## Remotion AE Bouncing Rotation Character (2026-04-08)
 - **Agent:** Codex / GPT-5
 - **Started:** 2026-04-08T13:20:48+0900 (JST)
