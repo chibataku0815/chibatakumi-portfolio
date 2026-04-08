@@ -122,6 +122,8 @@ import { AETipBouncingRotationCharacter } from "./compositions/66-ae-tip-bouncin
 import { config as aeTipBouncingRotationCharacterConfig } from "./compositions/66-ae-tip-bouncing-rotation-character/config";
 import { AETipMovingTexture } from "./compositions/67-ae-tip-moving-texture/Composition";
 import { config as aeTipMovingTextureConfig } from "./compositions/67-ae-tip-moving-texture/config";
+import { AETipLoopingPatternBackground } from "./compositions/69-ae-tip-looping-pattern-background/Composition";
+import { config as aeTipLoopingPatternBackgroundConfig } from "./compositions/69-ae-tip-looping-pattern-background/config";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -752,6 +754,16 @@ export const RemotionRoot: React.FC = () => {
         fps={aeTipPopShapeEffectsConfig.fps}
         width={aeTipPopShapeEffectsConfig.width}
         height={aeTipPopShapeEffectsConfig.height}
+      />
+
+      {/* #69 AE tip — reconstruct looping illustrated background patterns as reusable motion-tile / repetile / hex-tile layout functions in Remotion */}
+      <Composition
+        id={aeTipLoopingPatternBackgroundConfig.id}
+        component={AETipLoopingPatternBackground}
+        durationInFrames={aeTipLoopingPatternBackgroundConfig.totalFrames}
+        fps={aeTipLoopingPatternBackgroundConfig.fps}
+        width={aeTipLoopingPatternBackgroundConfig.width}
+        height={aeTipLoopingPatternBackgroundConfig.height}
       />
 
       {/* ================================================================== */}
