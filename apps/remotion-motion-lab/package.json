@@ -59,7 +59,9 @@
     "render:47": "remotion render src/index.ts AETipExpandingRingReveal out/47-ae-tip-expanding-ring-reveal.mp4 --gl=angle",
     "render:53": "remotion render src/index.ts OverlayRingTitleGradientLed out/53-overlay-ring-title-gradient-led.mp4 --gl=angle",
     "render:56": "remotion render src/index.ts AETipEchoTextTrain out/56-ae-tip-echo-text-train.mp4 --gl=angle",
-    "capture-stills:53": "bash scripts/capture-overlay-ring-title-gradient-led-stills.sh"
+    "capture-stills:53": "bash scripts/capture-overlay-ring-title-gradient-led-stills.sh",
+    "render:64": "remotion render src/index.ts AEBasicTransitionPack out/64-ae-basic-transition-pack.mp4 --gl=angle",
+    "render:64:variants": "bash scripts/render-ae-basic-transition-variants.sh"
   },
   "dependencies": {
     "@react-three/drei": "10.7.7",

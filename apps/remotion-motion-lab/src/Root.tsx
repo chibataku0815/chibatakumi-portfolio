@@ -108,6 +108,14 @@ import { OverlayRingTitleGradientLed } from "./compositions/53-overlay-ring-titl
 import { config as overlayRingTitleGradientLedConfig } from "./compositions/53-overlay-ring-title-gradient-led/config";
 import { AETipEchoTextTrain } from "./compositions/56-ae-tip-echo-text-train/Composition";
 import { config as aeTipEchoTextTrainConfig } from "./compositions/56-ae-tip-echo-text-train/config";
+import {
+  AEBasicTransitionPack,
+  AEBasicTransitionVariant,
+} from "./compositions/64-ae-basic-transition-pack/Composition";
+import {
+  config as aeBasicTransitionPackConfig,
+  defaultVariantProps as aeBasicTransitionVariantDefaultProps,
+} from "./compositions/64-ae-basic-transition-pack/config";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -688,6 +696,26 @@ export const RemotionRoot: React.FC = () => {
         fps={aeTipEchoTextTrainConfig.fps}
         width={aeTipEchoTextTrainConfig.width}
         height={aeTipEchoTextTrainConfig.height}
+      />
+
+      {/* #64 AE basic transition pack — 5 foundational wipe recipes reconstructed from AE into reusable Remotion primitives */}
+      <Composition
+        id={aeBasicTransitionPackConfig.id}
+        component={AEBasicTransitionPack}
+        durationInFrames={aeBasicTransitionPackConfig.totalFrames}
+        fps={aeBasicTransitionPackConfig.fps}
+        width={aeBasicTransitionPackConfig.width}
+        height={aeBasicTransitionPackConfig.height}
+      />
+
+      <Composition
+        id={aeBasicTransitionPackConfig.variantId}
+        component={AEBasicTransitionVariant}
+        durationInFrames={aeBasicTransitionPackConfig.segmentFrames}
+        fps={aeBasicTransitionPackConfig.fps}
+        width={aeBasicTransitionPackConfig.width}
+        height={aeBasicTransitionPackConfig.height}
+        defaultProps={aeBasicTransitionVariantDefaultProps}
       />
 
       {/* ================================================================== */}
