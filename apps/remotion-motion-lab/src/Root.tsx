@@ -116,6 +116,8 @@ import {
   config as aeBasicTransitionPackConfig,
   defaultVariantProps as aeBasicTransitionVariantDefaultProps,
 } from "./compositions/64-ae-basic-transition-pack/config";
+import { AETipBouncingRotationCharacter } from "./compositions/66-ae-tip-bouncing-rotation-character/Composition";
+import { config as aeTipBouncingRotationCharacterConfig } from "./compositions/66-ae-tip-bouncing-rotation-character/config";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -716,6 +718,16 @@ export const RemotionRoot: React.FC = () => {
         width={aeBasicTransitionPackConfig.width}
         height={aeBasicTransitionPackConfig.height}
         defaultProps={aeBasicTransitionVariantDefaultProps}
+      />
+
+      {/* #66 AE tip — vanishing-ball bounce plus head pass-through sells 3D-like rotation using only flat shapes */}
+      <Composition
+        id={aeTipBouncingRotationCharacterConfig.id}
+        component={AETipBouncingRotationCharacter}
+        durationInFrames={aeTipBouncingRotationCharacterConfig.totalFrames}
+        fps={aeTipBouncingRotationCharacterConfig.fps}
+        width={aeTipBouncingRotationCharacterConfig.width}
+        height={aeTipBouncingRotationCharacterConfig.height}
       />
 
       {/* ================================================================== */}
