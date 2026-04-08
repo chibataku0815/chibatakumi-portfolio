@@ -6,6 +6,48 @@
 
 ## 直近の完了タスク
 
+## Remotion AE Bouncing Rotation Character (2026-04-08)
+- **Agent:** Codex / GPT-5
+- **Started:** 2026-04-08T13:20:48+0900 (JST)
+- **Completed:** 2026-04-08T13:45:55+0900 (JST)
+- **Status:** 完了
+- **Files:**
+  - `apps/remotion-motion-lab/src/compositions/66-ae-tip-bouncing-rotation-character/Composition.tsx` (新規)
+  - `apps/remotion-motion-lab/src/compositions/66-ae-tip-bouncing-rotation-character/config.ts` (新規)
+  - `apps/remotion-motion-lab/src/compositions/66-ae-tip-bouncing-rotation-character/lib/board-path.ts` (新規)
+  - `apps/remotion-motion-lab/src/compositions/66-ae-tip-bouncing-rotation-character/lib/character-motion.ts` (新規)
+  - `apps/remotion-motion-lab/src/compositions/66-ae-tip-bouncing-rotation-character/lib/segmented-motion.ts` (新規)
+  - `apps/remotion-motion-lab/src/Root.tsx` (編集)
+  - `apps/remotion-motion-lab/package.json` (編集)
+  - `.claude/tasks/archive/2026-04-08-remotion-bouncing-rotation-character.md` (新規)
+  - `.claude/knowledge/2026-04-08-remotion-bouncing-rotation-character.md` (新規)
+  - `.claude/knowledge/README.md` (編集)
+  - `.claude/tasks/ACTIVE-PARALLEL-TASK.md` (編集)
+- **Commits:**
+  - `a2c40d1` `feat(motion-lab): add bouncing rotation character study`
+- **Notes:** AE チュートリアルの bouncing rotation character を `#66` として移植。position / squash-stretch / face pass-through / board sag をすべて stop 補間へ落とし、`sampleMotionStops` を軸に timing を統一した。偽3D回転は本当の 3D ではなく front/back face の通過と body mask で再現し、`bunx tsc --noEmit`、still render、`bun run render:66` を通過。
+
+## Remotion AE Basic Transition Pack (2026-04-08)
+- **Agent:** Codex / GPT-5
+- **Started:** 2026-04-08T12:00:00+0900 (JST)
+- **Completed:** 2026-04-08T13:41:34+0900 (JST)
+- **Status:** 完了
+- **Files:**
+  - `apps/remotion-motion-lab/src/compositions/64-ae-basic-transition-pack/Composition.tsx` (新規)
+  - `apps/remotion-motion-lab/src/compositions/64-ae-basic-transition-pack/config.ts` (新規)
+  - `apps/remotion-motion-lab/src/compositions/64-ae-basic-transition-pack/lib/TransitionBand.tsx` (新規)
+  - `apps/remotion-motion-lab/src/compositions/64-ae-basic-transition-pack/lib/transition-progress.ts` (新規)
+  - `apps/remotion-motion-lab/scripts/render-ae-basic-transition-variants.sh` (新規)
+  - `apps/remotion-motion-lab/src/Root.tsx` (編集)
+  - `apps/remotion-motion-lab/package.json` (編集)
+  - `.claude/tasks/archive/2026-04-08-remotion-ae-basic-transition-pack.md` (新規)
+  - `.claude/knowledge/2026-04-08-remotion-ae-basic-transition-pack.md` (新規)
+  - `.claude/knowledge/README.md` (編集)
+  - `.claude/tasks/ACTIVE-PARALLEL-TASK.md` (編集)
+- **Commits:**
+  - `bc160ea` `Add AE basic transition pack variants`
+- **Notes:** AE の 5 basic transition を `#64` として移植し、`25f wipe + 8f stagger + same-shape exit matte` を共通 grammar として実装。radial wipe の不具合は timing ではなく構成ミスで、`Scene B` を下に置く方式をやめて overlay transition + alpha-inverted exit matte に修正した。`AEBasicTransitionVariant` で easing 差し替え単体レンダーまで対応し、`bun x tsc --noEmit -p tsconfig.json`、`bun run render:64`、`bun run render:64:variants` を通過。
+
 ## Filmtone Web Visual Parity — Phase 1 (2026-04-01)
 - **Agent:** Cursor / GPT-5.4
 - **Started:** 2026-04-01T20:00:00+0900 (JST)
