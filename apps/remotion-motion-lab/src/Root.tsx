@@ -116,6 +116,8 @@ import {
   config as aeBasicTransitionPackConfig,
   defaultVariantProps as aeBasicTransitionVariantDefaultProps,
 } from "./compositions/64-ae-basic-transition-pack/config";
+import { AETipPopShapeEffects } from "./compositions/65-ae-tip-pop-shape-effects/Composition";
+import { config as aeTipPopShapeEffectsConfig } from "./compositions/65-ae-tip-pop-shape-effects/config";
 import { AETipBouncingRotationCharacter } from "./compositions/66-ae-tip-bouncing-rotation-character/Composition";
 import { config as aeTipBouncingRotationCharacterConfig } from "./compositions/66-ae-tip-bouncing-rotation-character/config";
 
@@ -728,6 +730,16 @@ export const RemotionRoot: React.FC = () => {
         fps={aeTipBouncingRotationCharacterConfig.fps}
         width={aeTipBouncingRotationCharacterConfig.width}
         height={aeTipBouncingRotationCharacterConfig.height}
+      />
+
+      {/* #65 AE tip — 3 pop shape recipes from one tutorial extracted into reusable line-burst / outline / stagger primitives */}
+      <Composition
+        id={aeTipPopShapeEffectsConfig.id}
+        component={AETipPopShapeEffects}
+        durationInFrames={aeTipPopShapeEffectsConfig.totalFrames}
+        fps={aeTipPopShapeEffectsConfig.fps}
+        width={aeTipPopShapeEffectsConfig.width}
+        height={aeTipPopShapeEffectsConfig.height}
       />
 
       {/* ================================================================== */}
