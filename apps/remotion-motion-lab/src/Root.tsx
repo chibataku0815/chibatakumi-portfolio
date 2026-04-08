@@ -86,20 +86,12 @@ import { MooographOverlay } from "./compositions/42-mooograph-geometric/Mooograp
 import { config as mooographGeometricConfig } from "./compositions/42-mooograph-geometric/config";
 import { MooographGroupA } from "./compositions/42a-mooograph-group-a/Composition";
 import { config as groupAConfig } from "./compositions/42a-mooograph-group-a/config";
-import { MooographGroupB } from "./compositions/42b-mooograph-group-b/Composition";
-import { config as groupBConfig } from "./compositions/42b-mooograph-group-b/config";
-import { MooographGroupC } from "./compositions/42c-mooograph-group-c/Composition";
-import { config as groupCConfig } from "./compositions/42c-mooograph-group-c/config";
-import { ObjectQualityBoard } from "./compositions/43-object-quality-board/Composition";
-import { config as objectQualityBoardConfig } from "./compositions/43-object-quality-board/config";
 import { CalibrationDebug } from "./compositions/calibration-debug/Composition";
 import { CalibrationOverlay } from "./compositions/calibration-debug/CalibrationOverlay";
 import { IsshinReelPackageOverlay } from "./compositions/39-isshin-reel-package/Overlay";
 import { config as isshinOverlayConfig } from "./compositions/39-isshin-reel-package/config";
 import { AETipEchoDitherTrail } from "./compositions/44-ae-tip-echo-dither-trail/Composition";
 import { config as aeTipEchoDitherTrailConfig } from "./compositions/44-ae-tip-echo-dither-trail/config";
-import { AETipTrimPathsRadialBurst } from "./compositions/45-ae-tip-trim-paths-radial-burst/Composition";
-import { config as aeTipTrimPathsRadialBurstConfig } from "./compositions/45-ae-tip-trim-paths-radial-burst/config";
 import { AETipOverlayGradientBackground } from "./compositions/46-ae-tip-overlay-gradient-background/Composition";
 import { config as aeTipOverlayGradientBackgroundConfig } from "./compositions/46-ae-tip-overlay-gradient-background/config";
 import { AETipExpandingRingReveal } from "./compositions/47-ae-tip-expanding-ring-reveal/Composition";
@@ -108,6 +100,26 @@ import { OverlayRingTitleGradientLed } from "./compositions/53-overlay-ring-titl
 import { config as overlayRingTitleGradientLedConfig } from "./compositions/53-overlay-ring-title-gradient-led/config";
 import { AETipEchoTextTrain } from "./compositions/56-ae-tip-echo-text-train/Composition";
 import { config as aeTipEchoTextTrainConfig } from "./compositions/56-ae-tip-echo-text-train/config";
+import {
+  OpenAILaunchStudy30,
+  compositionFps as openaiLaunchStudyFps,
+  compositionHeight as openaiLaunchStudyHeight,
+  compositionWidth as openaiLaunchStudyWidth,
+  totalFrames as openaiLaunchStudyFrames,
+} from "./compositions/61-openai-launch-study/Composition";
+import { CaptivatingTechniquesPoster } from "./compositions/60-captivating-techniques-poster/Composition";
+import { config as captivatingTechniquesPosterConfig } from "./compositions/60-captivating-techniques-poster/config";
+import { SearchGPTLaunchRecreation } from "./compositions/62-searchgpt-launch-recreation/Composition";
+import { config as searchGptLaunchRecreationConfig } from "./compositions/62-searchgpt-launch-recreation/config";
+import {
+  PremiumMotionReferenceLabOverview,
+  PremiumMotionReferenceStudy,
+} from "./compositions/63-premium-motion-reference-lab/Composition";
+import {
+  motionLabConfig,
+  motionLabOverviewFrames,
+  motionStudyCompositionIds,
+} from "./compositions/63-premium-motion-reference-lab/config";
 import {
   AEBasicTransitionPack,
   AEBasicTransitionVariant,
@@ -122,8 +134,14 @@ import { AETipBouncingRotationCharacter } from "./compositions/66-ae-tip-bouncin
 import { config as aeTipBouncingRotationCharacterConfig } from "./compositions/66-ae-tip-bouncing-rotation-character/config";
 import { AETipMovingTexture } from "./compositions/67-ae-tip-moving-texture/Composition";
 import { config as aeTipMovingTextureConfig } from "./compositions/67-ae-tip-moving-texture/config";
+import { AETipRetroTitleOpening } from "./compositions/68-ae-tip-retro-title-opening/Composition";
+import { config as aeTipRetroTitleOpeningConfig } from "./compositions/68-ae-tip-retro-title-opening/config";
 import { AETipLoopingPatternBackground } from "./compositions/69-ae-tip-looping-pattern-background/Composition";
 import { config as aeTipLoopingPatternBackgroundConfig } from "./compositions/69-ae-tip-looping-pattern-background/config";
+import { AETipFlowingNeonSushi } from "./compositions/70-ae-tip-flowing-neon-sushi/Composition";
+import { config as aeTipFlowingNeonSushiConfig } from "./compositions/70-ae-tip-flowing-neon-sushi/config";
+import { AETipMooographGradientBackgrounds } from "./compositions/71-ae-tip-mooograph-gradient-backgrounds/Composition";
+import { config as aeTipMooographGradientBackgroundsConfig } from "./compositions/71-ae-tip-mooograph-gradient-backgrounds/config";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -615,37 +633,6 @@ export const RemotionRoot: React.FC = () => {
         defaultProps={{ showRef: true }}
       />
 
-      <Composition
-        id="MooographGroupB"
-        component={MooographGroupB}
-        durationInFrames={groupBConfig.totalFrames}
-        fps={groupBConfig.fps}
-        width={1920}
-        height={1080}
-        defaultProps={{ showRef: true }}
-      />
-
-      <Composition
-        id="MooographGroupC"
-        component={MooographGroupC}
-        durationInFrames={groupCConfig.totalFrames}
-        fps={groupCConfig.fps}
-        width={1920}
-        height={1080}
-        defaultProps={{ showRef: true }}
-      />
-
-      {/* #43 Object Quality Board — Group A objects in cycle or single review mode */}
-      <Composition
-        id="ObjectQualityBoard"
-        component={ObjectQualityBoard}
-        durationInFrames={objectQualityBoardConfig.totalFrames}
-        fps={objectQualityBoardConfig.fps}
-        width={objectQualityBoardConfig.width}
-        height={objectQualityBoardConfig.height}
-        defaultProps={{ mode: "cycle" }}
-      />
-
       {/* #44 AE Tip — Echo trail + ordered dither comparison for knowledge-axis primitive extraction */}
       <Composition
         id="AETipEchoDitherTrail"
@@ -654,16 +641,6 @@ export const RemotionRoot: React.FC = () => {
         fps={aeTipEchoDitherTrailConfig.fps}
         width={aeTipEchoDitherTrailConfig.width}
         height={aeTipEchoDitherTrailConfig.height}
-      />
-
-      {/* #45 AE Tip — Trim Paths draw/erase timing study + radial repeater burst */}
-      <Composition
-        id="AETipTrimPathsRadialBurst"
-        component={AETipTrimPathsRadialBurst}
-        durationInFrames={aeTipTrimPathsRadialBurstConfig.totalFrames}
-        fps={aeTipTrimPathsRadialBurstConfig.fps}
-        width={aeTipTrimPathsRadialBurstConfig.width}
-        height={aeTipTrimPathsRadialBurstConfig.height}
       />
 
       {/* #46 AE Tip — overlay gradient stack with rotating wipe angles + soft distortion */}
@@ -706,6 +683,116 @@ export const RemotionRoot: React.FC = () => {
         height={aeTipEchoTextTrainConfig.height}
       />
 
+      {/* #61 OpenAI launch study — abstract launch-language reconstruction with no source footage */}
+      <Composition
+        id="OpenAILaunchStudy30"
+        component={OpenAILaunchStudy30}
+        durationInFrames={openaiLaunchStudyFrames}
+        fps={openaiLaunchStudyFps}
+        width={openaiLaunchStudyWidth}
+        height={openaiLaunchStudyHeight}
+      />
+
+      {/* #60 Captivating Techniques poster — editorial geometric poster motion reconstructed as independent shapes */}
+      <Composition
+        id={captivatingTechniquesPosterConfig.id}
+        component={CaptivatingTechniquesPoster}
+        durationInFrames={captivatingTechniquesPosterConfig.totalFrames}
+        fps={captivatingTechniquesPosterConfig.fps}
+        width={captivatingTechniquesPosterConfig.width}
+        height={captivatingTechniquesPosterConfig.height}
+      />
+
+      {/* #62 SearchGPT launch recreation — shot-by-shot reconstruction from provided reference captures */}
+      <Composition
+        id={searchGptLaunchRecreationConfig.id}
+        component={SearchGPTLaunchRecreation}
+        durationInFrames={searchGptLaunchRecreationConfig.totalFrames}
+        fps={searchGptLaunchRecreationConfig.fps}
+        width={searchGptLaunchRecreationConfig.width}
+        height={searchGptLaunchRecreationConfig.height}
+      />
+
+      {/* #63 Premium motion reference lab — reusable easing / continuity / layering studies */}
+      <Composition
+        id={motionLabConfig.overviewId}
+        component={PremiumMotionReferenceLabOverview}
+        durationInFrames={motionLabOverviewFrames}
+        fps={motionLabConfig.fps}
+        width={motionLabConfig.width}
+        height={motionLabConfig.height}
+      />
+
+      <Composition
+        id={motionStudyCompositionIds["push-in-lab"]}
+        component={PremiumMotionReferenceStudy}
+        durationInFrames={motionLabConfig.studyDurationInFrames}
+        fps={motionLabConfig.fps}
+        width={motionLabConfig.width}
+        height={motionLabConfig.height}
+        defaultProps={{ studyId: "push-in-lab" }}
+      />
+
+      <Composition
+        id={motionStudyCompositionIds["pull-back-lab"]}
+        component={PremiumMotionReferenceStudy}
+        durationInFrames={motionLabConfig.studyDurationInFrames}
+        fps={motionLabConfig.fps}
+        width={motionLabConfig.width}
+        height={motionLabConfig.height}
+        defaultProps={{ studyId: "pull-back-lab" }}
+      />
+
+      <Composition
+        id={motionStudyCompositionIds["long-settle-lab"]}
+        component={PremiumMotionReferenceStudy}
+        durationInFrames={motionLabConfig.studyDurationInFrames}
+        fps={motionLabConfig.fps}
+        width={motionLabConfig.width}
+        height={motionLabConfig.height}
+        defaultProps={{ studyId: "long-settle-lab" }}
+      />
+
+      <Composition
+        id={motionStudyCompositionIds["snap-in-lab"]}
+        component={PremiumMotionReferenceStudy}
+        durationInFrames={motionLabConfig.studyDurationInFrames}
+        fps={motionLabConfig.fps}
+        width={motionLabConfig.width}
+        height={motionLabConfig.height}
+        defaultProps={{ studyId: "snap-in-lab" }}
+      />
+
+      <Composition
+        id={motionStudyCompositionIds["continuity-lab"]}
+        component={PremiumMotionReferenceStudy}
+        durationInFrames={motionLabConfig.studyDurationInFrames}
+        fps={motionLabConfig.fps}
+        width={motionLabConfig.width}
+        height={motionLabConfig.height}
+        defaultProps={{ studyId: "continuity-lab" }}
+      />
+
+      <Composition
+        id={motionStudyCompositionIds["editorial-gap-lab"]}
+        component={PremiumMotionReferenceStudy}
+        durationInFrames={motionLabConfig.studyDurationInFrames}
+        fps={motionLabConfig.fps}
+        width={motionLabConfig.width}
+        height={motionLabConfig.height}
+        defaultProps={{ studyId: "editorial-gap-lab" }}
+      />
+
+      <Composition
+        id={motionStudyCompositionIds["layered-reveal-lab"]}
+        component={PremiumMotionReferenceStudy}
+        durationInFrames={motionLabConfig.studyDurationInFrames}
+        fps={motionLabConfig.fps}
+        width={motionLabConfig.width}
+        height={motionLabConfig.height}
+        defaultProps={{ studyId: "layered-reveal-lab" }}
+      />
+
       {/* #64 AE basic transition pack — 5 foundational wipe recipes reconstructed from AE into reusable Remotion primitives */}
       <Composition
         id={aeBasicTransitionPackConfig.id}
@@ -724,6 +811,16 @@ export const RemotionRoot: React.FC = () => {
         width={aeBasicTransitionPackConfig.width}
         height={aeBasicTransitionPackConfig.height}
         defaultProps={aeBasicTransitionVariantDefaultProps}
+      />
+
+      {/* #65 AE tip — 3 pop shape recipes from one tutorial extracted into reusable line-burst / outline / stagger primitives */}
+      <Composition
+        id={aeTipPopShapeEffectsConfig.id}
+        component={AETipPopShapeEffects}
+        durationInFrames={aeTipPopShapeEffectsConfig.totalFrames}
+        fps={aeTipPopShapeEffectsConfig.fps}
+        width={aeTipPopShapeEffectsConfig.width}
+        height={aeTipPopShapeEffectsConfig.height}
       />
 
       {/* #66 AE tip — vanishing-ball bounce plus head pass-through sells 3D-like rotation using only flat shapes */}
@@ -746,14 +843,14 @@ export const RemotionRoot: React.FC = () => {
         height={aeTipMovingTextureConfig.height}
       />
 
-      {/* #65 AE tip — 3 pop shape recipes from one tutorial extracted into reusable line-burst / outline / stagger primitives */}
+      {/* #68 AE tip — 8-bit game opener reconstructed as reusable tracked-text, blink, and pixel-grid primitives */}
       <Composition
-        id={aeTipPopShapeEffectsConfig.id}
-        component={AETipPopShapeEffects}
-        durationInFrames={aeTipPopShapeEffectsConfig.totalFrames}
-        fps={aeTipPopShapeEffectsConfig.fps}
-        width={aeTipPopShapeEffectsConfig.width}
-        height={aeTipPopShapeEffectsConfig.height}
+        id={aeTipRetroTitleOpeningConfig.id}
+        component={AETipRetroTitleOpening}
+        durationInFrames={aeTipRetroTitleOpeningConfig.totalFrames}
+        fps={aeTipRetroTitleOpeningConfig.fps}
+        width={aeTipRetroTitleOpeningConfig.width}
+        height={aeTipRetroTitleOpeningConfig.height}
       />
 
       {/* #69 AE tip — reconstruct looping illustrated background patterns as reusable motion-tile / repetile / hex-tile layout functions in Remotion */}
@@ -764,6 +861,26 @@ export const RemotionRoot: React.FC = () => {
         fps={aeTipLoopingPatternBackgroundConfig.fps}
         width={aeTipLoopingPatternBackgroundConfig.width}
         height={aeTipLoopingPatternBackgroundConfig.height}
+      />
+
+      {/* #70 AE tip — recreate the flowing neon sign workflow with reusable trim-window and looping offset helpers for stroked paths */}
+      <Composition
+        id={aeTipFlowingNeonSushiConfig.id}
+        component={AETipFlowingNeonSushi}
+        durationInFrames={aeTipFlowingNeonSushiConfig.totalFrames}
+        fps={aeTipFlowingNeonSushiConfig.fps}
+        width={aeTipFlowingNeonSushiConfig.width}
+        height={aeTipFlowingNeonSushiConfig.height}
+      />
+
+      {/* #71 AE tip — reconstruct Mooograph's three gradient-background recipes as reusable 4-point gradient, turbulence, and marble-surface renderers */}
+      <Composition
+        id={aeTipMooographGradientBackgroundsConfig.id}
+        component={AETipMooographGradientBackgrounds}
+        durationInFrames={aeTipMooographGradientBackgroundsConfig.totalFrames}
+        fps={aeTipMooographGradientBackgroundsConfig.fps}
+        width={aeTipMooographGradientBackgroundsConfig.width}
+        height={aeTipMooographGradientBackgroundsConfig.height}
       />
 
       {/* ================================================================== */}
