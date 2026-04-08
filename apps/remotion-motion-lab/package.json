@@ -80,6 +80,7 @@
     "render:68": "remotion render src/index.ts AETipRetroTitleOpening out/68-ae-tip-retro-title-opening.mp4 --gl=angle",
     "render:69": "remotion render src/index.ts AETipLoopingPatternBackground out/69-ae-tip-looping-pattern-background.mp4 --gl=angle",
     "render:70": "remotion render src/index.ts AETipFlowingNeonSushi out/70-ae-tip-flowing-neon-sushi.mp4 --gl=angle",
+    "render:70:wave": "remotion render src/index.ts AETipFlowingNeonWave out/70-ae-tip-flowing-neon-wave.mp4 --gl=angle",
     "render:71": "remotion render src/index.ts AETipMooographGradientBackgrounds out/71-ae-tip-mooograph-gradient-backgrounds.mp4 --gl=angle"
   },
   "dependencies": {

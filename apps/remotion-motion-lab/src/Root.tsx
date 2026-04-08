@@ -140,6 +140,8 @@ import { AETipLoopingPatternBackground } from "./compositions/69-ae-tip-looping-
 import { config as aeTipLoopingPatternBackgroundConfig } from "./compositions/69-ae-tip-looping-pattern-background/config";
 import { AETipFlowingNeonSushi } from "./compositions/70-ae-tip-flowing-neon-sushi/Composition";
 import { config as aeTipFlowingNeonSushiConfig } from "./compositions/70-ae-tip-flowing-neon-sushi/config";
+import { AETipFlowingNeonWave } from "./compositions/70-ae-tip-flowing-neon-sushi/WaveComposition";
+import { flowingNeonWaveConfig } from "./compositions/70-ae-tip-flowing-neon-sushi/wave-config";
 import { AETipMooographGradientBackgrounds } from "./compositions/71-ae-tip-mooograph-gradient-backgrounds/Composition";
 import { config as aeTipMooographGradientBackgroundsConfig } from "./compositions/71-ae-tip-mooograph-gradient-backgrounds/config";
 
@@ -871,6 +873,16 @@ export const RemotionRoot: React.FC = () => {
         fps={aeTipFlowingNeonSushiConfig.fps}
         width={aeTipFlowingNeonSushiConfig.width}
         height={aeTipFlowingNeonSushiConfig.height}
+      />
+
+      {/* #70B AE tip — verify the SVG neon pipeline on a second real asset that has no ids and is matched by fill-paint selectors */}
+      <Composition
+        id={flowingNeonWaveConfig.id}
+        component={AETipFlowingNeonWave}
+        durationInFrames={flowingNeonWaveConfig.totalFrames}
+        fps={flowingNeonWaveConfig.fps}
+        width={flowingNeonWaveConfig.width}
+        height={flowingNeonWaveConfig.height}
       />
 
       {/* #71 AE tip — reconstruct Mooograph's three gradient-background recipes as reusable 4-point gradient, turbulence, and marble-surface renderers */}

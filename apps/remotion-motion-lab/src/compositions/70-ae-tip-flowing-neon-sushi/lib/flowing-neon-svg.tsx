@@ -14,11 +14,66 @@ import {
 export type FlowingGroupedStrokeSpec<Group extends string = string> =
   FlowingStrokeSpec & { group: Group };
 
+export interface SvgLayerSelector {
+  id?: string;
+  idPrefix?: string;
+  idPattern?: RegExp;
+  stroke?: string;
+  fill?: string;
+  paint?: string;
+}
+
 export interface FlowingNeonLayerOverride<Group extends string = string>
   extends Partial<FlowingStrokeSpec> {
   group?: Group;
   skip?: boolean;
 }
+
+const normalizePaintValue = (value: string | null | undefined) =>
+  value?.trim().toLowerCase();
+
+const matchesPaint = (actual: string | undefined, expected: string) =>
+  normalizePaintValue(actual) === normalizePaintValue(expected);
+
+export const matchesSvgLayerSelector = (
+  layer: ParsedSvgStrokeLayer,
+  selector: SvgLayerSelector,
+) => {
+  if (selector.id && layer.id !== selector.id) {
+    return false;
+  }
+
+  if (selector.idPrefix && !layer.id.startsWith(selector.idPrefix)) {
+    return false;
+  }
+
+  if (selector.idPattern && !selector.idPattern.test(layer.id)) {
+    return false;
+  }
+
+  if (selector.stroke && !matchesPaint(layer.stroke, selector.stroke)) {
+    return false;
+  }
+
+  if (selector.fill && !matchesPaint(layer.fill, selector.fill)) {
+    return false;
+  }
+
+  if (
+    selector.paint &&
+    !matchesPaint(layer.stroke, selector.paint) &&
+    !matchesPaint(layer.fill, selector.paint)
+  ) {
+    return false;
+  }
+
+  return true;
+};
+
+export const matchesAnySvgLayerSelector = (
+  layer: ParsedSvgStrokeLayer,
+  selectors: readonly SvgLayerSelector[],
+) => selectors.some((selector) => matchesSvgLayerSelector(layer, selector));
 
 export const buildFlowingNeonSpecsFromSvg = <Group extends string>({
   svgMarkup,

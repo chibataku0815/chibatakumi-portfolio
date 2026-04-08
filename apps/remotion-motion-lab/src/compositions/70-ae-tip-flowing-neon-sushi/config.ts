@@ -1,5 +1,9 @@
 import type { FlowingStrokeTiming } from "./lib/flowing-neon";
-import { buildFlowingNeonSpecsFromSvg } from "./lib/flowing-neon-svg";
+import {
+  buildFlowingNeonSpecsFromSvg,
+  matchesAnySvgLayerSelector,
+  type SvgLayerSelector,
+} from "./lib/flowing-neon-svg";
 import {
   denseStrokeSegments,
   frameSvgSource,
@@ -91,14 +95,26 @@ const frameTimingBase = createTiming({
 
 const letterPhases = [0.01, 0.24, 0.1, 0.36, 0.54];
 
+const letterSelectors = [
+  { idPrefix: "word-" },
+] satisfies readonly SvgLayerSelector[];
+
+const riceSelectors = [
+  { idPrefix: "rice-" },
+] satisfies readonly SvgLayerSelector[];
+
+const garnishSelectors = [
+  { idPrefix: "garnish-" },
+] satisfies readonly SvgLayerSelector[];
+
 const buildHeroStrokes = (svgMarkup: string) =>
   buildFlowingNeonSpecsFromSvg({
     svgMarkup,
     defaultStrokeWidth: 12,
     mapLayer: (layer, index) => {
-      const isLetter = layer.id.startsWith("word-");
-      const isRice = layer.id.startsWith("rice-");
-      const isGarnish = layer.id.startsWith("garnish-");
+      const isLetter = matchesAnySvgLayerSelector(layer, letterSelectors);
+      const isRice = matchesAnySvgLayerSelector(layer, riceSelectors);
+      const isGarnish = matchesAnySvgLayerSelector(layer, garnishSelectors);
       const phase = isLetter
         ? letterPhases[index] ?? 0
         : isGarnish
