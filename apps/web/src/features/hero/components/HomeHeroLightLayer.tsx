@@ -21,6 +21,7 @@ interface HomeHeroLightLayerProps {
   maskSet: HeroMaskSet;
   accentColor?: string;
   shaderPreset?: ShaderPreset;
+  reducedMotion?: boolean;
 }
 
 function createEmptyRects(): THREE.Vector4[] {
@@ -32,12 +33,24 @@ function hexToVec3(hex: string): THREE.Vector3 {
   return new THREE.Vector3(c.r, c.g, c.b);
 }
 
-export function HomeHeroLightLayer({ maskSet, accentColor, shaderPreset }: HomeHeroLightLayerProps) {
+export function HomeHeroLightLayer({
+  maskSet,
+  accentColor,
+  shaderPreset,
+  reducedMotion = false,
+}: HomeHeroLightLayerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const materialRef = useRef<THREE.ShaderMaterial | null>(null);
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+  const sceneRef = useRef<THREE.Scene | null>(null);
+  const cameraRef = useRef<THREE.Camera | null>(null);
   const maskSetRef = useRef(maskSet);
   const targetAccentRef = useRef(hexToVec3(accentColor ?? "#f0b25a"));
   const targetPresetRef = useRef(shaderPreset ?? { focusX: 0.5, focusY: 0.5, accentMix: 0.5, distortionBoost: 1.0 });
+  const renderStaticFrame = () => {
+    if (!rendererRef.current || !sceneRef.current || !cameraRef.current) return;
+    rendererRef.current.render(sceneRef.current, cameraRef.current);
+  };
 
   useEffect(() => {
     maskSetRef.current = maskSet;
@@ -59,17 +72,34 @@ export function HomeHeroLightLayer({ maskSet, accentColor, shaderPreset }: HomeH
       maskSet.anchorRect?.width ?? 0,
       maskSet.anchorRect?.height ?? 0
     );
-  }, [maskSet]);
+    if (reducedMotion) {
+      renderStaticFrame();
+    }
+  }, [maskSet, reducedMotion]);
 
   // Smoothly update accent color and shader preset when domain changes
   useEffect(() => {
+    const material = materialRef.current;
+
     if (accentColor) {
-      targetAccentRef.current = hexToVec3(accentColor);
+      const nextAccent = hexToVec3(accentColor);
+      targetAccentRef.current = nextAccent;
+      if (reducedMotion && material) {
+        material.uniforms.uAccentColor.value.copy(nextAccent);
+      }
     }
     if (shaderPreset) {
       targetPresetRef.current = shaderPreset;
+      if (reducedMotion && material) {
+        material.uniforms.uFocusPoint.value.set(shaderPreset.focusX, shaderPreset.focusY);
+        material.uniforms.uAccentMix.value = shaderPreset.accentMix;
+        material.uniforms.uDistortionBoost.value = shaderPreset.distortionBoost;
+      }
     }
-  }, [accentColor, shaderPreset]);
+    if (reducedMotion) {
+      renderStaticFrame();
+    }
+  }, [accentColor, shaderPreset, reducedMotion]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -78,12 +108,15 @@ export function HomeHeroLightLayer({ maskSet, accentColor, shaderPreset }: HomeH
     const scene = new THREE.Scene();
     const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 10);
     camera.position.z = 1;
+    sceneRef.current = scene;
+    cameraRef.current = camera;
 
     const renderer = new THREE.WebGLRenderer({
       antialias: rendererCfg.antialias,
       alpha: rendererCfg.alpha,
       powerPreference: rendererCfg.powerPreference,
     });
+    rendererRef.current = renderer;
 
     const syncRendererSize = () => {
       const width = container.clientWidth || window.innerWidth;
@@ -122,7 +155,7 @@ export function HomeHeroLightLayer({ maskSet, accentColor, shaderPreset }: HomeH
 
     const animate = (now: number) => {
       if (material) {
-        material.uniforms.uTime.value = (now - startTime) / 1000;
+        material.uniforms.uTime.value = reducedMotion ? 0 : (now - startTime) / 1000;
         currentPointer.x += (targetPointer.x - currentPointer.x) * 0.08;
         currentPointer.y += (targetPointer.y - currentPointer.y) * 0.08;
         currentInteraction += (targetInteraction - currentInteraction) * 0.06;
@@ -152,7 +185,9 @@ export function HomeHeroLightLayer({ maskSet, accentColor, shaderPreset }: HomeH
       }
 
       renderer.render(scene, camera);
-      frameId = requestAnimationFrame(animate);
+      if (!reducedMotion) {
+        frameId = requestAnimationFrame(animate);
+      }
     };
 
     const handlePointerMove = (event: PointerEvent) => {
@@ -173,6 +208,10 @@ export function HomeHeroLightLayer({ maskSet, accentColor, shaderPreset }: HomeH
       const nextSize = syncRendererSize();
       if (material) {
         material.uniforms.uResolution.value.set(nextSize.width, nextSize.height);
+      }
+      if (reducedMotion) {
+        renderStaticFrame();
+        return;
       }
       updateScroll();
     };
@@ -224,11 +263,17 @@ export function HomeHeroLightLayer({ maskSet, accentColor, shaderPreset }: HomeH
         const mesh = new THREE.Mesh(geometry, material);
         scene.add(mesh);
 
-        updateScroll();
-        frameId = requestAnimationFrame(animate);
-        window.addEventListener("pointermove", handlePointerMove, { passive: true });
-        window.addEventListener("pointerleave", handlePointerLeave, { passive: true });
-        window.addEventListener("scroll", updateScroll, { passive: true });
+        if (reducedMotion) {
+          material.uniforms.uTime.value = 0;
+          material.uniforms.uInteraction.value = cfg.idleHeat;
+          renderStaticFrame();
+        } else {
+          updateScroll();
+          frameId = requestAnimationFrame(animate);
+          window.addEventListener("pointermove", handlePointerMove, { passive: true });
+          window.addEventListener("pointerleave", handlePointerLeave, { passive: true });
+          window.addEventListener("scroll", updateScroll, { passive: true });
+        }
         window.addEventListener("resize", handleResize);
       })
       .catch((error) => {
@@ -243,6 +288,9 @@ export function HomeHeroLightLayer({ maskSet, accentColor, shaderPreset }: HomeH
       window.removeEventListener("resize", handleResize);
       geometry.dispose();
       materialRef.current = null;
+      rendererRef.current = null;
+      sceneRef.current = null;
+      cameraRef.current = null;
       if (material) material.dispose();
       if (texture) texture.dispose();
       renderer.dispose();
@@ -250,7 +298,7 @@ export function HomeHeroLightLayer({ maskSet, accentColor, shaderPreset }: HomeH
         container.removeChild(renderer.domElement);
       }
     };
-  }, []);
+  }, [reducedMotion]);
 
   return (
     <div

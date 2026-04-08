@@ -406,6 +406,187 @@ section {
   color: transparent;
 }
 
+@keyframes home-hero-orb-drift {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.42;
+  }
+  50% {
+    transform: translate3d(0, -18px, 0) scale(1.04);
+    opacity: 0.72;
+  }
+}
+
+.home-hero-ambient-orb {
+  background:
+    radial-gradient(circle at 35% 35%, color-mix(in srgb, var(--accent-amber1) 28%, white) 0%, transparent 44%),
+    radial-gradient(circle at 62% 58%, color-mix(in srgb, var(--slate-12) 14%, transparent) 0%, transparent 62%);
+  filter: blur(14px);
+  opacity: 0.55;
+  mix-blend-mode: screen;
+  animation: home-hero-orb-drift 10.5s var(--motion-ease-ambient) infinite;
+}
+
+.home-hero-ambient-orb[data-orb="secondary"] {
+  animation-duration: 13.5s;
+  animation-delay: -4.5s;
+  opacity: 0.42;
+}
+
+.home-hero-proof-panel {
+  border: 1px solid color-mix(in srgb, var(--slate-12) 10%, transparent);
+  border-radius: calc(var(--radius-panel) * 0.95);
+  padding: 1.4rem;
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--slate-2) 88%, transparent),
+      color-mix(in srgb, var(--slate-1) 82%, transparent)
+    );
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    inset 0 -14px 36px rgba(0, 0, 0, 0.16);
+  backdrop-filter: blur(22px);
+}
+
+.home-hero-domain-button {
+  min-width: min(100%, 13.5rem);
+  flex: 1 1 12rem;
+  border: 1px solid color-mix(in srgb, var(--slate-12) 10%, transparent);
+  border-radius: 1.2rem;
+  padding: 0.95rem 1rem 1rem;
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--slate-2) 72%, transparent),
+      color-mix(in srgb, var(--slate-1) 60%, transparent)
+    );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.02),
+    0 20px 40px rgba(0, 0, 0, 0.16);
+  transition:
+    transform var(--motion-duration-sm) var(--motion-ease-soft),
+    border-color var(--motion-duration-sm) ease,
+    background var(--motion-duration-sm) ease,
+    box-shadow var(--motion-duration-sm) ease;
+}
+
+.home-hero-domain-button:hover,
+.home-hero-domain-button:focus-visible,
+.home-hero-domain-button[data-active="true"] {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--accent-amber1) 30%, transparent);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--slate-3) 78%, transparent),
+      color-mix(in srgb, var(--slate-2) 72%, transparent)
+    );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 24px 44px rgba(0, 0, 0, 0.22),
+    0 0 0 1px color-mix(in srgb, var(--accent-amber1) 12%, transparent);
+}
+
+.home-hero-domain-button:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent-amber1) 55%, transparent);
+  outline-offset: 2px;
+}
+
+.home-hero-cta-primary,
+.home-hero-cta-secondary,
+.home-hero-social-link {
+  transition:
+    transform var(--motion-duration-sm) var(--motion-ease-soft),
+    border-color var(--motion-duration-sm) ease,
+    background var(--motion-duration-sm) ease,
+    color var(--motion-duration-sm) ease,
+    box-shadow var(--motion-duration-sm) ease,
+    opacity var(--motion-duration-sm) ease;
+}
+
+.home-hero-cta-primary,
+.home-hero-cta-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  border-radius: var(--radius-pill);
+  padding: 0.9rem 1.15rem;
+  font-size: 0.92rem;
+  line-height: 1;
+}
+
+.home-hero-cta-primary {
+  border: 1px solid color-mix(in srgb, var(--accent-amber1) 30%, transparent);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--slate-3) 88%, transparent),
+      color-mix(in srgb, var(--slate-2) 82%, transparent)
+    );
+  color: var(--text-base);
+  box-shadow:
+    0 18px 42px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.home-hero-cta-secondary {
+  border: 1px solid color-mix(in srgb, var(--slate-12) 12%, transparent);
+  background: color-mix(in srgb, var(--slate-2) 68%, transparent);
+  color: var(--text-base-80);
+}
+
+.home-hero-cta-primary:hover,
+.home-hero-cta-primary:focus-visible,
+.home-hero-cta-secondary:hover,
+.home-hero-cta-secondary:focus-visible,
+.home-hero-social-link:hover,
+.home-hero-social-link:focus-visible {
+  transform: translateY(-2px);
+}
+
+.home-hero-cta-primary:hover,
+.home-hero-cta-primary:focus-visible {
+  border-color: color-mix(in srgb, var(--accent-amber1) 42%, transparent);
+  box-shadow:
+    0 22px 48px rgba(0, 0, 0, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 0 0 1px color-mix(in srgb, var(--accent-amber1) 12%, transparent);
+}
+
+.home-hero-cta-secondary:hover,
+.home-hero-cta-secondary:focus-visible {
+  border-color: color-mix(in srgb, var(--accent-amber1) 20%, transparent);
+  color: var(--text-base);
+  background: color-mix(in srgb, var(--slate-3) 72%, transparent);
+}
+
+.home-hero-cta-primary:focus-visible,
+.home-hero-cta-secondary:focus-visible,
+.home-hero-social-link:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent-amber1) 55%, transparent);
+  outline-offset: 2px;
+}
+
+.home-hero-social-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid color-mix(in srgb, var(--slate-12) 10%, transparent);
+  border-radius: 999px;
+  color: var(--text-base-50);
+  background: color-mix(in srgb, var(--slate-2) 64%, transparent);
+}
+
+.home-hero-social-link:hover,
+.home-hero-social-link:focus-visible {
+  color: var(--accent-amber1);
+  border-color: color-mix(in srgb, var(--accent-amber1) 22%, transparent);
+}
+
 /* Scroll indicator dot animation */
 @keyframes scroll-dot {
   0%, 100% {
@@ -807,11 +988,16 @@ body:has(.photography-page) {
 
 @media (prefers-reduced-motion: reduce) {
   .animate-scroll-dot,
+  .home-hero-ambient-orb,
   .photography-ambient-orb,
   .photography-line-breathe {
     animation: none !important;
   }
 
+  .home-hero-domain-button,
+  .home-hero-cta-primary,
+  .home-hero-cta-secondary,
+  .home-hero-social-link,
   .photography-panel,
   .photography-hover-lift,
   .photography-hover-meta,
