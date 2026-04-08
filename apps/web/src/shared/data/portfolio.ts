@@ -446,9 +446,16 @@ export const portfolioData: PortfolioData = {
   // ---------------------------------------------------------------------------
   hero: {
     title: "Takumi Chiba",
+    eyebrow: "Code, Capture, Craft",
+    description:
+      "Design direction, photography, and frontend implementation held to one editorial standard. Built as a production-grade motion system, not a disposable splash screen.",
     primaryCta: {
       label: "View Skills",
       href: "/skills",
+    },
+    secondaryCta: {
+      label: "Open Profile",
+      href: "/profile",
     },
     socialLinks: [
       { label: "GitHub", href: "https://github.com/chibataku0815", icon: "github" },
@@ -459,6 +466,9 @@ export const portfolioData: PortfolioData = {
       {
         id: "code",
         label: "Code",
+        title: "Interfaces that keep the original intent intact.",
+        description:
+          "Creative direction translated into Next.js, TypeScript, motion systems, and real production constraints without losing precision.",
         proof: "Concept to shipped interface — same logic intact.",
         href: "/skills",
         accent: "#f0b25a",
@@ -469,6 +479,9 @@ export const portfolioData: PortfolioData = {
       {
         id: "capture",
         label: "Capture",
+        title: "Frames treated as decision-making assets.",
+        description:
+          "Photography, color, and framing that inform the product language itself instead of sitting beside it as decoration.",
         proof: "Frames as decision-making assets, not decoration.",
         href: "/photography",
         accent: "#f5c36d",
@@ -479,6 +492,9 @@ export const portfolioData: PortfolioData = {
       {
         id: "craft",
         label: "Craft",
+        title: "One quality bar across mediums.",
+        description:
+          "Systems thinking that keeps brand voice, UI density, motion timing, and output quality aligned from concept through delivery.",
         proof: "One coherent standard across mediums.",
         href: "/profile",
         accent: "#ecd7b5",

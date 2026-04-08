@@ -1,0 +1,56 @@
+<svg viewBox="0 0 1440 420" xmlns="http://www.w3.org/2000/svg">
+  <g
+    id="sushi-word"
+    stroke="#f7f7f2"
+    stroke-width="19"
+    fill="none"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <path
+      id="word-s-1"
+      d="M 184 46 C 150 10 86 8 44 32 C 14 48 10 96 42 118 C 70 138 116 144 168 162 M 166 168 C 208 186 218 230 190 264 C 156 308 82 318 30 288 C 12 278 0 260 0 238"
+    />
+    <path
+      id="word-u"
+      transform="translate(210 0)"
+      d="M 26 28 L 26 216 C 26 286 62 324 124 324 C 188 324 224 286 224 216 L 224 28"
+    />
+    <path
+      id="word-s-2"
+      transform="translate(472 0)"
+      d="M 184 46 C 150 10 86 8 44 32 C 14 48 10 96 42 118 C 70 138 116 144 168 162 M 166 168 C 208 186 218 230 190 264 C 156 308 82 318 30 288 C 12 278 0 260 0 238"
+    />
+    <path
+      id="word-h"
+      transform="translate(712 0)"
+      d="M 28 28 L 28 324 M 28 172 L 208 172 M 208 28 L 208 324"
+    />
+    <path id="word-i" transform="translate(964 0)" stroke-width="17" d="M 62 28 L 62 324" />
+  </g>
+  <g id="sushi-icon" transform="translate(1080 92)" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <g id="bowl-group" stroke="#f7f7f2" stroke-width="18">
+      <path id="bowl-rim" d="M 6 138 C 84 182 170 180 256 126" />
+      <path id="bowl-body" d="M 8 146 C -6 202 8 254 52 292 C 118 346 236 348 316 282" />
+      <path id="bowl-base" d="M 70 294 C 154 320 240 316 302 278" />
+    </g>
+    <g id="garnish-group" stroke="#74ff42" stroke-width="11">
+      <path id="garnish-1" d="M 198 30 C 226 -4 268 -4 298 24" />
+      <path id="garnish-2" d="M 214 54 C 242 26 272 28 292 52" />
+      <path id="garnish-3" d="M 184 72 C 210 48 244 50 268 72" />
+    </g>
+    <g id="rice-group" stroke="#ff533d" stroke-width="12">
+      <circle id="rice-1" cx="54" cy="118" r="20" />
+      <circle id="rice-2" cx="96" cy="96" r="22" />
+      <circle id="rice-3" cx="142" cy="108" r="20" />
+      <circle id="rice-4" cx="188" cy="94" r="22" />
+      <circle id="rice-5" cx="232" cy="112" r="18" />
+      <circle id="rice-6" cx="80" cy="140" r="18" />
+      <circle id="rice-7" cx="126" cy="146" r="18" />
+      <circle id="rice-8" cx="172" cy="146" r="18" />
+      <circle id="rice-9" cx="220" cy="142" r="18" />
+      <circle id="rice-10" cx="258" cy="126" r="16" />
+      <circle id="rice-11" cx="36" cy="150" r="16" />
+    </g>
+  </g>
+</svg>

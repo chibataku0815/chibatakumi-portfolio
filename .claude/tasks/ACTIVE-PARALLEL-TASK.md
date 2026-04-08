@@ -6,6 +6,80 @@
 
 ## 直近の完了タスク
 
+## Filmtone Desktop Update Notification Fix (2026-04-08)
+- **Agent:** Codex / GPT-5
+- **Started:** 2026-04-08T15:20:00+0900 (JST)
+- **Completed:** 2026-04-08T15:45:00+0900 (JST)
+- **Status:** 完了
+- **Issue:** `#22`
+- **Files:**
+  - `apps/desktop-film-lab-batch/electron/desktop-update-service.ts` (編集)
+  - `apps/desktop-film-lab-batch/scripts/build-electron.mjs` (編集)
+  - `apps/desktop-film-lab-batch/electron/desktop-update-service.test.ts` (新規)
+  - `.claude/tasks/archive/2026-04-08-filmtone-desktop-update-notification.md` (新規)
+  - `.claude/tasks/ACTIVE-PARALLEL-TASK.md` (編集)
+- **Worktree:** `feature-desktop-update-notification-fix`
+- **Notes:** 起動時通知として実装したつもりだった更新チェックが実際には 45 秒遅延で、短時間セッションでは無反応だった。加えて、配布ビルド時の更新 URL 埋め込みが live env 依存で不安定だったため、renderer load 完了時の初回チェックと env-file fallback の両方を修正した。対象テストと埋め込み確認を通過。
+
+## Remotion AE Pop Shape Easing Comparison (2026-04-08)
+- **Agent:** Codex / GPT-5
+- **Started:** 2026-04-08T13:41:35+0900 (JST)
+- **Completed:** 2026-04-08T13:48:40+0900 (JST)
+- **Status:** 完了
+- **Files:**
+  - `apps/remotion-motion-lab/src/compositions/65-ae-tip-pop-shape-effects/Composition.tsx` (新規)
+  - `apps/remotion-motion-lab/src/compositions/65-ae-tip-pop-shape-effects/config.ts` (新規)
+  - `apps/remotion-motion-lab/src/compositions/65-ae-tip-pop-shape-effects/lib/primitives.tsx` (新規)
+  - `apps/remotion-motion-lab/src/Root.tsx` (編集)
+  - `.claude/knowledge/2026-04-08-remotion-ae-pop-shape-easing-comparison.md` (新規)
+  - `.claude/knowledge/README.md` (編集)
+  - `.claude/tasks/ACTIVE-PARALLEL-TASK.md` (編集)
+- **Commits:**
+  - `20ae52c` `Add AE pop shape easing comparison study`
+- **Notes:** AE の pop shape tutorial を `#65` として Remotion へ移植し、`Trim Paths + Repeater`、`Scale + Stroke Shrink`、`Parented Rotation Chain` を easing comparison study として再構成した。見た目だけで差が潰れないように比較カード下部に progress meter を追加し、scene 尺も延長。実装上は shape primitive と comparison UI が分離されており、次の抽出対象は `ComparisonCard x 3` の row abstraction と scene variant の config 化。
+
+## Remotion AE Bouncing Rotation Character (2026-04-08)
+- **Agent:** Codex / GPT-5
+- **Started:** 2026-04-08T13:20:48+0900 (JST)
+- **Completed:** 2026-04-08T13:45:55+0900 (JST)
+- **Status:** 完了
+- **Files:**
+  - `apps/remotion-motion-lab/src/compositions/66-ae-tip-bouncing-rotation-character/Composition.tsx` (新規)
+  - `apps/remotion-motion-lab/src/compositions/66-ae-tip-bouncing-rotation-character/config.ts` (新規)
+  - `apps/remotion-motion-lab/src/compositions/66-ae-tip-bouncing-rotation-character/lib/board-path.ts` (新規)
+  - `apps/remotion-motion-lab/src/compositions/66-ae-tip-bouncing-rotation-character/lib/character-motion.ts` (新規)
+  - `apps/remotion-motion-lab/src/compositions/66-ae-tip-bouncing-rotation-character/lib/segmented-motion.ts` (新規)
+  - `apps/remotion-motion-lab/src/Root.tsx` (編集)
+  - `apps/remotion-motion-lab/package.json` (編集)
+  - `.claude/tasks/archive/2026-04-08-remotion-bouncing-rotation-character.md` (新規)
+  - `.claude/knowledge/2026-04-08-remotion-bouncing-rotation-character.md` (新規)
+  - `.claude/knowledge/README.md` (編集)
+  - `.claude/tasks/ACTIVE-PARALLEL-TASK.md` (編集)
+- **Commits:**
+  - `a2c40d1` `feat(motion-lab): add bouncing rotation character study`
+- **Notes:** AE チュートリアルの bouncing rotation character を `#66` として移植。position / squash-stretch / face pass-through / board sag をすべて stop 補間へ落とし、`sampleMotionStops` を軸に timing を統一した。偽3D回転は本当の 3D ではなく front/back face の通過と body mask で再現し、`bunx tsc --noEmit`、still render、`bun run render:66` を通過。
+
+## Remotion AE Basic Transition Pack (2026-04-08)
+- **Agent:** Codex / GPT-5
+- **Started:** 2026-04-08T12:00:00+0900 (JST)
+- **Completed:** 2026-04-08T13:41:34+0900 (JST)
+- **Status:** 完了
+- **Files:**
+  - `apps/remotion-motion-lab/src/compositions/64-ae-basic-transition-pack/Composition.tsx` (新規)
+  - `apps/remotion-motion-lab/src/compositions/64-ae-basic-transition-pack/config.ts` (新規)
+  - `apps/remotion-motion-lab/src/compositions/64-ae-basic-transition-pack/lib/TransitionBand.tsx` (新規)
+  - `apps/remotion-motion-lab/src/compositions/64-ae-basic-transition-pack/lib/transition-progress.ts` (新規)
+  - `apps/remotion-motion-lab/scripts/render-ae-basic-transition-variants.sh` (新規)
+  - `apps/remotion-motion-lab/src/Root.tsx` (編集)
+  - `apps/remotion-motion-lab/package.json` (編集)
+  - `.claude/tasks/archive/2026-04-08-remotion-ae-basic-transition-pack.md` (新規)
+  - `.claude/knowledge/2026-04-08-remotion-ae-basic-transition-pack.md` (新規)
+  - `.claude/knowledge/README.md` (編集)
+  - `.claude/tasks/ACTIVE-PARALLEL-TASK.md` (編集)
+- **Commits:**
+  - `bc160ea` `Add AE basic transition pack variants`
+- **Notes:** AE の 5 basic transition を `#64` として移植し、`25f wipe + 8f stagger + same-shape exit matte` を共通 grammar として実装。radial wipe の不具合は timing ではなく構成ミスで、`Scene B` を下に置く方式をやめて overlay transition + alpha-inverted exit matte に修正した。`AEBasicTransitionVariant` で easing 差し替え単体レンダーまで対応し、`bun x tsc --noEmit -p tsconfig.json`、`bun run render:64`、`bun run render:64:variants` を通過。
+
 ## Filmtone Web Visual Parity — Phase 1 (2026-04-01)
 - **Agent:** Cursor / GPT-5.4
 - **Started:** 2026-04-01T20:00:00+0900 (JST)
@@ -506,6 +580,9 @@
 ### 2026-04-01
 - `archive/2026-04-01-filmtone-web-visual-parity-phase1.md` - Filmtone Web Visual Parity Phase 1
 
+### 2026-04-08
+- `archive/2026-04-08-filmtone-desktop-update-notification.md` - Filmtone Desktop Update Notification Fix
+
 ### 2026-03-09
 - `archive/2026-03-09-photography-lp-design-polish.md` - Photography LP Design Polish
 - `archive/2026-03-09-photography-lp-redesign.md` - Photography LP Level 4.5+ Redesign
@@ -545,4 +622,4 @@
 
 ---
 
-最終更新: 2026-03-10T21:45:00+0900 (JST)
+最終更新: 2026-04-08T15:45:00+0900 (JST)

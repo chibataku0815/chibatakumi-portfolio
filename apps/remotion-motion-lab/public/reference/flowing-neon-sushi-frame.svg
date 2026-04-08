@@ -1,0 +1,15 @@
+<svg viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
+  <g
+    id="frame"
+    stroke="#f7f7f2"
+    stroke-width="12"
+    fill="none"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <line id="frame-top" x1="74" y1="58" x2="1864" y2="58" />
+    <line id="frame-right" x1="1864" y1="58" x2="1864" y2="742" />
+    <line id="frame-bottom" x1="1778" y1="1018" x2="86" y2="1018" />
+    <line id="frame-left" x1="18" y1="520" x2="18" y2="1018" />
+  </g>
+</svg>
