@@ -79,7 +79,6 @@
 - **Commits:**
   - `bc160ea` `Add AE basic transition pack variants`
 - **Notes:** AE の 5 basic transition を `#64` として移植し、`25f wipe + 8f stagger + same-shape exit matte` を共通 grammar として実装。radial wipe の不具合は timing ではなく構成ミスで、`Scene B` を下に置く方式をやめて overlay transition + alpha-inverted exit matte に修正した。`AEBasicTransitionVariant` で easing 差し替え単体レンダーまで対応し、`bun x tsc --noEmit -p tsconfig.json`、`bun run render:64`、`bun run render:64:variants` を通過。
-
 ## Filmtone Web Visual Parity — Phase 1 (2026-04-01)
 - **Agent:** Cursor / GPT-5.4
 - **Started:** 2026-04-01T20:00:00+0900 (JST)
