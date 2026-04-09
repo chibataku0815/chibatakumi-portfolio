@@ -72,7 +72,14 @@ export function FilmLabProofVideoCard({ src, title }: FilmLabProofVideoCardProps
       alpha: false,
       powerPreference: "high-performance",
     });
-    renderer.setPixelRatio(getOptimalPixelRatio(1.5));
+    // LP proof cards prioritize perceived sharpness over the lower-DPR cap used elsewhere.
+    renderer.setPixelRatio(
+      getOptimalPixelRatio(
+        typeof window !== "undefined" && window.matchMedia("(min-width: 1024px)").matches
+          ? 2.25
+          : 1.75,
+      ),
+    );
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     containerElement.appendChild(renderer.domElement);
 
