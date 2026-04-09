@@ -8,7 +8,6 @@ import {
 } from "../../lib/canvas-primitives";
 import {
   config,
-  marbleRecipe,
   panelContentHeight,
   panelContentWidth,
   panels,
@@ -19,12 +18,11 @@ import {
   drawRoundedRect,
   getReusableCanvas,
 } from "./lib/canvas-utils";
-import { renderMarbleSurface } from "./lib/marble-surface";
 import { renderOrganicGradient } from "./lib/organic-gradient";
 import {
   renderMarbleWithWebGL,
   renderSmokeWithWebGL,
-} from "./lib/webgl-effect-renderer";
+} from "../../lib/ae-tips/mooograph-gradient-backgrounds";
 
 const drawTopHeading = (ctx: CanvasRenderingContext2D) => {
   ctx.fillStyle = config.headingLabelColor;
@@ -73,74 +71,22 @@ const renderPanelSource = ({
   }
 
   if (panel.kind === "smoke") {
-    try {
-      renderSmokeWithWebGL({
-        cacheKey: `71-smoke-webgl-${panelIndex}`,
-        target,
-        time,
-        recipe: panel.recipe,
-      });
-      return;
-    } catch {
-      const ctx = target.getContext("2d");
-      if (!ctx) {
-        return;
-      }
-
-      ctx.clearRect(0, 0, target.width, target.height);
-      renderOrganicGradient({
-        target,
-        time,
-        recipe: panel.recipe,
-      });
-      return;
-    }
-  }
-
-  try {
-    renderMarbleWithWebGL({
-      cacheKey: `71-marble-webgl-${panelIndex}`,
+    renderSmokeWithWebGL({
+      cacheKey: `71-smoke-webgl-${panelIndex}`,
       target,
       time,
-      loopProgress,
-      recipe: marbleRecipe,
+      recipe: panel.recipe,
     });
     return;
-  } catch {
-    const ctx = target.getContext("2d");
-    if (!ctx) {
-      return;
-    }
-
-    ctx.clearRect(0, 0, target.width, target.height);
-    renderOrganicGradient({
-      target,
-      time,
-      recipe: marbleRecipe.background,
-    });
-
-    const marbleCanvas = getReusableCanvas(
-      `71-marble-panel-${panelIndex}`,
-      target.width,
-      target.height,
-    );
-
-    if (!marbleCanvas) {
-      return;
-    }
-
-    renderMarbleSurface({
-      target: marbleCanvas,
-      time,
-      loopProgress,
-      recipe: marbleRecipe,
-    });
-
-    ctx.save();
-    ctx.globalAlpha = marbleRecipe.surfaceOpacity;
-    ctx.drawImage(marbleCanvas, 0, 0);
-    ctx.restore();
   }
+
+  renderMarbleWithWebGL({
+    cacheKey: `71-marble-webgl-${panelIndex}`,
+    target,
+    time,
+    loopProgress,
+    recipe: panel.recipe,
+  });
 };
 
 const drawPanel = ({
