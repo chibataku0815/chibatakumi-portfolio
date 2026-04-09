@@ -20,10 +20,12 @@ export type FilmLabProofVideoId =
  * @description proof 動画 1 本ぶんの設定です。
  * @property {FilmLabProofVideoId} id - LP と設定ファイルで共有する固定 ID。
  * @property {string} publicPath - `apps/web/public` 配下から配信する mp4 の URL です。
+ * @property {number} aspectRatio - LP カードで使う元動画の縦横比です。
  */
 interface FilmLabProofVideoDefinition {
   id: FilmLabProofVideoId;
   publicPath: string;
+  aspectRatio: number;
 }
 
 /**
@@ -33,22 +35,27 @@ const filmLabProofVideoDefinitions: readonly FilmLabProofVideoDefinition[] = [
   {
     id: "gradedLookA",
     publicPath: "/film-lab/proof/graded-look-a.mp4",
+    aspectRatio: 16 / 9,
   },
   {
     id: "gradedLookB",
     publicPath: "/film-lab/proof/graded-look-b.mp4",
+    aspectRatio: 16 / 9,
   },
   {
     id: "compareNightStreet",
     publicPath: "/film-lab/proof/compare-night-street.mp4",
+    aspectRatio: 1316 / 1080,
   },
   {
     id: "compareDaylightWalk",
     publicPath: "/film-lab/proof/compare-daylight-walk.mp4",
+    aspectRatio: 1316 / 1080,
   },
   {
     id: "compareDarkInterior",
     publicPath: "/film-lab/proof/compare-dark-interior.mp4",
+    aspectRatio: 1316 / 1080,
   },
 ] as const;
 
@@ -71,4 +78,14 @@ export function filmLabGetProofVideoDefinition(videoId: string): FilmLabProofVid
 export function filmLabBuildProofVideoUrl(videoId: FilmLabProofVideoId): string {
   const matchedVideo = filmLabGetProofVideoDefinition(videoId);
   return matchedVideo?.publicPath ?? "";
+}
+
+/**
+ * @description proof 動画カードに使う元動画の縦横比を返します。
+ * @param {FilmLabProofVideoId} videoId - LP 側で参照する固定 ID。
+ * @returns {number} 元動画の縦横比。未定義なら 16:9。
+ */
+export function filmLabBuildProofVideoAspectRatio(videoId: FilmLabProofVideoId): number {
+  const matchedVideo = filmLabGetProofVideoDefinition(videoId);
+  return matchedVideo?.aspectRatio ?? 16 / 9;
 }

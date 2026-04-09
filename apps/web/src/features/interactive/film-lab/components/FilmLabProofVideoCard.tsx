@@ -12,6 +12,7 @@ import { getOptimalPixelRatio, isWebGL2Supported } from "@/shared/gl";
 interface FilmLabProofVideoCardProps {
   src: string;
   title: string;
+  aspectRatio?: number;
 }
 
 /**
@@ -51,9 +52,14 @@ function filmLabApplyVideoCoverScale(
  * 公開前の仮 asset を素早く差し込むための用途に限定します。
  * @param {FilmLabProofVideoCardProps} root0 - proof 動画カードの props。
  */
-export function FilmLabProofVideoCard({ src, title }: FilmLabProofVideoCardProps) {
+export function FilmLabProofVideoCard({
+  src,
+  title,
+  aspectRatio = 16 / 9,
+}: FilmLabProofVideoCardProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [showFallbackVideo, setShowFallbackVideo] = useState(false);
+  const resolvedAspectRatio = Number.isFinite(aspectRatio) && aspectRatio > 0 ? aspectRatio : 16 / 9;
 
   useEffect(() => {
     const containerElement = containerRef.current;
@@ -186,7 +192,10 @@ export function FilmLabProofVideoCard({ src, title }: FilmLabProofVideoCardProps
   }, [src, title]);
 
   return (
-    <div className="relative min-h-[clamp(200px,36vw,320px)] overflow-hidden rounded-t-2xl rounded-b-none bg-black">
+    <div
+      className="relative w-full overflow-hidden rounded-t-2xl rounded-b-none bg-black"
+      style={{ aspectRatio: resolvedAspectRatio }}
+    >
       <div ref={containerRef} className="absolute inset-0" aria-hidden={showFallbackVideo} />
       {showFallbackVideo ? (
         <video

@@ -31,7 +31,10 @@ import {
   filmLabDesktopMinimumMacos,
   filmLabDesktopSupportEmail,
 } from "../desktop-release-info";
-import { filmLabBuildProofVideoUrl } from "../film-lab-proof-videos";
+import {
+  filmLabBuildProofVideoAspectRatio,
+  filmLabBuildProofVideoUrl,
+} from "../film-lab-proof-videos";
 import {
   filmLabDonationBmcUrl,
   filmLabDonationClientPublicEnvStatus,
@@ -799,6 +802,7 @@ export function FilmLabFullPage({
         <div className="mt-14 grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
           <div className="film-lab-liquid-glass relative z-10 order-2 overflow-hidden rounded-2xl lg:order-1">
             <FilmLabProofVideoCard
+              aspectRatio={filmLabBuildProofVideoAspectRatio("gradedLookB")}
               src={filmLabBuildProofVideoUrl("gradedLookB")}
               title={tLp("premiumFeature2Title")}
             />
@@ -886,6 +890,7 @@ export function FilmLabFullPage({
                 className="film-lab-liquid-glass relative z-10 overflow-hidden rounded-2xl"
               >
                 <FilmLabProofVideoCard
+                  aspectRatio={filmLabBuildProofVideoAspectRatio(proofId)}
                   src={filmLabBuildProofVideoUrl(proofId)}
                   title={tLp(titleKey)}
                 />
