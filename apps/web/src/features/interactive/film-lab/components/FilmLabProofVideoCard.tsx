@@ -78,6 +78,9 @@ export function FilmLabProofVideoCard({
       alpha: false,
       powerPreference: "high-performance",
     });
+    renderer.domElement.style.display = "block";
+    renderer.domElement.style.width = "100%";
+    renderer.domElement.style.height = "100%";
     // LP proof cards prioritize perceived sharpness over the lower-DPR cap used elsewhere.
     renderer.setPixelRatio(
       getOptimalPixelRatio(
