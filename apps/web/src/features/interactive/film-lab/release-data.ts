@@ -18,6 +18,27 @@ export interface ReleaseEntry {
  */
 export const releases: ReleaseEntry[] = [
   {
+    version: "0.6.2",
+    date: "2026-04-09",
+    titleKey: "v062Title",
+    changes: [
+      { type: "changed", key: "v062HardOnlySurface" },
+      { type: "fixed", key: "v062StateNormalization" },
+      { type: "changed", key: "v062DiscreteSpikes" },
+    ],
+  },
+  {
+    version: "0.6.1",
+    date: "2026-04-08",
+    titleKey: "v061Title",
+    changes: [
+      { type: "fixed", key: "v061LaunchUpdateBanner" },
+      { type: "fixed", key: "v061PreviewRecoveryAfterExport" },
+      { type: "changed", key: "v061GlowBlackMistRetune" },
+      { type: "fixed", key: "v061HardCrossFilterSpacing" },
+    ],
+  },
+  {
     version: "0.6.0",
     date: "2026-04-07",
     titleKey: "v060Title",

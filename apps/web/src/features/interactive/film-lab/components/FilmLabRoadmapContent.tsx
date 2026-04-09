@@ -28,6 +28,8 @@ const items: RoadmapItem[] = [
   { key: "portraitMotionBlur051", status: "released" },
   { key: "crossFilter060", status: "released" },
   { key: "proxyCacheAndVideoUx060", status: "released" },
+  { key: "desktopPolish061", status: "released" },
+  { key: "crossFilterCleanup062", status: "released" },
   // In Development
   { key: "presetExpansion", status: "inDevelopment" },
   { key: "exportQuality", status: "inDevelopment" },
