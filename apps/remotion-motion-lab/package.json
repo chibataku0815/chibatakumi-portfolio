@@ -82,7 +82,11 @@
     "render:70": "remotion render src/index.ts AETipFlowingNeonSushi out/70-ae-tip-flowing-neon-sushi.mp4 --gl=angle",
     "render:70:case-study": "remotion render src/index.ts AETipFlowingNeonCaseStudy out/70-ae-tip-flowing-neon-case-study.mp4 --gl=angle",
     "render:70:wave": "remotion render src/index.ts AETipFlowingNeonWave out/70-ae-tip-flowing-neon-wave.mp4 --gl=angle",
-    "render:71": "remotion render src/index.ts AETipMooographGradientBackgrounds out/71-ae-tip-mooograph-gradient-backgrounds.mp4 --gl=angle"
+    "render:71": "remotion render src/index.ts AETipMooographGradientBackgrounds out/71-ae-tip-mooograph-gradient-backgrounds.mp4 --gl=angle",
+    "render:72": "remotion render src/index.ts AEBookCase01HelloHello1 out/72-ae-book-case-01-hello-hello1.mp4 --gl=angle",
+    "render:72:hello2": "remotion render src/index.ts AEBookCase01HelloHello2 out/72-ae-book-case-01-hello-hello2.mp4 --gl=angle",
+    "render:72:hello3": "remotion render src/index.ts AEBookCase01HelloHello3 out/72-ae-book-case-01-hello-hello3.mp4 --gl=angle",
+    "render:72:hello4": "remotion render src/index.ts AEBookCase01HelloHello4 out/72-ae-book-case-01-hello-hello4.mp4 --gl=angle"
   },
   "dependencies": {
     "@react-three/drei": "10.7.7",

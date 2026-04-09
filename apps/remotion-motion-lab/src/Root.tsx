@@ -101,17 +101,6 @@ import { config as overlayRingTitleGradientLedConfig } from "./compositions/53-o
 import { AETipEchoTextTrain } from "./compositions/56-ae-tip-echo-text-train/Composition";
 import { config as aeTipEchoTextTrainConfig } from "./compositions/56-ae-tip-echo-text-train/config";
 import {
-  OpenAILaunchStudy30,
-  compositionFps as openaiLaunchStudyFps,
-  compositionHeight as openaiLaunchStudyHeight,
-  compositionWidth as openaiLaunchStudyWidth,
-  totalFrames as openaiLaunchStudyFrames,
-} from "./compositions/61-openai-launch-study/Composition";
-import { CaptivatingTechniquesPoster } from "./compositions/60-captivating-techniques-poster/Composition";
-import { config as captivatingTechniquesPosterConfig } from "./compositions/60-captivating-techniques-poster/config";
-import { SearchGPTLaunchRecreation } from "./compositions/62-searchgpt-launch-recreation/Composition";
-import { config as searchGptLaunchRecreationConfig } from "./compositions/62-searchgpt-launch-recreation/config";
-import {
   PremiumMotionReferenceLabOverview,
   PremiumMotionReferenceStudy,
 } from "./compositions/63-premium-motion-reference-lab/Composition";
@@ -134,8 +123,6 @@ import { AETipBouncingRotationCharacter } from "./compositions/66-ae-tip-bouncin
 import { config as aeTipBouncingRotationCharacterConfig } from "./compositions/66-ae-tip-bouncing-rotation-character/config";
 import { AETipMovingTexture } from "./compositions/67-ae-tip-moving-texture/Composition";
 import { config as aeTipMovingTextureConfig } from "./compositions/67-ae-tip-moving-texture/config";
-import { AETipRetroTitleOpening } from "./compositions/68-ae-tip-retro-title-opening/Composition";
-import { config as aeTipRetroTitleOpeningConfig } from "./compositions/68-ae-tip-retro-title-opening/config";
 import { AETipLoopingPatternBackground } from "./compositions/69-ae-tip-looping-pattern-background/Composition";
 import { config as aeTipLoopingPatternBackgroundConfig } from "./compositions/69-ae-tip-looping-pattern-background/config";
 import { AETipFlowingNeonSushi } from "./compositions/70-ae-tip-flowing-neon-sushi/Composition";
@@ -146,6 +133,18 @@ import { AETipFlowingNeonWave } from "./compositions/70-ae-tip-flowing-neon-sush
 import { flowingNeonWaveConfig } from "./compositions/70-ae-tip-flowing-neon-sushi/wave-config";
 import { AETipMooographGradientBackgrounds } from "./compositions/71-ae-tip-mooograph-gradient-backgrounds/Composition";
 import { config as aeTipMooographGradientBackgroundsConfig } from "./compositions/71-ae-tip-mooograph-gradient-backgrounds/config";
+import {
+  AEBookCase01HelloHello1,
+  AEBookCase01HelloHello2,
+  AEBookCase01HelloHello3,
+  AEBookCase01HelloHello4,
+} from "./compositions/72-ae-book-case-01-hello/Composition";
+import {
+  config as aeBookCase01Hello1Config,
+  hello2Config as aeBookCase01Hello2Config,
+  hello3Config as aeBookCase01Hello3Config,
+  hello4Config as aeBookCase01Hello4Config,
+} from "./compositions/72-ae-book-case-01-hello/config";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -687,36 +686,6 @@ export const RemotionRoot: React.FC = () => {
         height={aeTipEchoTextTrainConfig.height}
       />
 
-      {/* #61 OpenAI launch study — abstract launch-language reconstruction with no source footage */}
-      <Composition
-        id="OpenAILaunchStudy30"
-        component={OpenAILaunchStudy30}
-        durationInFrames={openaiLaunchStudyFrames}
-        fps={openaiLaunchStudyFps}
-        width={openaiLaunchStudyWidth}
-        height={openaiLaunchStudyHeight}
-      />
-
-      {/* #60 Captivating Techniques poster — editorial geometric poster motion reconstructed as independent shapes */}
-      <Composition
-        id={captivatingTechniquesPosterConfig.id}
-        component={CaptivatingTechniquesPoster}
-        durationInFrames={captivatingTechniquesPosterConfig.totalFrames}
-        fps={captivatingTechniquesPosterConfig.fps}
-        width={captivatingTechniquesPosterConfig.width}
-        height={captivatingTechniquesPosterConfig.height}
-      />
-
-      {/* #62 SearchGPT launch recreation — shot-by-shot reconstruction from provided reference captures */}
-      <Composition
-        id={searchGptLaunchRecreationConfig.id}
-        component={SearchGPTLaunchRecreation}
-        durationInFrames={searchGptLaunchRecreationConfig.totalFrames}
-        fps={searchGptLaunchRecreationConfig.fps}
-        width={searchGptLaunchRecreationConfig.width}
-        height={searchGptLaunchRecreationConfig.height}
-      />
-
       {/* #63 Premium motion reference lab — reusable easing / continuity / layering studies */}
       <Composition
         id={motionLabConfig.overviewId}
@@ -847,16 +816,6 @@ export const RemotionRoot: React.FC = () => {
         height={aeTipMovingTextureConfig.height}
       />
 
-      {/* #68 AE tip — 8-bit game opener reconstructed as reusable tracked-text, blink, and pixel-grid primitives */}
-      <Composition
-        id={aeTipRetroTitleOpeningConfig.id}
-        component={AETipRetroTitleOpening}
-        durationInFrames={aeTipRetroTitleOpeningConfig.totalFrames}
-        fps={aeTipRetroTitleOpeningConfig.fps}
-        width={aeTipRetroTitleOpeningConfig.width}
-        height={aeTipRetroTitleOpeningConfig.height}
-      />
-
       {/* #69 AE tip — reconstruct looping illustrated background patterns as reusable motion-tile / repetile / hex-tile layout functions in Remotion */}
       <Composition
         id={aeTipLoopingPatternBackgroundConfig.id}
@@ -905,6 +864,46 @@ export const RemotionRoot: React.FC = () => {
         fps={aeTipMooographGradientBackgroundsConfig.fps}
         width={aeTipMooographGradientBackgroundsConfig.width}
         height={aeTipMooographGradientBackgroundsConfig.height}
+      />
+
+      {/* #72 AE book CASE 01 — first pass reproduces 01_Hello1 as a strict three-bubble row-pop timing study */}
+      <Composition
+        id={aeBookCase01Hello1Config.id}
+        component={AEBookCase01HelloHello1}
+        durationInFrames={aeBookCase01Hello1Config.totalFrames}
+        fps={aeBookCase01Hello1Config.fps}
+        width={aeBookCase01Hello1Config.width}
+        height={aeBookCase01Hello1Config.height}
+      />
+
+      {/* #72 AE book CASE 01 — second pass reproduces 01_Hello2 as hero-first crowd build using case-local sprite plates and wave offsets */}
+      <Composition
+        id={aeBookCase01Hello2Config.id}
+        component={AEBookCase01HelloHello2}
+        durationInFrames={aeBookCase01Hello2Config.totalFrames}
+        fps={aeBookCase01Hello2Config.fps}
+        width={aeBookCase01Hello2Config.width}
+        height={aeBookCase01Hello2Config.height}
+      />
+
+      {/* #72 AE book CASE 01 — third pass reproduces 01_Hello3 as a crowd-first build with a reserved center gap and late hero pop */}
+      <Composition
+        id={aeBookCase01Hello3Config.id}
+        component={AEBookCase01HelloHello3}
+        durationInFrames={aeBookCase01Hello3Config.totalFrames}
+        fps={aeBookCase01Hello3Config.fps}
+        width={aeBookCase01Hello3Config.width}
+        height={aeBookCase01Hello3Config.height}
+      />
+
+      {/* #72 AE book CASE 01 — fourth pass reproduces 01_Hello4 as a crowd-first build with split hero reveal: plate first, text second */}
+      <Composition
+        id={aeBookCase01Hello4Config.id}
+        component={AEBookCase01HelloHello4}
+        durationInFrames={aeBookCase01Hello4Config.totalFrames}
+        fps={aeBookCase01Hello4Config.fps}
+        width={aeBookCase01Hello4Config.width}
+        height={aeBookCase01Hello4Config.height}
       />
 
       {/* ================================================================== */}
