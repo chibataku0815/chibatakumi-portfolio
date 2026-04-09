@@ -1,11 +1,11 @@
 import React from "react";
 import { AbsoluteFill, useCurrentFrame } from "remotion";
-import { config, loopFrames, rightPanelWidth } from "./config";
 import {
   getBlinkOpacity,
   getLoopFrame,
   getSegmentedProgress,
-} from "./lib/loading-progress";
+} from "../../lib/ae-tips/loading-progress";
+import { config, loopFrames, rightPanelWidth } from "./config";
 
 const panelStyle = (width: number): React.CSSProperties => ({
   width,

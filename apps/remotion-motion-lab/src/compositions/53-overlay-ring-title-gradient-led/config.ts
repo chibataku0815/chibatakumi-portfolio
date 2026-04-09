@@ -1,14 +1,7 @@
-import type { RingEasing } from "../47-ae-tip-expanding-ring-reveal/lib/ring-progress";
+import type { RingEasing } from "../../lib/ae-tips/ring-progress";
+import type { GradientFieldLayerConfig } from "../../lib/ae-tips/gradient-field";
 
-export type BackgroundLayerConfig = {
-  readonly name: string;
-  readonly colorA: string;
-  readonly colorB: string;
-  readonly opacity: number;
-  readonly angleOffsetDeg: number;
-  readonly rotationMultiplier: number;
-  readonly phase: number;
-};
+export type BackgroundLayerConfig = GradientFieldLayerConfig;
 
 export const backgroundPalette: readonly BackgroundLayerConfig[] = [
   {

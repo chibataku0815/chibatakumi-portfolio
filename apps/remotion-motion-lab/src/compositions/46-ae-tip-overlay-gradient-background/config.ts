@@ -1,12 +1,6 @@
-export type GradientLayerConfig = {
-  readonly name: string;
-  readonly colorA: string;
-  readonly colorB: string;
-  readonly opacity: number;
-  readonly angleOffsetDeg: number;
-  readonly rotationMultiplier: number;
-  readonly phase: number;
-};
+import type { GradientFieldLayerConfig } from "../../lib/ae-tips/gradient-field";
+
+export type GradientLayerConfig = GradientFieldLayerConfig;
 
 export const layerPalette: readonly GradientLayerConfig[] = [
   {

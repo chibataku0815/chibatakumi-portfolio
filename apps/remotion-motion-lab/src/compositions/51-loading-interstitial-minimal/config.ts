@@ -1,14 +1,7 @@
-import type { ProgressStop } from "../49-ae-tip-now-loading-progress-bar/lib/loading-progress";
+import type { ProgressStop } from "../../lib/ae-tips/loading-progress";
+import type { GradientFieldLayerConfig } from "../../lib/ae-tips/gradient-field";
 
-export type BackgroundLayerConfig = {
-  readonly name: string;
-  readonly colorA: string;
-  readonly colorB: string;
-  readonly opacity: number;
-  readonly angleOffsetDeg: number;
-  readonly rotationMultiplier: number;
-  readonly phase: number;
-};
+export type BackgroundLayerConfig = GradientFieldLayerConfig;
 
 export const backgroundPalette: readonly BackgroundLayerConfig[] = [
   {

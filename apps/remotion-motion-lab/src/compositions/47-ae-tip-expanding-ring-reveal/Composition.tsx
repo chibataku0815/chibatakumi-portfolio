@@ -1,17 +1,16 @@
 import React from "react";
-import {
-  AbsoluteFill,
-  Easing,
-  interpolate,
-  useCurrentFrame,
-} from "remotion";
+import { AbsoluteFill, useCurrentFrame } from "remotion";
 import {
   config,
   rightPanelWidth,
   singleRingLoopFrames,
   stackLoopFrames,
 } from "./config";
-import { getRingProgress, type RingEasing } from "./lib/ring-progress";
+import { type RingEasing } from "../../lib/ae-tips/ring-progress";
+import {
+  peakWindow,
+  titleHandoff,
+} from "../../lib/ae-tips/ring-title-timing";
 
 const panelStyle = (width: number): React.CSSProperties => ({
   width,
@@ -32,45 +31,29 @@ const getRingState = ({
   frame,
   easing,
   layerIndex = 0,
+  staggerFrames = 0,
 }: {
   frame: number;
   easing: RingEasing;
   layerIndex?: number;
-}) => {
-  const progress = getRingProgress({
+  staggerFrames?: number;
+}) =>
+  peakWindow({
     frame,
+    layerIndex,
+    startFrame: 0,
     durationFrames: config.burstDurationFrames,
+    staggerFrames,
     easing,
+    startDiameter: config.ringStartDiameter,
+    endDiameter: config.ringEndDiameter,
+    startStrokeWidth: config.strokeStartWidth,
+    endStrokeWidth: config.strokeEndWidth,
+    opacityDecay: config.ringOpacityDecay,
+    alphaStart: 1,
+    alphaEnd: 0.16,
+    layerAlphaFloor: 0.14,
   });
-
-  if (!progress.visible) {
-    return null;
-  }
-
-  const diameter = mix(
-    config.ringStartDiameter,
-    config.ringEndDiameter,
-    progress.motionProgress,
-  );
-  const strokeWidth = Math.max(
-    0.5,
-    mix(
-      config.strokeStartWidth,
-      config.strokeEndWidth,
-      progress.motionProgress,
-    ),
-  );
-  const alpha =
-    mix(1, 0.16, progress.rawProgress) *
-    Math.max(0.14, 1 - layerIndex * config.ringOpacityDecay);
-
-  return {
-    diameter,
-    strokeWidth,
-    alpha,
-    rawProgress: progress.rawProgress,
-  };
-};
 
 const RingGlyph: React.FC<{
   centerX: number;
@@ -78,6 +61,7 @@ const RingGlyph: React.FC<{
   frame: number;
   easing: RingEasing;
   layerIndex?: number;
+  staggerFrames?: number;
   stroke?: string;
   fitRadius?: number;
 }> = ({
@@ -86,10 +70,11 @@ const RingGlyph: React.FC<{
   frame,
   easing,
   layerIndex = 0,
+  staggerFrames = 0,
   stroke,
   fitRadius,
 }) => {
-  const ring = getRingState({ frame, easing, layerIndex });
+  const ring = getRingState({ frame, easing, layerIndex, staggerFrames });
   if (!ring) {
     return null;
   }
@@ -224,39 +209,16 @@ const SingleRingStudy: React.FC<{
   );
 };
 
-const getTitleState = (frame: number) => {
-  const scale = interpolate(
+const getTitleState = (frame: number) =>
+  titleHandoff({
     frame,
-    [
-      config.titleScaleDelayFrames,
-      config.titleScaleDelayFrames + config.titleScaleDurationFrames,
-    ],
-    [0.72, 1],
-    {
-      extrapolateLeft: "clamp",
-      extrapolateRight: "clamp",
-      easing: Easing.out(Easing.back(1.35)),
-    },
-  );
-  const opacity = interpolate(
-    frame,
-    [
-      config.titleScaleDelayFrames,
-      config.titleScaleDelayFrames + config.titleScaleDurationFrames * 0.7,
-    ],
-    [0, 1],
-    {
-      extrapolateLeft: "clamp",
-      extrapolateRight: "clamp",
-      easing: Easing.out(Easing.cubic),
-    },
-  );
-
-  return {
-    scale,
-    opacity,
-  };
-};
+    startFrame: config.titleScaleDelayFrames,
+    durationFrames: config.titleScaleDurationFrames,
+    startScale: 0.72,
+    endScale: 1,
+    opacityRampFraction: 0.7,
+    scaleOvershoot: 1.35,
+  });
 
 const MultiRingStage: React.FC<{ frame: number }> = ({ frame }) => {
   const width = rightPanelWidth;
@@ -326,9 +288,10 @@ const MultiRingStage: React.FC<{ frame: number }> = ({ frame }) => {
             key={index}
             centerX={centerX}
             centerY={centerY}
-            frame={frame - index * config.ringStaggerFrames}
+            frame={frame}
             easing="ae-like"
             layerIndex={index}
+            staggerFrames={config.ringStaggerFrames}
           />
         ))}
 

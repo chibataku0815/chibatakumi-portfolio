@@ -2,16 +2,11 @@ import React, { useCallback } from "react";
 import { AbsoluteFill, interpolate, useCurrentFrame } from "remotion";
 import { CanvasScene, H, W, drawVignette } from "../../lib/canvas-primitives";
 import {
-  clamp01,
-  hexToRgb,
-  mixRgb,
-} from "../46-ae-tip-overlay-gradient-background/lib/color-utils";
-import { distortPoint } from "../46-ae-tip-overlay-gradient-background/lib/distortion";
-import {
   getBlinkOpacity,
   getSegmentedProgress,
-} from "../49-ae-tip-now-loading-progress-bar/lib/loading-progress";
-import { config, type BackgroundLayerConfig } from "./config";
+} from "../../lib/ae-tips/loading-progress";
+import { gradientFieldLayer } from "../../lib/ae-tips/gradient-field";
+import { config } from "./config";
 
 const getCanvas = (() => {
   const pool = new Map<string, HTMLCanvasElement>();
@@ -35,123 +30,32 @@ const getCanvas = (() => {
   };
 })();
 
-const clamp = (value: number, min: number, max: number) =>
-  Math.max(min, Math.min(max, value));
+const backgroundFieldDrift = {
+  fps: config.fps,
+  baseGradientAngleDeg: config.backgroundGradientAngleDeg,
+  gradientAngleOffsetScale: 0.42,
+  gradientSwingAmplitudeDeg: 16,
+  gradientSwingSpeed: 0.18,
+  baseWipeAngleStepDeg: 40,
+  rotationSpeedDegPerSec: config.backgroundRotationSpeedDegPerSec,
+  wipeCompletion: config.backgroundWipeCompletion,
+  wipeCompletionAmplitude: 3,
+  wipeCompletionSpeed: 0.38,
+  wipePhaseMultiplier: 1.6,
+  colorDriftAmount: config.backgroundColorDrift,
+  colorDriftSpeed: 0.58,
+} as const;
 
-const smoothstep = (edge0: number, edge1: number, x: number) => {
-  if (edge0 === edge1) {
-    return x < edge0 ? 0 : 1;
-  }
+const backgroundReadableRange = {
+  featherPx: config.backgroundWipeFeatherPx,
+  mixScale: 0.56,
+} as const;
 
-  const t = clamp01((x - edge0) / (edge1 - edge0));
-  return t * t * (3 - 2 * t);
-};
-
-const featherToNormalized = (featherPx: number, width: number, height: number) =>
-  clamp(featherPx / Math.max(width, height) / 1.9, 0.03, 1.35);
-
-const getWipeAlpha = (
-  projection: number,
-  completion: number,
-  featherPx: number,
-  width: number,
-  height: number,
-) => {
-  const threshold = (completion / 100) * 2 - 1;
-  const feather = featherToNormalized(featherPx, width, height);
-
-  return 1 - smoothstep(threshold - feather, threshold + feather, projection);
-};
-
-const degToRad = (deg: number) => (deg * Math.PI) / 180;
-
-const renderGradientLayer = ({
-  target,
-  frame,
-  layer,
-  layerIndex,
-}: {
-  target: HTMLCanvasElement;
-  frame: number;
-  layer: BackgroundLayerConfig;
-  layerIndex: number;
-}) => {
-  const ctx = target.getContext("2d");
-  if (!ctx) {
-    return;
-  }
-
-  const { width, height } = target;
-  const image = ctx.createImageData(width, height);
-  const data = image.data;
-  const colorA = hexToRgb(layer.colorA);
-  const colorB = hexToRgb(layer.colorB);
-  const time = frame / config.fps;
-  const aspect = width / height;
-  const gradientAngle = degToRad(
-    config.backgroundGradientAngleDeg +
-      layer.angleOffsetDeg * 0.42 +
-      Math.sin(time * 0.18 + layer.phase) * 16,
-  );
-  const wipeAngle = degToRad(
-    (layerIndex + 1) * 40 +
-      time * config.backgroundRotationSpeedDegPerSec * layer.rotationMultiplier,
-  );
-  const gradientAxisX = Math.cos(gradientAngle);
-  const gradientAxisY = Math.sin(gradientAngle);
-  const wipeAxisX = Math.cos(wipeAngle);
-  const wipeAxisY = Math.sin(wipeAngle);
-  const completion =
-    config.backgroundWipeCompletion +
-    Math.sin(time * 0.38 + layer.phase * 1.6) * 3;
-  const colorDrift =
-    Math.sin(time * 0.58 + layer.phase) * config.backgroundColorDrift;
-
-  for (let y = 0; y < height; y += 1) {
-    const baseY = ((y + 0.5) / height) * 2 - 1;
-
-    for (let x = 0; x < width; x += 1) {
-      const baseX = ((x + 0.5) / width) * 2 - 1;
-      const warped = distortPoint({
-        x: baseX,
-        y: baseY,
-        time,
-        amount: config.backgroundDistortAmount,
-        size: config.backgroundDistortSize,
-        evolutionSpeed: config.backgroundDistortEvolutionSpeed,
-        layerIndex,
-        phase: layer.phase,
-        aspect,
-      });
-
-      const gradientProjection =
-        warped.x * gradientAxisX + warped.y * gradientAxisY;
-      const wipeProjection = warped.x * wipeAxisX + warped.y * wipeAxisY;
-      const mix = clamp01(0.5 + gradientProjection * 0.56 + colorDrift);
-      const rgb = mixRgb(colorA, colorB, mix);
-      const wipe = getWipeAlpha(
-        wipeProjection,
-        completion,
-        config.backgroundWipeFeatherPx,
-        width,
-        height,
-      );
-      const alpha =
-        (config.backgroundLayerPresence +
-          wipe * (1 - config.backgroundLayerPresence)) *
-        config.backgroundOpacity *
-        layer.opacity;
-      const offset = (y * width + x) * 4;
-
-      data[offset] = rgb.r;
-      data[offset + 1] = rgb.g;
-      data[offset + 2] = rgb.b;
-      data[offset + 3] = Math.round(clamp01(alpha) * 255);
-    }
-  }
-
-  ctx.putImageData(image, 0, 0);
-};
+const backgroundDistortion = {
+  amount: config.backgroundDistortAmount,
+  size: config.backgroundDistortSize,
+  evolutionSpeed: config.backgroundDistortEvolutionSpeed,
+} as const;
 
 const renderBackgroundSurface = (frame: number) => {
   const surface = getCanvas(
@@ -177,11 +81,16 @@ const renderBackgroundSurface = (frame: number) => {
         config.backgroundInternalHeight,
       );
 
-      renderGradientLayer({
+      gradientFieldLayer({
         target: layerCanvas,
         frame,
         layer,
         layerIndex: index,
+        drift: backgroundFieldDrift,
+        readableRange: backgroundReadableRange,
+        distortion: backgroundDistortion,
+        opacity: config.backgroundOpacity * layer.opacity,
+        alphaFloor: config.backgroundLayerPresence,
       });
 
       ctx.save();

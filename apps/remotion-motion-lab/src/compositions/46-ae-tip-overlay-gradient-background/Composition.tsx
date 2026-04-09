@@ -12,10 +12,8 @@ import {
   panelContentHeight,
   panelContentWidth,
   panelWidth,
-  type GradientLayerConfig,
 } from "./config";
-import { clamp01, hexToRgb, mixRgb } from "./lib/color-utils";
-import { distortPoint } from "./lib/distortion";
+import { gradientFieldLayer } from "../../lib/ae-tips/gradient-field";
 
 const getCanvas = (() => {
   const pool = new Map<string, HTMLCanvasElement>();
@@ -39,30 +37,6 @@ const getCanvas = (() => {
   };
 })();
 
-const clamp = (value: number, min: number, max: number) =>
-  Math.max(min, Math.min(max, value));
-
-const smoothstep = (edge0: number, edge1: number, x: number) => {
-  if (edge0 === edge1) {
-    return x < edge0 ? 0 : 1;
-  }
-
-  const t = clamp01((x - edge0) / (edge1 - edge0));
-  return t * t * (3 - 2 * t);
-};
-
-const degToRad = (deg: number) => (deg * Math.PI) / 180;
-
-const featherToNormalized = (featherPx: number) =>
-  clamp(featherPx / Math.max(panelContentWidth, panelContentHeight) / 1.9, 0.03, 1.35);
-
-const getWipeAlpha = (projection: number, completion: number, featherPx: number) => {
-  const threshold = (completion / 100) * 2 - 1;
-  const feather = featherToNormalized(featherPx);
-
-  return 1 - smoothstep(threshold - feather, threshold + feather, projection);
-};
-
 const drawRoundedRect = (
   ctx: CanvasRenderingContext2D,
   x: number,
@@ -75,85 +49,41 @@ const drawRoundedRect = (
   ctx.roundRect(x, y, width, height, radius);
 };
 
-const renderGradientLayer = ({
-  target,
-  frame,
-  layer,
-  layerIndex,
-  featherPx,
-  opacity,
-}: {
-  target: HTMLCanvasElement;
-  frame: number;
-  layer: GradientLayerConfig;
-  layerIndex: number;
-  featherPx: number;
-  opacity: number;
-}) => {
-  const ctx = target.getContext("2d");
-  if (!ctx) {
-    return;
-  }
+const quietFieldDrift = {
+  fps: config.fps,
+  baseGradientAngleDeg: config.gradientAngleDeg,
+  gradientAngleOffsetScale: 0.5,
+  gradientSwingAmplitudeDeg: 20,
+  gradientSwingSpeed: 0.23,
+  baseWipeAngleStepDeg: config.angleStepDeg,
+  rotationSpeedDegPerSec: config.rotationSpeedDegPerSec,
+  wipeCompletion: config.wipeCompletion,
+  wipeCompletionAmplitude: 4,
+  wipeCompletionSpeed: 0.55,
+  wipePhaseMultiplier: 2.1,
+  colorDriftAmount: 0.14,
+  colorDriftSpeed: 0.72,
+} as const;
 
-  const { width, height } = target;
-  const image = ctx.createImageData(width, height);
-  const data = image.data;
-  const colorA = hexToRgb(layer.colorA);
-  const colorB = hexToRgb(layer.colorB);
-  const time = frame / config.fps;
-  const aspect = width / height;
-  const gradientAngle = degToRad(
-    config.gradientAngleDeg +
-      layer.angleOffsetDeg * 0.5 +
-      Math.sin(time * 0.23 + layer.phase) * 20,
-  );
-  const wipeAngle = degToRad(
-    (layerIndex + 1) * config.angleStepDeg +
-      time * config.rotationSpeedDegPerSec * layer.rotationMultiplier,
-  );
-  const gradientAxisX = Math.cos(gradientAngle);
-  const gradientAxisY = Math.sin(gradientAngle);
-  const wipeAxisX = Math.cos(wipeAngle);
-  const wipeAxisY = Math.sin(wipeAngle);
-  const completion =
-    config.wipeCompletion + Math.sin(time * 0.55 + layer.phase * 2.1) * 4;
-  const colorDrift = Math.sin(time * 0.72 + layer.phase) * 0.14;
+const fieldDistortion = {
+  amount: config.distortAmount,
+  size: config.distortSize,
+  evolutionSpeed: config.distortEvolutionSpeed,
+} as const;
 
-  for (let y = 0; y < height; y += 1) {
-    const baseY = ((y + 0.5) / height) * 2 - 1;
+const quietReadableRange = {
+  featherPx: config.wipeFeatherPx,
+  mixScale: 0.58,
+  referenceWidth: panelContentWidth,
+  referenceHeight: panelContentHeight,
+} as const;
 
-    for (let x = 0; x < width; x += 1) {
-      const baseX = ((x + 0.5) / width) * 2 - 1;
-      const warped = distortPoint({
-        x: baseX,
-        y: baseY,
-        time,
-        amount: config.distortAmount,
-        size: config.distortSize,
-        evolutionSpeed: config.distortEvolutionSpeed,
-        layerIndex,
-        phase: layer.phase,
-        aspect,
-      });
-
-      const gradientProjection = warped.x * gradientAxisX + warped.y * gradientAxisY;
-      const wipeProjection = warped.x * wipeAxisX + warped.y * wipeAxisY;
-      const mix = clamp01(0.5 + gradientProjection * 0.58 + colorDrift);
-      const rgb = mixRgb(colorA, colorB, mix);
-      const wipe = getWipeAlpha(wipeProjection, completion, featherPx);
-      const alpha =
-        (config.layerPresence + wipe * (1 - config.layerPresence)) * opacity;
-      const offset = (y * width + x) * 4;
-
-      data[offset] = rgb.r;
-      data[offset + 1] = rgb.g;
-      data[offset + 2] = rgb.b;
-      data[offset + 3] = Math.round(clamp01(alpha) * 255);
-    }
-  }
-
-  ctx.putImageData(image, 0, 0);
-};
+const hardReadableRange = {
+  featherPx: config.hardWipeFeatherPx,
+  mixScale: 0.58,
+  referenceWidth: panelContentWidth,
+  referenceHeight: panelContentHeight,
+} as const;
 
 const renderPanelSource = ({
   frame,
@@ -204,17 +134,19 @@ const renderPanelSource = ({
       config.internalHeight,
     );
 
-    renderGradientLayer({
+    gradientFieldLayer({
       target: layerCanvas,
       frame,
       layer,
       layerIndex: index,
-      featherPx:
-        mode === "single" ? config.hardWipeFeatherPx : config.wipeFeatherPx,
+      drift: quietFieldDrift,
+      readableRange: mode === "single" ? hardReadableRange : quietReadableRange,
+      distortion: fieldDistortion,
       opacity:
         mode === "single"
           ? config.singleLayerOpacity
           : config.layerOpacity * layer.opacity,
+      alphaFloor: config.layerPresence,
     });
 
     ctx.save();
