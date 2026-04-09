@@ -9,7 +9,12 @@
 /**
  * @description LP の proof セクションで使う動画 ID です。
  */
-export type FilmLabProofVideoId = "gradedLookA" | "gradedLookB";
+export type FilmLabProofVideoId =
+  | "gradedLookA"
+  | "gradedLookB"
+  | "compareNightStreet"
+  | "compareDaylightWalk"
+  | "compareDarkInterior";
 
 /**
  * @description proof 動画 1 本ぶんの設定です。
@@ -32,6 +37,18 @@ const filmLabProofVideoDefinitions: readonly FilmLabProofVideoDefinition[] = [
   {
     id: "gradedLookB",
     publicPath: "/film-lab/proof/graded-look-b.mp4",
+  },
+  {
+    id: "compareNightStreet",
+    publicPath: "/film-lab/proof/compare-night-street.mp4",
+  },
+  {
+    id: "compareDaylightWalk",
+    publicPath: "/film-lab/proof/compare-daylight-walk.mp4",
+  },
+  {
+    id: "compareDarkInterior",
+    publicPath: "/film-lab/proof/compare-dark-interior.mp4",
   },
 ] as const;
 
