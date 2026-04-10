@@ -20,6 +20,7 @@
     "@radix-ui/react-popover": "^1.1.15",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.4.2",
+    "@theatre/core": "^0.7.2",
     "@types/three": "^0.181.0",
     "@vercel/kv": "^3.0.0",
     "date-fns": "^4.1.0",
@@ -28,6 +29,7 @@
     "film-lab-smart-look": "workspace:*",
     "film-lab-ui": "workspace:*",
     "gsap": "^3.13.0",
+    "motion": "^12.38.0",
     "mp4-muxer": "5.2.2",
     "next": "16.0.7",
     "next-intl": "^4.8.3",
@@ -41,6 +43,7 @@
   "devDependencies": {
     "@playwright/test": "^1.58.2",
     "@tailwindcss/postcss": "^4",
+    "@theatre/studio": "^0.7.2",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
