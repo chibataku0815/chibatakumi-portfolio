@@ -2,6 +2,23 @@
 
 ## 現在アクティブなタスク
 
+## Motif Loop Background (2026-04-10)
+- **Agent:** Codex / GPT-5
+- **Started:** 2026-04-10T21:57:13+0900 (JST)
+- **Completed:** 2026-04-10T22:10:09+0900 (JST)
+- **Status:** 完了
+- **Files:**
+  - `apps/web/src/app/[locale]/motion/reference-works/motif-loop-background/page.tsx` (新規)
+  - `apps/web/src/features/motion/reference-works/motif-loop-background/MotifLoopBackgroundReferenceWork.tsx` (新規)
+  - `apps/web/src/features/motion/reference-works/motif-loop-background/MotifLoopBackgroundSurface.tsx` (新規)
+  - `apps/web/src/features/motion/reference-works/motif-loop-background/fixtures.ts` (新規)
+  - `apps/web/src/features/motion/reference-works/motif-loop-background/motif-loop-background.config.ts` (新規)
+  - `apps/web/src/features/motion/reference-works/motif-loop-background/motif-loop-background.evaluator.ts` (新規)
+  - `apps/web/src/features/motion/reference-works/motif-loop-background/motif-loop-background-scene.ts` (新規)
+  - `.claude/tasks/ACTIVE-PARALLEL-TASK.md` (編集)
+- **Worktree:** `feature/motif-loop-background`
+- **Notes:** Work 05 narrow proof。PixiJS main home のまま、motif-driven looping background / loop phasing / background safety clamp のみを route-local 実装で検証した。scoped ESLint は通過。`http://127.0.0.1:3008/en/motion/reference-works/motif-loop-background` で console error なしを確認し、`?frame=156&play=0` で reduced-motion 着地用の safe static frame を実ブラウザで確認した。
+
 ---
 
 ## 直近の完了タスク
