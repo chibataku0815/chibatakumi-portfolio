@@ -1,4 +1,4 @@
-import { textUnitSplitter } from "./textUnitSplitter";
+import { textUnitSplitter } from "./staged-emphasis-family";
 
 const phrase = "Focus hands meaning forward";
 const units = textUnitSplitter(phrase);

@@ -2,9 +2,11 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useReducedMotion } from "motion/react";
-import { emphasisTrack } from "./emphasisTrack";
 import { stagedEmphasisPayoffFixtures } from "./fixtures";
-import { textDelayedStack } from "./textDelayedStack";
+import {
+  emphasisTrack,
+  textDelayedStack,
+} from "./staged-emphasis-family";
 
 type StagedEmphasisPayoffSurfaceProps = {
   autoPlay?: boolean;

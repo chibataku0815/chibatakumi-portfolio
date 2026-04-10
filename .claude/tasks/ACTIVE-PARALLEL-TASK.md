@@ -2,6 +2,22 @@
 
 ## 現在アクティブなタスク
 
+## Staged Emphasis family extraction (2026-04-10)
+- **Agent:** Codex / GPT-5 worker03
+- **Started:** 2026-04-10T23:56:31+0900 (JST)
+- **Completed:** 2026-04-10T23:58:40+0900 (JST)
+- **Status:** 完了
+- **Files:**
+  - `apps/web/src/features/motion/reference-works/staged-emphasis-payoff/StagedEmphasisPayoffSurface.tsx` (編集)
+  - `apps/web/src/features/motion/reference-works/staged-emphasis-payoff/fixtures.ts` (編集)
+  - `apps/web/src/features/motion/reference-works/staged-emphasis-payoff/staged-emphasis-family/index.ts` (新規)
+  - `apps/web/src/features/motion/reference-works/staged-emphasis-payoff/textUnitSplitter.ts` (削除)
+  - `apps/web/src/features/motion/reference-works/staged-emphasis-payoff/textDelayedStack.ts` (削除)
+  - `apps/web/src/features/motion/reference-works/staged-emphasis-payoff/emphasisTrack.ts` (削除)
+  - `.claude/tasks/ACTIVE-PARALLEL-TASK.md` (編集)
+- **Worktree:** fallback path on `main` (preferred worktree missing locally)
+- **Notes:** Phase 2 の narrow extraction として `textUnitSplitter()` / `textDelayedStack()` / `emphasisTrack()` を work-local helper 群から `staged-emphasis-family` 境界へ寄せた。touched-file ESLint は通過し、`http://127.0.0.1:3008/en/motion/reference-works/staged-emphasis-payoff` の `200`、Playwright viewport screenshot、console error 0 を確認した。loading shell snapshot は描画後確認の根拠には含めない。poster/layout/fixture semantics は local に残している。
+
 ## Motif Loop Background (2026-04-10)
 - **Agent:** Codex / GPT-5
 - **Started:** 2026-04-10T21:57:13+0900 (JST)
