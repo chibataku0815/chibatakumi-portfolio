@@ -1,3 +1,4 @@
+import type { TextStyleFontWeight } from "pixi.js";
 import { temporalEchoResidueConfig } from "./temporal-echo-residue.config";
 import {
   evaluateTemporalEchoResidueEchoes,
@@ -13,7 +14,7 @@ type CueDefinition = {
   orientation: CueOrientation;
   world: CueWorld;
   fontSize: number;
-  fontWeight: string;
+  fontWeight: TextStyleFontWeight;
   glyphGap: number;
   startFrame: number;
   entryFrames: number;
@@ -52,7 +53,7 @@ export type TemporalEchoResidueCueState = {
   orientation: CueOrientation;
   world: CueWorld;
   fontSize: number;
-  fontWeight: string;
+  fontWeight: TextStyleFontWeight;
   glyphGap: number;
   alpha: number;
   outlineAlpha: number;
