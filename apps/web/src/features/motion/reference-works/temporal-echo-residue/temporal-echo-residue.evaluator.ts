@@ -1,7 +1,8 @@
-import { alphaResidueGate } from "./alphaResidueGate";
 import { temporalEchoResidueConfig } from "./temporal-echo-residue.config";
-import { temporalEchoSamples, type TemporalEchoPose } from "./temporalEchoSamples";
-import { timeOffsetStack } from "./timeOffsetStack";
+import {
+  evaluateTemporalEchoResidueEchoes,
+  type TemporalEchoPose,
+} from "./temporal-echo-residue-family";
 
 export type TemporalEchoResidueFrameState = {
   frame: number;
@@ -114,47 +115,19 @@ export function evaluateTemporalEchoResidueFrame(
   const progress =
     normalizedFrame / (temporalEchoResidueConfig.durationFrames - 1);
   const lead = evaluateSubjectPose(normalizedFrame);
-  const stack = timeOffsetStack({
+  const echoes = evaluateTemporalEchoResidueEchoes({
+    frame: normalizedFrame,
+    leadPose: lead,
+    evaluatePose: evaluateSubjectPose,
     sampleCount: temporalEchoResidueConfig.echo.sampleCount,
     baseFrameStep: temporalEchoResidueConfig.echo.baseFrameStep,
     taper: temporalEchoResidueConfig.echo.taper,
+    maxAlpha: temporalEchoResidueConfig.echo.maxAlpha,
+    minimumLeadSpeed: temporalEchoResidueConfig.echo.minimumLeadSpeed,
+    minimumLeadDistance: temporalEchoResidueConfig.echo.minimumLeadDistance,
+    minimumSampleSpacing: temporalEchoResidueConfig.echo.minimumSampleSpacing,
+    idealSampleSpacing: temporalEchoResidueConfig.echo.idealSampleSpacing,
   });
-  const samples = temporalEchoSamples({
-    frame: normalizedFrame,
-    leadPose: lead,
-    stack,
-    evaluatePose: evaluateSubjectPose,
-  });
-  const echoes = samples
-    .map((sample) => {
-      const residue = alphaResidueGate({
-        sampleIndex: sample.index,
-        sampleCount: stack.length,
-        decay: sample.decay,
-        leadSpeed: lead.speed,
-        distanceFromLead: sample.distanceFromLead,
-        distanceFromPrevious: sample.distanceFromPrevious,
-        maxAlpha: temporalEchoResidueConfig.echo.maxAlpha,
-        minimumLeadSpeed: temporalEchoResidueConfig.echo.minimumLeadSpeed,
-        minimumLeadDistance: temporalEchoResidueConfig.echo.minimumLeadDistance,
-        minimumSampleSpacing:
-          temporalEchoResidueConfig.echo.minimumSampleSpacing,
-        idealSampleSpacing: temporalEchoResidueConfig.echo.idealSampleSpacing,
-      });
-
-      if (!residue.visible) {
-        return null;
-      }
-
-      return {
-        ...sample.pose,
-        alpha: residue.alpha,
-        frameOffset: sample.frameOffset,
-        decay: sample.decay,
-        index: sample.index,
-      };
-    })
-    .filter((sample): sample is NonNullable<typeof sample> => sample !== null);
 
   return {
     frame: normalizedFrame,
