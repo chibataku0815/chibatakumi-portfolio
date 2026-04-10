@@ -3,7 +3,31 @@
 import { signalStrokeRelayFixtures } from "./fixtures";
 import { SignalStrokeRelaySurface } from "./SignalStrokeRelaySurface";
 
-export function SignalStrokeRelayReferenceWork() {
+type SignalStrokeRelayReferenceWorkProps = {
+  autoPlay?: boolean;
+  captureMode?: boolean;
+  frameOverride?: number | null;
+};
+
+export function SignalStrokeRelayReferenceWork({
+  autoPlay = true,
+  captureMode = false,
+  frameOverride = null,
+}: SignalStrokeRelayReferenceWorkProps) {
+  if (captureMode) {
+    return (
+      <main className="min-h-screen bg-[var(--bg-dark)] px-2 py-2 text-[var(--text-base)] sm:px-3 sm:py-3">
+        <div className="mx-auto max-w-7xl">
+          <SignalStrokeRelaySurface
+            autoPlay={autoPlay}
+            captureMode
+            frameOverride={frameOverride}
+          />
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-[var(--bg-dark)] px-4 py-24 text-[var(--text-base)] sm:px-6 lg:px-8">
       <div className="mx-auto flex max-w-7xl flex-col gap-8">
@@ -21,7 +45,10 @@ export function SignalStrokeRelayReferenceWork() {
         </header>
 
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
-          <SignalStrokeRelaySurface />
+          <SignalStrokeRelaySurface
+            autoPlay={autoPlay}
+            frameOverride={frameOverride}
+          />
 
           <aside className="rounded-[28px] border border-white/10 bg-white/[0.03] p-6">
             <div className="space-y-6">

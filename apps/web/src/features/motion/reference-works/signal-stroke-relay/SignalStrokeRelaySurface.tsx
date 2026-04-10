@@ -16,6 +16,7 @@ import {
 } from "./signal-stroke-relay.evaluator";
 import { signalStrokeRelayConfig } from "./signal-stroke-relay.config";
 import {
+  ensureSignalStrokeRelayStudio,
   getSignalStrokeRelayAuthoringDefaults,
   hideSignalStrokeRelayStudio,
   showSignalStrokeRelayStudio,
@@ -33,13 +34,23 @@ import {
 
 type PathRefMap = MutableRefObject<Record<string, SVGPathElement | null>>;
 
+type SignalStrokeRelaySurfaceProps = {
+  autoPlay?: boolean;
+  captureMode?: boolean;
+  frameOverride?: number | null;
+};
+
 function createPathRefSetter(pathRefs: PathRefMap, pathId: string) {
   return (node: SVGPathElement | null) => {
     pathRefs.current[pathId] = node;
   };
 }
 
-export function SignalStrokeRelaySurface() {
+export function SignalStrokeRelaySurface({
+  autoPlay = true,
+  captureMode = false,
+  frameOverride = null,
+}: SignalStrokeRelaySurfaceProps) {
   const isDev = process.env.NODE_ENV !== "production";
   const prefersReducedMotion = useReducedMotion();
   const shouldReduceMotion = Boolean(prefersReducedMotion);
@@ -57,8 +68,11 @@ export function SignalStrokeRelaySurface() {
 
   const [authoring, setAuthoring] = useState(getSignalStrokeRelayAuthoringDefaults);
   const [frame, setFrame] = useState(0);
-  const [isPaused, setIsPaused] = useState(Boolean(prefersReducedMotion));
+  const [isPaused, setIsPaused] = useState(
+    Boolean(prefersReducedMotion) || frameOverride !== null || !autoPlay,
+  );
   const [isTheatreReady, setIsTheatreReady] = useState(false);
+  const [isStudioLoaded, setIsStudioLoaded] = useState(false);
   const [isStudioVisible, setIsStudioVisible] = useState(false);
   const [metrics, setMetrics] = useState<SvgMetricMap>({});
   const [titleWidth, setTitleWidth] = useState<number>(
@@ -116,9 +130,25 @@ export function SignalStrokeRelaySurface() {
       mounted = false;
       unsubscribeAuthoring();
       unsubscribeSequence();
-      void hideSignalStrokeRelayStudio();
     };
   }, [isPaused, shouldReduceMotion]);
+
+  useEffect(() => {
+    return () => {
+      void hideSignalStrokeRelayStudio();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (frameOverride === null) {
+      return;
+    }
+
+    playbackBaseFrameRef.current = frameOverride;
+    playbackStartTimeRef.current = null;
+    setFrame(frameOverride);
+    setIsPaused(true);
+  }, [frameOverride]);
 
   useEffect(() => {
     if (!shouldReduceMotion) {
@@ -133,7 +163,7 @@ export function SignalStrokeRelaySurface() {
   }, [authoring, shouldReduceMotion]);
 
   useEffect(() => {
-    if (shouldReduceMotion || isPaused) {
+    if (frameOverride !== null || shouldReduceMotion || isPaused) {
       return;
     }
 
@@ -169,6 +199,7 @@ export function SignalStrokeRelaySurface() {
     authoring.global.durationFrames,
     authoring.global.playbackRate,
     frame,
+    frameOverride,
     isPaused,
     shouldReduceMotion,
   ]);
@@ -192,7 +223,7 @@ export function SignalStrokeRelaySurface() {
     createPathRefSetter(pathRefs, pathId);
 
   const handleTogglePlayback = () => {
-    if (shouldReduceMotion) {
+    if (captureMode || frameOverride !== null || shouldReduceMotion) {
       return;
     }
 
@@ -206,53 +237,87 @@ export function SignalStrokeRelaySurface() {
       return;
     }
 
-    const toggle = isStudioVisible
-      ? hideSignalStrokeRelayStudio()
-      : showSignalStrokeRelayStudio();
+    if (!isStudioLoaded || !isStudioVisible) {
+      void showSignalStrokeRelayStudio().then((studio) => {
+        setIsStudioLoaded(Boolean(studio));
+        setIsStudioVisible(Boolean(studio && !studio.ui.isHidden));
+      });
+      return;
+    }
 
-    void toggle.then((studio) => {
-      setIsStudioVisible(Boolean(studio && !studio.ui.isHidden));
+    void hideSignalStrokeRelayStudio().then(() => {
+      setIsStudioVisible(false);
     });
   };
 
   return (
-    <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[rgba(255,255,255,0.025)]">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-5 py-4">
-        <div>
-          <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-white/45">
-            Internal Reference Route
-          </p>
-          <h2 className="mt-1 text-sm font-medium tracking-[0.16em] text-[var(--text-base)]">
-            Signal Stroke Relay
-          </h2>
-        </div>
-        <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-white/45">
-          <span>{Math.round(frame).toString().padStart(3, "0")}f</span>
-          <span className="h-1 w-1 rounded-full bg-white/25" />
-          <span>{isTheatreReady ? "Theatre Ready" : "Theatre Loading"}</span>
-          <span className="h-1 w-1 rounded-full bg-white/25" />
-          <span>{isStudioVisible ? "Studio On" : isDev ? "Studio Available" : "Studio Off"}</span>
-          {isDev ? (
+    <div
+      className={`relative overflow-hidden bg-[rgba(255,255,255,0.025)] ${
+        captureMode
+          ? "rounded-[20px] border border-white/8"
+          : "rounded-[28px] border border-white/10"
+      }`}
+    >
+      {!captureMode ? (
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-5 py-4">
+          <div>
+            <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-white/45">
+              Internal Reference Route
+            </p>
+            <h2 className="mt-1 text-sm font-medium tracking-[0.16em] text-[var(--text-base)]">
+              Signal Stroke Relay
+            </h2>
+          </div>
+          <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-white/45">
+            <span>{Math.round(frame).toString().padStart(3, "0")}f</span>
+            <span className="h-1 w-1 rounded-full bg-white/25" />
+            <span>{isTheatreReady ? "Theatre Ready" : "Theatre Loading"}</span>
+            <span className="h-1 w-1 rounded-full bg-white/25" />
+            <span>
+              {isStudioVisible
+                ? "Studio On"
+                : isDev
+                  ? isStudioLoaded
+                    ? "Studio Hidden"
+                    : "Studio Idle"
+                  : "Studio Off"}
+            </span>
+            {isDev ? (
+              <button
+                type="button"
+                onClick={handleToggleStudio}
+                className="ml-2 rounded-full border border-white/15 px-3 py-1 text-[10px] tracking-[0.2em] text-white transition hover:border-white/35 hover:text-white"
+              >
+                {isStudioVisible
+                  ? "HIDE STUDIO"
+                  : isStudioLoaded
+                    ? "SHOW STUDIO"
+                    : "LOAD STUDIO"}
+              </button>
+            ) : null}
             <button
               type="button"
-              onClick={handleToggleStudio}
-              className="ml-2 rounded-full border border-white/15 px-3 py-1 text-[10px] tracking-[0.2em] text-white transition hover:border-white/35 hover:text-white"
+              onClick={handleTogglePlayback}
+              disabled={frameOverride !== null || shouldReduceMotion}
+              className="rounded-full border border-white/15 px-3 py-1 text-[10px] tracking-[0.2em] text-white transition hover:border-white/35 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {isStudioVisible ? "HIDE STUDIO" : "SHOW STUDIO"}
+              {frameOverride !== null
+                ? "LOCKED"
+                : shouldReduceMotion
+                  ? "STATIC"
+                  : isPaused
+                    ? "PLAY"
+                    : "PAUSE"}
             </button>
-          ) : null}
-          <button
-            type="button"
-            onClick={handleTogglePlayback}
-            disabled={shouldReduceMotion}
-            className="rounded-full border border-white/15 px-3 py-1 text-[10px] tracking-[0.2em] text-white transition hover:border-white/35 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {shouldReduceMotion ? "STATIC" : isPaused ? "PLAY" : "PAUSE"}
-          </button>
+          </div>
         </div>
-      </div>
+      ) : null}
 
-      <div className="relative bg-[radial-gradient(circle_at_top,#1a1a1a_0%,#090909_60%)] px-4 py-5 sm:px-6 sm:py-6">
+      <div
+        className={`relative bg-[radial-gradient(circle_at_top,#1a1a1a_0%,#090909_60%)] ${
+          captureMode ? "px-2 py-2 sm:px-3 sm:py-3" : "px-4 py-5 sm:px-6 sm:py-6"
+        }`}
+      >
         <svg
           viewBox={`0 0 ${signalStrokeRelayConfig.viewBoxWidth} ${signalStrokeRelayConfig.viewBoxHeight}`}
           className="h-auto w-full"
@@ -437,25 +502,29 @@ export function SignalStrokeRelaySurface() {
             />
           </g>
 
-          <text
-            x="108"
-            y="430"
-            fill={signalStrokeRelayConfig.palette.textMuted}
-            className="font-mono"
-            style={{ fontSize: 13, letterSpacing: "0.16em", textTransform: "uppercase" }}
-          >
-            Trim paths prove draw-window control. Stagger and offset stay subordinate.
-          </text>
+          {!captureMode ? (
+            <>
+              <text
+                x="108"
+                y="430"
+                fill={signalStrokeRelayConfig.palette.textMuted}
+                className="font-mono"
+                style={{ fontSize: 13, letterSpacing: "0.16em", textTransform: "uppercase" }}
+              >
+                Trim paths prove draw-window control. Stagger and offset stay subordinate.
+              </text>
 
-          <text
-            x="108"
-            y="458"
-            fill={signalStrokeRelayConfig.palette.textMuted}
-            className="font-mono"
-            style={{ fontSize: 13, letterSpacing: "0.12em", textTransform: "uppercase" }}
-          >
-            Match-cut continuity hands the baton from lead exit to title start.
-          </text>
+              <text
+                x="108"
+                y="458"
+                fill={signalStrokeRelayConfig.palette.textMuted}
+                className="font-mono"
+                style={{ fontSize: 13, letterSpacing: "0.12em", textTransform: "uppercase" }}
+              >
+                Match-cut continuity hands the baton from lead exit to title start.
+              </text>
+            </>
+          ) : null}
         </svg>
       </div>
     </div>

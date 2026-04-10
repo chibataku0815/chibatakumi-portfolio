@@ -25,8 +25,16 @@ type SignalStrokeRelayTheatreStore = {
 let theatreStore: SignalStrokeRelayTheatreStore | null = null;
 let studioPromise: Promise<any | null> | null = null;
 
+const signalStrokeRelayProjectState = {
+  sheetsById: {},
+  definitionVersion: "0.4.0",
+  revisionHistory: [],
+} as const;
+
 function createSignalStrokeRelayTheatreStore(): SignalStrokeRelayTheatreStore {
-  const project = getProject("Signal Stroke Relay");
+  const project = getProject("Signal Stroke Relay", {
+    state: signalStrokeRelayProjectState,
+  });
   const sheet = project.sheet("Reference Work");
   const range = types.number;
 
