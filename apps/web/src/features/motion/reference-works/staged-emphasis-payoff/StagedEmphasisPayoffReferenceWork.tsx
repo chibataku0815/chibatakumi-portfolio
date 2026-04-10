@@ -16,7 +16,7 @@ export function StagedEmphasisPayoffReferenceWork({
 }: StagedEmphasisPayoffReferenceWorkProps) {
   if (captureMode) {
     return (
-      <main className="min-h-screen bg-[var(--bg-dark)] px-2 py-2 text-[var(--text-base)] sm:px-3 sm:py-3">
+      <main className="min-h-screen bg-[#ecebe6] px-2 py-2 text-black sm:px-3 sm:py-3">
         <div className="mx-auto max-w-7xl">
           <StagedEmphasisPayoffSurface
             autoPlay={autoPlay}
@@ -29,19 +29,19 @@ export function StagedEmphasisPayoffReferenceWork({
   }
 
   return (
-    <main className="min-h-screen bg-[var(--bg-dark)] px-4 py-24 text-[var(--text-base)] sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-[#ecebe6] px-4 py-24 text-black sm:px-6 lg:px-8">
       <div className="mx-auto flex max-w-7xl flex-col gap-8">
         <header className="max-w-3xl">
-          <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-[var(--text-base-60)]">
+          <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-black/55">
             {stagedEmphasisPayoffFixtures.eyebrow}
           </p>
-          <h1 className="mt-4 text-[clamp(2.5rem,7vw,5.5rem)] font-semibold leading-[0.94] tracking-[-0.05em] text-[var(--text-base)]">
+          <h1 className="mt-4 text-[clamp(2.5rem,7vw,5.5rem)] font-semibold leading-[0.94] tracking-[-0.05em] text-black">
             {stagedEmphasisPayoffFixtures.title}
           </h1>
-          <p className="mt-5 max-w-2xl text-base leading-relaxed text-[var(--text-muted)] sm:text-lg">
-            `SVG + DOM` を main home に固定した text-animator-core の narrow
-            proof。1 行の phrase だけで、unit reveal, delayed stack, single
-            emphasis handoff, payoff settle をローカル helper 候補として検証する。
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-black/60 sm:text-lg">
+            `SVG + DOM` を main home に固定した first-source benchmark pass。
+            2 秒の station title build / payoff hold / delayed disappearance を
+            grapheme 単位で狭く再現して、family helper の contract だけを確認する。
           </p>
         </header>
 
@@ -51,26 +51,26 @@ export function StagedEmphasisPayoffReferenceWork({
             frameOverride={frameOverride}
           />
 
-          <aside className="rounded-[28px] border border-white/10 bg-white/[0.03] p-6">
+          <aside className="rounded-[28px] border border-black/10 bg-black/[0.025] p-6">
             <div className="space-y-6">
               <section>
-                <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--text-base-60)]">
+                <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-black/50">
                   Runtime
                 </p>
-                <p className="mt-3 text-sm leading-relaxed text-[var(--text-muted)]">
+                <p className="mt-3 text-sm leading-relaxed text-black/60">
                   {stagedEmphasisPayoffFixtures.runtimeLabel}
                 </p>
               </section>
 
               <section>
-                <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--text-base-60)]">
+                <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-black/50">
                   Technique Family
                 </p>
-                <ul className="mt-3 space-y-2 text-sm text-[var(--text-base)]">
+                <ul className="mt-3 space-y-2 text-sm text-black">
                   {stagedEmphasisPayoffFixtures.techniqueFamily.map((item) => (
                     <li
                       key={item}
-                      className="border-l border-white/15 pl-3 font-mono text-[12px] tracking-[0.12em]"
+                      className="border-l border-black/15 pl-3 font-mono text-[12px] tracking-[0.12em]"
                     >
                       {item}
                     </li>
@@ -79,14 +79,14 @@ export function StagedEmphasisPayoffReferenceWork({
               </section>
 
               <section>
-                <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--text-base-60)]">
+                <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-black/50">
                   Extraction Targets
                 </p>
-                <ul className="mt-3 space-y-2 text-sm text-[var(--text-base)]">
+                <ul className="mt-3 space-y-2 text-sm text-black">
                   {stagedEmphasisPayoffFixtures.extractionTargets.map((target) => (
                     <li
                       key={target}
-                      className="border-l border-white/15 pl-3 font-mono text-[12px] tracking-[0.12em]"
+                      className="border-l border-black/15 pl-3 font-mono text-[12px] tracking-[0.12em]"
                     >
                       {target}
                     </li>
@@ -95,19 +95,28 @@ export function StagedEmphasisPayoffReferenceWork({
               </section>
 
               <section>
-                <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--text-base-60)]">
+                <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-black/50">
                   Phrase
                 </p>
-                <p className="mt-3 text-sm leading-relaxed text-[var(--text-muted)]">
+                <p className="mt-3 text-sm leading-relaxed text-black/60">
                   {stagedEmphasisPayoffFixtures.phrase}
                 </p>
               </section>
 
               <section>
-                <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--text-base-60)]">
+                <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-black/50">
+                  Benchmark
+                </p>
+                <p className="mt-3 text-xs leading-relaxed text-black/55">
+                  {stagedEmphasisPayoffFixtures.benchmarkLabel}
+                </p>
+              </section>
+
+              <section>
+                <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-black/50">
                   Non-Goals
                 </p>
-                <ul className="mt-3 space-y-2 text-sm leading-relaxed text-[var(--text-muted)]">
+                <ul className="mt-3 space-y-2 text-sm leading-relaxed text-black/60">
                   {stagedEmphasisPayoffFixtures.nonGoals.map((item) => (
                     <li key={item}>{item}</li>
                   ))}
