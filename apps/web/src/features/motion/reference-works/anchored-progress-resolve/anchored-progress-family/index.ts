@@ -1,8 +1,12 @@
-import { anchoredProgressResolveFixtures } from "./fixtures";
+import { anchoredProgressResolveFixtures } from "../fixtures";
 
 type PhaseName = "loading" | "waiting" | "resolve";
 
-type ProgressState = {
+/**
+ * Anchored Progress family の時間評価結果。
+ * SVG/DOM 側はこの state を読むだけに保ち、描画責務と分離する。
+ */
+export type ProgressState = {
   frame: number;
   phase: PhaseName;
   cycleProgress: number;
@@ -12,19 +16,28 @@ type ProgressState = {
   anchoredProgress: number;
 };
 
-type AnchoredFillState = {
+/**
+ * Rail 上の anchored fill を描くための幾何状態。
+ */
+export type AnchoredFillState = {
   headX: number;
   width: number;
   glowX: number;
 };
 
-type BlinkChannelState = {
+/**
+ * Waiting/resolve 中に使う blink channel の表示状態。
+ */
+export type BlinkChannelState = {
   laneOpacity: number[];
   nodeOpacity: number[];
   pulseRadius: number;
 };
 
-type ResolveVisualState = {
+/**
+ * Resolve phase の終端演出だけを担う表示状態。
+ */
+export type ResolveVisualState = {
   ringScale: number;
   ringOpacity: number;
   checkOpacity: number;
@@ -33,10 +46,7 @@ type ResolveVisualState = {
   labelShift: number;
 };
 
-const {
-  rail,
-  totalFrames,
-} = anchoredProgressResolveFixtures;
+const { rail, totalFrames } = anchoredProgressResolveFixtures;
 
 function clamp01(value: number) {
   return Math.max(0, Math.min(1, value));
@@ -58,6 +68,10 @@ function easeOutQuint(value: number) {
   return 1 - Math.pow(1 - x, 5);
 }
 
+/**
+ * 1 周期の loading / waiting / resolve を固定順で評価する。
+ * Anchored Progress family の source of truth になる evaluator。
+ */
 export function progressStateMachine(frameValue: number): ProgressState {
   const frame =
     ((Math.floor(frameValue) % totalFrames) + totalFrames) % totalFrames;
@@ -103,6 +117,9 @@ export function progressStateMachine(frameValue: number): ProgressState {
   };
 }
 
+/**
+ * Anchored origin を崩さずに fill head と glow の位置を解決する。
+ */
 export function anchoredFill(progress: number): AnchoredFillState {
   const clamped = clamp01(progress);
   const headX = rail.x + rail.width * clamped;
@@ -114,6 +131,9 @@ export function anchoredFill(progress: number): AnchoredFillState {
   };
 }
 
+/**
+ * Loading/Waiting/Resolve の phase ごとに lane/node/pulse を同期評価する。
+ */
 export function blinkChannel(state: ProgressState): BlinkChannelState {
   const base =
     state.phase === "loading"
@@ -145,6 +165,9 @@ export function blinkChannel(state: ProgressState): BlinkChannelState {
   };
 }
 
+/**
+ * Resolve 終端の ring / check / flash だけを narrow に切り出す。
+ */
 export function resolveState(state: ProgressState): ResolveVisualState {
   const progress = state.resolveProgress;
 
@@ -157,4 +180,3 @@ export function resolveState(state: ProgressState): ResolveVisualState {
     labelShift: mix(16, 0, progress),
   };
 }
-

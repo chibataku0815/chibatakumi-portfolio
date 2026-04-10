@@ -8,7 +8,7 @@ import {
   blinkChannel,
   progressStateMachine,
   resolveState,
-} from "./anchored-progress-resolve.logic";
+} from "./anchored-progress-family";
 
 type AnchoredProgressResolveSurfaceProps = {
   autoPlay?: boolean;
