@@ -1,0 +1,11 @@
+{
+  "route": "http://127.0.0.1:3000/en/motion/reference-works/temporal-echo-residue?frame=48&play=0",
+  "artifactPurpose": "Live non-capture route renderer-home check for Phase 3.",
+  "rendererLabelRead": "WEBGPURENDERER",
+  "warningCount": 0,
+  "errorCount": 0,
+  "consoleLogFile": "live-route-console.log",
+  "screenshotFile": "live-route-frame-048.png",
+  "hudFile": "live-route-hud.txt",
+  "note": "This artifact is separate from the headless capture batch, which still records No available adapters. warnings and CANVASRENDERER on capture route screenshots."
+}

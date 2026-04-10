@@ -199,7 +199,7 @@ export function TemporalEchoResidueSurface({
         }`}
       >
         <div className="mx-auto max-w-[1120px]">
-          <div className="relative mx-auto aspect-[4/3] max-w-[960px] overflow-hidden rounded-[24px] border border-white/10 bg-black/30">
+          <div className="relative mx-auto aspect-[16/9] max-w-[960px] overflow-hidden rounded-[24px] border border-white/10 bg-black/30">
             <div ref={hostRef} className="absolute inset-0" />
 
             {errorMessage ? (

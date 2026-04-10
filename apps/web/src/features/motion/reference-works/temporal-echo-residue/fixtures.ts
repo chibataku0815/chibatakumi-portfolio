@@ -1,11 +1,11 @@
 export const temporalEchoResidueFixtures = {
   copy: {
-    eyebrow: "Phase 1 / Work 06 / PixiJS Library-Fit Reference Work",
+    eyebrow: "Phase 3 / Work 06 / PixiJS Benchmark-Read Route",
     title: "Temporal Echo Residue",
     description:
-      "PixiJS を main home に固定し、1 つの subject が残す time-offset echo sample と residue gate だけを narrow browser proof として検証する。",
+      "PixiJS を main home に固定し、first-source benchmark の lyric / stroke residue grammar を time-offset echo sample と residue gate で narrow reproduction する。",
   },
-  runtimeLabel: "PixiJS 8 / evaluator truth + local renderer adapter",
+  runtimeLabel: "PixiJS 8 / evaluator truth + work-local glyph residue adapter",
   techniqueFamily: [
     "temporal echo samples",
     "time-offset stack",
@@ -18,10 +18,10 @@ export const temporalEchoResidueFixtures = {
   ],
   nonGoals: [
     "shared echo runtime or generic trail framework",
-    "poster styling layer or background system expansion",
-    "multi-subject choreography or text animator integration",
+    "template admission or operator-layer abstraction",
+    "second-benchmark transfer or unseen-benchmark transfer",
     "Remotion path, export pipeline, or mixed renderer architecture",
-    "public-facing polish beyond an inspectable reference route",
+    "public-facing polish beyond a benchmark-inspectable reference route",
   ],
-  subjectLabel: "Single asymmetric shard subject",
+  subjectLabel: "Lyric / glyph residue stacks",
 } as const;

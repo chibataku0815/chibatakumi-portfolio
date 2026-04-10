@@ -1,6 +1,9 @@
-import { Application, Container, Graphics } from "pixi.js";
+import { Application, Container, Graphics, Text } from "pixi.js";
 import { temporalEchoResidueConfig } from "./temporal-echo-residue.config";
-import type { TemporalEchoResidueFrameState } from "./temporal-echo-residue.evaluator";
+import type {
+  TemporalEchoResidueCueState,
+  TemporalEchoResidueFrameState,
+} from "./temporal-echo-residue.evaluator";
 
 type TemporalEchoResidueScene = {
   destroy: () => void;
@@ -8,16 +11,38 @@ type TemporalEchoResidueScene = {
   update: (state: TemporalEchoResidueFrameState) => void;
 };
 
+type CueVisual = {
+  aura: Graphics;
+  leadOutline: Container;
+  leadCore: Container;
+  echoContainers: Container[];
+};
+
+type GlyphVariant = "outline" | "core";
+
+const FONT_STACK = '"Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif';
+
 const palette = {
-  stage: 0x05060a,
-  stageLift: 0x101521,
-  rail: 0x213146,
-  railGlow: 0x5d8fbe,
-  echoCool: 0xb8d3ff,
-  echoWarm: 0xf2c8a0,
-  lead: 0xf7f0e2,
-  leadAccent: 0xff8e5f,
-  shadow: 0x000000,
+  cool: {
+    stage: 0x07133b,
+    halo: 0xd7ff2a,
+    lift: 0x4ab7d9,
+    edge: 0x1e0a54,
+    outline: "#d8f6ff",
+    echo: "#c0e8ff",
+    core: "#f6ffff",
+    aura: 0xdeffff,
+  },
+  warm: {
+    stage: 0xb91b06,
+    halo: 0xffd91e,
+    lift: 0xff8b20,
+    edge: 0xf22715,
+    outline: "#fff0c0",
+    echo: "#ffe19b",
+    core: "#fff8ee",
+    aura: 0xfff2cc,
+  },
 } as const;
 
 function clamp01(value: number) {
@@ -28,112 +53,266 @@ function mix(from: number, to: number, amount: number) {
   return from + (to - from) * amount;
 }
 
-function drawShard(
-  graphics: Graphics,
-  options: {
-    width: number;
-    height: number;
-    fillAlpha: number;
-    strokeAlpha: number;
-    strokeWidth: number;
-    fillColor: number;
-    strokeColor: number;
-  },
-) {
-  const halfWidth = options.width / 2;
-  const halfHeight = options.height / 2;
+function mixColor(from: number, to: number, amount: number) {
+  const red = Math.round(mix((from >> 16) & 0xff, (to >> 16) & 0xff, amount));
+  const green = Math.round(mix((from >> 8) & 0xff, (to >> 8) & 0xff, amount));
+  const blue = Math.round(mix(from & 0xff, to & 0xff, amount));
 
-  graphics
-    .moveTo(-halfWidth, 0)
-    .lineTo(-halfWidth * 0.24, -halfHeight * 0.92)
-    .lineTo(halfWidth * 0.55, -halfHeight * 0.62)
-    .lineTo(halfWidth, 0)
-    .lineTo(halfWidth * 0.55, halfHeight * 0.62)
-    .lineTo(-halfWidth * 0.24, halfHeight * 0.92)
-    .closePath()
-    .fill({
-      alpha: options.fillAlpha,
-      color: options.fillColor,
-    })
-    .stroke({
-      alpha: options.strokeAlpha,
-      color: options.strokeColor,
-      width: options.strokeWidth,
-    });
+  return (red << 16) | (green << 8) | blue;
 }
 
-function drawBackground(
+function cuePalette(cue: TemporalEchoResidueCueState) {
+  return cue.world === "warm" ? palette.warm : palette.cool;
+}
+
+function cueRadius(cue: TemporalEchoResidueCueState) {
+  const glyphCount = Array.from(cue.text).length;
+
+  return cue.fontSize * (cue.orientation === "vertical" ? 0.78 : 0.62) + glyphCount * 12;
+}
+
+function fillSoftCircle(
   graphics: Graphics,
-  state: TemporalEchoResidueFrameState,
+  x: number,
+  y: number,
+  radius: number,
+  color: number,
+  alpha: number,
 ) {
+  graphics.circle(x, y, radius);
+  graphics.fill({ color, alpha: alpha * 0.22 });
+
+  graphics.circle(x, y, radius * 0.72);
+  graphics.fill({ color, alpha: alpha * 0.18 });
+
+  graphics.circle(x, y, radius * 0.46);
+  graphics.fill({ color, alpha: alpha * 0.14 });
+}
+
+function createGlyphContainer(
+  cue: TemporalEchoResidueCueState,
+  variant: GlyphVariant,
+): Container {
+  const container = new Container();
+  const colors = cuePalette(cue);
+  const glyphs = Array.from(cue.text);
+  let offset = 0;
+
+  for (const glyph of glyphs) {
+    const strokeWidth =
+      variant === "core"
+        ? Math.max(2, cue.fontSize * 0.05)
+        : Math.max(1.25, cue.fontSize * 0.028);
+    const text = new Text({
+      text: glyph,
+      style: {
+        fontFamily: FONT_STACK,
+        fontSize: cue.fontSize,
+        fontWeight: cue.fontWeight,
+        fill:
+          variant === "core"
+            ? colors.core
+            : cue.world === "warm"
+              ? "rgba(255,244,210,0.18)"
+              : "rgba(214,244,255,0.12)",
+        stroke: {
+          color: variant === "core" ? colors.outline : colors.echo,
+          join: "round",
+          width: strokeWidth,
+        },
+      },
+    });
+
+    if (cue.orientation === "vertical") {
+      text.x = 0;
+      text.y = offset;
+      offset += cue.fontSize * cue.glyphGap;
+    } else {
+      text.x = offset;
+      text.y = 0;
+      offset += cue.fontSize * cue.glyphGap;
+    }
+
+    container.addChild(text);
+  }
+
+  const bounds = container.getLocalBounds();
+  container.pivot.set(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
+
+  return container;
+}
+
+function setCueTransform(
+  container: Container,
+  pose: {
+    x: number;
+    y: number;
+    rotation: number;
+    scale: number;
+    stretchX: number;
+    stretchY: number;
+  },
+) {
+  container.position.set(pose.x, pose.y);
+  container.rotation = pose.rotation;
+  container.scale.set(pose.scale * pose.stretchX, pose.scale * pose.stretchY);
+}
+
+function ensureCueVisual(
+  cue: TemporalEchoResidueCueState,
+  cueRoot: Container,
+  cueVisuals: Map<string, CueVisual>,
+) {
+  const existing = cueVisuals.get(cue.id);
+
+  if (existing) {
+    return existing;
+  }
+
+  const aura = new Graphics();
+  const leadOutline = createGlyphContainer(cue, "outline");
+  const leadCore = createGlyphContainer(cue, "core");
+  const echoContainers = Array.from(
+    { length: temporalEchoResidueConfig.echo.sampleCount },
+    () => createGlyphContainer(cue, "outline"),
+  );
+
+  cueRoot.addChild(aura, ...echoContainers, leadOutline, leadCore);
+
+  const visual = {
+    aura,
+    leadOutline,
+    leadCore,
+    echoContainers,
+  };
+
+  cueVisuals.set(cue.id, visual);
+
+  return visual;
+}
+
+function hideCueVisual(visual: CueVisual) {
+  visual.aura.clear();
+  visual.leadOutline.alpha = 0;
+  visual.leadCore.alpha = 0;
+
+  for (const echoContainer of visual.echoContainers) {
+    echoContainer.alpha = 0;
+  }
+}
+
+function drawBackground(graphics: Graphics, state: TemporalEchoResidueFrameState) {
+  const { width, height } = temporalEchoResidueConfig.size;
+  const stageColor = mixColor(palette.cool.stage, palette.warm.stage, state.worldMix);
+  const liftColor = mixColor(palette.cool.lift, palette.warm.lift, state.worldMix);
+  const edgeColor = mixColor(palette.cool.edge, palette.warm.edge, state.worldMix);
+  const haloColor = mixColor(palette.cool.halo, palette.warm.halo, state.worldMix);
+
   graphics.clear();
-  graphics.rect(
-    0,
-    0,
-    temporalEchoResidueConfig.size.width,
-    temporalEchoResidueConfig.size.height,
-  );
-  graphics.fill({ color: palette.stage, alpha: 1 });
+  graphics.rect(0, 0, width, height);
+  graphics.fill({ color: stageColor, alpha: state.stageFade });
 
-  graphics.circle(
-    temporalEchoResidueConfig.size.width * 0.5 + state.backgroundDrift,
-    temporalEchoResidueConfig.size.height * 0.42,
-    340,
+  fillSoftCircle(
+    graphics,
+    state.topHaloX,
+    state.topHaloY,
+    state.topHaloRadius,
+    haloColor,
+    mix(0.52, 0.66, state.worldMix) * state.stageFade,
   );
-  graphics.fill({ color: palette.stageLift, alpha: 0.72 });
+  fillSoftCircle(
+    graphics,
+    width * 0.52,
+    height * 0.28,
+    mix(320, 420, state.worldMix),
+    liftColor,
+    mix(0.34, 0.46, state.worldMix) * state.stageFade,
+  );
+  fillSoftCircle(
+    graphics,
+    width * 0.12,
+    height * 0.88,
+    220,
+    edgeColor,
+    mix(0.24, 0.32, state.worldMix) * state.stageFade,
+  );
+  fillSoftCircle(
+    graphics,
+    width * 0.95,
+    height * 0.18,
+    240,
+    edgeColor,
+    mix(0.16, 0.28, state.worldMix) * state.stageFade,
+  );
+}
 
-  graphics.roundRect(
-    106,
-    temporalEchoResidueConfig.subject.centerY - 134,
-    temporalEchoResidueConfig.size.width - 212,
-    268,
-    134,
-  );
+function drawCircleFrame(graphics: Graphics, state: TemporalEchoResidueFrameState) {
+  graphics.clear();
+
+  if (state.circleAlpha <= 0.001) {
+    return;
+  }
+
+  graphics.circle(480, 274, 172);
   graphics.stroke({
-    alpha: 0.12,
-    color: palette.rail,
-    width: 2,
+    alpha: state.circleAlpha,
+    color: 0xeafcff,
+    width: 1.6,
   });
 }
 
-function drawRail(graphics: Graphics, state: TemporalEchoResidueFrameState) {
-  const startX = temporalEchoResidueConfig.subject.startX - 36;
-  const endX = temporalEchoResidueConfig.subject.endX + 36;
-  const centerY = temporalEchoResidueConfig.subject.centerY + 8;
-  const controlY = centerY - temporalEchoResidueConfig.subject.arcHeight * 0.58;
-
+function drawPetals(graphics: Graphics, state: TemporalEchoResidueFrameState) {
   graphics.clear();
-  graphics
-    .moveTo(startX, centerY)
-    .bezierCurveTo(
-      startX + 240,
-      controlY,
-      endX - 240,
-      controlY,
-      endX,
-      centerY,
-    )
-    .stroke({
-      alpha: 0.2,
-      color: palette.rail,
-      width: 3,
-    });
 
-  graphics
-    .moveTo(startX, centerY)
-    .bezierCurveTo(
-      startX + 240,
-      controlY,
-      endX - 240,
-      controlY,
-      endX,
-      centerY,
-    )
-    .stroke({
-      alpha: state.railGlowAlpha,
-      color: palette.railGlow,
-      width: 1.25,
-    });
+  if (state.petalAlpha <= 0.001) {
+    return;
+  }
+
+  const centerX = 646;
+  const centerY = 270;
+  const radius = 360;
+
+  for (let index = 0; index < 10; index += 1) {
+    const angle = state.petalSpin + (index / 10) * Math.PI * 2;
+    const controlAngle = angle + Math.PI / 10;
+    const endX = centerX + Math.cos(angle) * radius;
+    const endY = centerY + Math.sin(angle) * radius * 0.72;
+    const controlX = centerX + Math.cos(controlAngle) * radius * 0.48;
+    const controlY = centerY + Math.sin(controlAngle) * radius * 0.5;
+
+    graphics
+      .moveTo(centerX, centerY)
+      .bezierCurveTo(controlX, controlY, controlX, controlY, endX, endY)
+      .stroke({
+        alpha: state.petalAlpha * 0.18,
+        color: 0xfff4cf,
+        width: 1.5,
+      });
+  }
+}
+
+function drawWaterArc(graphics: Graphics, state: TemporalEchoResidueFrameState) {
+  graphics.clear();
+
+  if (state.waterArcAlpha <= 0.001) {
+    return;
+  }
+
+  const tipX = mix(26, 430, state.waterArcProgress);
+  const tipY = mix(202, 162, state.waterArcProgress);
+
+  for (let index = 0; index < 3; index += 1) {
+    const offset = index * 10;
+
+    graphics
+      .moveTo(42, 182 + offset)
+      .quadraticCurveTo(192, 232 - index * 8, tipX, tipY + offset * 0.6)
+      .stroke({
+        alpha: state.waterArcAlpha * (0.38 - index * 0.08),
+        color: index === 0 ? 0xfff7d2 : 0xffd24d,
+        width: 1.8 - index * 0.25,
+      });
+  }
 }
 
 export async function createTemporalEchoResidueScene({
@@ -167,114 +346,66 @@ export async function createTemporalEchoResidueScene({
   host.appendChild(app.canvas);
 
   const background = new Graphics();
-  const rail = new Graphics();
-  const echoContainer = new Container();
-  const echoGraphics = Array.from(
-    { length: temporalEchoResidueConfig.echo.sampleCount },
-    () => {
-      const echoGraphic = new Graphics();
-      echoContainer.addChild(echoGraphic);
-      return echoGraphic;
-    },
-  );
-  const leadShadow = new Graphics();
-  const leadGlow = new Graphics();
-  const leadShard = new Graphics();
-  const leadCore = new Graphics();
+  const circleFrame = new Graphics();
+  const petals = new Graphics();
+  const waterArc = new Graphics();
+  const cueRoot = new Container();
+  const cueVisuals = new Map<string, CueVisual>();
 
-  app.stage.addChild(background);
-  app.stage.addChild(rail);
-  app.stage.addChild(echoContainer);
-  app.stage.addChild(leadShadow);
-  app.stage.addChild(leadGlow);
-  app.stage.addChild(leadShard);
-  app.stage.addChild(leadCore);
+  app.stage.addChild(background, circleFrame, petals, waterArc, cueRoot);
 
   const update = (state: TemporalEchoResidueFrameState) => {
     drawBackground(background, state);
-    drawRail(rail, state);
+    drawCircleFrame(circleFrame, state);
+    drawPetals(petals, state);
+    drawWaterArc(waterArc, state);
 
-    echoGraphics.forEach((graphic, index) => {
-      const sample = state.echoes[index];
+    const cueStates = new Map(state.cues.map((cue) => [cue.id, cue]));
 
-      graphic.clear();
+    for (const cue of state.cues) {
+      const visual = ensureCueVisual(cue, cueRoot, cueVisuals);
+      const colors = cuePalette(cue);
+      const auraRadius = cueRadius(cue);
 
-      if (!sample) {
-        return;
+      const auraAlpha = cue.alpha * cue.glowAlpha * cue.fillAlpha * 0.12;
+
+      visual.aura.clear();
+
+      if (auraAlpha > 0.01) {
+        fillSoftCircle(
+          visual.aura,
+          cue.lead.x,
+          cue.lead.y,
+          auraRadius,
+          colors.aura,
+          auraAlpha,
+        );
       }
 
-      const colorMix = sample.index / Math.max(state.echoes.length - 1, 1);
-      const fillAlpha = sample.alpha * 0.34;
-      const strokeAlpha = sample.alpha * 1.08;
+      setCueTransform(visual.leadOutline, cue.lead);
+      visual.leadOutline.alpha = cue.alpha * cue.outlineAlpha;
 
-      drawShard(graphic, {
-        width:
-          temporalEchoResidueConfig.subject.width *
-          sample.scale *
-          sample.stretchX,
-        height:
-          temporalEchoResidueConfig.subject.height *
-          sample.scale *
-          sample.stretchY,
-        fillAlpha,
-        strokeAlpha,
-        strokeWidth: mix(5.4, 1.8, colorMix),
-        fillColor: palette.echoCool,
-        strokeColor: colorMix > 0.45 ? palette.echoWarm : palette.echoCool,
+      setCueTransform(visual.leadCore, cue.lead);
+      visual.leadCore.alpha = cue.alpha * cue.fillAlpha;
+
+      visual.echoContainers.forEach((echoContainer, index) => {
+        const sample = cue.echoes[index];
+
+        if (!sample) {
+          echoContainer.alpha = 0;
+          return;
+        }
+
+        setCueTransform(echoContainer, sample);
+        echoContainer.alpha = clamp01(sample.alpha * cue.outlineAlpha * 1.18);
       });
+    }
 
-      graphic.position.set(sample.x, sample.y);
-      graphic.rotation = sample.rotation;
-    });
-
-    leadShadow.clear();
-    leadShadow.ellipse(
-      state.lead.x,
-      temporalEchoResidueConfig.subject.centerY + 118,
-      126,
-      24,
-    );
-    leadShadow.fill({ color: palette.shadow, alpha: 0.26 });
-
-    leadGlow.clear();
-    leadGlow.circle(state.lead.x, state.lead.y, 104 + state.lead.speed * 1.4);
-    leadGlow.fill({
-      alpha: 0.12 + clamp01(state.lead.speed / 18) * 0.16,
-      color: palette.leadAccent,
-    });
-
-    leadShard.clear();
-    drawShard(leadShard, {
-      width:
-        temporalEchoResidueConfig.subject.width *
-        state.lead.scale *
-        state.lead.stretchX,
-      height:
-        temporalEchoResidueConfig.subject.height *
-        state.lead.scale *
-        state.lead.stretchY,
-      fillAlpha: 0.92,
-      strokeAlpha: 1,
-      strokeWidth: 4,
-      fillColor: palette.lead,
-      strokeColor: palette.leadAccent,
-    });
-    leadShard.position.set(state.lead.x, state.lead.y);
-    leadShard.rotation = state.lead.rotation;
-
-    leadCore.clear();
-    leadCore
-      .moveTo(-76, 0)
-      .lineTo(22, 0)
-      .stroke({
-        alpha: 0.9,
-        color: palette.stage,
-        width: 5,
-      });
-    leadCore.circle(46, 0, 8);
-    leadCore.fill({ color: palette.leadAccent, alpha: 1 });
-    leadCore.position.set(state.lead.x, state.lead.y);
-    leadCore.rotation = state.lead.rotation;
+    for (const [cueId, visual] of cueVisuals) {
+      if (!cueStates.has(cueId)) {
+        hideCueVisual(visual);
+      }
+    }
 
     app.render();
   };
