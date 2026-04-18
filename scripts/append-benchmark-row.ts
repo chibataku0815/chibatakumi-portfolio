@@ -17,6 +17,21 @@ function readClipboard(): string {
   return new TextDecoder().decode(result.stdout);
 }
 
+async function readStdin(): Promise<string> {
+  const chunks: Uint8Array[] = [];
+  for await (const chunk of Bun.stdin.stream()) {
+    chunks.push(chunk);
+  }
+  const total = chunks.reduce((n, c) => n + c.length, 0);
+  const merged = new Uint8Array(total);
+  let offset = 0;
+  for (const c of chunks) {
+    merged.set(c, offset);
+    offset += c.length;
+  }
+  return new TextDecoder().decode(merged);
+}
+
 function extractRows(text: string): string[] {
   const rows: string[] = [];
   for (const raw of text.split(/\r?\n/)) {
@@ -40,25 +55,34 @@ function ensureHeader(targetPath: string): void {
   writeFileSync(targetPath, `${HEADER}\n${DIVIDER}\n`);
 }
 
-function main(): void {
-  const targetArg = process.argv[2] ?? "benchmark/runs/auto.md";
+async function main(): Promise<void> {
+  const args = process.argv.slice(2);
+  const useStdin = args.includes("--stdin");
+  const positional = args.filter((a) => a !== "--stdin");
+  const targetArg = positional[0] ?? "benchmark/runs/auto.md";
   const targetPath = resolve(targetArg);
 
-  const clipboardText = readClipboard();
-  const rows = extractRows(clipboardText);
+  const rawText = useStdin ? await readStdin() : readClipboard();
+  const source = useStdin ? "stdin" : "clipboard";
+  const rows = extractRows(rawText);
 
   if (rows.length === 0) {
-    console.error("No valid benchmark rows found on the clipboard.");
+    console.error(`No valid benchmark rows found on ${source}.`);
     console.error("Expect a line like:");
     console.error(`  ${HEADER.replace(/\|/g, "|")}`);
-    console.error("Did you tap ベンチ結果を共有 in the iOS app and paste/AirDrop the row?");
+    if (!useStdin) {
+      console.error("Did you tap ベンチ結果を共有 in the iOS app and paste/AirDrop the row?");
+      console.error("Diagnose: `pbpaste | head -c 400` to see what the clipboard actually holds.");
+      console.error("If a shell hook overwrites clipboard, use stdin mode:");
+      console.error("  printf '...row...' | bun run bench:append --stdin /tmp/smoke.md");
+    }
     process.exit(2);
   }
 
   ensureHeader(targetPath);
   appendFileSync(targetPath, rows.map((r) => `${r}\n`).join(""));
 
-  console.log(`Appended ${rows.length} row(s) to ${targetPath}`);
+  console.log(`Appended ${rows.length} row(s) to ${targetPath} (source: ${source})`);
   for (const row of rows) {
     console.log(`  ${row}`);
   }
