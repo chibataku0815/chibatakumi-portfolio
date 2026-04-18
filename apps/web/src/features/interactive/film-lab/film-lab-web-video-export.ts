@@ -494,6 +494,12 @@ export async function runFilmLabWebVideoExport(
       width: outW,
       height: outH,
     });
+    if (!viewport.mesh) {
+      throw new WebFilmLabExportError(
+        "WebGL backend required for video export",
+        "UNKNOWN",
+      );
+    }
     scene.add(viewport.mesh);
 
     viewport.setComparePair(false, {}, {});
