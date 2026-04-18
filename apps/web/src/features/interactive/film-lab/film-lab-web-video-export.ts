@@ -17,11 +17,7 @@ import {
   Muxer as WebmMuxer,
   ArrayBufferTarget as WebmArrayBufferTarget,
 } from "webm-muxer";
-import {
-  Viewport,
-  filmlabVertexShader,
-  filmlabFragmentShader,
-} from "film-lab-renderer";
+import { Viewport } from "film-lab-renderer";
 
 /**
  * @description Web 動画書き出しで使うエラー種別（UI でメッセージを分けるときの code）。
@@ -493,9 +489,8 @@ export async function runFilmLabWebVideoExport(
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x000000);
 
-    const viewport = new Viewport({
-      vertexShader: filmlabVertexShader,
-      fragmentShader: filmlabFragmentShader,
+    const viewport = await Viewport.create(canvas, {
+      prefer: "webgl",
       width: outW,
       height: outH,
     });
