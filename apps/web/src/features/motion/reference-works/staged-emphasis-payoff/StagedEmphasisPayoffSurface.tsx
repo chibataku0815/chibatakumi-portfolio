@@ -208,8 +208,8 @@ export function StagedEmphasisPayoffSurface({
                     const state = unitStates[index];
                     const isFocusUnit =
                       !unit.isGap &&
-                      stagedEmphasisPayoffFixtures.focusClusterIndices.includes(
-                        unit.clusterIndex,
+                      stagedEmphasisPayoffFixtures.focusClusterIndices.some(
+                        (clusterIndex) => clusterIndex === unit.clusterIndex,
                       );
                     const focusAmount = isFocusUnit
                       ? emphasis.emphasisAmount * (1 - emphasis.releaseAmount * 0.72)
