@@ -22,13 +22,13 @@ try {
 
 if (checkOnly) {
   if (currentContent !== nextContent) {
-    console.error(`[filmtone-ios-phase0] ${outputPath} is out of date.`);
+    console.error(`[filmtone-ios] ${outputPath} is out of date.`);
     process.exitCode = 1;
   }
 } else if (currentContent !== nextContent) {
   mkdirSync(dirname(outputPath), { recursive: true });
   writeFileSync(outputPath, nextContent);
-  console.log(`[filmtone-ios-phase0] wrote ${outputPath}`);
+  console.log(`[filmtone-ios] wrote ${outputPath}`);
 } else {
-  console.log(`[filmtone-ios-phase0] ${outputPath} is up to date`);
+  console.log(`[filmtone-ios] ${outputPath} is up to date`);
 }

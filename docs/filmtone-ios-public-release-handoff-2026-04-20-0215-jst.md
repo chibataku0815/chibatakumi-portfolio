@@ -2,6 +2,8 @@
 
 Last updated: 2026-04-20 02:15 JST
 
+Historical note: this document remains the v1.0 release/procedural record from the `feature/filmtone-ios-phase0` rail. It is not the day-to-day canonical lane pointer.
+
 This is a fresh, stand-alone handoff for continuing Filmtone iOS public release preparation in a brand-new chat. It is designed to be sufficient without any access to prior chat history and without any prior context about the Fastlane rail.
 
 Supersedes:
@@ -9,7 +11,7 @@ Supersedes:
 - `docs/filmtone-ios-public-release-handoff-2026-04-20.md`
 - `docs/filmtone-ios-public-release-handoff-2026-04-20-0148-jst.md`
 
-Treat this document as the primary source of truth. Read it end-to-end before taking any action.
+Treat this document as the primary source of truth for the historical v1.0 release rail. Read it end-to-end before taking any action.
 
 ---
 
