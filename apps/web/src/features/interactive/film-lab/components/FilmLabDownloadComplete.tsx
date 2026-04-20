@@ -10,13 +10,19 @@ import { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import type { FilmLabDonationStripeTier } from "@/features/interactive/film-lab/film-lab-donation-config";
-import {
-  filmLabDesktopSupportEmail,
-} from "@/features/interactive/film-lab/desktop-release-info";
+import { trackFilmLabDesktopDownloadEvent } from "@/shared/analytics";
+import { filmLabDesktopSupportEmail } from "@/features/interactive/film-lab/desktop-release-info";
+
+const DOWNLOAD_VARIANT = "v1";
+const DOWNLOAD_DELIVERY = "vercel_blob";
 
 export type FilmLabDownloadCompleteProps = {
+  /** ロケール（analytics 用）。 */
+  locale: string;
   /** DMG の直リンク。空のときは手動 DL ボタンを非表示。 */
   downloadUrl: string;
+  /** 配布アーティファクト basename。空や不明時は `"unknown"`。 */
+  artifactName: string;
   /** Stripe Payment Link のティア一覧。 */
   stripeTiers: FilmLabDonationStripeTier[];
   /** Buy Me a Coffee の URL。 */
@@ -29,17 +35,38 @@ export type FilmLabDownloadCompleteProps = {
  * @description ダウンロード完了ページ本体。マウント時に DMG ダウンロードを自動トリガーする。
  */
 export function FilmLabDownloadComplete({
+  locale,
   downloadUrl,
+  artifactName,
   stripeTiers,
   bmcUrl,
   serverVerifiedSupporter,
 }: FilmLabDownloadCompleteProps) {
   const t = useTranslations("film-lab.desktopRelease.downloadComplete");
-  const downloadTriggered = useRef(false);
+  const completeViewTracked = useRef(false);
+  const autostartTracked = useRef(false);
 
   useEffect(() => {
-    if (downloadTriggered.current || downloadUrl.length === 0) return;
-    downloadTriggered.current = true;
+    if (completeViewTracked.current) return;
+    completeViewTracked.current = true;
+    trackFilmLabDesktopDownloadEvent("film_lab_desktop_download_complete_view", {
+      locale,
+      artifactName,
+      delivery: DOWNLOAD_DELIVERY,
+      variant: DOWNLOAD_VARIANT,
+      hasDownloadUrl: downloadUrl.length > 0,
+    });
+  }, [artifactName, downloadUrl, locale]);
+
+  useEffect(() => {
+    if (autostartTracked.current || downloadUrl.length === 0) return;
+    autostartTracked.current = true;
+    trackFilmLabDesktopDownloadEvent("film_lab_desktop_download_autostart", {
+      locale,
+      artifactName,
+      delivery: DOWNLOAD_DELIVERY,
+      variant: DOWNLOAD_VARIANT,
+    });
     const iframe = document.createElement("iframe");
     iframe.style.display = "none";
     iframe.src = downloadUrl;
@@ -47,7 +74,7 @@ export function FilmLabDownloadComplete({
     return () => {
       iframe.remove();
     };
-  }, [downloadUrl]);
+  }, [artifactName, downloadUrl, locale]);
 
   const isSupporter = serverVerifiedSupporter;
   const showDonation = !isSupporter && stripeTiers.length > 0;
@@ -69,6 +96,14 @@ export function FilmLabDownloadComplete({
           {downloadUrl.length > 0 ? (
             <a
               href={downloadUrl}
+              onClick={() => {
+                trackFilmLabDesktopDownloadEvent("film_lab_desktop_download_manual_retry", {
+                  locale,
+                  artifactName,
+                  delivery: DOWNLOAD_DELIVERY,
+                  variant: DOWNLOAD_VARIANT,
+                });
+              }}
               className="mt-4 inline-flex items-center justify-center rounded-full border border-white/14 bg-white/8 px-4 py-2 text-sm text-white transition-colors hover:bg-white/14"
             >
               {t("manualDownloadCta")}

@@ -27,6 +27,37 @@ export function trackPageView(path: string) {
 }
 
 /**
+ * @description Film Lab Desktop 配布導線のイベント（GA4）。DL 数の近似を Vercel Blob と併読する。
+ */
+export function trackFilmLabDesktopDownloadEvent(
+  name:
+    | "film_lab_desktop_download_complete_view"
+    | "film_lab_desktop_download_autostart"
+    | "film_lab_desktop_download_manual_retry",
+  details: {
+    locale: string;
+    artifactName: string;
+    delivery?: "vercel_blob";
+    variant?: string;
+    hasDownloadUrl?: boolean;
+  },
+) {
+  if (!window.gtag || !GA_MEASUREMENT_ID) return;
+
+  const payload: Record<string, string | boolean> = {
+    locale: details.locale,
+    variant: details.variant ?? "v1",
+    delivery: details.delivery ?? "vercel_blob",
+    artifact_name: details.artifactName,
+  };
+  if (name === "film_lab_desktop_download_complete_view") {
+    payload.has_download_url = Boolean(details.hasDownloadUrl);
+  }
+
+  window.gtag("event", name, payload);
+}
+
+/**
  * @description Film Lab の任意寄付ナッジ用イベント（GA4）。イベント名は life 側仕様と一致させる。
  * @param {string} name - impression / dismiss / cta_click / thanks / ack
  * @param {object} details - surface・locale ほか、Stripe 段階別なら `stripeTierUsd` を付与する（PII・session_id は送らない）
