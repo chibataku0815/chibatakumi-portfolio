@@ -8,18 +8,18 @@ WORKSPACE_PATH="${APP_DIR}/ios/App/App.xcworkspace"
 
 cd "${REPO_ROOT}"
 
-echo "[filmtone-ios-phase0] Building web shell"
+echo "[filmtone-ios] Building web shell"
 bun run build:ios
 
-echo "[filmtone-ios-phase0] Syncing Capacitor iOS shell"
+echo "[filmtone-ios] Syncing Capacitor iOS shell"
 bun run --cwd "${APP_DIR}" cap:sync:ios
 
-echo "[filmtone-ios-phase0] Opening Xcode workspace"
+echo "[filmtone-ios] Opening Xcode workspace"
 open "${WORKSPACE_PATH}"
 
 cat <<EOF
 
-Filmtone iOS Phase 0 is ready for device validation.
+Filmtone iOS is ready for device validation.
 
 Workspace:
 ${WORKSPACE_PATH}
@@ -34,6 +34,6 @@ Next:
 7. Treat 60s <= 2.5x realtime as pass, and <= 2.0x as strong-go.
 8. Report the result in this chat.
 
-Checklist:
+Historical v1.0 checklist:
 ${APP_DIR}/PHASE0-DEVICE-CHECKLIST.md
 EOF
