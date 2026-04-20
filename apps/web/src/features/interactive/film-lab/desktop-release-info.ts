@@ -22,3 +22,22 @@ export function filmLabReadDesktopDownloadUrl() {
     ""
   );
 }
+
+/**
+ * 配布 URL から公開アーティファクト名だけを取り出します。
+ *
+ * @returns {string} `filmtone-1.0.1-arm64.dmg` のような basename。取れないときは `"unknown"`。
+ */
+export function filmLabResolveDesktopDownloadArtifactName(downloadUrl: string) {
+  const trimmed = downloadUrl.trim();
+  if (trimmed.length === 0) return "unknown";
+
+  try {
+    const url = new URL(trimmed);
+    const pathname = url.pathname.replace(/\/+$/, "");
+    const basename = pathname.split("/").pop()?.trim() ?? "";
+    return basename.length > 0 && basename.includes(".") ? basename : "unknown";
+  } catch {
+    return "unknown";
+  }
+}

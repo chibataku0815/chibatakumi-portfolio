@@ -7,7 +7,10 @@ import {
   filmLabVerifySupporterCookieValue,
 } from "@/features/interactive/film-lab/film-lab-donation-cookie-signing";
 import { filmLabReadDonationEnvOnServer } from "@/features/interactive/film-lab/film-lab-donation-env-server";
-import { filmLabReadDesktopDownloadUrl } from "@/features/interactive/film-lab/desktop-release-info";
+import {
+  filmLabReadDesktopDownloadUrl,
+  filmLabResolveDesktopDownloadArtifactName,
+} from "@/features/interactive/film-lab/desktop-release-info";
 
 /**
  * @file ダウンロード完了ページ。DMG ダウンロード開始後にインストール手順・寄付導線を表示する。
@@ -39,6 +42,7 @@ export default async function FilmLabDownloadCompletePage({
   setRequestLocale(locale);
 
   const downloadUrl = filmLabReadDesktopDownloadUrl();
+  const artifactName = filmLabResolveDesktopDownloadArtifactName(downloadUrl);
 
   const donationRuntime = filmLabReadDonationEnvOnServer();
   const stripeTiers = donationRuntime?.stripeTiers ?? [];
@@ -55,7 +59,9 @@ export default async function FilmLabDownloadCompletePage({
 
   return (
     <FilmLabDownloadComplete
+      locale={locale}
       downloadUrl={downloadUrl}
+      artifactName={artifactName}
       stripeTiers={stripeTiers}
       bmcUrl={bmcUrl}
       serverVerifiedSupporter={serverVerifiedSupporter}
