@@ -4,6 +4,7 @@ import { portfolioData } from "@/shared/data/portfolio";
 import { routing } from "@/i18n/routing";
 import { AnalyticsPageTracker } from "@/shared/analytics/AnalyticsPageTracker";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { setRequestLocale, getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -146,6 +147,7 @@ export default async function LocaleLayout({
           </PageTransition>
         </NextIntlClientProvider>
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
