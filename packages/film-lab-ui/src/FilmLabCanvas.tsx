@@ -65,6 +65,82 @@ function readDepthProbeFlag(): boolean {
 }
 
 /**
+ * Set Y "Floating Tower" probes (2026-04-21). Same URL pattern as
+ * `?depthProbe=` so dev / video A/B can toggle each phase by reload:
+ *   ?compositeMode=0|1            Phase A energy-conserving composite (default 1)
+ *   ?halationSpectralMix=0|1      Phase B spectral 2-threshold halation (default 0)
+ *   ?bloomHueLock=0|1             Phase C Oklab hue-preserving bloom (default 0)
+ *   ?mtfStrength=0|1              Phase D inline MTF source softening (default 0)
+ *   ?setY=1                       shortcut → all four ON
+ *   ?setY=0                       shortcut → all four OFF (== pre-Set Y baseline)
+ * URL absent → preset value used (no override). Float values pass through
+ * (e.g. `?mtfStrength=0.5`) so partial-strength comparisons work.
+ */
+function readNumberParam(key: string): number | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const v = new URL(window.location.href).searchParams.get(key);
+    if (v === null) return null;
+    const n = Number.parseFloat(v);
+    return Number.isFinite(n) ? n : null;
+  } catch {
+    return null;
+  }
+}
+
+function readSetYOverrides(): Record<string, number> {
+  const out: Record<string, number> = {};
+  const setY = readNumberParam("setY");
+  if (setY !== null) {
+    const v = setY > 0 ? 1 : 0;
+    out.compositeMode = v;
+    out.halationSpectralMix = v;
+    out.bloomHueLock = v;
+    out.mtfStrength = v;
+  }
+  // Per-toggle overrides win over the setY shortcut.
+  for (const key of [
+    "compositeMode",
+    "halationSpectralMix",
+    "bloomHueLock",
+    "mtfStrength",
+  ]) {
+    const v = readNumberParam(key);
+    if (v !== null) out[key] = v;
+  }
+  return out;
+}
+
+/**
+ * Phase E (flat-light baseline) probes (2026-04-21). Same URL pattern as Set Y:
+ *   ?globalVeiling=0.15       E1 threshold-free diffusion additive lift (0..0.3)
+ *   ?subjectSoftening=0.25    E2 near-depth 5-tap gaussian subject soften (0..0.4)
+ *   ?setE=1                   shortcut → E1 0.15 + E2 0.25 (preset-ish defaults)
+ *   ?setE=0                   shortcut → both 0 (baseline)
+ * URL absent → preset value used (no override). Recommended pairing with
+ * `?depthProbe=1` so E2's near-mask has a real depth map to sample.
+ */
+function readPhaseEOverrides(): Record<string, number> {
+  const out: Record<string, number> = {};
+  const setE = readNumberParam("setE");
+  if (setE !== null) {
+    if (setE > 0) {
+      out.globalVeiling = 0.15;
+      out.subjectSoftening = 0.25;
+    } else {
+      out.globalVeiling = 0;
+      out.subjectSoftening = 0;
+    }
+  }
+  // Per-toggle overrides win over the setE shortcut.
+  for (const key of ["globalVeiling", "subjectSoftening"]) {
+    const v = readNumberParam(key);
+    if (v !== null) out[key] = v;
+  }
+  return out;
+}
+
+/**
  * @description プレビューに載っているメディアの種類を親へ伝えるための最小ペイロード。
  * デスクトップでは親の `getFileAbsolutePath`（例: Electron `webUtils.getPathForFile`）か `File.path` で `absolutePath` を渡します。
  * スマートルック差し替えの合成 PNG は `sourceRole: "smartLookDerived"` とし、書き出しの正本にしないでください。
@@ -319,9 +395,33 @@ function isRendererContextLost(
  */
 function buildViewportParams(source: Params): Record<string, number | string> {
   const depthGain = readDepthProbeGain();
+  const setYOverrides = readSetYOverrides();
+  const phaseEOverrides = readPhaseEOverrides();
+  // Glow character (Set Y split). Slider / preset value drives the 4 Set Y
+  // toggles as a bundled character switch:
+  //   glowCharacter = 0 → Diffuse  (legacy screen-blend, A/B/C/D all 0)
+  //   glowCharacter = 1 → Physical (Set Y, A/B/C/D all 1)
+  // URL `?setY=...` or per-toggle overrides win via the spread at the end.
+  const character = Math.max(0, Math.min(1, source.glowCharacter ?? 0));
+  const characterToggles =
+    character >= 0.5
+      ? {
+          compositeMode: 1,
+          halationSpectralMix: 1,
+          bloomHueLock: 1,
+          mtfStrength: 1,
+        }
+      : {
+          compositeMode: 0,
+          halationSpectralMix: 0,
+          bloomHueLock: 0,
+          mtfStrength: 0,
+        };
   return {
     ...source,
     halationColor: halationHueToHex(source.halationHue),
+    // Glow character-driven Set Y toggles (bundle A/B/C/D as one switch).
+    ...characterToggles,
     // Dev-only AI depth probe: `?depthProbe=1` activates depth-weighted
     // source masking on both pillars (Mist + Glow). `depthGlowGain` covers
     // bloom + halation pyramids; `depthMistGain` covers the diffusion
@@ -330,6 +430,13 @@ function buildViewportParams(source: Params): Record<string, number | string> {
     ...(depthGain > 0
       ? { depthMistGain: depthGain, depthGlowGain: depthGain }
       : {}),
+    // Set Y "Floating Tower" probes — Phase A/B/C/D toggles via URL.
+    // Spread last so URL wins over preset / character defaults for these
+    // four uniforms specifically (used for dev A/B verification).
+    ...setYOverrides,
+    // Phase E flat-light baseline probes — globalVeiling + subjectSoftening.
+    // Same pattern: URL wins over preset so reload-only A/B works.
+    ...phaseEOverrides,
   };
 }
 

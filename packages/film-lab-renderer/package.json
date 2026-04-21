@@ -23,7 +23,9 @@
     "three": "^0.181.2"
   },
   "devDependencies": {
+    "@types/pngjs": "^6.0.5",
     "@types/three": "^0.181.0",
+    "pngjs": "^7.0.0",
     "tsup": "^8.3.5",
     "typescript": "^5.7.2"
   }

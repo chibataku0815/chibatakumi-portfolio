@@ -1,21 +1,42 @@
 /**
  * compositeUniforms — TS packer for the composite.wgsl `Composite` struct.
  *
- * Phase 2 T2-3 + v1.0 parity (2026-04-19). Mirrors the 4-vec4 layout defined
- * in `shaders/composite.frag.wgsl.ts`. Numeric params fall back to neutral
- * defaults so a partial params record still yields a valid upload.
+ * Phase 2 T2-3 + v1.0 parity (2026-04-19). Optical Finish "Set Y" extension
+ * (2026-04-21) added a 5th vec4 `effects2` for Phase A-D mode toggles.
+ * "Phase E" (2026-04-21) added a 6th vec4 `effects3` for Global Veiling +
+ * Subject Softening (flat-light baseline uplift, default=0).
  *
- * Layout (4 vec4 × 4 floats = 16 floats = 64 bytes):
+ * Layout (6 vec4 × 4 floats = 24 floats = 96 bytes):
  *   0: (resolutionX, resolutionY, imageResX, imageResY)
  *   1: (bloomStrength, halationIntensity, vignette, grainIntensity)
  *   2: (grainSize, grainRadialMix, fitMode, time)
  *   3: (lensSoftness, aberrationEdgeSoften, diffusion, depthMistGain)
+ *   4: (compositeMode, halationSpectralMix, bloomHueLock, mtfStrength)
+ *   5: (globalVeiling, subjectSoftening, reserved, reserved)
  *
  * `depthMistGain` is a dev-only AI depth probe knob (0 = uniform mist,
  * 1 = full depth modulation). See `composite.frag.wgsl.ts` binding(7) uDepth.
+ *
+ * `effects2` toggles — individually addressable but bundled by `glowCharacter`
+ * at the UI layer (Set Y split to Diffuse vs Physical characters). Defaults
+ * fall through to 0 (Diffuse / legacy) when the caller omits them:
+ *   compositeMode      0 = legacy screen-blend (Diffuse), 1 = energy-conserving (Physical)
+ *   halationSpectralMix 0 = single-tier (Diffuse), 1 = core+edge spectral (Physical)
+ *   bloomHueLock       0 = RGB blur (Diffuse), 1 = Oklch hue-preserving (Physical)
+ *   mtfStrength        0 = no source softening (Diffuse), 1 = halation-mask MTF (Physical)
+ *
+ * `effects3` — Phase E flat-light baseline. default=0 keeps Set Y output
+ * pixel-identical; opt-in at preset layer for flat-light scenes.
+ *   globalVeiling     0..0.3  — diffusion-pyramid (threshold-free low-freq)
+ *                                additively lifted into base, independent of
+ *                                `diffusion` strength. Forces diffusion
+ *                                pyramid build even when `diffusion == 0`.
+ *   subjectSoftening  0..0.4  — 5-tap gaussian blur of uSource, mixed into
+ *                                base weighted by near-depth mask. Highlight-
+ *                                independent skin/subject softening.
  */
 
-export const COMPOSITE_UNIFORM_FLOATS = 16;
+export const COMPOSITE_UNIFORM_FLOATS = 24;
 export const COMPOSITE_UNIFORM_BYTES = COMPOSITE_UNIFORM_FLOATS * 4;
 const ABERRATION_EDGE_SOFTEN_SCALE = 32;
 
@@ -61,6 +82,18 @@ export function packCompositeUniforms(
   // depthMistGain: 0..1 = modulated mist, >=1.5 = debug depth view.
   // Allow up to 2.0 so the debug branch in the shader can be selected.
   out[15] = Math.min(2, Math.max(0, n("depthMistGain", 0)));
+  // effects2 — Set Y phase mode toggles. Default 0 (Diffuse / legacy).
+  // `glowCharacter=1` at the UI layer flips all four to 1 (Physical).
+  out[16] = clamp01(n("compositeMode", 0));
+  out[17] = clamp01(n("halationSpectralMix", 0));
+  out[18] = clamp01(n("bloomHueLock", 0));
+  out[19] = clamp01(n("mtfStrength", 0));
+  // effects3 — Phase E flat-light baseline. Default 0 = pixel-identical to Set Y.
+  // Upper bounds widened for dev A/B visibility (clamp at shader side too).
+  out[20] = Math.min(1, Math.max(0, n("globalVeiling", 0)));
+  out[21] = Math.min(1, Math.max(0, n("subjectSoftening", 0)));
+  out[22] = 0;
+  out[23] = 0;
   return out;
 }
 

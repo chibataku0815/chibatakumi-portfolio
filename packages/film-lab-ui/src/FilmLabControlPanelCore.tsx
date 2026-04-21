@@ -1005,6 +1005,23 @@ export const FilmLabControlPanelCore = forwardRef<
                       onToggle={toggleBloom}
                     />
                     <div className={`flex flex-col gap-2.5 ${!bloomEnabled ? "pointer-events-none opacity-30" : ""}`}>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[11px] leading-tight text-[var(--text-muted)]">
+                          Character
+                        </span>
+                        <SegmentedControl<"diffuse" | "physical">
+                          options={[
+                            { value: "diffuse", label: "Diffuse" },
+                            { value: "physical", label: "Physical" },
+                          ]}
+                          value={params.glowCharacter >= 0.5 ? "physical" : "diffuse"}
+                          onChange={(v) => {
+                            updateParam("glowCharacter", v === "physical" ? 1 : 0);
+                            commit();
+                          }}
+                          ariaLabel="Glow character"
+                        />
+                      </div>
                       <PanelControlSlider
                         sliderLabelResetHint={sliderLabelResetHint}
                         label={tFilmLab("controls.strength")}

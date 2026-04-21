@@ -16,7 +16,7 @@
     "dev": "bun run build:core && bun run build:renderer && bun run --cwd apps/web dev",
     "dev:web": "bun run build:core && bun run build:renderer && bun run --cwd apps/web dev",
     "dev:desktop": "bun run --cwd apps/desktop-film-lab-batch dev",
-    "dev:ios": "bun run --cwd .worktrees/filmtone-ios-phase0/apps/capacitor-film-lab-ios dev",
+    "dev:ios": "bun run --cwd .worktrees/filmtone-ios/apps/capacitor-film-lab-ios dev",
     "dev:context": "bun run --cwd apps/web dev:context",
     "build:web": "bun run build:core && bun run build:renderer && bun run --cwd apps/web build",
     "start:web": "bun run --cwd apps/web start",

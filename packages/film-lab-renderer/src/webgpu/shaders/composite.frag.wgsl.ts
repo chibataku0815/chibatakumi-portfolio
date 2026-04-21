@@ -52,7 +52,11 @@
  *                                                uComposite.lens.w =
  *                                                depthMistGain).
  */
+import { oklabWgsl } from "./oklab.wgsl";
+
 export const compositeFragmentWgsl = /* wgsl */ `
+${oklabWgsl}
+
 struct Composite {
   // (resolution.xy, imageResolution.xy)
   resolution: vec4f,
@@ -60,8 +64,14 @@ struct Composite {
   effects: vec4f,
   // (grainSize, grainRadialMix, fitMode, time)
   grainFit: vec4f,
-  // (lensSoftness, aberrationEdgeSoften, diffusion, _)
+  // (lensSoftness, aberrationEdgeSoften, diffusion, depthMistGain)
   lens: vec4f,
+  // Set Y phase toggles (Phase A=energy, B=spectral halation, C=Oklab bloom, D=MTF).
+  // (compositeMode, halationSpectralMix, bloomHueLock, mtfStrength)
+  effects2: vec4f,
+  // Phase E — flat-light baseline (default 0 = pixel-identical to Set Y).
+  // (globalVeiling, subjectSoftening, reserved, reserved)
+  effects3: vec4f,
 };
 
 @group(1) @binding(0) var<uniform> uComposite: Composite;
@@ -72,6 +82,8 @@ struct Composite {
 @group(1) @binding(5) var uSampler: sampler;
 @group(1) @binding(6) var uGrainSampler: sampler;
 @group(1) @binding(7) var uDepth: texture_2d<f32>;
+// Set Y Phase B — spectral edge halation (T2, warm-orange tint).
+@group(1) @binding(8) var uHalationEdge: texture_2d<f32>;
 
 const LUMA_R709 = vec3f(0.2126, 0.7152, 0.0722);
 
@@ -205,20 +217,108 @@ fn fs_main(@location(0) uv: vec2f) -> @location(0) vec4f {
   let lensMix = lensWeight * 0.72;
   let softenAmt = clamp(aberrationEdgeSoften * edgeMask + lensMix * edgeMask, 0.0, 1.0);
   var color = vec4f(mix(sharpRgb, blurRgb, softenAmt), 1.0);
+
+  // Phase E2 — Subject Softening (highlight-independent near-depth diffusion).
+  // Gaussian blur of source mixed into base weighted by near-depth mask.
+  // Applied BEFORE baseRgb capture so downstream Phase A headroom / bloom
+  // react to the softened character rather than pre-soften sharpness.
+  // Default (subjectSoftening=0) short-circuits to identity. Radius scales
+  // with strength so max value is unambiguously visible for A/B verification.
+  let subjectSoftening = clamp(uComposite.effects3.y, 0.0, 1.0);
+  if (subjectSoftening > 0.0) {
+    let e2DepthUv = fitUv(uv, resolution, imageResolution, fitMode);
+    let e2Depth = textureSampleLevel(uDepth, uSampler, e2DepthUv, 0.0).r;
+    // AI depth convention (matches diffusion-depth-prefilter): 0 = near,
+    // 1 = far. Near-weight falls off in the mid-depth band so subject
+    // softening doesn't leak into the far plate.
+    let e2Near = smoothstep(0.65, 0.15, e2Depth);
+    // Blur radius grows with strength: 1.6px (subtle) → 8px (dramatic).
+    let e2Radius = mix(1.6, 8.0, subjectSoftening);
+    let e2Px = vec2f(1.0 / max(resolution.x, 1.0), 1.0 / max(resolution.y, 1.0)) * e2Radius;
+    let e2Diag = e2Px * 0.70710678;
+    // 9-tap cross + diagonal for a rounder kernel at larger radii.
+    let e2Blur = (
+        color.rgb * 0.2
+      + textureSampleLevel(uSource, uSampler, uv + vec2f(e2Px.x, 0.0), 0.0).rgb * 0.1
+      + textureSampleLevel(uSource, uSampler, uv - vec2f(e2Px.x, 0.0), 0.0).rgb * 0.1
+      + textureSampleLevel(uSource, uSampler, uv + vec2f(0.0, e2Px.y), 0.0).rgb * 0.1
+      + textureSampleLevel(uSource, uSampler, uv - vec2f(0.0, e2Px.y), 0.0).rgb * 0.1
+      + textureSampleLevel(uSource, uSampler, uv + vec2f( e2Diag.x,  e2Diag.y), 0.0).rgb * 0.1
+      + textureSampleLevel(uSource, uSampler, uv + vec2f( e2Diag.x, -e2Diag.y), 0.0).rgb * 0.1
+      + textureSampleLevel(uSource, uSampler, uv + vec2f(-e2Diag.x,  e2Diag.y), 0.0).rgb * 0.1
+      + textureSampleLevel(uSource, uSampler, uv + vec2f(-e2Diag.x, -e2Diag.y), 0.0).rgb * 0.1
+    );
+    color = vec4f(mix(color.rgb, e2Blur, e2Near * subjectSoftening), color.a);
+  }
+
   let baseRgb = color.rgb;
 
-  // Bloom + halation screen-blend with soft shoulder (WebGL parity).
-  // Sample with flipped uv.y: bloom/halation accumulate an odd number of
-  // fullscreen render passes relative to uSource, so their texture rows
-  // arrive inverted along y. This single y-flip at sample time re-aligns
-  // them with the base without touching the pyramid or the vertex shader.
+  // Bloom + halation composite. Sample with flipped uv.y: bloom/halation
+  // accumulate an odd number of fullscreen render passes relative to uSource,
+  // so their texture rows arrive inverted along y. This single y-flip at
+  // sample time re-aligns them with the base without touching the pyramid or
+  // the vertex shader.
+  //
+  // Two paths under uComposite.effects2.x (compositeMode):
+  //   0 = legacy screen-blend (additive doubling, kept for in-place A/B)
+  //   1 = energy-conserving (Set Y Phase A, default):
+  //         scatterW = glowShoulder(scattered)  // [0,1) saturating weight
+  //         output   = source*(1-scatterW) + scattered
+  //       Source loses energy proportional to what scattered into the bloom/
+  //       halation pyramids (depth-weighted source masking already attenuated
+  //       the prefilter input upstream, so this composes naturally with
+  //       depthGlowGain). glowHeadroom is dropped on the energy path because
+  //       directRGB→0 as scatterW→1 prevents over-bloom intrinsically.
   let glowUv = vec2f(uv.x, 1.0 - uv.y);
-  let bloom = textureSampleLevel(uBloom, uSampler, glowUv, 0.0).rgb * bloomStrength;
-  let halation = textureSampleLevel(uHalation, uSampler, glowUv, 0.0).rgb * halationIntensity;
-  let glow = glowShoulder(bloom + halation) * glowHeadroom(baseRgb, 0.82);
-  color = vec4f(vec3f(1.0) - (vec3f(1.0) - color.rgb) * (vec3f(1.0) - glow), color.a);
+  // Set Y Phase C: when bloomHueLock is engaged, the bloom pyramid carries
+  // Oklab triples (encoded by bloom-prefilter); decode back to linear RGB
+  // here so blending is in linear light. Legacy path treats samples as RGB.
+  let bloomRaw = textureSampleLevel(uBloom, uSampler, glowUv, 0.0).rgb;
+  let bloomHueLock = clamp(uComposite.effects2.z, 0.0, 1.0);
+  let bloomDecoded = mix(bloomRaw, oklabToLinearRgb(bloomRaw), bloomHueLock);
+  let bloom = bloomDecoded * bloomStrength;
+  let haloCore = textureSampleLevel(uHalation, uSampler, glowUv, 0.0).rgb;
+  // Set Y Phase B — spectral edge layer (warm-orange T2 highlights). Mixed
+  // additively with the core layer; uComposite.effects2.y (halationSpectralMix)
+  // 0..1 fades from "core only" (legacy) to "core + edge" (Set Y Phase B).
+  let haloEdge = textureSampleLevel(uHalationEdge, uSampler, glowUv, 0.0).rgb;
+  let spectralMix = clamp(uComposite.effects2.y, 0.0, 1.0);
+  let halationLinear = haloCore + haloEdge * spectralMix;
+  let halation = halationLinear * halationIntensity;
 
-  if (diffusion > 0.0) {
+  // Set Y Phase D — MTF softening. Soften the source under halation regions
+  // so highlights "sit in" the image instead of floating on top. 5-tap
+  // gaussian (σ ≈ 1.5px) gated by halation magnitude × uComposite.effects2.w
+  // (mtfStrength). Inline to avoid an extra full-res pass and bind group
+  // entries; cost is 4 additional uSource taps when mtfStrength > 0.
+  let mtfStrength = clamp(uComposite.effects2.w, 0.0, 1.0);
+  if (mtfStrength > 0.0) {
+    let mtfMask = clamp(length(halationLinear) * 1.5, 0.0, 1.0);
+    let mtfPx = vec2f(1.0 / max(resolution.x, 1.0), 1.0 / max(resolution.y, 1.0)) * 1.5;
+    let mtfBlur = (
+        color.rgb * 0.36
+      + textureSampleLevel(uSource, uSampler, uv + vec2f(mtfPx.x, 0.0), 0.0).rgb * 0.16
+      + textureSampleLevel(uSource, uSampler, uv - vec2f(mtfPx.x, 0.0), 0.0).rgb * 0.16
+      + textureSampleLevel(uSource, uSampler, uv + vec2f(0.0, mtfPx.y), 0.0).rgb * 0.16
+      + textureSampleLevel(uSource, uSampler, uv - vec2f(0.0, mtfPx.y), 0.0).rgb * 0.16
+    );
+    color = vec4f(mix(color.rgb, mtfBlur, mtfMask * mtfStrength), color.a);
+  }
+
+  let scattered = bloom + halation;
+  let scatterW = glowShoulder(scattered);
+  let energyMode = clamp(uComposite.effects2.x, 0.0, 1.0);
+  let directRGB = color.rgb * (vec3f(1.0) - scatterW);
+  let energyRGB = directRGB + scattered;
+  let screenRGB = vec3f(1.0) - (vec3f(1.0) - color.rgb) * (vec3f(1.0) - scatterW * glowHeadroom(baseRgb, 0.82));
+  color = vec4f(mix(screenRGB, energyRGB, energyMode), color.a);
+
+  // Diffusion + Phase E1 Global Veiling share the threshold-free diffusion
+  // pyramid. The backend is responsible for building the pyramid whenever
+  // either knob is engaged; when both are 0 the block is skipped entirely
+  // (pixel-identical to Set Y).
+  let globalVeiling = clamp(uComposite.effects3.x, 0.0, 0.3);
+  if (diffusion > 0.0 || globalVeiling > 0.0) {
     // Dev-only AI depth probe: depth shaping is now applied UPSTREAM, in
     // diffusion-depth-prefilter.frag, so the diffusion pyramid input is
     // already depth-weighted at the source before any blur. Composite
@@ -228,11 +328,26 @@ fn fs_main(@location(0) uv: vec2f) -> @location(0) vec4f {
     // silhouettes. WebGL parity is preserved: when depthMistGain = 0 the
     // prefilter is skipped and the pyramid receives raw colorGraded.
     let diffused = textureSampleLevel(uDiffusion, uSampler, glowUv, 0.0).rgb;
-    let diffOpacity = glowShoulder(diffused * diffusion * 0.29) * glowHeadroom(baseRgb, 0.88);
-    color = vec4f(
-      vec3f(1.0) - (vec3f(1.0) - color.rgb) * (vec3f(1.0) - diffOpacity),
-      color.a,
-    );
+    if (diffusion > 0.0) {
+      let diffOpacity = glowShoulder(diffused * diffusion * 0.29) * glowHeadroom(baseRgb, 0.88);
+      color = vec4f(
+        vec3f(1.0) - (vec3f(1.0) - color.rgb) * (vec3f(1.0) - diffOpacity),
+        color.a,
+      );
+    }
+    // Phase E1 — Global Veiling. Threshold-free full-image low-freq,
+    // additively lifted into base at gentle weight as a CHROMA-NEUTRAL
+    // baseline. Feeding the raw diffused RGB would tint the whole frame
+    // toward whatever dominates the pyramid (a warm window → orange shift
+    // across the entire image), defeating the "film stock fog" intent. We
+    // reduce to a single luminance scalar, saturate to [0,1), then lift
+    // color uniformly. Result: shadow lift + gentle contrast drop + neutral
+    // film-base haze, independent of what's bright in the frame.
+    if (globalVeiling > 0.0) {
+      let veilLum = dot(max(diffused, vec3f(0.0)), LUMA_R709);
+      let veilAmount = 1.0 - exp(-veilLum);
+      color = vec4f(color.rgb + vec3f(veilAmount) * globalVeiling, color.a);
+    }
   }
 
   // Vignette in image space (follows image frame).

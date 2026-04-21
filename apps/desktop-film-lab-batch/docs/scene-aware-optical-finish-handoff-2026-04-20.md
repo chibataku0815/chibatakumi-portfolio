@@ -38,6 +38,28 @@ This is important for future scope:
 - v1 remains non-AI.
 - v2+ can consider optional AI as a premium layer for better shot selection, segmentation, or deeper semantic understanding.
 
+### Important clarification carried forward
+
+- The remaining "visual check" in this handoff is only about verifying whether the `Apply` path is functioning in the live app.
+- It is **not** a recommendation that the end user should pick the right scene by eye after the analyzer runs.
+- If the product still depends on human scene selection or human representative-frame choice, then the analysis layer is not earning its complexity.
+- So the bar for v1 is: it should produce a useful clip-level starting point from the trim window with low user thought, not just surface something that still requires manual scene judgment.
+
+### Latest user evaluation of product value
+
+The user later made the product judgment more explicit:
+
+- With the current `1 clip = 1 global grade state` architecture, the user still has to decide by eye which appearance should be treated as the reference for the clip.
+- That means the current v1 behaves more like an **initial value generator** than a **decision-making substitute**.
+- In that shape, it may still be a convenience feature, but it is unlikely to be a strong product differentiator on its own.
+
+The user’s standard for meaningful analysis is that at least one of these should become true:
+
+- the system can choose a representative frame or representative shot automatically, without the user needing to pick one
+- the system can detect mixed-scene clips and correctly say that auto recommendation is not suitable
+- the system can recommend instantly for the paused frame or explicit user-selected range, instead of pretending to understand the whole clip
+- the product can later evolve into shot clustering or deeper semantic scene understanding
+
 ## 3. Canonical Implementation Plan Given By User
 
 The user provided the following implementation direction. This was treated as the source of truth for v1:
@@ -543,20 +565,23 @@ What it proved:
 
 Re-verify the `Apply` interaction in the live Electron app on the same proof clip.
 
+This is a UI/debug verification step only. It is not a product claim that scene choice should be validated by eye.
+
 Specifically check:
 
 1. Does pressing `適用` change the button label to `適用済み`?
 2. Does `状態を確認する > イベント履歴` append `apply clicked: ...`?
 3. Does DevTools Console show `[optical-analysis] apply clicked`?
-4. Does the image visibly change?
+4. Do the preview params or image change in any observable way?
+5. If the visual change is subtle, do the applied optical params actually differ before/after apply?
 
 ### Decision tree for next debugging step
 
-#### Case A: button changes to `適用済み`, log appears, image changes
+#### Case A: button changes to `適用済み`, log appears, params change, image changes
 
 - Done. The apply issue was UX feedback only.
 
-#### Case B: button changes to `適用済み`, log appears, but image does not visibly change
+#### Case B: button changes to `適用済み`, log appears, params change, but image does not visibly change
 
 Then the click path is live. Next inspect:
 
@@ -568,6 +593,7 @@ Practical next action:
 
 - log the actual patch values at apply time
 - compare them against current viewport params before and after apply
+- do not treat "hard to see by eye" as proof that apply failed if the param delta is real
 
 #### Case C: button does not change, no log appears
 
@@ -598,15 +624,28 @@ Next inspect:
 
 The user’s latest product thinking should be carried forward explicitly:
 
-- v1 non-AI heuristic recommendation is acceptable
-- but if the product still forces the human to choose the “right scene” by eye, AI may be justified
-- if AI is added for deeper semantic selection or scene understanding, that likely belongs in a paid tier
+- The real product threshold is not "can we analyze?" but "can we meaningfully reduce or replace the user’s decision burden?"
+- If the feature cannot help choose what should matter in the clip, then it is technically valid but product-wise weak.
+- If v1 cannot recommend a usable starting point from whole-clip / trim-window analysis alone, the analysis feature should be reconsidered rather than defended.
+
+That leads to three coherent product paths:
+
+- `1.` Keep this as a light free assist feature with limited ambition
+- `2.` Reframe around paused-frame or selected-range recommendation, with an honest UX that assumes manual scene choice
+- `3.` Add AI to reduce scene-selection burden itself, for example representative-shot extraction, scene segmentation, semantic understanding, and reasoned multi-candidate suggestions
+
+The user’s current preference is:
+
+- short term: `2`
+- mid / long term: `3`
+- avoid over-investing in `1`, because its value ceiling is low under the current architecture
 
 This creates a sensible product split:
 
 ### Free / base
 
-- deterministic heuristic clip-level recommendation
+- if kept simple, prefer "recommend for the current paused frame" or "recommend from the selected range"
+- honest manual choice UX
 - safe defaults
 - manual apply
 
@@ -628,5 +667,6 @@ At handoff time:
 - The feature is implemented enough to render real recommendations in Desktop Pro.
 - The analyzer no longer appears stuck on the proof clip that previously hung.
 - Debug instrumentation is strong enough to continue from a fresh chat.
-- The remaining live uncertainty is the final polish around apply interaction feedback and visible effect confirmation.
-
+- The remaining live uncertainty is the final polish around apply interaction feedback and preview/state confirmation.
+- The remaining manual check is a debugging step for `Apply`, not a statement that the user should visually perform scene selection.
+- Product-wise, the current v1 should be evaluated as a technically working starting-point generator, not yet as a strong decision-substituting recommendation system.

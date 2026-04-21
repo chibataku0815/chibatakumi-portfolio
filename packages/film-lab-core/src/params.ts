@@ -82,6 +82,13 @@ export const PARAM_KEYS = [
   "crossFilterHardMode",
   /** 光芒の密集回避。現行プロダクトでは 1 が下限で、1–2 の範囲で扱う。古い下位値は 1 へ正規化する。 */
   "crossFilterMinSpacing",
+  /**
+   * Glow pillar の character 選択。
+   *   0 = Diffuse (legacy screen-blend、光が画像の上に乗る atmospheric な見せ方)
+   *   1 = Physical (Set Y: energy-conserving + spectral halation + Oklab hue-preserving + MTF softening。光が画像と一体化)
+   * boolean 用途の number。preset で明示指定しない限り 0 (Diffuse)。
+   */
+  "glowCharacter",
 ] as const;
 
 export type ParamKey = (typeof PARAM_KEYS)[number];
@@ -169,6 +176,12 @@ export interface Params {
   crossFilterHardMode: number;
   /** 光芒の密集回避。現行プロダクトでは 1 が下限で、1–2 の範囲で扱う。古い下位値は 1 へ正規化する。 */
   crossFilterMinSpacing: number;
+  /**
+   * Glow pillar の character 選択 (Set Y split)。
+   *   0 = Diffuse (legacy screen-blend、atmospheric な乗せ)
+   *   1 = Physical (Set Y: energy-conserving + spectral + Oklab + MTF)
+   */
+  glowCharacter: number;
 }
 
 export function cloneParams(params: Params): Params {

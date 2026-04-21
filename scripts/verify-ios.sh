@@ -3,7 +3,7 @@ set -eu
 
 cd "$(dirname "$0")/.."
 
-APP_DIR=".worktrees/filmtone-ios-phase0/apps/capacitor-film-lab-ios"
+APP_DIR=".worktrees/filmtone-ios/apps/capacitor-film-lab-ios"
 
 if [ -d "/opt/homebrew/opt/ruby/bin" ]; then
   export PATH="/opt/homebrew/opt/ruby/bin:$PATH"

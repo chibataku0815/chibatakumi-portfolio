@@ -203,6 +203,14 @@ const DEFAULT_HALATION_THRESHOLD = 0.6;
 const DEFAULT_HALATION_KNEE = 0.5;
 const DEFAULT_HALATION_RADIUS = 0.5;
 const DEFAULT_HALATION_COLOR: [number, number, number] = [0.91, 0.063, 0.125];
+// Set Y Phase B — spectral 2-threshold halation. Edge layer fires only on
+// the brightest highlights (T2 > T1) with a warm-orange tint and tighter
+// radius, producing the orange-core → red-edge spectral gradient seen in
+// Hollywood / Dehancer / FilmBox practical-light shots.
+const DEFAULT_HALATION_EDGE_THRESHOLD = 0.85;
+const DEFAULT_HALATION_EDGE_KNEE = 0.5;
+const DEFAULT_HALATION_EDGE_RADIUS = 0.38;
+const DEFAULT_HALATION_EDGE_COLOR: [number, number, number] = [1.0, 0.55, 0.15];
 
 export interface WebGPUBackendCreateOptions {
   validation?: boolean;
@@ -343,6 +351,8 @@ export class WebGPUBackend implements RenderBackend {
   private readonly compositeBuffer: GPUBuffer;
   private readonly bloomParamsBuffer: GPUBuffer;
   private readonly halationParamsBuffer: GPUBuffer;
+  /** Set Y Phase B — spectral edge halation params (T2, edge tint, knee). */
+  private readonly halationEdgeParamsBuffer: GPUBuffer;
   private readonly diffusionDepthPrefilterBuffer: GPUBuffer;
   private readonly diffusionDepthPrefilterScratch: Float32Array;
   private readonly bloomDepthPrefilterBuffer: GPUBuffer;
@@ -351,6 +361,8 @@ export class WebGPUBackend implements RenderBackend {
   private readonly halationDepthPrefilterScratch: Float32Array;
   private readonly bloomPyramid: PyramidResources;
   private readonly halationPyramid: PyramidResources;
+  /** Set Y Phase B — spectral edge halation pyramid (parallel to halation). */
+  private readonly halationEdgePyramid: PyramidResources;
   private readonly diffusionPyramid: PyramidResources;
   private readonly centralBloomPyramid: PyramidResources;
   private readonly motionblurFeedbackBuffer: GPUBuffer;
@@ -366,6 +378,8 @@ export class WebGPUBackend implements RenderBackend {
   private readonly compositeScratch = new Float32Array(COMPOSITE_UNIFORM_FLOATS);
   private readonly bloomParamsScratch = new Float32Array(BLOOM_PARAMS_BYTES / 4);
   private readonly halationParamsScratch = new Float32Array(HALATION_PARAMS_BYTES / 4);
+  /** Set Y Phase B — spectral edge halation scratch (32-byte layout). */
+  private readonly halationEdgeParamsScratch = new Float32Array(HALATION_PARAMS_BYTES / 4);
   private readonly motionblurFeedbackScratch = new Float32Array(4);
   private readonly motionblurBlendScratch = new Float32Array(MOTIONBLUR_BLEND_UNIFORM_FLOATS);
   /** Compare present uniform: 2 vec4 = 8 floats = 32 B. */
@@ -424,8 +438,10 @@ export class WebGPUBackend implements RenderBackend {
     compositeBuffer: GPUBuffer,
     bloomParamsBuffer: GPUBuffer,
     halationParamsBuffer: GPUBuffer,
+    halationEdgeParamsBuffer: GPUBuffer,
     bloomPyramid: PyramidResources,
     halationPyramid: PyramidResources,
+    halationEdgePyramid: PyramidResources,
     diffusionPyramid: PyramidResources,
     centralBloomPyramid: PyramidResources,
     motionblurFeedbackBuffer: GPUBuffer,
@@ -456,8 +472,10 @@ export class WebGPUBackend implements RenderBackend {
     this.compositeBuffer = compositeBuffer;
     this.bloomParamsBuffer = bloomParamsBuffer;
     this.halationParamsBuffer = halationParamsBuffer;
+    this.halationEdgeParamsBuffer = halationEdgeParamsBuffer;
     this.bloomPyramid = bloomPyramid;
     this.halationPyramid = halationPyramid;
+    this.halationEdgePyramid = halationEdgePyramid;
     this.diffusionPyramid = diffusionPyramid;
     this.centralBloomPyramid = centralBloomPyramid;
     this.motionblurFeedbackBuffer = motionblurFeedbackBuffer;
@@ -667,6 +685,8 @@ export class WebGPUBackend implements RenderBackend {
         { binding: 5, visibility: GPUShaderStage.FRAGMENT, sampler: { type: "filtering" } },
         { binding: 6, visibility: GPUShaderStage.FRAGMENT, sampler: { type: "filtering" } },
         { binding: 7, visibility: GPUShaderStage.FRAGMENT, texture: { sampleType: "float" } },
+        // Set Y Phase B — spectral edge halation pyramid (T2, warm-orange).
+        { binding: 8, visibility: GPUShaderStage.FRAGMENT, texture: { sampleType: "float" } },
       ],
     });
 
@@ -1172,6 +1192,15 @@ export class WebGPUBackend implements RenderBackend {
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
 
+    // Set Y Phase B — second halation prefilter buffer for the spectral
+    // edge layer (T2 + warm-orange tint). Same 32-byte layout as the core
+    // halation buffer; the existing prefilter shader is reused.
+    const halationEdgeParamsBuffer = device.createBuffer({
+      label: "halationEdge.prefilter.params",
+      size: HALATION_PARAMS_BYTES,
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+    });
+
     const makePyramid = (label: string, levels: number): PyramidResources => {
       const downsample: GPUBuffer[] = [];
       const upsample: GPUBuffer[] = [];
@@ -1201,6 +1230,7 @@ export class WebGPUBackend implements RenderBackend {
 
     const bloomPyramid = makePyramid("bloom", BLOOM_LEVELS);
     const halationPyramid = makePyramid("halation", HALATION_LEVELS);
+    const halationEdgePyramid = makePyramid("halationEdge", HALATION_LEVELS);
     const diffusionPyramid = makePyramid("diffusion", DIFFUSION_LEVELS);
     const centralBloomPyramid = makePyramid("centralBloom", CENTRAL_BLOOM_LEVELS);
 
@@ -1392,8 +1422,10 @@ export class WebGPUBackend implements RenderBackend {
       compositeBuffer,
       bloomParamsBuffer,
       halationParamsBuffer,
+      halationEdgeParamsBuffer,
       bloomPyramid,
       halationPyramid,
+      halationEdgePyramid,
       diffusionPyramid,
       centralBloomPyramid,
       motionblurFeedbackBuffer,
@@ -1765,12 +1797,15 @@ export class WebGPUBackend implements RenderBackend {
       this.compositeScratch.byteLength,
     );
 
-    // Bloom prefilter params — (threshold, knee, _, _).
+    // Bloom prefilter params — (threshold, knee, hueLock, _).
+    // Set Y Phase C: `bloomHueLock` selects Oklab encoding inside the
+    // prefilter; composite decodes Oklab when its mirror flag is set.
     const bloomThreshold = this.paramNumber("bloomThreshold", DEFAULT_BLOOM_THRESHOLD);
     const bloomKnee = this.paramNumber("bloomSoftKnee", DEFAULT_BLOOM_KNEE);
+    const bloomHueLock = this.paramNumber("bloomHueLock", 0);
     this.bloomParamsScratch[0] = bloomThreshold;
     this.bloomParamsScratch[1] = bloomKnee;
-    this.bloomParamsScratch[2] = 0;
+    this.bloomParamsScratch[2] = bloomHueLock;
     this.bloomParamsScratch[3] = 0;
     device.queue.writeBuffer(
       this.bloomParamsBuffer,
@@ -1803,6 +1838,40 @@ export class WebGPUBackend implements RenderBackend {
       this.halationParamsScratch.buffer,
       this.halationParamsScratch.byteOffset,
       this.halationParamsScratch.byteLength,
+    );
+
+    // Set Y Phase B — spectral edge halation (T2 layer). Same shader, separate
+    // params buffer + pyramid. Defaults produce orange-tinted highlights only
+    // on the brightest pixels (T2 = 0.85 vs core T1 = 0.6) so the composite
+    // sees an orange-core / red-edge gradient. Presets can override:
+    //   halationEdgeColor, halationEdgeThreshold, halationEdgeSoftKnee.
+    const halationEdgeRawColor = this.paramString("halationEdgeColor", "");
+    const halationEdgeColor =
+      halationEdgeRawColor.length > 0
+        ? hexToRgbTriple(halationEdgeRawColor)
+        : DEFAULT_HALATION_EDGE_COLOR;
+    const halationEdgeThreshold = this.paramNumber(
+      "halationEdgeThreshold",
+      DEFAULT_HALATION_EDGE_THRESHOLD,
+    );
+    const halationEdgeKnee = this.paramNumber(
+      "halationEdgeSoftKnee",
+      DEFAULT_HALATION_EDGE_KNEE,
+    );
+    this.halationEdgeParamsScratch[0] = halationEdgeColor[0];
+    this.halationEdgeParamsScratch[1] = halationEdgeColor[1];
+    this.halationEdgeParamsScratch[2] = halationEdgeColor[2];
+    this.halationEdgeParamsScratch[3] = halationEdgeThreshold;
+    this.halationEdgeParamsScratch[4] = halationEdgeKnee;
+    this.halationEdgeParamsScratch[5] = 0;
+    this.halationEdgeParamsScratch[6] = 0;
+    this.halationEdgeParamsScratch[7] = 0;
+    device.queue.writeBuffer(
+      this.halationEdgeParamsBuffer,
+      0,
+      this.halationEdgeParamsScratch.buffer,
+      this.halationEdgeParamsScratch.byteOffset,
+      this.halationEdgeParamsScratch.byteLength,
     );
   }
 
@@ -3256,6 +3325,11 @@ export class WebGPUBackend implements RenderBackend {
     });
     const bloomLevels = this.ensurePyramidLevels("rt.bloom", BLOOM_LEVELS);
     const halationLevels = this.ensurePyramidLevels("rt.halation", HALATION_LEVELS);
+    // Set Y Phase B — second halation pyramid (spectral edge layer).
+    const halationEdgeLevels = this.ensurePyramidLevels(
+      "rt.halationEdge",
+      HALATION_LEVELS,
+    );
     // Hard-mode suppresses the diffusion pyramid build (parity with
     // WebGL's `renderBasePipeline`). The composite-input uniform is
     // independently zeroed inside `uploadFrameUniforms`.
@@ -3330,7 +3404,7 @@ export class WebGPUBackend implements RenderBackend {
       bloomRadius,
     );
 
-    // Pass 3 — halation pyramid (same shape, tinted prefilter).
+    // Pass 3 — halation pyramid (core layer — wide red bleed).
     const halationRadius = this.paramNumber("halationRadius", DEFAULT_HALATION_RADIUS);
     const halationSourceView = depthGlowActive
       ? this.renderHalationDepthPrefilter(encoder, colorGradedView, depthGlowGain)
@@ -3346,8 +3420,37 @@ export class WebGPUBackend implements RenderBackend {
       halationRadius,
     );
 
+    // Pass 3b — Set Y Phase B spectral edge halation pyramid (T2 layer).
+    // Reuses the same prefilter shader and depth-weighted source view; only
+    // the params buffer differs (higher threshold, warm-orange tint, tighter
+    // radius). Composite gates this layer via uComposite.effects2.y
+    // (halationSpectralMix) so legacy presets stay neutral until opted-in.
+    const halationEdgeRadius = this.paramNumber(
+      "halationEdgeRadius",
+      DEFAULT_HALATION_EDGE_RADIUS,
+    );
+    const halationEdgeTop = this.renderPyramidChain(
+      encoder,
+      "halationEdge",
+      this.pipelines.halationPrefilter,
+      this.halationEdgeParamsBuffer,
+      halationSourceView,
+      halationEdgeLevels,
+      this.halationEdgePyramid,
+      halationEdgeRadius,
+    );
+
+    // Phase E1 — Global Veiling also consumes the diffusion pyramid (as a
+    // threshold-free full-image low-freq source). Build the pyramid whenever
+    // either knob is engaged so the composite can sample a valid veiling
+    // target. Hard-mode still suppresses `diffusionAmount` but does NOT gate
+    // globalVeiling — E1 is independent of diffusion for flat-light scenes.
+    const globalVeilingAmount = Math.min(
+      0.3,
+      Math.max(0, this.paramNumber("globalVeiling", 0)),
+    );
     let diffusionView = this.grainTexture.createView();
-    if (diffusionAmount > 0) {
+    if (diffusionAmount > 0 || globalVeilingAmount > 0) {
       const diffusionLevels = this.ensurePyramidLevels("rt.diffusion", DIFFUSION_LEVELS);
       // Dev-only AI depth probe: build the diffusion pyramid from a
       // depth-weighted source mask instead of the raw colorGraded view.
@@ -3380,6 +3483,8 @@ export class WebGPUBackend implements RenderBackend {
         { binding: 5, resource: this.sampler },
         { binding: 6, resource: this.grainSampler },
         { binding: 7, resource: this.depthTexture.createView() },
+        // Set Y Phase B — spectral edge halation pyramid.
+        { binding: 8, resource: halationEdgeTop.createView() },
       ],
     });
     {
@@ -3731,6 +3836,7 @@ export class WebGPUBackend implements RenderBackend {
     this.compositeBuffer.destroy();
     this.bloomParamsBuffer.destroy();
     this.halationParamsBuffer.destroy();
+    this.halationEdgeParamsBuffer.destroy();
     this.motionblurFeedbackBuffer.destroy();
     this.motionblurBlendBuffer.destroy();
     this.crossFilter.thresholdBuffer.destroy();
@@ -3748,6 +3854,8 @@ export class WebGPUBackend implements RenderBackend {
     for (const buf of this.bloomPyramid.upsample) buf.destroy();
     for (const buf of this.halationPyramid.downsample) buf.destroy();
     for (const buf of this.halationPyramid.upsample) buf.destroy();
+    for (const buf of this.halationEdgePyramid.downsample) buf.destroy();
+    for (const buf of this.halationEdgePyramid.upsample) buf.destroy();
     for (const buf of this.diffusionPyramid.downsample) buf.destroy();
     for (const buf of this.diffusionPyramid.upsample) buf.destroy();
     for (const buf of this.centralBloomPyramid.downsample) buf.destroy();
