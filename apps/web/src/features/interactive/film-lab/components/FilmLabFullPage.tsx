@@ -15,6 +15,10 @@ import {
   type CSSProperties,
 } from "react";
 import { flushSync } from "react-dom";
+import {
+  FILMTONE_DEFAULT_BASE_PRESET,
+  createFilmtoneDefaultParams,
+} from "film-lab-core";
 import { FilmLabWebglPanelBackdrop, VideoTransportControls } from "film-lab-ui";
 import type { FilmLabCanvasRef } from "./FilmLabCanvas";
 import type { FilmLabCoreRef } from "./ControlPanel";
@@ -308,6 +312,10 @@ export function FilmLabFullPage({
   const [demoHasUserVideo, setDemoHasUserVideo] = useState(false);
   /** Web 動画書き出し中（プレビュー動画を止める） */
   const [webExportBusy, setWebExportBusy] = useState(false);
+  const initialDemoGradeParams = useMemo(
+    () => initialSharedParams ?? createFilmtoneDefaultParams(),
+    [initialSharedParams],
+  );
   const [webExportStatus, setWebExportStatus] = useState<string | null>(null);
   /** @description SSR とのズレを避けつつ、マウント後に Safari 単体か判定（Web VideoEncoder ベータは Chromium 想定） */
   const [clientSafariBlocksWebExport, setClientSafariBlocksWebExport] =
@@ -959,13 +967,13 @@ export function FilmLabFullPage({
               >
                 <FilmLabCanvas
                   ref={filmLabCanvasRef}
-                  preset="cinematic"
+                  preset={FILMTONE_DEFAULT_BASE_PRESET}
                   chromeLayout="stacked"
                   stackedToolbarVisible={false}
                   defaultSampleAssetUrl={FILM_LAB_WEB_CANONICAL_SAMPLE_ASSET_URL}
                   className="h-full w-full"
                   fullScreen
-                  initialGradeParams={initialSharedParams}
+                  initialGradeParams={initialDemoGradeParams}
                   onViewportReady={setViewport}
                   pauseVideoPreview={webExportBusy}
                   onInteractiveSourceChange={(info) => {

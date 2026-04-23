@@ -5,9 +5,13 @@
  */
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
+import {
+  FILMTONE_DEFAULT_BASE_PRESET,
+  createFilmtoneDefaultParams,
+} from "film-lab-core";
 import { Link } from "@/i18n/navigation";
 import type { Viewport } from "../core/Viewport";
 
@@ -36,13 +40,15 @@ const TAGS = [
 export function FilmLabShowcase() {
   const t = useTranslations("interactive.film-lab");
   const [viewport, setViewport] = useState<Viewport | null>(null);
+  const initialGradeParams = useMemo(() => createFilmtoneDefaultParams(), []);
 
   return (
     <section className="px-4 pb-16 sm:px-6 sm:pb-20">
       <div className="mx-auto max-w-5xl">
         {/* Canvas */}
         <FilmLabCanvas
-          preset="cinematic"
+          preset={FILMTONE_DEFAULT_BASE_PRESET}
+          initialGradeParams={initialGradeParams}
           onViewportReady={setViewport}
         />
 
