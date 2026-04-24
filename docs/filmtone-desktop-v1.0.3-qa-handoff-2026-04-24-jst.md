@@ -20,13 +20,11 @@
 - [ ] 開発ビルドを起動できる（`apps/desktop-film-lab-batch` の `bun run dev` 系 or パッケージ版）
 - [ ] 前バージョンの設定リセット: 初回起動挙動を見るため、可能なら user data ディレクトリを一時退避
 
-### 1.2 ffmpeg の二面体制（HDR テストで切り替える）
+### 1.2 HDR 変換環境
 
-- [ ] **A: 通常 ffmpeg**（`brew install ffmpeg` 系。`zscale` / `libplacebo` 無し）
-- [ ] **B: HDR 対応 ffmpeg**（`brew tap homebrew-ffmpeg/ffmpeg && brew install homebrew-ffmpeg/ffmpeg/ffmpeg --with-zimg --with-libplacebo`）
-- [ ] `PATH` 切り替えで A / B を往復できる状態にしておく（A でまず検知 UI を見て、B に切り替えて警告が消えることを確認するため）
-
-> 上記 B の文字列は `apps/desktop-film-lab-batch/src/renderer/HdrPolicyNotice.tsx:36-37` の `HDR_FFMPEG_INSTALL_COMMAND` と完全一致していること（QA 中に UI からコピーした文字列を diff するのが最も確実）。
+- [ ] **A: 通常環境**（HDR→SDR 変換 filter が無い環境）。ユーザー向け注意文が出ることを確認する。
+- [ ] **B: HDR 変換対応環境**（`zscale + tonemap` または `libplacebo` が使える環境）。注意文が出ず、自動で SDR mezzanine を作ることを確認する。
+- [ ] ユーザー向け UI に install command / internal filter 名 / fixture doc link が出ないことを確認する。
 
 ### 1.3 テスト素材（最低この組合せを揃える）
 
@@ -123,41 +121,36 @@
 - [ ] VFR 系 or 壊れかけのクリップで `sourceVideoMetadata.timing.sourceFrameRateTrusted` が `false` になる
 - [ ] `trustReason` が `missing-or-invalid-rate` / `rates-diverged` / `within-absolute-tolerance` / `within-relative-tolerance` のいずれか
 
-## 5. HDR preparation policy + ffmpeg capability probe
+## 5. HDR preparation policy + tone-map fallback
 
-> **ここが今回の最大の目視ポイント。** `ffmpeg A`（zscale/libplacebo 無し）で `HDR-PQ` を読む → 警告 → コマンドコピー → `ffmpeg B` に切り替え → 警告消失 まで一気通貫で確認。
+> **ここが今回の最大の目視ポイント。** HDR 対応環境では自動で SDR mezzanine を作り、非対応環境ではユーザーに開発者向け command を見せず、非ブロッキングの注意だけを出す。
 
-### 5.1 A（zscale/libplacebo 無し）+ `HDR-PQ` 読み込み時
+### 5.1 A（HDR 変換 filter 無し）+ `HDR-PQ` 読み込み時
 
 - [ ] ソース読込直後、**HdrPolicyNotice** が琥珀色の callout として表示される
   - 実装: `apps/desktop-film-lab-batch/src/renderer/HdrPolicyNotice.tsx`
-- [ ] タイトル（JA）: **「HDR ソースを検知しましたが、ffmpeg が線形化できません」**
-- [ ] 本文（JA）: **「この動画は HDR（PQ / HLG）ですが、お使いの ffmpeg ビルドには zscale / libplacebo が無いため、書き出し時の HDR→SDR トーンマッピングは保留されます。SDR クリップはそのまま書き出せます。」**
-- [ ] 詳細行に `Missing: zscale ... libplacebo ...` 相当が出る
-- [ ] 見出し「**HDR 対応 ffmpeg に切り替えるには以下を実行:**」の下にインストールコマンドが verbatim 表示される:
-  ```bash
-  brew tap homebrew-ffmpeg/ffmpeg && brew install homebrew-ffmpeg/ffmpeg/ffmpeg --with-zimg --with-libplacebo
-  ```
-- [ ] 「**コマンドをコピー**」ボタンをクリック → ラベルが **「コピーしました」** に変わり、実クリップボードに上記コマンドが入る（`pbpaste` で検証）
-- [ ] 「**HDR フィクスチャ状況を開く**」リンクで fixture inventory doc が外部エディタ/ビューアで開く
+- [ ] タイトル（JA）: **「HDR動画を読み込みました」**
+- [ ] 本文（JA）: **「この環境では、HDR動画を標準のSDR動画として正確に変換できない場合があります。書き出しは続行できますが、他のアプリで見ると明るさや色が元動画と違って見えることがあります。正確な色で書き出したい場合は、カメラアプリや編集アプリでSDR動画に変換してから読み込んでください。」**
+- [ ] UI には `ffmpeg` / `zscale` / `libplacebo` / `brew` / fixture doc link が表示されない
 
 ### 5.2 非ブロッキング確認（A のまま）
 
 - [ ] 警告が出ていても **書き出し自体は走る**（ブロックしない）
 - [ ] 書き出し後 sidecar `hdrPreparationPolicy.reason` が `ffmpeg-missing-hdr-filters`
-- [ ] `hdrPreparationPolicy.strategy` が `defer-unknown` 系（実変換はしない）
-- [ ] 出力自体は source を素通しで保存される（tone-mapped SDR にはなっていない。今回の release ではそれで OK）
+- [ ] `hdrPreparationPolicy.strategy` が `defer-unknown` 系
+- [ ] 出力自体は source を素通しで保存される（tone-mapped SDR にはなっていない）
 
-### 5.3 B（HDR 対応 ffmpeg）に切り替え、同じ `HDR-PQ` を読む
+### 5.3 B（HDR 変換対応環境）で同じ `HDR-PQ` を読む
 
-- [ ] `HdrPolicyNotice` **が出ない**（zscale / libplacebo 検出済みのため）
+- [ ] `HdrPolicyNotice` **が出ない**
 - [ ] sidecar `hdrPreparationPolicy.reason` が `source-is-hdr-pq` or `source-is-hdr-hlg` になり、`ffmpeg-missing-hdr-filters` では **ない**
-- [ ] `strategy` が `prepare-sdr-mezzanine` or `none` 系
-- [ ] 出力の実 tone-mapping は **今回の release では評価対象外**（S-6 以降）。ここでは「方針が切り替わったこと」だけ確認して OK
+- [ ] `strategy` が `prepare-sdr-mezzanine`
+- [ ] `filterSelection` が sidecar に入り、書き出しログに `HDR→SDR tone-map ... mezzanine` が出る
+- [ ] 出力を目視し、HDR 素材が極端に白飛び / 低彩度 / 黒つぶれしていない
 
 ### 5.4 `HDR-HLG` / `WIDE-UNK` / `SDR-LAND` の差分
 
-- [ ] `HDR-HLG` で A だと同じく `ffmpeg-missing-hdr-filters`、B で `source-is-hdr-hlg`
+- [ ] `HDR-HLG` で A だと同じく `ffmpeg-missing-hdr-filters`、B で `source-is-hdr-hlg` + tone-map mezzanine
 - [ ] `WIDE-UNK` で `wide-gamut-transfer-unknown` or `source-color-unknown`
 - [ ] `SDR-LAND` は `source-is-sdr-bt709` で HdrPolicyNotice は **出ない**
 
