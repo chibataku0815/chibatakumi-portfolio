@@ -22,7 +22,7 @@
  */
 
 import * as THREE from "three";
-import type { Params } from "film-lab-core";
+import { clampGrainIntensity, type Params } from "film-lab-core";
 import { bloomFragmentShader } from "../../web/src/features/interactive/film-lab/shader/bloom.frag";
 import { blurFragmentShader } from "../../web/src/features/interactive/film-lab/shader/blur.frag";
 import { compositeFragmentShader } from "../../web/src/features/interactive/film-lab/shader/composite.frag";
@@ -280,7 +280,7 @@ export class FilmLabRemotionPipeline {
 
     const cu = this.compositeMaterial.uniforms;
     cu.uVignette!.value = grade.vignette;
-    cu.uGrainIntensity!.value = grade.grainIntensity;
+    cu.uGrainIntensity!.value = clampGrainIntensity(grade.grainIntensity);
     cu.uGrainRadialMix!.value = grade.grainRadialMix ?? 1;
     cu.uTime!.value = grainTime;
     cu.uBloomStrength!.value = this.bloomStrength;
