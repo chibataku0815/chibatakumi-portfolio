@@ -85,7 +85,7 @@
 
 ### 3.2 書き出し時の sidecar への保存
 
-- [ ] `SDR-LAND` を書き出し、同ディレクトリに **`<output>.filmtone-export-metadata.json`** が生成される
+- [ ] `SDR-LAND` を書き出し、同ディレクトリに **`<output>.filmtone-session.json`** が生成される
   - 実装: `export-metadata-session.ts:94-95`
 - [ ] 当該 JSON の `cameraOptics` に以下キーが埋まる:
   ```json
@@ -201,7 +201,7 @@ UI スライダーは従来通り（Glow カード内 Bloom / Halation、Mist �
 - [ ] mezzanine → フル解像度 への段階遷移中に badge が更新される
 - [ ] badge 表示中もグレーディングが操作可能
 
-## 9. Export sidecar 全体検査（`<output>.filmtone-export-metadata.json`）
+## 9. Export sidecar 全体検査（`<output>.filmtone-session.json`）
 
 書き出し 1 本で sidecar を開き、以下キーが **すべて埋まっている** ことをチェック:
 
