@@ -20,5 +20,8 @@
     "webgpu-motion-art": "workspace:*",
     "webgpu-motion-post": "workspace:*",
     "webgpu-motion-shell": "workspace:*"
+  },
+  "devDependencies": {
+    "@webgpu/types": "^0.1.52"
   }
 }

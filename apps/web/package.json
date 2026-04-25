@@ -26,6 +26,10 @@
     "@vercel/kv": "^3.0.0",
     "@vercel/speed-insights": "^2.0.0",
     "date-fns": "^4.1.0",
+    "@chibatakumi/motion-core": "workspace:*",
+    "@chibatakumi/motion-dot": "workspace:*",
+    "@chibatakumi/motion-grid": "workspace:*",
+    "@chibatakumi/motion-flow": "workspace:*",
     "film-lab-core": "workspace:*",
     "film-lab-renderer": "workspace:*",
     "film-lab-smart-look": "workspace:*",
@@ -54,6 +58,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.0.6",
     "opentype.js": "^1.3.4",
+    "raw-loader": "^4.0.2",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

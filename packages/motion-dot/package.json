@@ -9,5 +9,18 @@
       "types": "./src/index.ts",
       "import": "./src/index.ts"
     }
+  },
+  "dependencies": {
+    "@chibatakumi/motion-core": "workspace:*",
+    "gpu-2.5d-presets": "workspace:*",
+    "gpu-fx-presets": "workspace:*",
+    "webgpu-motion-audio": "workspace:*",
+    "webgpu-motion-dom": "workspace:*",
+    "webgpu-motion-input": "workspace:*",
+    "webgpu-motion-post": "workspace:*",
+    "webgpu-motion-shell": "workspace:*"
+  },
+  "devDependencies": {
+    "@webgpu/types": "^0.1.52"
   }
 }

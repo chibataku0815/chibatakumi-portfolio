@@ -19,6 +19,10 @@
     "webgpu-motion-audio": "workspace:*",
     "webgpu-motion-art": "workspace:*",
     "webgpu-motion-post": "workspace:*",
+    "webgpu-motion-scene": "workspace:*",
     "webgpu-motion-shell": "workspace:*"
+  },
+  "devDependencies": {
+    "@webgpu/types": "^0.1.52"
   }
 }
