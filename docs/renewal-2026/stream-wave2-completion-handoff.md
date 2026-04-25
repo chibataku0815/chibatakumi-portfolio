@@ -98,11 +98,11 @@
 | **Total** | — | **34 / 36** | **4** | **3 fully open + 4 partial finalize = 7 deferred** |
 
 **Stream 完了状況**:
-- Stream 3: ✅ **完全 closed** (5/5、D3.5 de-scope 含む)
 - Stream 5: 🟢 **D5.1-D5.6 全 closed、D5.7 のみ部分残** (production launch 前必須の SEO part は Wave 1+2 で完了、ops 手順 doc + motion-studies canonical のみ Wave 3)
 - Stream 4: 🟢 **D4.1-D4.13 全 closed、D4.14/D4.15 QA Wave 残**
+- Stream 3: 🟡 D3.2/D3.3/D3.4/D3.6 closed、D3.1 corner treatment Wave 3 (user directive で追加 scope、Wave 2 plan 後の追加のため未対応)
 - Stream 1: 🟡 D1.6 のみ Wave 3 (緊急度低、preview deploy で表面化したら前倒し可)
-- Stream 2: 🟡 D2.7 formal のみ Wave 3 (smoke 通過済、formal kinetic-handoff/composite-25d/17 scene verify を別 chat で)
+- Stream 2: 🟡 D2.7 formal Wave 3 + **D2.8 quality remediation 並列 chat 進行中** (Wave 1 commit `df1bbbac` に Phase A+2 wiring 同梱、quality parity 未達、`motion-dot-quality-remediation-handoff.md` 参照)
 
 ---
 
@@ -135,16 +135,18 @@
 
 ## 4. 残タスク full enumeration — Wave 3 (QA Wave) 起動 prompt
 
-### 4.1 Wave 3 担当 D{N}.{n} (full enumeration、5 件)
+### 4.1 Wave 3 担当 D{N}.{n} (full enumeration、7 件 + 1 punt)
 
 | D{N}.{n} | 内容 | 緊急度 |
 |---|---|---|
+| **D2.8 quality remediation** (進行中) | Phase A+2 wiring landed but quality parity 未達。元プロジェクト (`life/output/motion-dot-new-webgpu`) との side-by-side 比較で audio reactive intensity / scene transition / gallery composite quality を audit + 修正。**`motion-dot-quality-remediation-handoff.md` で別 chat 進行中** | 高 (visual quality blocker) |
+| **D3.1 corner treatment** (Wave 2 plan 後追加 scope) | RADIUS token rebuild (pill/panel 撤去、SHARP/HAIRLINE/superellipse/squircle で代替) + globals.css `border-radius 999px/9999px/50%/1.2rem` 計 ~10 箇所 audit + works/installation の `rounded-lg` 撤去 + `<Squircle>` utility 追加 + 新 IA route 6 file + motion-studies 6 で `rounded-*` class 0 件 audit | 中 (design quality) |
 | **D4.14** e2e tests 4 種 | 旧 18 path → 新 path redirect / i18n ja/en / WebGPU unsupported screen / persistent canvas re-mount 検証 | 高 (production launch 前必須) |
 | **D4.15** Vercel preview deploy 検証 | submodule 解決 + WebGPU 動作 = final visual gate | 高 |
 | **D1.6** webgpu-motion-libs typing fix (formal close) | submodule HEAD `b96998b` で実質完了確認済、formal は D4.15 通過後 | 低 (Wave 1 audit で実質 closed) |
-| **D5.7 残** Filmtone redirect SEO 維持 finalize | (a) journal/motion-studies/{6 slugs} に canonical metadata inline 追加 (6 file × 数行) (b) `docs/renewal-2026/seo-migration-procedure.md` doc finalize (skeleton は Wave 1 で創建済) (c) Search Console 退役申請手順実行 (production launch 後 ops、launch 前 doc landed のみ) | 中 (production 稼働後の SEO 衛生) |
+| **D5.7 残** Filmtone redirect SEO 維持 finalize | (a) journal/motion-studies/{6 slugs} に canonical metadata inline 追加 (6 file × 数行) (b) `docs/renewal-2026/seo-migration-procedure.md` doc finalize (c) Search Console 退役申請手順実行 (production launch 後 ops、launch 前 doc landed のみ) | 中 (production 稼働後の SEO 衛生) |
 | **D2.7 formal** demo route formal verify | smoke 通過済 (Wave 2)、kinetic-handoff scene cycle / composite-25d gallery mode / 17 scene 全切替 / film post 配線を browser で全件確認、e2e selector 整備 | 中 |
-| **D5.1 namespace rename (Wave 3 punt)** | `useTranslations("film-lab.*")` → `useTranslations("works.filmtone.*")` 24 箇所、key namespace + message file の整合性確保 | 低 (cosmetic、Wave 2 で URL migration 本質達成済) |
+| **(任意) D5.1 namespace rename** (Wave 3 punt) | `useTranslations("film-lab.*")` → `useTranslations("works.filmtone.*")` 24 箇所 | 低 (cosmetic、Wave 2 で URL migration 本質達成済) |
 
 ### 4.2 Wave 3 起動 verbatim prompt
 
@@ -157,21 +159,24 @@ chibatakumi-portfolio renewal 2026 Wave 3 (QA Wave) を継続してください�
 2. chibatakumi-portfolio/docs/renewal-2026/stream-status/{1,2,3,4,5}.md (Stream 完了 SSoT)
 3. chibatakumi-portfolio/docs/renewal-2026/stream-wave2-completion-handoff.md (本 Wave 2 完了 handoff)
 
-== Wave 2 完了状態 ==
-- branch: feat/renewal-2026-phase2-motion-dot
-- Wave 2 で 9 件 [x] = 累計 35/35 = 100% (Wave 3 deferred 5 件除く全 closed)
+== Wave 2 完了状態 (母数 36) ==
+- branch: feat/renewal-2026-phase2-motion-dot (Wave 1 commit df1bbbac push 済、Wave 2 commit pending)
+- Wave 2 で 9 件 [x] = 累計 34/36 = 94.4%
+- partial [~] 4 件: D2.7 (smoke 通過、formal Wave 3) / D2.8 (quality parity 未達、別 chat) / D3.1 (corner treatment Wave 2 plan 後追加 scope) / D5.7 (motion-studies canonical + doc Wave 3)
 - typecheck baseline 1 error 維持 (params-codec.test.ts:87)
 - build verify 成功、67 pages prerendered
 - Filmtone wildcard redirect (4 entries)、最終 redirects() 20 entries
 - Audio site-wide mount + mic input opt-in landed
 
-== Wave 3 担当 D{N}.{n} (full enumeration) ==
-- D4.14 e2e tests 4 種 (旧 18 path → 新 path redirect / i18n ja/en / WebGPU unsupported screen / persistent canvas re-mount)
-- D4.15 Vercel preview deploy 検証 (final visual gate、submodule 解決 + WebGPU 動作)
-- D1.6 webgpu-motion-libs typing fix (Wave 1 audit で実質確認済、D4.15 で表面化したら前倒し可)
-- D5.7 finalize: (a) journal/motion-studies/{6 slugs} に canonical metadata inline 追加 (b) seo-migration-procedure.md doc finalize (c) Search Console 退役申請手順実行 (production launch 後 ops)
-- D2.7 formal portfolio shell 経由 demo route 検証 (smoke 通過済前提、kinetic-handoff scene cycle / composite-25d gallery / 17 scene 全切替 / film post 配線 検証)
-- (任意) D5.1 namespace rename: useTranslations("film-lab.*") → useTranslations("works.filmtone.*") 24 箇所 (Wave 2 chat 自律 punt 項目、cosmetic、user judgment)
+== Wave 3 担当 D{N}.{n} (full enumeration、7 件 + 1 punt) ==
+- D2.8 motion-dot quality remediation (高、進行中、別 chat handoff `motion-dot-quality-remediation-handoff.md`)
+- D3.1 corner treatment finalize (中、Wave 2 plan 後追加 scope: RADIUS token rebuild + ~10 箇所 audit + Squircle utility + new IA rounded-* 0 件 audit)
+- D4.14 e2e tests 4 種 (高、production launch 前必須)
+- D4.15 Vercel preview deploy 検証 (高、final visual gate)
+- D1.6 webgpu-motion-libs typing fix (低、Wave 1 audit で実質確認済)
+- D5.7 finalize: (a) motion-studies 6 canonical (b) seo-migration-procedure.md (c) Search Console 退役申請 (中)
+- D2.7 formal demo verify (中、smoke 通過済、formal kinetic-handoff/composite-25d/17 scene/film post 検証)
+- (任意) D5.1 namespace rename 24 箇所 (低、cosmetic)
 
 == exit criteria ==
 - 全 35 D{N}.{n} closed → plan §0.1 の 7 条件全充足 → 「全面リニューアル完了」declare 可能

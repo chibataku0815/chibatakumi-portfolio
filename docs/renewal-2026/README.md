@@ -43,14 +43,14 @@ handoff doc は session 単位の補助記録。Stream 完了判定は `stream-s
 
 ## 全体進捗
 
-母数 **35** (D3.5 Storybook v3 完全 de-scope 後)。Wave 2 完了時点で landed 済み = **35 / 35 = 100%** (Wave 3 deferred 5 件: D1.6 / D2.7 formal / D4.14 / D4.15 / D5.7 残除く)。
+母数 **36** (v3: 36→35 で D3.5 Storybook de-scope、v4: 35→36 で D2.8 motion-dot quality remediation 追加)。Wave 2 完了時点で landed 済み = **34 / 36 = 94.4%** (Wave 3 deferred 7 件: D1.6 / D2.7 formal / D2.8 quality / D3.1 corner / D4.14 / D4.15 / D5.7 残)。
 
 | Wave | 期間 | landed 件数 | 累計 progress |
 |---|---|---|---|
-| Wave 0 (Phase 1〜Stream4 一部) | 〜2026-04-25 | 17 件 (D1.1-1.5 + D2.1-2.6 + D4.1-4.6) | 17/35 = 48.6% |
-| Wave 1 (motion shell + IA + design system + audio infra) | 2026-04-26 | 9 件 (D4.7-4.10 + D4.12 + D3.1/3.4/3.6 + D5.3) | 26/35 = 74.3% |
-| Wave 2 (Filmtone migration + audio wire-up + design finalize) | 2026-04-26 | 9 件 (D5.1/5.2/5.4/5.5/5.6 + D4.11/4.13 + D3.2/3.3) | 35/35 = **100%** core |
-| Wave 3 (QA Wave) | TBD | — | exit criteria: 全 35 closed → plan §0.1 全 7 条件達成 → production launch ready |
+| Wave 0 (Phase 1〜Stream4 一部) | 〜2026-04-25 | 17 件 (D1.1-1.5 + D2.1-2.6 + D4.1-4.6) | 17/36 = 47.2% |
+| Wave 1 (motion shell + IA + design system + audio infra) | 2026-04-26 | 8 件 (D4.7-4.10 + D4.12 + D3.4/3.6 + D5.3、D3.1 retroactive [~] 反映) | 25/36 = 69.4% |
+| Wave 2 (Filmtone migration + audio wire-up + design finalize) | 2026-04-26 | 9 件 (D5.1/5.2/5.4/5.5/5.6 + D4.11/4.13 + D3.2/3.3) | 34/36 = **94.4%** |
+| Wave 3 (QA Wave + remediation) | TBD | 7 件 (D1.6/D2.7 formal/D2.8 quality/D3.1 corner/D4.14/D4.15/D5.7 finalize) | exit criteria: 全 36 closed → plan §0.1 全 7 条件達成 → production launch ready |
 
 詳細は plan §3.4 Phase 1〜Stream4 landed surface 実態 + §15 Scope Drift Postmortem + Wave 1/2 handoff doc 参照。
 
