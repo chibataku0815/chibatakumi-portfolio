@@ -123,7 +123,7 @@ export function FilmLabRoadmapContent() {
 
       <div className="mt-8 border-t border-white/10 pt-6">
         <Link
-          href="/film-lab"
+          href="/works/filmtone"
           className="text-xs text-white/60 transition-colors hover:text-white"
         >
           {t("backToFilmLab")}

@@ -16,8 +16,8 @@ export async function generateMetadata({
   });
   const isJa = locale === "ja";
   const canonicalUrl = isJa
-    ? `${BASE_URL}/film-lab/signature`
-    : `${BASE_URL}/en/film-lab/signature`;
+    ? `${BASE_URL}/works/filmtone/signature`
+    : `${BASE_URL}/en/works/filmtone/signature`;
 
   return {
     title: t("title"),
@@ -45,8 +45,8 @@ export async function generateMetadata({
     alternates: {
       canonical: canonicalUrl,
       languages: {
-        ja: `${BASE_URL}/film-lab/signature`,
-        en: `${BASE_URL}/en/film-lab/signature`,
+        ja: `${BASE_URL}/works/filmtone/signature`,
+        en: `${BASE_URL}/en/works/filmtone/signature`,
       },
     },
   };

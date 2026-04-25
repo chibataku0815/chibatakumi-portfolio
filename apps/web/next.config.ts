@@ -46,8 +46,10 @@ const nextConfig: NextConfig = {
    * once for the explicit `/(en|ja)/old` form so locale-prefixed bookmarks
    * keep their locale across the redirect.
    *
-   * Filmtone (`/film-lab/*`) redirects are deliberately deferred to Wave 2
-   * (D5.1). Do not add them here.
+   * Filmtone (`/film-lab/*`) redirects added in Wave 2 (D4.11 残) via
+   * wildcard pattern: 4 entries cover all nested paths (privacy, signature,
+   * roadmap, release-notes, support, support/thanks, download,
+   * download/complete, og) without explicit listing.
    */
   async redirects() {
     return [
@@ -138,6 +140,28 @@ const nextConfig: NextConfig = {
       {
         source: "/:locale(en|ja)/archive",
         destination: "/:locale/journal",
+        permanent: true,
+      },
+      // Filmtone Wave 2 (D4.11 残): /film-lab/* → /works/filmtone/* via
+      // wildcard. 4 entries cover bare + locale-prefixed + nested paths.
+      {
+        source: "/film-lab",
+        destination: "/works/filmtone",
+        permanent: true,
+      },
+      {
+        source: "/film-lab/:path*",
+        destination: "/works/filmtone/:path*",
+        permanent: true,
+      },
+      {
+        source: "/:locale(en|ja)/film-lab",
+        destination: "/:locale/works/filmtone",
+        permanent: true,
+      },
+      {
+        source: "/:locale(en|ja)/film-lab/:path*",
+        destination: "/:locale/works/filmtone/:path*",
         permanent: true,
       },
     ];

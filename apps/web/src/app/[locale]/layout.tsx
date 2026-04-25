@@ -4,6 +4,7 @@ import { portfolioData } from "@/shared/data/portfolio";
 import { routing } from "@/i18n/routing";
 import { AnalyticsPageTracker } from "@/shared/analytics/AnalyticsPageTracker";
 import { MotionStageProvider } from "@/features/motion";
+import { AudioBusProvider, SoundToggleControl } from "@/features/audio";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
@@ -139,14 +140,24 @@ export default async function LocaleLayout({
           </>
         ) : null}
         <MotionStageProvider>
+          {/*
+            AudioBusProvider sits inside MotionStageProvider so motion
+            participants (Wave 2 D5.4) can subscribe to the shared audio
+            bus, and inside NextIntlClientProvider so audio surfaces
+            (SoundToggleControl, MicInputGate) can read translated
+            aria-labels and helper text. — Wave 2 Agent β (D5.4).
+          */}
           <NextIntlClientProvider messages={messages}>
-            <Suspense fallback={null}>
-              <AnalyticsPageTracker />
-            </Suspense>
-            <PageTransition>
-              <Nav />
-              {children}
-            </PageTransition>
+            <AudioBusProvider>
+              <Suspense fallback={null}>
+                <AnalyticsPageTracker />
+              </Suspense>
+              <PageTransition>
+                <Nav />
+                {children}
+              </PageTransition>
+              <SoundToggleControl />
+            </AudioBusProvider>
           </NextIntlClientProvider>
         </MotionStageProvider>
         <Analytics />

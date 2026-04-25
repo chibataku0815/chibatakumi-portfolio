@@ -58,8 +58,8 @@ export async function generateMetadata({
   const t = await getTranslations({ locale, namespace: "film-lab.supportPage.metadata" });
   const isJa = locale === "ja";
   const canonicalUrl = isJa
-    ? `${filmLabCanonicalBaseUrl}/film-lab/support`
-    : `${filmLabCanonicalBaseUrl}/en/film-lab/support`;
+    ? `${filmLabCanonicalBaseUrl}/works/filmtone/support`
+    : `${filmLabCanonicalBaseUrl}/en/works/filmtone/support`;
 
   return {
     title: t("title"),
@@ -71,14 +71,14 @@ export async function generateMetadata({
     alternates: {
       canonical: canonicalUrl,
       languages: {
-        ja: `${filmLabCanonicalBaseUrl}/film-lab/support`,
-        en: `${filmLabCanonicalBaseUrl}/en/film-lab/support`,
+        ja: `${filmLabCanonicalBaseUrl}/works/filmtone/support`,
+        en: `${filmLabCanonicalBaseUrl}/en/works/filmtone/support`,
       },
     },
   };
 }
 
-export default async function FilmLabSupportPage({
+export default async function FilmtoneSupportPage({
   params,
 }: {
   params: Promise<{ locale: string }>;
@@ -288,13 +288,13 @@ export default async function FilmLabSupportPage({
 
       <div className="mt-8 flex flex-wrap items-center gap-4 border-t border-white/10 pt-6">
         <Link
-          href="/film-lab/privacy"
+          href="/works/filmtone/privacy"
           className="inline-flex items-center justify-center rounded-full border border-white/14 bg-white/8 px-4 py-2 text-sm text-white transition-colors hover:bg-white/14"
         >
           {t("footer.privacyCta")}
         </Link>
         <Link
-          href="/film-lab"
+          href="/works/filmtone"
           className="text-sm text-white/60 transition-colors hover:text-white"
         >
           {t("footer.backToFilmLab")}

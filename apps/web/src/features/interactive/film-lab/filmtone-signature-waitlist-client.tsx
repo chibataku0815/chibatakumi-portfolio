@@ -15,7 +15,7 @@ export function FilmtoneSignatureWaitlistClient({ locale }: { locale: string }) 
     if (state === "submitting") return;
     setState("submitting");
     try {
-      const res = await fetch("/api/film-lab/waitlist", {
+      const res = await fetch("/api/waitlist", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ email: email.trim(), locale }),

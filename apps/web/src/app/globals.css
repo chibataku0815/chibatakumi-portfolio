@@ -38,14 +38,11 @@
   --noise-texture: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 
   /* Typography Scale — Award-Worthy Level (モバイル対応).
-     migration to @chibatakumi/design-system/tokens/typography deferred to follow-up. */
-  --type-display-hero: clamp(3.5rem, 15vw, 14rem);    /* 56–224px Hero (モバイル最小調整) */
-  --type-display-xl: clamp(2.5rem, 10vw, 10rem);      /* 40–160px Skill Title (モバイル最小調整) */
-  --type-display-lg: clamp(2rem, 6vw, 6rem);          /* 32–96px */
-  --type-heading: clamp(1.5rem, 3.5vw, 3rem);         /* 24–48px Section */
-  --type-body-lg: clamp(1rem, 1.4vw, 1.4rem);         /* 16–22.4px */
-  --type-body: 1rem;                                   /* 16px */
-  --type-caption: 0.875rem;                            /* 14px */
+     Canonical: @chibatakumi/design-system/tokens/typography → exposed as
+     --type-display-hero / --type-display-xl / --type-display-lg / --type-heading
+     / --type-body-lg / --type-body / --type-caption via the design-system
+     Tailwind plugin (`typographyVars()` in packages/design-system/src/tailwind/plugin.ts).
+     Consumers (e.g. SkillsSections) keep referencing var(--type-display-*). */
 
   /* Letter Spacing - Extreme Contrast */
   --tracking-ultra-tight: -0.06em;  /* Hero用 */

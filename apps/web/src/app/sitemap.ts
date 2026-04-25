@@ -17,8 +17,9 @@ const motionStudySlugs = [
  * /motion, /motion/reference-works/*, /skills, /profile, /archive) are
  * removed; they 301-redirect via `next.config.ts#redirects()`.
  *
- * `/film-lab/*` entries are deliberately preserved — Wave 2 (D5.1) will
- * migrate Filmtone surfaces and update this sitemap accordingly.
+ * Filmtone surfaces migrated to `/works/filmtone/*` in Wave 2 (D5.1).
+ * Old `/film-lab/*` paths 301-redirect via `next.config.ts#redirects()`
+ * (wildcard pattern, 4 entries).
  */
 const pages = [
   { path: "", changeFrequency: "monthly" as const, priority: 1 },
@@ -49,20 +50,20 @@ const pages = [
     changeFrequency: "yearly" as const,
     priority: 0.5,
   })),
-  // Filmtone (Wave 2 will migrate these)
-  { path: "/film-lab", changeFrequency: "monthly" as const, priority: 0.8 },
+  // Filmtone (Wave 2 D5.1 — migrated from /film-lab/*)
+  { path: "/works/filmtone", changeFrequency: "monthly" as const, priority: 0.8 },
   {
-    path: "/film-lab/download",
+    path: "/works/filmtone/download",
     changeFrequency: "monthly" as const,
     priority: 0.7,
   },
   {
-    path: "/film-lab/release-notes",
+    path: "/works/filmtone/release-notes",
     changeFrequency: "monthly" as const,
     priority: 0.5,
   },
   {
-    path: "/film-lab/roadmap",
+    path: "/works/filmtone/roadmap",
     changeFrequency: "monthly" as const,
     priority: 0.5,
   },

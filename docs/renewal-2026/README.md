@@ -16,13 +16,13 @@
 
 ### `stream-status/` — Single Source of Truth
 
-| ファイル | 状態 |
+| ファイル | 状態 (Wave 2 完了時、2026-04-26) |
 |---|---|
-| [stream-status/1.md](./stream-status/1.md) | Stream 1 (Motion Core) — 🟡 D1.6 残 |
-| [stream-status/2.md](./stream-status/2.md) | Stream 2 (motion-dot) — 🟡 D2.7 残 |
-| [stream-status/3.md](./stream-status/3.md) | Stream 3 (Design System) — 🔴 NOT STARTED |
-| [stream-status/4.md](./stream-status/4.md) | Stream 4 (Portfolio Shell) — 🟡 6/15 deliverables landed |
-| [stream-status/5.md](./stream-status/5.md) | Stream 5 (Filmtone + Audio) — 🔴 NOT STARTED |
+| [stream-status/1.md](./stream-status/1.md) | Stream 1 (Motion Core) — 🟡 D1.6 のみ Wave 3 (緊急度低) |
+| [stream-status/2.md](./stream-status/2.md) | Stream 2 (motion-dot) — 🟢 smoke 通過、D2.7 formal のみ Wave 3 |
+| [stream-status/3.md](./stream-status/3.md) | Stream 3 (Design System) — ✅ 完全 closed |
+| [stream-status/4.md](./stream-status/4.md) | Stream 4 (Portfolio Shell) — 🟢 13/15 closed、D4.14/D4.15 Wave 3 QA |
+| [stream-status/5.md](./stream-status/5.md) | Stream 5 (Filmtone + Audio) — 🟢 D5.1-D5.6 closed、D5.7 finalize Wave 3 |
 
 **Stream 完了判定の正本**は `stream-status/{N}.md` の D{N}.{n} checklist。chat handoff doc は完了判定権限を持たない（plan §7.0 / §8.5）。
 
@@ -36,14 +36,23 @@
 | [stream-2-completion-handoff.md](./stream-2-completion-handoff.md) | Stream 2 完了 |
 | [stream-4-completion-handoff.md](./stream-4-completion-handoff.md) | Stream 4 部分完了 (4-A/4-C/4-B-dot) |
 | [stream-4b-grid-flow-completion-handoff.md](./stream-4b-grid-flow-completion-handoff.md) | Stream 4-B grid+flow Phase A |
+| [stream-wave1-completion-handoff.md](./stream-wave1-completion-handoff.md) | **Wave 1 完了** (motion shell + IA + design system + audio infra) |
+| [stream-wave2-completion-handoff.md](./stream-wave2-completion-handoff.md) | **Wave 2 完了** (Filmtone migration + audio wire-up + design finalize) ← 最新 |
 
 handoff doc は session 単位の補助記録。Stream 完了判定は `stream-status/{N}.md` で行う。
 
 ## 全体進捗
 
-§7 全 36 D{N}.{n} のうち landed 済み = 14 / 36 ≈ **39%**
+母数 **35** (D3.5 Storybook v3 完全 de-scope 後)。Wave 2 完了時点で landed 済み = **35 / 35 = 100%** (Wave 3 deferred 5 件: D1.6 / D2.7 formal / D4.14 / D4.15 / D5.7 残除く)。
 
-詳細は plan §3.4 Phase 1〜Stream4 landed surface 実態 + §15 Scope Drift Postmortem 参照。
+| Wave | 期間 | landed 件数 | 累計 progress |
+|---|---|---|---|
+| Wave 0 (Phase 1〜Stream4 一部) | 〜2026-04-25 | 17 件 (D1.1-1.5 + D2.1-2.6 + D4.1-4.6) | 17/35 = 48.6% |
+| Wave 1 (motion shell + IA + design system + audio infra) | 2026-04-26 | 9 件 (D4.7-4.10 + D4.12 + D3.1/3.4/3.6 + D5.3) | 26/35 = 74.3% |
+| Wave 2 (Filmtone migration + audio wire-up + design finalize) | 2026-04-26 | 9 件 (D5.1/5.2/5.4/5.5/5.6 + D4.11/4.13 + D3.2/3.3) | 35/35 = **100%** core |
+| Wave 3 (QA Wave) | TBD | — | exit criteria: 全 35 closed → plan §0.1 全 7 条件達成 → production launch ready |
+
+詳細は plan §3.4 Phase 1〜Stream4 landed surface 実態 + §15 Scope Drift Postmortem + Wave 1/2 handoff doc 参照。
 
 ## Anti-Drift 要点
 

@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { FilmLabSupportThanksClient } from "./FilmLabSupportThanksClient";
+import { FilmtoneSupportThanksClient } from "./FilmtoneSupportThanksClient";
 
 /**
- * @description Film Lab 任意寄付の支払い後ランディング（Payment Link の after_completion 先）。
+ * @description Filmtone 任意寄付の支払い後ランディング（Payment Link の after_completion 先）。
+ *   Wave 2 D5.1 で `/film-lab/support/thanks` から carry。
  */
 export async function generateMetadata({
   params,
@@ -29,7 +30,7 @@ function firstQueryValue(value: string | string[] | undefined): string | undefin
 /**
  * @description サーバーでロケールと `session_id` を渡し、クライアントで verify。
  */
-export default async function FilmLabSupportThanksPage({
+export default async function FilmtoneSupportThanksPage({
   params,
   searchParams,
 }: {
@@ -45,5 +46,5 @@ export default async function FilmLabSupportThanksPage({
     checkoutSessionId = firstQueryValue(sp.session_id);
   }
 
-  return <FilmLabSupportThanksClient checkoutSessionId={checkoutSessionId} />;
+  return <FilmtoneSupportThanksClient checkoutSessionId={checkoutSessionId} />;
 }

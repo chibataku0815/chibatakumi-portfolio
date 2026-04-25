@@ -2,8 +2,11 @@
 
 /**
  * @file Stripe 決済完了タブから開く「ご支援ありがとう」ページの UI。
- * @description 感謝文・免責・Film Lab への導線。`session_id` があるときは POST verify で httpOnly Cookie を発行する。
- * @limitations verify に必要な env が無いときは Cookie を付けず、従来どおり Film Lab の `donationThanks` フォールバック可。
+ * @description 感謝文・免責・Filmtone への導線。`session_id` があるときは POST verify で httpOnly Cookie を発行する。
+ *   Wave 2 D5.1 で `/film-lab/support/thanks/FilmLabSupportThanksClient.tsx` から carry。
+ *   API path は `/api/film-lab/donation/verify` を維持（plan §6.2: donation API は Filmtone 独立ドメイン化までの暫定）。
+ *   内部 Link 先のみ `/film-lab` → `/works/filmtone` に更新。
+ * @limitations verify に必要な env が無いときは Cookie を付けず、従来どおり Filmtone の `donationThanks` フォールバック可。
  */
 
 import { useEffect, useState } from "react";
@@ -11,7 +14,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { trackFilmLabDonationEvent } from "@/shared/analytics";
 
-export type FilmLabSupportThanksClientProps = {
+export type FilmtoneSupportThanksClientProps = {
   /** Stripe が `?session_id={CHECKOUT_SESSION_ID}` で付与する Checkout Session ID */
   checkoutSessionId?: string;
 };
@@ -19,7 +22,7 @@ export type FilmLabSupportThanksClientProps = {
 /**
  * @description Thanks ページ本体。マウント時に計測し、あればセッション検証を走らせる。
  */
-export function FilmLabSupportThanksClient({ checkoutSessionId }: FilmLabSupportThanksClientProps) {
+export function FilmtoneSupportThanksClient({ checkoutSessionId }: FilmtoneSupportThanksClientProps) {
   const t = useTranslations("film-lab.donation.thanks_page");
   const tDonation = useTranslations("film-lab.donation");
   const locale = useLocale();
@@ -56,8 +59,8 @@ export function FilmLabSupportThanksClient({ checkoutSessionId }: FilmLabSupport
         } catch {
           data = { ok: false, code: "non_json_body" };
           if (process.env.NODE_ENV === "development") {
-            console.warn("FilmLabSupportThanksClient: verify response was not JSON", {
-              functionName: "FilmLabSupportThanksClient.useEffect.verify",
+            console.warn("FilmtoneSupportThanksClient: verify response was not JSON", {
+              functionName: "FilmtoneSupportThanksClient.useEffect.verify",
               httpStatus: res.status,
               bodySnippet: rawBody.slice(0, 240),
             });
@@ -79,8 +82,8 @@ export function FilmLabSupportThanksClient({ checkoutSessionId }: FilmLabSupport
           const apiCode = typeof data.code === "string" && data.code.length > 0 ? data.code : "unknown";
           setVerifyDiag({ httpStatus: res.status, code: apiCode });
           if (process.env.NODE_ENV === "development") {
-            console.warn("FilmLabSupportThanksClient: verify did not return ok", {
-              functionName: "FilmLabSupportThanksClient.useEffect.verify",
+            console.warn("FilmtoneSupportThanksClient: verify did not return ok", {
+              functionName: "FilmtoneSupportThanksClient.useEffect.verify",
               httpStatus: res.status,
               code: apiCode,
             });
@@ -91,8 +94,8 @@ export function FilmLabSupportThanksClient({ checkoutSessionId }: FilmLabSupport
           setVerifyState("error");
           setVerifyDiag({ httpStatus: 0, code: "network_or_fetch_error" });
           if (process.env.NODE_ENV === "development") {
-            console.warn("FilmLabSupportThanksClient: verify fetch failed", {
-              functionName: "FilmLabSupportThanksClient.useEffect.verify",
+            console.warn("FilmtoneSupportThanksClient: verify fetch failed", {
+              functionName: "FilmtoneSupportThanksClient.useEffect.verify",
               error: err instanceof Error ? err.message : String(err),
             });
           }
@@ -123,7 +126,7 @@ export function FilmLabSupportThanksClient({ checkoutSessionId }: FilmLabSupport
         </>
       ) : null}
       <Link
-        href={verifyState === "ok" ? "/film-lab" : "/film-lab?donationThanks=1"}
+        href={verifyState === "ok" ? "/works/filmtone" : "/works/filmtone?donationThanks=1"}
         className="mt-6 inline-flex w-fit rounded-xl bg-[var(--accent-amber1)] px-4 py-2.5 text-sm font-medium text-black transition-opacity hover:opacity-90"
       >
         {t("returnCta")}

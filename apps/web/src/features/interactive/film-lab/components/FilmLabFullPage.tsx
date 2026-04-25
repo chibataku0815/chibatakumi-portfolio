@@ -1333,13 +1333,13 @@ export function FilmLabFullPage({
 
       <nav className="mt-12 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-white/10 pt-8">
         <Link
-          href="/film-lab/roadmap"
+          href="/works/filmtone/roadmap"
           className="film-lab-lp-body text-xs text-[var(--text-base-60)] transition-colors hover:text-[var(--text-base)]"
         >
           {tLp("roadmapLink")}
         </Link>
         <Link
-          href="/film-lab/release-notes"
+          href="/works/filmtone/release-notes"
           className="film-lab-lp-body text-xs text-[var(--text-base-60)] transition-colors hover:text-[var(--text-base)]"
         >
           {tLp("releaseNotesLink")}

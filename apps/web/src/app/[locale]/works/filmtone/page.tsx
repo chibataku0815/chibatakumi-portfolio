@@ -10,19 +10,30 @@ import { filmLabReadDonationEnvOnServer } from "@/features/interactive/film-lab/
 import { decodeSharedParamP } from "@/features/interactive/film-lab/params-codec";
 import type { Params } from "@/features/interactive/film-lab/types";
 
+/**
+ * @file Filmtone case study top page (`/works/filmtone`).
+ * @description Wave 2 D5.1 で `/film-lab` から carry。D5.6 dynamic data isolation: server component が
+ *   100% static (case study text + metadata)、cookie / searchParams の解決後に client island
+ *   `<FilmLabFullPage />` を Suspense 越しではなく直接 mount。独立ドメイン化時は island の export source
+ *   切替で static snapshot 化を容易にする (waitlist / donation を別 island にしたい場合は追って分割)。
+ *   D5.7 で `metadata.alternates.canonical` を新パスへ inline。
+ */
+
 const BASE_URL = "https://www.chibatakumi.studio";
 
-function filmLabOgPath(locale: string): string {
-  return locale === "ja" ? "/film-lab/og" : `/en/film-lab/og`;
+function filmtoneOgPath(locale: string): string {
+  return locale === "ja"
+    ? "/works/filmtone/og"
+    : `/en/works/filmtone/og`;
 }
 
 /**
- * Film Lab ページ用のメタデータを組み立てて返す。
+ * Filmtone ページ用のメタデータを組み立てて返す。
  *
  * @description
  * - OGP／Twitter カードの画像は、従来どおり写実ヒーローか動的 OG ルート（共有プリセット URL）。
- * - ブラウザタブと Apple Touch 用には、サイト全体の icon ではなく **Film Lab 専用シンボル**（`/brand/film-lab-symbol.svg` 等）を載せる。
- *   life 側の正本: `film-lab-symbol-mark-assets.md`。
+ * - ブラウザタブと Apple Touch 用には、サイト全体の icon ではなく **Filmtone 専用シンボル**（`/brand/film-lab-symbol.svg` 等）を載せる。
+ *   life 側の正本: `film-lab-symbol-mark-assets.md`（asset paths は public/brand/, public/film-lab/ のまま維持）。
  *
  * @param params - Next.js のルート `params`。`locale` で言語を切り替える。
  * @param searchParams - クエリ `p` / `v`。共有ルックが解読できたときだけ動的 OG パスを選ぶ。
@@ -38,7 +49,9 @@ export async function generateMetadata({
   const t = await getTranslations({ locale, namespace: "film-lab.metadata" });
   const isJa = locale === "ja";
 
-  const canonicalUrl = isJa ? `${BASE_URL}/film-lab` : `${BASE_URL}/en/film-lab`;
+  const canonicalUrl = isJa
+    ? `${BASE_URL}/works/filmtone`
+    : `${BASE_URL}/en/works/filmtone`;
 
   let ogImageUrl = "/film-lab/og-image.jpg";
   if (searchParams) {
@@ -46,7 +59,7 @@ export async function generateMetadata({
     const pRaw = firstQueryValue(sp.p);
     const vRaw = firstQueryValue(sp.v);
     if (pRaw && decodeSharedParamP(vRaw, pRaw)) {
-      const og = new URL(filmLabOgPath(locale), BASE_URL);
+      const og = new URL(filmtoneOgPath(locale), BASE_URL);
       og.searchParams.set("v", vRaw?.trim() || "1");
       og.searchParams.set("p", pRaw);
       ogImageUrl = `${og.pathname}${og.search}`;
@@ -85,8 +98,8 @@ export async function generateMetadata({
     alternates: {
       canonical: canonicalUrl,
       languages: {
-        ja: `${BASE_URL}/film-lab`,
-        en: `${BASE_URL}/en/film-lab`,
+        ja: `${BASE_URL}/works/filmtone`,
+        en: `${BASE_URL}/en/works/filmtone`,
       },
     },
   };
@@ -97,13 +110,15 @@ export async function generateMetadata({
  *   **Desktop（SoftwareApplication）** と **ブラウザデモ（WebApplication）** を `@graph` で分け、`isRelatedTo` で関連づける。
  * @param locale - next-intl のロケール（`ja` / `en` など）。
  */
-async function buildFilmLabJsonLd(locale: string) {
+async function buildFilmtoneJsonLd(locale: string) {
   const t = await getTranslations({ locale, namespace: "film-lab.jsonLd" });
   const isJa = locale === "ja";
-  const pageUrl = isJa ? `${BASE_URL}/film-lab` : `${BASE_URL}/en/film-lab`;
+  const pageUrl = isJa
+    ? `${BASE_URL}/works/filmtone`
+    : `${BASE_URL}/en/works/filmtone`;
   const downloadUrl = isJa
-    ? `${BASE_URL}/film-lab/download`
-    : `${BASE_URL}/en/film-lab/download`;
+    ? `${BASE_URL}/works/filmtone/download`
+    : `${BASE_URL}/en/works/filmtone/download`;
   return {
     "@context": "https://schema.org",
     "@graph": [
@@ -144,7 +159,13 @@ function firstQueryValue(value: string | string[] | undefined): string | undefin
   return typeof value === "string" ? value : value[0];
 }
 
-export default async function FilmLabPage({
+/**
+ * @description Filmtone case study top — server component。
+ *   D5.6: dynamic state (cookie verified supporter, shared params, donation env) は server で resolve、
+ *   client UI は `FilmLabFullPage` 1 island に集約。将来、waitlist / donation / showcase で
+ *   多 island 化したい場合は本 component を分割する。
+ */
+export default async function FilmtonePage({
   params,
   searchParams,
 }: {
@@ -175,7 +196,7 @@ export default async function FilmLabPage({
       filmLabVerifySupporterCookieValue(supporterRaw, signSecret) !== null,
   );
 
-  const jsonLd = await buildFilmLabJsonLd(locale);
+  const jsonLd = await buildFilmtoneJsonLd(locale);
 
   return (
     <>
