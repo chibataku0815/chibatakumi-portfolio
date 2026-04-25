@@ -52,14 +52,12 @@ export function MotionStageProvider({
 
     (async () => {
       try {
+        // Boot with the original motion-dot-new-webgpu defaults: HUD visible,
+        // keyboard cluster enabled, audio off (user toggles via the audio
+        // settings panel — same as the original Vite app boot state).
         const mount = await mountMotionDotApp({
           canvas,
           hostOverlay: overlay,
-          // Layout-level safe defaults; consumer routes call mount.configure()
-          // to enable HUD / input / scene cycle as needed.
-          hudVisible: false,
-          inputEnabled: false,
-          audioEnabled: false,
         });
         if (cancelled) {
           mount.stop();

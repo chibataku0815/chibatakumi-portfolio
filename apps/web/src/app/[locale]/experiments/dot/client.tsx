@@ -2,17 +2,15 @@
 
 import { useMotionDotMount } from "@/features/motion/useMotionDotMount";
 
-// Wave 2 D2.8 (wholesale transplant) — full original motion-dot experience.
-// HUD overlay + keyboard cluster + all 16 scenes (15 lib + Fluid GPU compute)
-// + KineticHandoff transitions. Audio defaults off; user toggles via the HUD
-// audio settings panel (key A or the on-canvas pill).
+// Wave 2 D2.8 (wholesale transplant) — focused / experiments surface for the
+// transplanted motion-dot-new-webgpu. The MotionStageProvider already boots
+// the app with the original defaults (HUD / keyboard / film toggle / audio
+// settings panel / file picker all active). This route only ensures the
+// auto-cycle is OFF so the user can navigate the 16-scene library manually
+// (← → / Space / 0 / R / F / A / D / I / M etc., per input/keyboard.ts).
 export default function ExperimentsDotClient() {
   useMotionDotMount({
-    initialScene: "Orbit",
     sceneCycle: false,
-    hudVisible: true,
-    inputEnabled: true,
-    audioEnabled: false,
   });
 
   return (
