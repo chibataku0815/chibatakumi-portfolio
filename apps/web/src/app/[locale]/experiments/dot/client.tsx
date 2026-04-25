@@ -1,28 +1,18 @@
 "use client";
 
-import { createDotParticipant } from "@chibatakumi/motion-dot";
-import { useExperimentParticipant } from "@/features/motion/useExperimentParticipant";
+import { useMotionDotMount } from "@/features/motion/useMotionDotMount";
 
-// Phase A+2 polish: showcase route runs in multi-scene gallery mode
-// (composite-25d, 2×2 grid) — visually richer, the showcase peak.
-// Single-scene cycle remains the home / works default.
-//
-// Migration path back to cycle mode (if gallery wiring needs to be
-// disabled in an emergency): swap `enableGalleryMode: true` →
-// `enableSceneCycle: true` and drop `panelCount`.
-//
-// HUD overlay is deferred (see motion-dot index.ts JSDoc) — keep
-// `enableInput: true` so ArrowLeft/Right/Space/n/p/r drive panel base
-// shifts (gallery) or scene handoffs (cycle).
+// Wave 2 D2.8 (wholesale transplant) — full original motion-dot experience.
+// HUD overlay + keyboard cluster + all 16 scenes (15 lib + Fluid GPU compute)
+// + KineticHandoff transitions. Audio defaults off; user toggles via the HUD
+// audio settings panel (key A or the on-canvas pill).
 export default function ExperimentsDotClient() {
-  useExperimentParticipant({
-    factory: () =>
-      createDotParticipant({
-        enableGalleryMode: true,
-        panelCount: 4,
-        enableInput: true,
-      }),
-    blendMs: 500,
+  useMotionDotMount({
+    initialScene: "Orbit",
+    sceneCycle: false,
+    hudVisible: true,
+    inputEnabled: true,
+    audioEnabled: false,
   });
 
   return (

@@ -1,0 +1,810 @@
+// ── Fluid Dot Metaball — Entry Point ──────────────────────────
+// Uses gpu-fx-presets library for metaball SDF + particle scenes.
+// Fluid (GPU Compute) scene remains local (out of library scope).
+
+import {
+  createMetaballSDF,
+  createOrbitParticles,
+  createGridFluidParticles,
+  createRiverParticles,
+  createMagnetParticles,
+  createMitosisParticles,
+  createPendulumParticles,
+  createRippleParticles,
+  createDeltaParticles,
+  createFlockParticles,
+  createHelixParticles,
+  createPhaseTransitionParticles,
+  createFireflyParticles,
+  createMolecularParticles,
+  createChainParticles,
+  createConvergeParticles,
+  createTextAttractorParticles,
+  type AudioReactiveBands,
+  type MetaballSDF,
+  type MetaballParticleSource,
+} from "gpu-fx-presets";
+import { createFluidScene, type FluidScene } from "./scene/fluid-scene";
+import { AudioBus, createAudioController, type AudioController } from "webgpu-motion-audio";
+import { DOT_WIRING, DOT_AUDIO_DELTA_BUFFER } from "./audio/wiring";
+import { createGalleryMode, type GalleryMode, type PanelRenderer } from "./scene/composite-25d";
+import {
+  createHud,
+  createFilmToggleButton,
+  createHotkeyLegend,
+  createAudioSettingsButton,
+  createAudioSettingsPanel,
+  setOptionsVisibility,
+  setAudioSettingsPanelVisibility,
+  updateHud,
+  updateFilmToggleButton,
+  updateAudioSettingsButton,
+  updateAudioSettingsPanel,
+} from "./ui/hud";
+import { bindKeyboardShortcuts } from "./input/keyboard";
+import {
+  createKineticHandoff,
+  type KineticHandoffController,
+  type TransitionParticipant,
+  type TransitionScene,
+} from "./transition/kinetic-handoff";
+import {
+  createFixedStepLoop,
+  createOffscreenTargetPool,
+  initGpu,
+  resizeCanvas,
+} from "webgpu-motion-shell";
+import {
+  createFilmPostPass,
+  createPassthroughFilmPostPass,
+  type MotionFilmPostPass,
+} from "webgpu-motion-post";
+
+export type DotSceneName =
+  | "Orbit"
+  | "Grid Fluid"
+  | "River Flow"
+  | "Magnet"
+  | "Mitosis"
+  | "Pendulum Wave"
+  | "Ripple"
+  | "River Delta"
+  | "Flock"
+  | "DNA Helix"
+  | "Phase Transition"
+  | "Firefly Sync"
+  | "Molecular"
+  | "Chain"
+  | "Living Typography"
+  | "Fluid (GPU)";
+
+export interface MountOptions {
+  readonly canvas: HTMLCanvasElement;
+  readonly hostOverlay?: HTMLElement;
+  readonly initialScene?: DotSceneName;
+  readonly sceneCycle?: { readonly scenes: ReadonlyArray<DotSceneName>; readonly intervalSec?: number } | false;
+  readonly hudVisible?: boolean;
+  readonly inputEnabled?: boolean;
+  readonly audioEnabled?: boolean;
+  readonly onError?: (err: unknown) => void;
+  readonly onReady?: () => void;
+}
+
+export interface MountHandle {
+  stop(): void;
+  configure(partial: Partial<Omit<MountOptions, "canvas" | "hostOverlay" | "onError" | "onReady">>): void;
+  getStatus(): { sceneIndex: number; sceneName: DotSceneName };
+}
+
+interface SceneEntry {
+  readonly name: string;
+  readonly source: MetaballParticleSource | null;
+  readonly fluidScene: FluidScene | null;
+}
+
+function getTransitionParticipant(entry: SceneEntry): TransitionParticipant | null {
+  return (entry.source ?? entry.fluidScene) as TransitionParticipant | null;
+}
+
+function resetEntry(entry: SceneEntry): void {
+  getTransitionParticipant(entry)?.reset();
+}
+
+function clamp01(value: number): number {
+  return Math.min(Math.max(value, 0), 1);
+}
+
+function lerp(a: number, b: number, t: number): number {
+  return a + (b - a) * t;
+}
+
+const INTENSITY_TUNING = {
+  gate: 0.08,
+  range: 0.84,
+  contrast: 1.35,
+  galleryParticleLift: 0.45,
+  galleryThresholdDamping: 0.34,
+  gallerySoftnessDamping: 0.30,
+  galleryRimDamping: 0.46,
+  galleryBloomDamping: 0.36,
+  galleryGrainDamping: 0.16,
+  galleryChromaDamping: 0.24,
+  galleryVignetteDamping: 0.32,
+} as const;
+
+interface PresentationModulation {
+  readonly particleIntensity: number;
+  readonly threshold: number;
+  readonly softness: number;
+  readonly rimIntensity: number;
+  readonly bloomIntensity: number;
+  readonly bloomThreshold: number;
+  readonly grainIntensity: number;
+  readonly chromaAmount: number;
+  readonly vignetteStrength: number;
+}
+
+const GALLERY_SCENE_DAMPING: Readonly<Record<number, Readonly<{
+  particleIntensity: number;
+  threshold: number;
+  softness: number;
+  rimIntensity: number;
+}>>> = {
+  1: {
+    particleIntensity: 0.46,
+    threshold: 0.30,
+    softness: 0.65,
+    rimIntensity: 0.45,
+  },
+  6: {
+    particleIntensity: 0.50,
+    threshold: 0.35,
+    softness: 0.70,
+    rimIntensity: 0.52,
+  },
+} as const;
+
+function shapeIntensity(rawIntensity: number): number {
+  const normalized = clamp01((rawIntensity - INTENSITY_TUNING.gate) / INTENSITY_TUNING.range);
+  return clamp01((normalized - 0.5) * INTENSITY_TUNING.contrast + 0.5);
+}
+
+function createPresentationModulation(
+  panelCount: number,
+  shapedIntensity: number,
+): PresentationModulation {
+  // DOT_AUDIO_DELTA_BUFFER is assumed to be pre-populated for this frame by
+  // the caller via DOT_WIRING.resolveInto(...) — see main loop. Baselines are
+  // 0 in DOT_WIRING, so the buffer holds pure audio deltas. When audio is
+  // disabled, the buffer must be zeroed by the caller.
+  const galleryMix = clamp01((panelCount - 1) / 11);
+  const particleIntensity = lerp(shapedIntensity, 1, galleryMix * INTENSITY_TUNING.galleryParticleLift);
+
+  const thresholdDamp = 1 - galleryMix * INTENSITY_TUNING.galleryThresholdDamping;
+  const softnessDamp = 1 - galleryMix * INTENSITY_TUNING.gallerySoftnessDamping;
+  const rimMin = lerp(0.04, 0.03, galleryMix);
+  const rimSpan = 0.24 * (1 - galleryMix * INTENSITY_TUNING.galleryRimDamping);
+
+  const bloomMul = 1 - galleryMix * INTENSITY_TUNING.galleryBloomDamping;
+  const grainMul = 1 - galleryMix * INTENSITY_TUNING.galleryGrainDamping;
+  const chromaMul = 1 - galleryMix * INTENSITY_TUNING.galleryChromaDamping;
+  const vignetteMul = 1 - galleryMix * INTENSITY_TUNING.galleryVignetteDamping;
+
+  return {
+    particleIntensity,
+    threshold: 1.0 + DOT_AUDIO_DELTA_BUFFER["scene.threshold"] * thresholdDamp,
+    softness: 0.015 + DOT_AUDIO_DELTA_BUFFER["scene.softness"] * softnessDamp,
+    rimIntensity: rimMin + shapedIntensity * rimSpan,
+    bloomIntensity: 0.3 + DOT_AUDIO_DELTA_BUFFER["film.bloom.intensity"] * bloomMul,
+    bloomThreshold: 0.55 + DOT_AUDIO_DELTA_BUFFER["film.bloom.threshold"] * bloomMul,
+    grainIntensity: 0.05 + DOT_AUDIO_DELTA_BUFFER["film.grain.intensity"] * grainMul,
+    chromaAmount: 0.001 + DOT_AUDIO_DELTA_BUFFER["film.chroma.amount"] * chromaMul,
+    vignetteStrength: 0.80 + DOT_AUDIO_DELTA_BUFFER["film.vignette.strength"] * vignetteMul,
+  };
+}
+
+function resolveDotAudioDeltas(
+  audioBus: AudioBus,
+  shapedIntensity: number,
+  audioEnabled: boolean,
+): void {
+  if (!audioEnabled) {
+    for (const p of DOT_WIRING.params) DOT_AUDIO_DELTA_BUFFER[p] = 0;
+    return;
+  }
+  DOT_WIRING.resolveInto(
+    DOT_AUDIO_DELTA_BUFFER,
+    audioBus.bands,
+    audioBus.onsets,
+    shapedIntensity,
+  );
+}
+
+function buildAudioReactiveState(audioBus: AudioBus, intensity: number): AudioReactiveBands {
+  return {
+    ...audioBus.bands,
+    ...audioBus.onsets,
+    intensity,
+  };
+}
+
+function applyGallerySceneDamping(
+  sceneIndex: number,
+  modulation: PresentationModulation,
+): PresentationModulation {
+  const damping = GALLERY_SCENE_DAMPING[sceneIndex];
+  if (!damping) {
+    return modulation;
+  }
+
+  return {
+    ...modulation,
+    particleIntensity: modulation.particleIntensity * damping.particleIntensity,
+    threshold: lerp(1.0, modulation.threshold, damping.threshold),
+    softness: modulation.softness * damping.softness,
+    rimIntensity: modulation.rimIntensity * damping.rimIntensity,
+  };
+}
+
+// ── Mount entry (host-driven) ────────────────────────────────
+export async function mountMotionDotApp(opts: MountOptions): Promise<MountHandle> {
+  const { canvas } = opts;
+  const hostOverlay = opts.hostOverlay ?? document.body;
+
+  try {
+    const gpu = await initGpu(canvas);
+    const { device, context, format } = gpu;
+    const offscreenTargets = createOffscreenTargetPool(device);
+    const offscreenFormat: GPUTextureFormat = "rgba16float";
+
+    // ── Library: Metaball SDF renderer ──────────────────────
+    const size = resizeCanvas(gpu);
+    const sdf: MetaballSDF = createMetaballSDF(device, size.width, size.height);
+
+    // ── Library: Particle sources ───────────────────────────
+    const orbit = createOrbitParticles(device);
+    const gridFluid = createGridFluidParticles(device);
+    const river = createRiverParticles(device);
+    const magnet = createMagnetParticles(device);
+    const mitosis = createMitosisParticles(device);
+    const pendulum = createPendulumParticles(device);
+    const ripple = createRippleParticles(device);
+    const delta = createDeltaParticles(device);
+    const flock = createFlockParticles(device);
+    const helix = createHelixParticles(device);
+    const phaseTransition = createPhaseTransitionParticles(device);
+    const firefly = createFireflyParticles(device);
+    const molecular = createMolecularParticles(device);
+    const chain = createChainParticles(device);
+    createConvergeParticles(device);
+    const textAttractor = createTextAttractorParticles(device, { text: "hello" });
+
+    // ── Local: Fluid scene (GPU Compute, not in library) ────
+    const fluid = createFluidScene(device, {
+      count: 200,
+      noiseScale: 2.0,
+      noiseSpeed: 0.025,
+      flowForce: 0.12,
+      drag: 0.992,
+      whiteRatio: 0.15,
+    });
+
+    type SourceDef = { name: string; source: MetaballParticleSource };
+    type FluidDef = { name: string; fluidScene: FluidScene };
+
+    const libScenes: SourceDef[] = [
+      { name: "Orbit", source: orbit },
+      { name: "Grid Fluid", source: gridFluid },
+      { name: "River Flow", source: river },
+      { name: "Magnet", source: magnet },
+      { name: "Mitosis", source: mitosis },
+      { name: "Pendulum Wave", source: pendulum },
+      { name: "Ripple", source: ripple },
+      { name: "River Delta", source: delta },
+      { name: "Flock", source: flock },
+      { name: "DNA Helix", source: helix },
+      { name: "Phase Transition", source: phaseTransition },
+      { name: "Firefly Sync", source: firefly },
+      { name: "Molecular", source: molecular },
+      { name: "Chain", source: chain },
+      { name: "Living Typography", source: textAttractor },
+    ];
+    const fluidScenes: FluidDef[] = [
+      { name: "Fluid (GPU)", fluidScene: fluid },
+    ];
+
+    const entries: SceneEntry[] = [];
+    for (const scene of libScenes) {
+      entries.push({ name: scene.name, source: scene.source, fluidScene: null });
+    }
+    for (const scene of fluidScenes) {
+      entries.push({ name: scene.name, source: null, fluidScene: scene.fluidScene });
+    }
+
+    const transitionScenes: TransitionScene[] = entries.map((entry) => ({
+      name: entry.name,
+      participant: getTransitionParticipant(entry),
+    }));
+
+    let idx = (() => {
+      if (!opts.initialScene) return 0;
+      const found = entries.findIndex((e) => e.name === opts.initialScene);
+      return found >= 0 ? found : 0;
+    })();
+    let postEnabled = false;
+    let galleryEnabled = false;
+    let galleryMode: GalleryMode | null = null;
+    let audioController!: AudioController;
+    let kineticHandoff!: KineticHandoffController;
+    // demoStyle: "beat" preserves dot's 120 BPM silent-time aesthetic
+    // (new shared substrate defaults to "ambient" for grid's use case).
+    const audioBus = new AudioBus({ demoStyle: "beat" });
+
+    // ── Film post passes ───────────────────────────────────
+    const filmPost: MotionFilmPostPass = createFilmPostPass(device, format);
+    const filmPassthrough: MotionFilmPostPass = createPassthroughFilmPostPass(device, format);
+
+    function getGalleryMode(w: number, h: number): GalleryMode {
+      if (!galleryMode) {
+        galleryMode = createGalleryMode(device, w, h);
+      }
+      return galleryMode;
+    }
+
+    // ── Legacy metaball pass for Fluid scene ─────────────────
+    const { createMetaballPass } = await import("./render/metaball-pass");
+    const legacyMetaball = createMetaballPass(device, offscreenFormat);
+
+    const hud = createHud(hostOverlay);
+    const filmToggle = createFilmToggleButton(hostOverlay);
+    const audioSettingsButton = createAudioSettingsButton(hostOverlay);
+    const audioSettingsPanel = createAudioSettingsPanel(hostOverlay);
+    const hotkeyLegend = createHotkeyLegend(hostOverlay);
+    let hudVisible = opts.hudVisible ?? true;
+    let optionsVisible = hudVisible;
+    let audioPanelOpen = false;
+
+    function syncOptionsVisibility(): void {
+      setOptionsVisibility(filmToggle, audioSettingsButton, hotkeyLegend, hudVisible && optionsVisible);
+      setAudioSettingsPanelVisibility(audioSettingsPanel, hudVisible && optionsVisible && audioPanelOpen);
+      hud.style.display = hudVisible ? "" : "none";
+    }
+
+    function syncOverlay(): void {
+      updateHud(hud, {
+        sceneName: entries[idx].name,
+        sceneIndex: idx,
+        sceneCount: entries.length,
+        postEnabled,
+        audioEnabled: audioController.enabled,
+        audioSourceLabel: audioController.sourceLabel,
+        transitionLabel: kineticHandoff.hudMessage,
+        galleryEnabled,
+        layoutName: galleryMode?.getLayoutName() ?? "",
+        onsetActivity: audioBus.onsets.globalOnset,
+      });
+      updateFilmToggleButton(filmToggle, postEnabled);
+      updateAudioSettingsButton(audioSettingsButton, {
+        enabled: audioController.enabled,
+        panelOpen: audioPanelOpen,
+        sourceLabel: audioController.sourceLabel,
+      });
+      updateAudioSettingsPanel(audioSettingsPanel, {
+        enabled: audioController.enabled,
+        sourceKind: audioController.sourceKind,
+        inputStatus: audioController.inputStatus,
+        inputDevices: audioController.inputDevices,
+        selectedInputDeviceId: audioController.selectedInputDeviceId,
+        inputSupported: audioController.inputSupported,
+        inputPermissionGranted: audioController.inputPermissionGranted,
+      });
+      syncOptionsVisibility();
+    }
+
+    kineticHandoff = createKineticHandoff({
+      scenes: transitionScenes,
+      getCurrentIndex: () => idx,
+      setCurrentIndex: (nextIdx) => {
+        idx = nextIdx;
+      },
+      onStateChange: syncOverlay,
+    });
+
+    audioController = createAudioController({
+      audioBus,
+      defaultSrc: "audio.mp3",
+      storageKeyPrefix: "motion-dot-new-webgpu",
+      onStateChange: () => {
+        if (audioController.enabled) {
+          postEnabled = true;
+        }
+        syncOverlay();
+      },
+    });
+
+    filmToggle.addEventListener("click", () => {
+      postEnabled = !postEnabled;
+      syncOverlay();
+    });
+
+    audioSettingsButton.addEventListener("click", () => {
+      audioPanelOpen = !audioPanelOpen;
+      syncOverlay();
+    });
+    audioSettingsPanel.sourceButtons.default_track.addEventListener("click", () => {
+      void audioController.selectSource("default_track");
+    });
+    audioSettingsPanel.sourceButtons.file.addEventListener("click", () => {
+      void audioController.selectSource("file");
+    });
+    audioSettingsPanel.sourceButtons.input.addEventListener("click", () => {
+      void audioController.selectSource("input");
+    });
+    audioSettingsPanel.refreshButton.addEventListener("click", () => {
+      void audioController.refreshInputDevices();
+    });
+    audioSettingsPanel.actionButton.addEventListener("click", () => {
+      void (async () => {
+        await audioController.toggle();
+        if (audioController.enabled) {
+          postEnabled = true;
+        }
+      })();
+    });
+    audioSettingsPanel.deviceSelect.addEventListener("change", () => {
+      if (audioSettingsPanel.deviceSelect.value) {
+        void audioController.selectInputDevice(audioSettingsPanel.deviceSelect.value);
+      }
+    });
+
+    function disableGallery(): boolean {
+      if (!galleryEnabled) {
+        return false;
+      }
+      galleryEnabled = false;
+      return true;
+    }
+
+    const keyboardDeps = {
+      getSceneIndex: () => idx,
+      getSceneCount: () => entries.length,
+      setSceneIndex: (nextIdx: number) => {
+        idx = nextIdx;
+      },
+      disableGallery,
+      toggleOptionsVisibility: () => {
+        optionsVisible = !optionsVisible;
+      },
+      toggleAudioPanel: () => {
+        audioPanelOpen = !audioPanelOpen;
+      },
+      isTransitionActive: () => kineticHandoff.isActive(),
+      getTransitionPhase: () => kineticHandoff.phase,
+      startTransition: (sourceIdx: number) => kineticHandoff.start(sourceIdx),
+      stopTransition: () => kineticHandoff.stop(),
+      resetCurrentScene: () => resetEntry(entries[idx]),
+      toggleFilm: () => {
+        postEnabled = !postEnabled;
+      },
+      cycleGallery: () => {
+        if (!galleryEnabled) {
+          galleryEnabled = true;
+          const g = getGalleryMode(size.width, size.height);
+          g.resetLayout();
+        } else if (galleryMode) {
+          if (!galleryMode.nextLayout()) {
+            disableGallery();
+          }
+        }
+      },
+      cycleGalleryReverse: () => {
+        if (!galleryEnabled) {
+          galleryEnabled = true;
+          const g = getGalleryMode(size.width, size.height);
+          g.resetLayoutToLast();
+        } else if (galleryMode) {
+          if (!galleryMode.prevLayout()) {
+            disableGallery();
+          }
+        }
+      },
+      isGalleryEnabled: () => galleryEnabled,
+      shiftGalleryBase: (delta: number) => {
+        if (galleryEnabled && galleryMode) {
+          galleryMode.shiftBase(delta);
+        }
+      },
+      toggleAudio: async () => {
+        await audioController.toggle();
+        if (audioController.enabled) {
+          postEnabled = true;
+        }
+      },
+      openAudioPicker: () => audioController.openFilePicker(),
+      changeTypographyText: () => {
+        const newText = prompt("Enter text for Living Typography:");
+        if (newText && newText.trim()) {
+          textAttractor.setText(newText.trim());
+        }
+      },
+      syncOverlay,
+    };
+
+    let keyboardTeardown: (() => void) | null = null;
+    function setInputEnabled(enabled: boolean): void {
+      if (enabled && !keyboardTeardown) {
+        keyboardTeardown = bindKeyboardShortcuts(keyboardDeps);
+      } else if (!enabled && keyboardTeardown) {
+        keyboardTeardown();
+        keyboardTeardown = null;
+      }
+    }
+    setInputEnabled(opts.inputEnabled ?? true);
+
+    if (opts.audioEnabled) {
+      void audioController.toggle();
+    }
+
+    syncOverlay();
+
+    // ── Animation loop ───────────────────────────────────────
+    const loop = createFixedStepLoop({
+      fps: 45,
+      frame: ({ dt, time }) => {
+        const sz = resizeCanvas(gpu);
+        sdf.resize(sz.width, sz.height);
+
+        const outputTexture = context.getCurrentTexture();
+        const outputView = outputTexture.createView();
+        const encoder = device.createCommandEncoder({ label: "frame" });
+        const gallery = galleryEnabled ? getGalleryMode(sz.width, sz.height) : null;
+
+        kineticHandoff.update(dt, time);
+
+        const entry = entries[idx];
+
+        // ── Audio breath modulation ──────────────────────────
+        audioBus.update(audioController.enabled ? dt : 0);
+
+        const bass = audioController.enabled ? audioBus.bands.bass : 0;
+        const mid = audioController.enabled ? audioBus.bands.mid : 0;
+        const treble = audioController.enabled ? audioBus.bands.treble : 0;
+        const energy = audioController.enabled ? audioBus.bands.energy : 0;
+        const intensity = audioController.enabled ? shapeIntensity(audioBus.intensity) : 0;
+
+        // ── Onset impulse modulation (additive) ─────────────
+        const kickPulse = audioController.enabled ? audioBus.onsets.bassOnset : 0;
+        const snarePulse = audioController.enabled ? audioBus.onsets.midOnset : 0;
+        const hatPulse = audioController.enabled ? audioBus.onsets.trebleOnset : 0;
+        const globalPulse = audioController.enabled ? audioBus.onsets.globalOnset : 0;
+
+        // Populate DOT_AUDIO_DELTA_BUFFER once per frame, shared across the
+        // single and gallery modulations (galleryMix damping is applied inside
+        // createPresentationModulation to the same underlying deltas).
+        resolveDotAudioDeltas(audioBus, intensity, audioController.enabled);
+
+        const singleModulation = createPresentationModulation(1, intensity);
+        const galleryPanelCount = galleryEnabled && gallery ? gallery.getPanelCount() : 1;
+        const galleryModulation = createPresentationModulation(galleryPanelCount, intensity);
+        const activeModulation = galleryEnabled ? galleryModulation : singleModulation;
+
+        // Wire audio bands into particle physics (sources that implement setAudioReactive)
+        const participant = getTransitionParticipant(entry);
+        if (participant && "setAudioReactive" in participant) {
+          (participant as { setAudioReactive(b: AudioReactiveBands | null): void })
+            .setAudioReactive(
+              audioController.enabled
+                ? buildAudioReactiveState(audioBus, singleModulation.particleIntensity)
+                : null,
+            );
+        }
+
+        sdf.updateConfig({
+          threshold: activeModulation.threshold,
+          softness: activeModulation.softness,
+          rimIntensity: activeModulation.rimIntensity,
+        });
+        filmPost.updateConfig({
+          bloom: {
+            intensity: activeModulation.bloomIntensity,
+            threshold: activeModulation.bloomThreshold,
+            warmth: 0.0,
+          },
+          grain: {
+            intensity: activeModulation.grainIntensity,
+            size: 0.6,
+            radialMix: 0.35,
+          },
+          chromaticAberration: { amount: activeModulation.chromaAmount },
+          vignette: { strength: activeModulation.vignetteStrength, warmShift: 0.0 },
+        });
+
+        // In gallery mode, feed audio to all visible panel scenes
+        if (galleryEnabled && galleryMode) {
+          const base = galleryMode.getBaseSceneIndex();
+          const count = galleryMode.getPanelCount();
+          for (let i = 0; i < count; i++) {
+            const si = (base + i) % entries.length;
+            const p = getTransitionParticipant(entries[si]);
+            const sceneGalleryModulation = applyGallerySceneDamping(si, galleryModulation);
+            if (p && "setAudioReactive" in p) {
+              (p as { setAudioReactive(b: AudioReactiveBands | null): void })
+                .setAudioReactive(
+                  audioController.enabled
+                    ? buildAudioReactiveState(audioBus, sceneGalleryModulation.particleIntensity)
+                    : null,
+                );
+            }
+          }
+        }
+
+        const postPass = postEnabled ? filmPost : filmPassthrough;
+
+        syncOverlay();
+
+        if (galleryEnabled) {
+          // Gallery mode: renders multiple scenes internally
+          if (!gallery) {
+            throw new Error("Gallery mode unavailable");
+          }
+          gallery.resize(sz.width, sz.height);
+          const compOv = offscreenTargets.get("composite", {
+            label: "composite-offscreen",
+            width: sz.width,
+            height: sz.height,
+            format: offscreenFormat,
+          });
+
+          const renderPanel: PanelRenderer = (enc, view, sceneIdx, pw, ph) => {
+            const e = entries[sceneIdx];
+            const sceneGalleryModulation = applyGallerySceneDamping(sceneIdx, galleryModulation);
+            sdf.resize(pw, ph);
+            sdf.updateConfig({
+              threshold: sceneGalleryModulation.threshold,
+              softness: sceneGalleryModulation.softness,
+              rimIntensity: sceneGalleryModulation.rimIntensity,
+            });
+            if (e.source) {
+              sdf.render(enc, view, time, e.source);
+            } else if (e.fluidScene) {
+              const scene = e.fluidScene;
+              scene.encode(enc, time, dt);
+              legacyMetaball.render(enc, view, scene.particleBuffer, {
+                time,
+                width: pw,
+                height: ph,
+                count: scene.count,
+                bgColor: [0.82, 0.82, 0.82, 1.0],
+                threshold: sceneGalleryModulation.threshold,
+                softness: sceneGalleryModulation.softness,
+              });
+            }
+          };
+
+          gallery.render(encoder, compOv, entries.length, renderPanel, time);
+          sdf.resize(sz.width, sz.height); // restore full resolution
+          postPass.render(encoder, compOv, outputView, time, sz.width, sz.height);
+        } else {
+          // Single scene mode (existing)
+          const ov = offscreenTargets.get("scene", {
+            label: "offscreen",
+            width: sz.width,
+            height: sz.height,
+            format: offscreenFormat,
+          });
+
+          if (entry.source) {
+            sdf.render(encoder, ov, time, entry.source);
+          } else if (entry.fluidScene) {
+            const scene = entry.fluidScene;
+            scene.encode(encoder, time, dt);
+            const legacyThreshold = 1.0 - bass * 0.4 - kickPulse * 0.15;
+            legacyMetaball.render(encoder, ov, scene.particleBuffer, {
+              time,
+              width: sz.width,
+              height: sz.height,
+              count: scene.count,
+              bgColor: [0.82, 0.82, 0.82, 1.0],
+              threshold: legacyThreshold,
+              softness: 0.015,
+            });
+          }
+
+          postPass.render(encoder, ov, outputView, time, sz.width, sz.height);
+        }
+
+        device.queue.submit([encoder.finish()]);
+      },
+    });
+    loop.start();
+
+    // ── Auto-cycle (host-driven scene cycling) ──────────────
+    let cycleTimer: ReturnType<typeof setInterval> | null = null;
+    let cycleScenes: number[] = [];
+    let cycleStep = 0;
+    function setSceneCycle(cycle: MountOptions["sceneCycle"]): void {
+      if (cycleTimer !== null) {
+        clearInterval(cycleTimer);
+        cycleTimer = null;
+      }
+      if (!cycle) return;
+      cycleScenes = cycle.scenes
+        .map((name) => entries.findIndex((e) => e.name === name))
+        .filter((i) => i >= 0);
+      if (cycleScenes.length < 2) return;
+      const intervalMs = (cycle.intervalSec ?? 5.5) * 1000;
+      // Align cycleStep with current idx if possible
+      const startStep = cycleScenes.indexOf(idx);
+      cycleStep = startStep >= 0 ? startStep : 0;
+      cycleTimer = setInterval(() => {
+        if (kineticHandoff.isActive()) return;
+        cycleStep = (cycleStep + 1) % cycleScenes.length;
+        const targetIdx = cycleScenes[cycleStep];
+        if (targetIdx === idx) return;
+        const sourceIdx = idx;
+        idx = targetIdx;
+        kineticHandoff.start(sourceIdx);
+      }, intervalMs);
+    }
+    setSceneCycle(opts.sceneCycle ?? false);
+
+    opts.onReady?.();
+
+    // ── Mount handle (host control surface) ─────────────────
+    let stopped = false;
+    return {
+      stop(): void {
+        if (stopped) return;
+        stopped = true;
+        if (cycleTimer !== null) {
+          clearInterval(cycleTimer);
+          cycleTimer = null;
+        }
+        loop.stop();
+        if (keyboardTeardown) {
+          keyboardTeardown();
+          keyboardTeardown = null;
+        }
+        // Detach overlay DOM (best-effort; HUD elements live inside hostOverlay)
+        for (const el of [hud, filmToggle, audioSettingsButton, audioSettingsPanel.root, hotkeyLegend]) {
+          el.remove();
+        }
+      },
+      configure(partial): void {
+        if (stopped) return;
+        if (partial.initialScene !== undefined) {
+          const found = entries.findIndex((e) => e.name === partial.initialScene);
+          if (found >= 0) {
+            const sourceIdx = idx;
+            idx = found;
+            if (sourceIdx !== found && !kineticHandoff.isActive()) {
+              kineticHandoff.start(sourceIdx);
+            }
+          }
+        }
+        if (partial.sceneCycle !== undefined) {
+          setSceneCycle(partial.sceneCycle);
+        }
+        if (partial.hudVisible !== undefined) {
+          hudVisible = partial.hudVisible;
+          if (!hudVisible) optionsVisible = false;
+        }
+        if (partial.inputEnabled !== undefined) {
+          setInputEnabled(partial.inputEnabled);
+        }
+        if (partial.audioEnabled !== undefined) {
+          if (partial.audioEnabled !== audioController.enabled) {
+            void audioController.toggle();
+          }
+        }
+        syncOverlay();
+      },
+      getStatus(): { sceneIndex: number; sceneName: DotSceneName } {
+        return { sceneIndex: idx, sceneName: entries[idx].name as DotSceneName };
+      },
+    };
+  } catch (e) {
+    opts.onError?.(e);
+    throw e;
+  }
+}

@@ -1,31 +1,25 @@
 "use client";
 
-// MotionStageProvider — Renewal 2026 Stream 4-A.
+// MotionStageProvider — Renewal 2026 Wave 2 D2.8 (wholesale transplant).
 //
-// Mounts a single persistent <canvas> at the layout root, boots a MotionStage
-// once on the client, and shares it via context. Route changes call
-// `stage.setRouteKey()` so participants that key state on the URL can react
-// without remounting (the canvas survives layout boundaries).
+// Mounts a single persistent <canvas> + an HTML overlay container at the
+// layout root, then boots the transplanted motion-dot-new-webgpu app via
+// `mountMotionDotApp`. The MountHandle is shared via context so consumer
+// routes can reconfigure the live mount (scene cycle, HUD visibility,
+// keyboard input) without remounting.
 //
 // SSR boundary: this component is "use client". The locale layout still
-// renders SSR markup; the canvas only mounts after hydration and WebGPU
-// adapter negotiation completes.
+// renders SSR markup; the canvas only mounts after hydration.
 //
-// Unsupported browsers: per plan §5.4 / `feedback_no_fallback_bug_hotbed.md`,
-// we DO NOT render a fallback motion. Instead we surface a `kind: "unsupported"`
-// status that consumers (or a sibling banner) can use to show the explicit
-// "WebGPU required" message in craft idiom.
+// Unsupported browsers: per `feedback_no_fallback_bug_hotbed.md`, we DO NOT
+// render a fallback. We surface a `kind: "unsupported"` status.
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
-import { createMotionStage } from "@chibatakumi/motion-core/stage";
-import type { MotionStage } from "@chibatakumi/motion-core/participant";
+import { mountMotionDotApp, type MountHandle } from "@chibatakumi/motion-dot";
 import { MotionStageContext, type MotionStageStatus } from "./MotionStageContext";
 
 interface MotionStageProviderProps {
   readonly children: React.ReactNode;
-  /** Initial route key passed to participants. Defaults to window.location.pathname. */
-  readonly initialRouteKey?: string;
   /** Position the canvas. Default: fixed full-viewport behind page content. */
   readonly canvasClassName?: string;
 }
@@ -35,18 +29,18 @@ const DEFAULT_CANVAS_CLASS =
 
 export function MotionStageProvider({
   children,
-  initialRouteKey,
   canvasClassName = DEFAULT_CANVAS_CLASS,
 }: MotionStageProviderProps): React.ReactElement {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const stageRef = useRef<MotionStage | null>(null);
+  const overlayRef = useRef<HTMLDivElement | null>(null);
+  const mountRef = useRef<MountHandle | null>(null);
   const [status, setStatus] = useState<MotionStageStatus>({ kind: "pending" });
 
-  // Boot once on mount.
   useEffect(() => {
     let cancelled = false;
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    const overlay = overlayRef.current;
+    if (!canvas || !overlay) return;
 
     if (typeof navigator === "undefined" || !("gpu" in navigator)) {
       setStatus({
@@ -58,25 +52,21 @@ export function MotionStageProvider({
 
     (async () => {
       try {
-        const stage = await createMotionStage({
+        const mount = await mountMotionDotApp({
           canvas,
-          initialRouteKey:
-            initialRouteKey ??
-            (typeof window !== "undefined" ? window.location.pathname : "/"),
-          // demoStyle "beat" preserves dot's 120 BPM silent-time aesthetic
-          // (original motion-dot-new-webgpu/src/main.ts:302). The shared
-          // substrate default is "ambient" for grid's use case, but dot is
-          // the dominant participant on home + /experiments/dot, so we
-          // override to "beat" globally. Grid/flow keep working — they
-          // consume the same AudioBus state regardless of demo envelope.
-          demoStyle: "beat",
+          hostOverlay: overlay,
+          // Layout-level safe defaults; consumer routes call mount.configure()
+          // to enable HUD / input / scene cycle as needed.
+          hudVisible: false,
+          inputEnabled: false,
+          audioEnabled: false,
         });
         if (cancelled) {
-          stage.dispose();
+          mount.stop();
           return;
         }
-        stageRef.current = stage as MotionStage;
-        setStatus({ kind: "ready", stage });
+        mountRef.current = mount;
+        setStatus({ kind: "ready", mount });
       } catch (err) {
         if (!cancelled) {
           setStatus({ kind: "error", error: err });
@@ -86,59 +76,26 @@ export function MotionStageProvider({
 
     return () => {
       cancelled = true;
-      const stage = stageRef.current;
-      if (stage) {
-        stage.dispose();
-        stageRef.current = null;
+      const mount = mountRef.current;
+      if (mount) {
+        mount.stop();
+        mountRef.current = null;
       }
     };
-  }, [initialRouteKey]);
-
-  // Resize observer — keeps the offscreen pool sized to the canvas backing store.
-  useEffect(() => {
-    if (status.kind !== "ready") return;
-    const canvas = canvasRef.current;
-    if (!canvas || typeof ResizeObserver === "undefined") return;
-    const ro = new ResizeObserver(() => {
-      // The stage's frame loop calls resizeCanvas every frame; nothing to
-      // do here. The observer exists so future stages can listen if needed.
-    });
-    ro.observe(canvas);
-    return () => ro.disconnect();
-  }, [status.kind]);
-
-  // Route key sync — best-effort: we listen to popstate + Next.js router
-  // events via a path watcher driven by window.location every animation frame
-  // (cheap; ~0.5 µs per check). Avoids a full router subscription that would
-  // require this component to live below the App Router boundary differently.
-  const router = useRouter();
-  useEffect(() => {
-    if (status.kind !== "ready") return;
-    let lastPath =
-      typeof window !== "undefined" ? window.location.pathname : "/";
-    let raf = 0;
-    const tick = () => {
-      const current =
-        typeof window !== "undefined" ? window.location.pathname : "/";
-      if (current !== lastPath) {
-        lastPath = current;
-        const stageWithRoute = status.stage as MotionStage & {
-          setRouteKey?: (k: string) => void;
-        };
-        stageWithRoute.setRouteKey?.(current);
-      }
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [status, router]);
+  }, []);
 
   return (
     <MotionStageContext.Provider value={status}>
       <canvas
+        id="canvas"
         ref={canvasRef}
         className={canvasClassName}
         aria-hidden="true"
+      />
+      <div
+        ref={overlayRef}
+        aria-hidden="true"
+        className="motion-dot-overlay"
       />
       {children}
     </MotionStageContext.Provider>

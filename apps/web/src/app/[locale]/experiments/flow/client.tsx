@@ -1,22 +1,18 @@
 "use client";
 
-import { createFlowParticipant } from "@chibatakumi/motion-flow/participant";
-import { useExperimentParticipant } from "@/features/motion/useExperimentParticipant";
-
+// Wave 2 D2.8 — placeholder. See experiments/grid/client.tsx for context.
 export default function ExperimentsFlowClient() {
-  useExperimentParticipant({
-    factory: () =>
-      createFlowParticipant({
-        autoCycle: true,
-      }),
-    blendMs: 500,
-  });
-
   return (
-    <main className="relative min-h-screen w-full">
-      <header className="fixed top-6 left-6 z-10 text-white/80 text-xs tracking-widest uppercase mix-blend-difference">
-        experiments / flow
-      </header>
+    <main className="relative flex min-h-screen w-full items-center justify-center">
+      <div className="max-w-md px-6 text-center">
+        <p className="font-mono text-[11px] uppercase tracking-[0.32em] text-[var(--text-base-60)]">
+          experiments / flow
+        </p>
+        <p className="mt-4 text-[15px] leading-[1.6] text-[var(--text-base)]">
+          Restoring after motion-dot transplant. Wave 3 will rebuild this
+          surface on the original codebase pattern.
+        </p>
+      </div>
     </main>
   );
 }

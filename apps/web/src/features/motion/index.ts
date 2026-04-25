@@ -10,3 +10,4 @@ export {
   useMotionStage,
   type MotionStageStatus,
 } from "./MotionStageContext";
+export { useMotionDotMount } from "./useMotionDotMount";

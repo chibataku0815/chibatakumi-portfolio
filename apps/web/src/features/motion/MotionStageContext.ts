@@ -1,14 +1,11 @@
-// React context for MotionStage. Kept in its own file so server components
-// that import the type don't pull in the client-only Provider.
-
 "use client";
 
 import { createContext, useContext } from "react";
-import type { MotionStage } from "@chibatakumi/motion-core/participant";
+import type { MountHandle } from "@chibatakumi/motion-dot";
 
 export type MotionStageStatus =
   | { kind: "pending" }
-  | { kind: "ready"; stage: MotionStage }
+  | { kind: "ready"; mount: MountHandle }
   | { kind: "unsupported"; reason: string }
   | { kind: "error"; error: unknown };
 

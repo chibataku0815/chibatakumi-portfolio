@@ -51,8 +51,9 @@ export interface AudioSettingsPanel {
   readonly detailText: HTMLDivElement;
 }
 
-export function createHud(): HTMLDivElement {
+export function createHud(parent?: ParentNode): HTMLDivElement {
   return createOverlayText({
+    parent,
     style: {
       position: "fixed",
       top: "16px",
@@ -67,8 +68,9 @@ export function createHud(): HTMLDivElement {
   });
 }
 
-export function createFilmToggleButton(): HTMLButtonElement {
+export function createFilmToggleButton(parent?: ParentNode): HTMLButtonElement {
   return createPillButton({
+    parent,
     style: {
       position: "fixed",
       top: "16px",
@@ -87,8 +89,9 @@ export function createFilmToggleButton(): HTMLButtonElement {
   });
 }
 
-export function createAudioSettingsButton(): HTMLButtonElement {
+export function createAudioSettingsButton(parent?: ParentNode): HTMLButtonElement {
   return createPillButton({
+    parent,
     style: {
       position: "fixed",
       top: "64px",
@@ -135,8 +138,9 @@ function createSourceButton(text: string): HTMLButtonElement {
   });
 }
 
-export function createAudioSettingsPanel(): AudioSettingsPanel {
+export function createAudioSettingsPanel(parent?: ParentNode): AudioSettingsPanel {
   const root = createOverlayText({
+    parent,
     style: {
       position: "fixed",
       top: "112px",
@@ -272,7 +276,7 @@ export function createAudioSettingsPanel(): AudioSettingsPanel {
   };
 }
 
-export function createHotkeyLegend(): HTMLDivElement {
+export function createHotkeyLegend(parent?: ParentNode): HTMLDivElement {
   return createHotkeyLegendPrimitive([
     { key: "← →", label: "Scene" },
     { key: "0", label: "Single" },
@@ -285,6 +289,7 @@ export function createHotkeyLegend(): HTMLDivElement {
     { key: "I", label: "Panel" },
     { key: "M", label: "File" },
   ], {
+    parent,
     containerStyle: {
       position: "fixed",
       right: "16px",
