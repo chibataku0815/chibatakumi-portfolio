@@ -7,6 +7,7 @@ export default function ExperimentsGridClient() {
   useExperimentParticipant({
     factory: () =>
       createGridParticipant({
+        initialHeroToken: "CHIBATAKUMI",
         enableInput: true,
       }),
     blendMs: 500,

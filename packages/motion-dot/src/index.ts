@@ -57,6 +57,11 @@ import {
 import { createFluidScene, type FluidScene } from "./scene/fluid-scene";
 import { DOT_WIRING, DOT_AUDIO_DELTA_BUFFER } from "./audio/wiring";
 import type { DotParam } from "./audio/wiring";
+import {
+  createKineticHandoff,
+  type KineticHandoffController,
+  type TransitionScene,
+} from "./transition/kinetic-handoff";
 
 // ---------------------------------------------------------------------------
 // Scene name canon (17 vendor presets + 1 local). Order matches
@@ -85,6 +90,14 @@ export const DOT_SCENE_NAMES = [
 ] as const;
 
 export type DotSceneName = typeof DOT_SCENE_NAMES[number];
+
+// Subset that is safe to cycle through with KineticHandoff: every vendor
+// preset (16 entries). The local "fluid" scene needs the legacy metaball
+// pass — wiring lands in Phase A+1, so we exclude it here.
+export const CYCLEABLE_DOT_SCENES: readonly Exclude<DotSceneName, "fluid">[] =
+  DOT_SCENE_NAMES.filter(
+    (name): name is Exclude<DotSceneName, "fluid"> => name !== "fluid",
+  );
 
 // ---------------------------------------------------------------------------
 // Unified scene adapter. Both vendor preset sources (MetaballParticleSource,
@@ -213,6 +226,20 @@ export interface CreateDotParticipantOptions {
   readonly enableInput?: boolean;
   /** Particle count override applied only to the local `fluid` scene. */
   readonly fluidParticleCount?: number;
+  /**
+   * When true, the participant cycles through `cycleScenes` automatically
+   * via KineticHandoff. Each scene plays ~5.5s, then a 1.75s + 1.25s blend
+   * with attractor burst hands off to the next scene (canonical motion-dot
+   * showcase loop). Default: false (single-scene, current Phase A behavior
+   * — used by ambient surfaces like home / works pages).
+   */
+  readonly enableSceneCycle?: boolean;
+  /**
+   * Override the cycle list. Defaults to all 16 vendor scenes
+   * (CYCLEABLE_DOT_SCENES). Order is preserved — KineticHandoff visits
+   * scenes in this order, wrapping back to index 0 after the last.
+   */
+  readonly cycleScenes?: readonly Exclude<DotSceneName, "fluid">[];
 }
 
 export const DOT_DEFAULT_INITIAL_SCENE: DotSceneName = "river";
@@ -261,17 +288,27 @@ export function createDotParticipant(
 ): MotionParticipant<DotParam> {
   const name = opts.name ?? "dot";
   const initialScene: DotSceneName = opts.initialScene ?? DOT_DEFAULT_INITIAL_SCENE;
+  const enableSceneCycle = opts.enableSceneCycle ?? false;
+  const cycleSceneList: readonly Exclude<DotSceneName, "fluid">[] =
+    opts.cycleScenes ?? CYCLEABLE_DOT_SCENES;
 
   // Bound state — populated by `init`, cleared by `dispose`.
   let device: GPUDevice | null = null;
   let outputFormat: GPUTextureFormat | null = null;
   let sdf: MetaballSDF | null = null;
   let filmPost: MotionFilmPostPass | null = null;
+
+  // Single-scene mode (legacy / default when enableSceneCycle is false).
   let currentSource: MetaballParticleSource | null = null;
   let currentFluid: FluidScene | null = null;
-  // Phase A scope: vendor sources only. Fluid scene needs its own legacy
-  // metaball pass (gpu-fx-presets does not cover fluid → SDF). Defer to
-  // Phase A+1 once the legacy metaball pass is vendored.
+
+  // Multi-scene cycle mode (enableSceneCycle = true). All vendor sources
+  // are built upfront in init so KineticHandoff can swap between them
+  // without per-frame allocation. Fluid is excluded (Phase A+1 scope).
+  let cycleSources: MetaballParticleSource[] = [];
+  let cycleSceneNames: string[] = [];
+  let cycleIdx = 0;
+  let kineticHandoff: KineticHandoffController | null = null;
 
   // Internal offscreen target — separate from MotionStage's outputView so
   // the participant can run SDF → film-post composite (the canonical dot
@@ -306,6 +343,13 @@ export function createDotParticipant(
     return offscreenTexture.createView({ label: `motion-dot:${name}/offscreen-view` });
   }
 
+  function getActiveSource(): MetaballParticleSource | null {
+    if (enableSceneCycle && cycleSources.length > 0) {
+      return cycleSources[cycleIdx] ?? null;
+    }
+    return currentSource;
+  }
+
   const participant: MotionParticipant<DotParam> = {
     name,
     fps: 45,
@@ -315,7 +359,33 @@ export function createDotParticipant(
       device = d;
       outputFormat = format;
 
-      if (initialScene === "fluid") {
+      if (enableSceneCycle) {
+        // Pre-build every cycle scene so KineticHandoff swaps are cheap.
+        cycleSceneNames = cycleSceneList.map((s) => String(s));
+        cycleSources = cycleSceneList.map((sceneName) => buildVendorSource(sceneName, d));
+
+        // Resolve initialScene to an idx within the cycle list. If the
+        // requested scene is not present (e.g. "fluid"), start at 0.
+        const requestedIdx = cycleSceneList.indexOf(
+          initialScene as Exclude<DotSceneName, "fluid">,
+        );
+        cycleIdx = requestedIdx >= 0 ? requestedIdx : 0;
+
+        const transitionScenes: TransitionScene[] = cycleSources.map(
+          (source, i) => ({ name: cycleSceneNames[i], participant: source }),
+        );
+        kineticHandoff = createKineticHandoff({
+          scenes: transitionScenes,
+          getCurrentIndex: () => cycleIdx,
+          setCurrentIndex: (next) => {
+            cycleIdx = next;
+          },
+        });
+        // Kick off the auto-cycle. start(idx) drives the state machine
+        // playing → blending → handoff → start(next) recursively, so we
+        // only need to call it once.
+        kineticHandoff.start(cycleIdx);
+      } else if (initialScene === "fluid") {
         // Build but do not wire — render() throws until Phase A+1 brings
         // the fluid → legacy-metaball path online.
         currentFluid = createFluidScene(
@@ -336,7 +406,7 @@ export function createDotParticipant(
       initialized = true;
     },
 
-    update(_dt: number, audioState: AudioState, _scene: SceneSnapshot): void {
+    update(dt: number, audioState: AudioState, scene: SceneSnapshot): void {
       if (!initialized) {
         throw new Error(
           `[motion-dot] update() called before init() — did MotionStage.register fire?`,
@@ -355,16 +425,23 @@ export function createDotParticipant(
         shaped,
       );
 
-      // Push the audio reactive band view to physics-aware sources. Sources
-      // that don't expose setAudioReactive simply ignore audio (they still
-      // animate via their internal time-driven physics).
-      if (currentSource && currentSource.setAudioReactive) {
+      // Tick KineticHandoff state machine: idle → playing → blending →
+      // handoff → playing chain. May rewrite cycleIdx via setCurrentIndex
+      // when a handoff completes.
+      if (kineticHandoff) {
+        kineticHandoff.update(dt, scene.time);
+      }
+
+      // Push audio reactive bands to the ACTIVE source. Sources without
+      // setAudioReactive ignore it (they still animate via internal physics).
+      const active = getActiveSource();
+      if (active && active.setAudioReactive) {
         const reactive: AudioReactiveBands = {
           ...audioState.bands,
           ...audioState.onsets,
           intensity: shaped,
         };
-        currentSource.setAudioReactive(reactive);
+        active.setAudioReactive(reactive);
       }
     },
 
@@ -380,16 +457,17 @@ export function createDotParticipant(
         );
       }
 
+      const active = getActiveSource();
+
       // Fluid scene path is not wired in Phase A. Throwing here keeps the
       // contract honest (`feedback_no_fallback_bug_hotbed.md` — no silent
-      // degradation). When `currentFluid` is non-null the user opted into
-      // the unsupported scene; surface it loudly.
-      if (currentFluid && !currentSource) {
+      // degradation).
+      if (currentFluid && !active) {
         throw new Error(
-          `[motion-dot] fluid scene rendering is deferred (Phase A+1). Pick a vendor scene name (e.g. "river") via createDotParticipant({ initialScene: ... }).`,
+          `[motion-dot] fluid scene rendering is deferred (Phase A+1). Pick a vendor scene via initialScene or use enableSceneCycle.`,
         );
       }
-      if (!currentSource) {
+      if (!active) {
         throw new Error(
           `[motion-dot] no scene source — did init complete?`,
         );
@@ -429,10 +507,11 @@ export function createDotParticipant(
         vignette: { strength: vignetteStrength, warmShift: 0.0 },
       });
 
-      // SDF reads particles from `currentSource` and runs `source.update`
-      // internally (computes per-frame compute pass), then renders the
-      // metaballs into `offscreenView`.
-      sdf.render(ctx.encoder, offscreenView, ctx.time, currentSource);
+      // SDF reads particles from `active` and runs `source.update` internally
+      // (per-frame compute pass), then renders metaballs into `offscreenView`.
+      // In cycle mode KineticHandoff has already swapped cycleIdx and applies
+      // the attractor burst on the source scene during the blend phase.
+      sdf.render(ctx.encoder, offscreenView, ctx.time, active);
 
       // Film post composes the offscreen onto the stage's outputView.
       filmPost.render(
@@ -458,6 +537,9 @@ export function createDotParticipant(
       if (!initialized) return;
       try { currentSource?.destroy(); } catch { /* ignore */ }
       try { currentFluid?.destroy(); } catch { /* ignore */ }
+      for (const src of cycleSources) {
+        try { src.destroy(); } catch { /* ignore */ }
+      }
       try { sdf?.destroy(); } catch { /* ignore */ }
       try { filmPost?.destroy(); } catch { /* ignore */ }
       if (offscreenTexture) {
@@ -465,6 +547,10 @@ export function createDotParticipant(
       }
       currentSource = null;
       currentFluid = null;
+      cycleSources = [];
+      cycleSceneNames = [];
+      cycleIdx = 0;
+      kineticHandoff = null;
       sdf = null;
       filmPost = null;
       offscreenTexture = null;

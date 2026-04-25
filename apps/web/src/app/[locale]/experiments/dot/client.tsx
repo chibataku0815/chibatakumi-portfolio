@@ -7,6 +7,7 @@ export default function ExperimentsDotClient() {
   useExperimentParticipant({
     factory: () =>
       createDotParticipant({
+        enableSceneCycle: true,
         enableHud: true,
         enableInput: true,
       }),
