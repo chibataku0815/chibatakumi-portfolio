@@ -1,7 +1,43 @@
+import type { Metadata } from "next";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { AnimatedHeading } from "@/shared/components";
 import { portfolioData } from "@/shared/data/portfolio";
 
-export default function InstallationPage() {
+const BASE_URL = portfolioData.site.siteUrl;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "works.installation" });
+  const isJa = locale === "ja";
+
+  const canonicalUrl = isJa
+    ? `${BASE_URL}/works/installation`
+    : `${BASE_URL}/en/works/installation`;
+
+  return {
+    title: t("title"),
+    description: t("description"),
+    alternates: {
+      canonical: canonicalUrl,
+      languages: {
+        ja: `${BASE_URL}/works/installation`,
+        en: `${BASE_URL}/en/works/installation`,
+      },
+    },
+  };
+}
+
+export default async function WorksInstallationPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
   const { label, title, description, meta } = portfolioData.pages.installation;
 
   return (
@@ -34,7 +70,10 @@ export default function InstallationPage() {
 
             <div className="mt-4 space-y-4 border-t border-white/10 pt-6">
               {meta.map((item) => (
-                <div key={item.label} className="flex items-center justify-between text-sm">
+                <div
+                  key={item.label}
+                  className="flex items-center justify-between text-sm"
+                >
                   <span className="text-[var(--text-muted)]">{item.label}</span>
                   <span className="text-[var(--text-base)]">{item.value}</span>
                 </div>

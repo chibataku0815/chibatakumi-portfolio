@@ -1,55 +1,44 @@
 @import "tailwindcss";
 /* Web で workspace の film-lab-ui をビルド対象に含める（未指定だと Tailwind クラスが生成されずトグル等が崩れる） */
 @source "../../../../packages/film-lab-ui/src";
+@source "../../../../packages/design-system/src";
 @source "../**/*.{js,ts,jsx,tsx,mdx}";
+
+/* Renewal 2026 — Light mode default.
+   Dark mode is opted-in via `[data-theme="dark"]` (Filmtone surfaces /film-lab/*
+   migrate in Wave 2 F by wrapping their layout in data-theme="dark"). Auto-dark
+   via prefers-color-scheme remains active for users who haven't set a theme.
+   Radix slate-dark + amber-dark Color Scales remain imported globally so the
+   raw `--slate-*` / `--amber-*` palettes are available — but the Filmtone
+   semantic aliases that *consume* those palettes (`--bg-dark`, `--text-base`,
+   `--accent-amber*`, `--fl-*`, `--logo-*`, `--transition-overlay`, glass
+   surfaces, shadows tuned for dark) are scoped under `[data-theme="dark"]`.
+*/
 @import "@radix-ui/colors/slate-dark.css";
 @import "@radix-ui/colors/amber-dark.css";
 
 :root {
   /* ==========================================================================
-     Semantic Aliases (Radix Colors)
+     Renewal 2026 — Light theme primaries (canonical via @chibatakumi/design-system)
      ========================================================================== */
-  --bg-dark: var(--slate-1);
-  --bg-darker: var(--slate-2);
-  --text-base: var(--slate-12);
-  --text-muted: var(--slate-11);
-  --accent-amber1: var(--amber-9);
-  --accent-amber2: var(--amber-10);
-
-  /* Filmtone Desktop 系パネルと揃えるガラス UI トークン（Web デモ・/film-lab） */
-  --fl-bg-app: var(--slate-1);
-  --fl-bg-subtle: var(--slate-2);
-  --fl-bg-raised: var(--slate-3);
-  --fl-bg-interactive: var(--slate-4);
-  --fl-bg-interactive-hover: var(--slate-5);
-  --fl-border-subtle: var(--slate-6);
-  --fl-border-default: var(--slate-7);
-  --fl-border-strong: var(--slate-8);
-  --fl-text-primary: var(--slate-12);
-  --fl-text-secondary: var(--slate-11);
-  --fl-text-tertiary: var(--slate-10);
-  --fl-accent: var(--amber-9);
-  --fl-accent-emphasis: var(--amber-10);
-  --fl-on-accent: #14110a;
-  --fl-focus-ring: color-mix(in srgb, var(--amber-9) 45%, transparent);
-  --fl-frost-blur: 28px;
+  --bg-primary: #D2D2D2;
+  --bg-secondary: #E8EAED;
+  --fg-primary: #1A1A1A;
+  --fg-secondary: #202124;
+  --accent: #FFFFFF;
 
   /* ==========================================================================
-     Font Family Stacks
+     Font Family Stacks (theme-agnostic)
      ========================================================================== */
   --font-family-sans: var(--font-geist-sans), var(--font-noto-sans-jp),
     "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
   --font-family-mono: var(--font-geist-mono), "SFMono-Regular", "Consolas",
     monospace;
 
-  /* Logo / Transition tokens */
-  --logo-stroke: var(--slate-12);
-  --logo-fill: var(--slate-12);
-  /* Use a darker contrast for page transition blocks */
-  --transition-overlay: var(--slate-4);
   --noise-texture: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 
-  /* Typography Scale - Award-Worthy Level (モバイル対応) */
+  /* Typography Scale — Award-Worthy Level (モバイル対応).
+     migration to @chibatakumi/design-system/tokens/typography deferred to follow-up. */
   --type-display-hero: clamp(3.5rem, 15vw, 14rem);    /* 56–224px Hero (モバイル最小調整) */
   --type-display-xl: clamp(2.5rem, 10vw, 10rem);      /* 40–160px Skill Title (モバイル最小調整) */
   --type-display-lg: clamp(2rem, 6vw, 6rem);          /* 32–96px */
@@ -219,6 +208,99 @@
   --nav-height: 3.75rem;
 }
 
+/* ============================================================================
+   Renewal 2026 — Dark theme opt-in.
+   The Filmtone surfaces (/film-lab/*) wrap their layout in `data-theme="dark"`
+   (Wave 2 F). All Radix slate-dark + amber-dark semantic aliases + glass UI
+   tokens live here so Light mode pages are NOT polluted by the dark palette.
+   Auto-dark via `prefers-color-scheme: dark` mirrors the same aliases on
+   `:root:not([data-theme="light"])` (see media query block below) so users
+   who haven't explicitly chosen Light still get a coherent dark experience.
+   ============================================================================ */
+[data-theme="dark"] {
+  /* Renewal 2026 primaries — dark variant. */
+  --bg-primary: #0F1115;
+  --bg-secondary: #16181D;
+  --fg-primary: #ECEDEE;
+  --fg-secondary: #B4B4B4;
+  --accent: #FFB224;
+
+  /* Semantic Aliases (Radix Colors) */
+  --bg-dark: var(--slate-1);
+  --bg-darker: var(--slate-2);
+  --text-base: var(--slate-12);
+  --text-muted: var(--slate-11);
+  --accent-amber1: var(--amber-9);
+  --accent-amber2: var(--amber-10);
+
+  /* Filmtone Desktop 系パネルと揃えるガラス UI トークン（/film-lab） */
+  --fl-bg-app: var(--slate-1);
+  --fl-bg-subtle: var(--slate-2);
+  --fl-bg-raised: var(--slate-3);
+  --fl-bg-interactive: var(--slate-4);
+  --fl-bg-interactive-hover: var(--slate-5);
+  --fl-border-subtle: var(--slate-6);
+  --fl-border-default: var(--slate-7);
+  --fl-border-strong: var(--slate-8);
+  --fl-text-primary: var(--slate-12);
+  --fl-text-secondary: var(--slate-11);
+  --fl-text-tertiary: var(--slate-10);
+  --fl-accent: var(--amber-9);
+  --fl-accent-emphasis: var(--amber-10);
+  --fl-on-accent: #14110a;
+  --fl-focus-ring: color-mix(in srgb, var(--amber-9) 45%, transparent);
+  --fl-frost-blur: 28px;
+
+  /* Logo / Transition tokens */
+  --logo-stroke: var(--slate-12);
+  --logo-fill: var(--slate-12);
+  --transition-overlay: var(--slate-4);
+}
+
+/* Auto-dark — applies the Filmtone dark aliases to users with
+   prefers-color-scheme: dark and no explicit theme override. We re-declare
+   here (rather than chain-assigning from [data-theme="dark"]) because CSS
+   custom property cascades on :root take precedence over data-theme attrs
+   only when more specific. Using `:root:not([data-theme="light"])` keeps
+   explicit Light mode overrides authoritative. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg-primary: #0F1115;
+    --bg-secondary: #16181D;
+    --fg-primary: #ECEDEE;
+    --fg-secondary: #B4B4B4;
+    --accent: #FFB224;
+
+    --bg-dark: var(--slate-1);
+    --bg-darker: var(--slate-2);
+    --text-base: var(--slate-12);
+    --text-muted: var(--slate-11);
+    --accent-amber1: var(--amber-9);
+    --accent-amber2: var(--amber-10);
+
+    --fl-bg-app: var(--slate-1);
+    --fl-bg-subtle: var(--slate-2);
+    --fl-bg-raised: var(--slate-3);
+    --fl-bg-interactive: var(--slate-4);
+    --fl-bg-interactive-hover: var(--slate-5);
+    --fl-border-subtle: var(--slate-6);
+    --fl-border-default: var(--slate-7);
+    --fl-border-strong: var(--slate-8);
+    --fl-text-primary: var(--slate-12);
+    --fl-text-secondary: var(--slate-11);
+    --fl-text-tertiary: var(--slate-10);
+    --fl-accent: var(--amber-9);
+    --fl-accent-emphasis: var(--amber-10);
+    --fl-on-accent: #14110a;
+    --fl-focus-ring: color-mix(in srgb, var(--amber-9) 45%, transparent);
+    --fl-frost-blur: 28px;
+
+    --logo-stroke: var(--slate-12);
+    --logo-fill: var(--slate-12);
+    --transition-overlay: var(--slate-4);
+  }
+}
+
 /**
  * 検索付きプリセット一覧専用のスクロールバーです。
  * 概要: 白い OS 既定バーが浮かないよう、暗いポップオーバーの中に細いレールとして沈めます。
@@ -292,8 +374,10 @@
 }
 
 body {
-  background: var(--bg-dark);
-  color: var(--text-base);
+  /* Light mode default. Falls back to legacy `--bg-dark`/`--text-base` only
+     under `[data-theme="dark"]` (Filmtone) or via prefers-color-scheme auto. */
+  background: var(--bg-primary);
+  color: var(--fg-primary);
   font-family: var(--font-family-sans);
 }
 

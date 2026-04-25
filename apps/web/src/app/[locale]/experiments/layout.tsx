@@ -1,8 +1,9 @@
-// Experiments layout — wraps the 3 lab pages with the persistent
-// MotionStage. The provider mounts a single canvas behind the page;
-// each experiment activates a participant via setActive on mount.
+// Experiments layout — the persistent MotionStage now lives in the root
+// [locale] layout, so all routes (home, works, experiments) share the same
+// canvas. This layout only adds the unsupported-banner sibling for the
+// 3 lab pages.
 
-import { MotionStageProvider, MotionUnsupportedBanner } from "@/features/motion";
+import { MotionUnsupportedBanner } from "@/features/motion";
 
 export default function ExperimentsLayout({
   children,
@@ -10,11 +11,9 @@ export default function ExperimentsLayout({
   children: React.ReactNode;
 }) {
   return (
-    <MotionStageProvider>
-      <div className="relative min-h-screen w-full">
-        {children}
-        <MotionUnsupportedBanner />
-      </div>
-    </MotionStageProvider>
+    <div className="relative min-h-screen w-full">
+      {children}
+      <MotionUnsupportedBanner />
+    </div>
   );
 }

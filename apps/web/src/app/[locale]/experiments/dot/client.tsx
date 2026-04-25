@@ -3,12 +3,23 @@
 import { createDotParticipant } from "@chibatakumi/motion-dot";
 import { useExperimentParticipant } from "@/features/motion/useExperimentParticipant";
 
+// Phase A+2 polish: showcase route runs in multi-scene gallery mode
+// (composite-25d, 2×2 grid) — visually richer, the showcase peak.
+// Single-scene cycle remains the home / works default.
+//
+// Migration path back to cycle mode (if gallery wiring needs to be
+// disabled in an emergency): swap `enableGalleryMode: true` →
+// `enableSceneCycle: true` and drop `panelCount`.
+//
+// HUD overlay is deferred (see motion-dot index.ts JSDoc) — keep
+// `enableInput: true` so ArrowLeft/Right/Space/n/p/r drive panel base
+// shifts (gallery) or scene handoffs (cycle).
 export default function ExperimentsDotClient() {
   useExperimentParticipant({
     factory: () =>
       createDotParticipant({
-        enableSceneCycle: true,
-        enableHud: true,
+        enableGalleryMode: true,
+        panelCount: 4,
         enableInput: true,
       }),
     blendMs: 500,

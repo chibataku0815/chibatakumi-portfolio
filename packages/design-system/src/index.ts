@@ -1,9 +1,44 @@
-// @chibatakumi/design-system — Renewal 2026 Phase 1 skeleton
-// Stream 3 will implement:
-//   - Tailwind 4 plugin exposing dot-new palette (#D2D2D2 / #E8EAED / #1A1A1A / #202124 / #FFFFFF)
-//   - Hexagonal grid token (7/6/7, sizes 5/9/15)
-//   - Motion grammar token export (easeOutQuint / smootherstep / springScaleSimple)
-//   - Light mode default + dark mode alt switching
-//   - Component primitives (Logo / Wordmark / SoundToggle / NavRail)
+// @chibatakumi/design-system — Renewal 2026 design system.
+//
+// Re-exports the canonical tokens (palette, theme, typography, motion grammar,
+// spacing, radius, z-index, hex grid) and the four primitive components
+// (Logo / Wordmark / SoundToggle / NavRail). The Tailwind 4 plugin lives at
+// `@chibatakumi/design-system/tailwind`.
+//
+// Reference: plan §2.3 (D3.1 – D3.6).
 
-export const DESIGN_SYSTEM_VERSION = "0.0.0-skeleton";
+export const DESIGN_SYSTEM_VERSION = "0.1.0-tokens-and-primitives";
+
+// Tokens.
+export {
+  PALETTE,
+  HEX_GRID,
+  MOTION_GRAMMAR,
+  THEME,
+  SPACING,
+  RADIUS,
+  Z_INDEX,
+  TYPOGRAPHY,
+  FONT_FAMILY,
+  FONT_WEIGHT,
+  LETTER_SPACING,
+  LINE_HEIGHT,
+  easeOutQuint,
+  smootherstep,
+  springScaleSimple,
+  MOTION_EASE,
+  MOTION_DURATION,
+} from "./tokens";
+export type { ThemeName, TypographyToken } from "./tokens";
+
+// Components.
+export { Logo, Wordmark, SoundToggle, NavRail } from "./components";
+export type {
+  LogoProps,
+  LogoVariant,
+  WordmarkProps,
+  SoundToggleProps,
+  SoundState,
+  NavRailProps,
+  NavRailItem,
+} from "./components";

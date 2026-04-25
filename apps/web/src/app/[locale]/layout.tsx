@@ -3,6 +3,7 @@ import { Nav } from "@/shared/components";
 import { portfolioData } from "@/shared/data/portfolio";
 import { routing } from "@/i18n/routing";
 import { AnalyticsPageTracker } from "@/shared/analytics/AnalyticsPageTracker";
+import { MotionStageProvider } from "@/features/motion";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
@@ -90,7 +91,7 @@ export default async function LocaleLayout({
   const gaMeasurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim();
 
   return (
-    <html lang={locale} className={`dark ${fontVariables}`}>
+    <html lang={locale} className={fontVariables} data-theme="light">
       <body className="antialiased">
         {metaPixelId ? (
           <>
@@ -137,15 +138,17 @@ export default async function LocaleLayout({
             </Script>
           </>
         ) : null}
-        <NextIntlClientProvider messages={messages}>
-          <Suspense fallback={null}>
-            <AnalyticsPageTracker />
-          </Suspense>
-          <PageTransition>
-            <Nav />
-            {children}
-          </PageTransition>
-        </NextIntlClientProvider>
+        <MotionStageProvider>
+          <NextIntlClientProvider messages={messages}>
+            <Suspense fallback={null}>
+              <AnalyticsPageTracker />
+            </Suspense>
+            <PageTransition>
+              <Nav />
+              {children}
+            </PageTransition>
+          </NextIntlClientProvider>
+        </MotionStageProvider>
         <Analytics />
         <SpeedInsights />
       </body>

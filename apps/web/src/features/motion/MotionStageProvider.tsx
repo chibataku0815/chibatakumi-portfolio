@@ -63,6 +63,13 @@ export function MotionStageProvider({
           initialRouteKey:
             initialRouteKey ??
             (typeof window !== "undefined" ? window.location.pathname : "/"),
+          // demoStyle "beat" preserves dot's 120 BPM silent-time aesthetic
+          // (original motion-dot-new-webgpu/src/main.ts:302). The shared
+          // substrate default is "ambient" for grid's use case, but dot is
+          // the dominant participant on home + /experiments/dot, so we
+          // override to "beat" globally. Grid/flow keep working — they
+          // consume the same AudioBus state regardless of demo envelope.
+          demoStyle: "beat",
         });
         if (cancelled) {
           stage.dispose();
