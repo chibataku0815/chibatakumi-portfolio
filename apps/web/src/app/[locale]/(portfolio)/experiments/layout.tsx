@@ -29,7 +29,10 @@ export default function ExperimentsLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative min-h-screen w-full" data-theme="dark">
+    {/* `.dark` クラスは Radix Colors (slate-dark / amber-dark) のパレットを活性化するために必要。
+        `data-theme="dark"` だけだと globals.css の alias は当たるが、`var(--amber-9)` など
+        Radix の生 token が undefined チェーンになる。両者を併記する。 */}
+    <div className="dark relative min-h-screen w-full" data-theme="dark">
       {children}
       <MotionUnsupportedBanner />
     </div>

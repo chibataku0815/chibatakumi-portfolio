@@ -7,7 +7,11 @@ import { AudioBusProvider } from "@/features/audio";
  * 設計目的: 将来の独立ドメイン化 (filmtone.com 等) を見据えた物理隔離。
  *
  * 提供する surface:
- *  - `data-theme="dark"` wrapper (Filmtone 系の dark glass tokens を活性化、body 背景まで dark canvas で覆う)
+ *  - `data-theme="dark"` + `.dark` wrapper:
+ *    - `data-theme="dark"` は globals.css の Filmtone 専用 alias (`--accent-amber1`, `--fl-bg-*` 等) を活性化
+ *    - `.dark` は Radix Colors の生パレット (`--amber-9`, `--slate-1..12` 等) を活性化
+ *    - 両方必要: globals.css の alias は Radix の生 token を `var(--amber-9)` 経由で参照するため、
+ *      Radix が要求する `.dark` クラスが無いと alias が undefined チェーンになる (例: トグル active 状態の amber bg)
  *  - `<AudioBusProvider>` (Filmtone audio surfaces 用に維持)
  *
  * 意図的に提供しない:
@@ -28,7 +32,7 @@ export default function SatelliteRouteLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div data-theme="dark" className="min-h-dvh bg-[var(--bg-primary)]">
+    <div data-theme="dark" className="dark min-h-dvh bg-[var(--bg-primary)]">
       <AudioBusProvider>{children}</AudioBusProvider>
     </div>
   );
