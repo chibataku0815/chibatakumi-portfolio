@@ -51,12 +51,16 @@ export interface AudioSettingsPanel {
   readonly detailText: HTMLDivElement;
 }
 
+const HUD_Z_INDEX = "var(--z-motion-hud, 20)";
+const HUD_PANEL_Z_INDEX = "var(--z-motion-hud-panel, 30)";
+const HOTKEY_HELP_TEXT = "\u2190 \u2192 switch | 0 single | H options | R reset | F film | D gallery | A audio | I panel | M file | W text";
+
 export function createHud(parent?: ParentNode): HTMLDivElement {
   return createOverlayText({
     parent,
     style: {
       position: "fixed",
-      top: "16px",
+      top: "var(--motion-hud-top, 16px)",
       left: "16px",
       fontFamily: "system-ui, sans-serif",
       fontSize: "13px",
@@ -64,6 +68,11 @@ export function createHud(parent?: ParentNode): HTMLDivElement {
       pointerEvents: "none",
       userSelect: "none",
       lineHeight: "1.6",
+      maxWidth: "min(28rem, calc(100vw - 32px))",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      whiteSpace: "nowrap",
+      zIndex: HUD_Z_INDEX,
     },
   });
 }
@@ -73,18 +82,19 @@ export function createFilmToggleButton(parent?: ParentNode): HTMLButtonElement {
     parent,
     style: {
       position: "fixed",
-      top: "16px",
+      top: "var(--motion-hud-top, 16px)",
       right: "16px",
-      border: "1px solid rgba(255,255,255,0.18)",
-      background: "rgba(24,24,24,0.78)",
+      border: "1px solid rgba(255,255,255,0.16)",
+      background: "rgba(20,20,22,0.92)",
       color: "#f3f3f3",
       padding: "10px 14px",
       fontFamily: "system-ui, sans-serif",
       fontSize: "12px",
       fontWeight: "600",
       letterSpacing: "0.03em",
-      backdropFilter: "blur(10px)",
-      boxShadow: "0 10px 30px rgba(0,0,0,0.22)",
+      boxShadow: "0 14px 32px -16px rgba(0,0,0,0.55)",
+      pointerEvents: "auto",
+      zIndex: HUD_Z_INDEX,
     },
   });
 }
@@ -94,18 +104,19 @@ export function createAudioSettingsButton(parent?: ParentNode): HTMLButtonElemen
     parent,
     style: {
       position: "fixed",
-      top: "64px",
+      top: "calc(var(--motion-hud-top, 16px) + 48px)",
       right: "16px",
-      border: "1px solid rgba(255,255,255,0.18)",
-      background: "rgba(24,24,24,0.78)",
+      border: "1px solid rgba(255,255,255,0.16)",
+      background: "rgba(20,20,22,0.92)",
       color: "#f3f3f3",
       padding: "10px 14px",
       fontFamily: "system-ui, sans-serif",
       fontSize: "12px",
       fontWeight: "600",
       letterSpacing: "0.03em",
-      backdropFilter: "blur(10px)",
-      boxShadow: "0 10px 30px rgba(0,0,0,0.22)",
+      boxShadow: "0 14px 32px -16px rgba(0,0,0,0.55)",
+      pointerEvents: "auto",
+      zIndex: HUD_Z_INDEX,
     },
   });
 }
@@ -143,19 +154,19 @@ export function createAudioSettingsPanel(parent?: ParentNode): AudioSettingsPane
     parent,
     style: {
       position: "fixed",
-      top: "112px",
+      top: "calc(var(--motion-hud-top, 16px) + 96px)",
       right: "16px",
       width: "min(320px, calc(100vw - 32px))",
       padding: "14px",
       borderRadius: "18px",
-      border: "1px solid rgba(255,255,255,0.14)",
-      background: "rgba(18,18,18,0.82)",
+      border: "1px solid rgba(255,255,255,0.12)",
+      background: "rgba(16,16,18,0.95)",
       color: "#f3f3f3",
       fontFamily: "system-ui, sans-serif",
-      boxShadow: "0 18px 48px rgba(0,0,0,0.32)",
-      backdropFilter: "blur(16px)",
+      boxShadow: "0 26px 56px -22px rgba(0,0,0,0.65)",
       display: "none",
-      zIndex: "10",
+      pointerEvents: "auto",
+      zIndex: HUD_PANEL_Z_INDEX,
     },
   });
 
@@ -301,14 +312,14 @@ export function createHotkeyLegend(parent?: ParentNode): HTMLDivElement {
       color: "rgba(255,255,255,0.9)",
       pointerEvents: "none",
       userSelect: "none",
+      zIndex: HUD_Z_INDEX,
     },
     chipStyle: {
       padding: "8px 10px",
       borderRadius: "999px",
-      background: "rgba(20,20,20,0.7)",
-      border: "1px solid rgba(255,255,255,0.14)",
-      boxShadow: "0 10px 24px rgba(0,0,0,0.18)",
-      backdropFilter: "blur(10px)",
+      background: "rgba(18,18,20,0.88)",
+      border: "1px solid rgba(255,255,255,0.12)",
+      boxShadow: "0 14px 30px -14px rgba(0,0,0,0.55)",
     },
     keyStyle: {
       fontSize: "11px",
@@ -326,11 +337,24 @@ export function createHotkeyLegend(parent?: ParentNode): HTMLDivElement {
 
 export function updateHud(hud: HTMLDivElement, state: HudState): void {
   const postLabel = state.postEnabled ? "Film ON" : "Raw";
-  const galleryLabel = state.galleryEnabled ? ` | Gallery [${state.layoutName}]` : "";
   const beatChar = (state.onsetActivity ?? 0) > 0.3 ? "\u25CF" : "\u25CB";
-  const audioLabel = state.audioEnabled ? ` | ${beatChar} ${state.audioSourceLabel}` : "";
-  const transitionPart = state.transitionLabel ? `  \u2014  ${state.transitionLabel}` : "";
-  hud.textContent = `[${state.sceneIndex + 1}/${state.sceneCount}] ${state.sceneName}  \u2014  ${postLabel}${galleryLabel}${audioLabel}${transitionPart}  \u2014  \u2190 \u2192 switch | 0 single | H options | R reset | F film | D gallery | A audio | I panel | M file | W text`;
+  const parts = [
+    `[${state.sceneIndex + 1}/${state.sceneCount}] ${state.sceneName}`,
+    postLabel,
+  ];
+
+  if (state.galleryEnabled) {
+    parts.push(`Gallery [${state.layoutName}]`);
+  }
+  if (state.audioEnabled) {
+    parts.push(`${beatChar} ${state.audioSourceLabel}`);
+  }
+  if (state.transitionLabel) {
+    parts.push(state.transitionLabel);
+  }
+
+  hud.textContent = parts.join("  \u2014  ");
+  hud.title = HOTKEY_HELP_TEXT;
 }
 
 export function updateFilmToggleButton(button: HTMLButtonElement, postEnabled: boolean): void {

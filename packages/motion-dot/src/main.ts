@@ -59,6 +59,10 @@ import {
   createPassthroughFilmPostPass,
   type MotionFilmPostPass,
 } from "webgpu-motion-post";
+import {
+  createDefaultBlitPass,
+  type ComposePass,
+} from "./compose-pass";
 
 export type DotSceneName =
   | "Orbit"
@@ -83,6 +87,14 @@ export interface MountOptions {
   readonly hostOverlay?: HTMLElement;
   readonly onError?: (err: unknown) => void;
   readonly onReady?: () => void;
+  /**
+   * Optional final-stage compose pass plugged into the render pipeline.
+   * When set, motion-dot renders scene → MFP → textureB, then hands the
+   * encoder + textureB view + swap-chain view to this pass. When null /
+   * unset, motion-dot performs a pure pass-through blit from textureB to
+   * the swap chain (visually identical to the legacy direct-write).
+   */
+  readonly composePass?: ComposePass | null;
 }
 
 export interface MountHandle {
@@ -94,6 +106,28 @@ export interface MountHandle {
    * name is not in the scene catalog.
    */
   setActiveScene(name: DotSceneName): void;
+  /**
+   * Hot-swap the final-stage compose pass at runtime. Pass `null` to
+   * fall back to the default pass-through blit. The previous pass's
+   * `destroy()` is invoked before the swap.
+   */
+  setComposePass(pass: ComposePass | null): void;
+  /**
+   * Subscribe to a callback fired at the start of each frame, before the
+   * encoder is built. Use to update uniform buffers / surface lists from
+   * external state (DOM rect, pointer, scroll). Returns an unsubscribe fn.
+   */
+  onBeforeFrame(cb: () => void): () => void;
+  /**
+   * WebGPU resources owned by motion-dot. Exposed so a ComposePass
+   * implementation can construct its own pipelines, samplers, and uniform
+   * buffers using the same device. Do not destroy the device.
+   */
+  readonly gpu: {
+    readonly device: GPUDevice;
+    readonly queue: GPUQueue;
+    readonly format: GPUTextureFormat;
+  };
 }
 
 interface SceneEntry {
@@ -340,6 +374,18 @@ export async function mountMotionDotApp(opts: MountOptions): Promise<MountHandle
     const filmPost: MotionFilmPostPass = createFilmPostPass(device, format);
     const filmPassthrough: MotionFilmPostPass = createPassthroughFilmPostPass(device, format);
 
+    // ── Compose pass (final stage: textureB → swap chain) ──
+    const composeSampler = device.createSampler({
+      label: "motion-dot:compose substrate sampler",
+      magFilter: "nearest",
+      minFilter: "nearest",
+      addressModeU: "clamp-to-edge",
+      addressModeV: "clamp-to-edge",
+    });
+    const defaultBlit = createDefaultBlitPass(device, format);
+    let activeComposePass: ComposePass | null = opts.composePass ?? null;
+    const beforeFrameCallbacks = new Set<() => void>();
+
     function getGalleryMode(w: number, h: number): GalleryMode {
       if (!galleryMode) {
         galleryMode = createGalleryMode(device, w, h);
@@ -530,6 +576,16 @@ export async function mountMotionDotApp(opts: MountOptions): Promise<MountHandle
     const loop = createFixedStepLoop({
       fps: 45,
       frame: ({ dt, time }) => {
+        // Fire onBeforeFrame subscribers (consumers update uniforms / DOM
+        // rects / surface lists here before any GPU encoding starts).
+        for (const cb of beforeFrameCallbacks) {
+          try {
+            cb();
+          } catch (err) {
+            console.error("[motion-dot] onBeforeFrame callback threw:", err);
+          }
+        }
+
         const sz = resizeCanvas(gpu);
         sdf.resize(sz.width, sz.height);
 
@@ -537,6 +593,16 @@ export async function mountMotionDotApp(opts: MountOptions): Promise<MountHandle
         const outputView = outputTexture.createView();
         const encoder = device.createCommandEncoder({ label: "frame" });
         const gallery = galleryEnabled ? getGalleryMode(sz.width, sz.height) : null;
+
+        // textureB — post-effect output, sampled by the compose pass. Same
+        // format as the swap chain so MFP's pre-built pipelines render to
+        // it without modification, and the default blit preserves bits.
+        const composeSubstrateView = offscreenTargets.get("post-output", {
+          label: "motion-dot:post-output",
+          width: sz.width,
+          height: sz.height,
+          format,
+        });
 
         kineticHandoff.update(dt, time);
 
@@ -662,7 +728,7 @@ export async function mountMotionDotApp(opts: MountOptions): Promise<MountHandle
 
           gallery.render(encoder, compOv, entries.length, renderPanel, time);
           sdf.resize(sz.width, sz.height); // restore full resolution
-          postPass.render(encoder, compOv, outputView, time, sz.width, sz.height);
+          postPass.render(encoder, compOv, composeSubstrateView, time, sz.width, sz.height);
         } else {
           // Single scene mode (existing)
           const ov = offscreenTargets.get("scene", {
@@ -689,8 +755,27 @@ export async function mountMotionDotApp(opts: MountOptions): Promise<MountHandle
             });
           }
 
-          postPass.render(encoder, ov, outputView, time, sz.width, sz.height);
+          postPass.render(encoder, ov, composeSubstrateView, time, sz.width, sz.height);
         }
+
+        // Final stage: compose substrate (textureB) into swap chain. If a
+        // composePass is registered it owns the swap-chain write; otherwise
+        // the default blit preserves the legacy direct-write behavior.
+        const composePass = activeComposePass ?? defaultBlit;
+        composePass.render({
+          encoder,
+          device,
+          queue: device.queue,
+          substrateView: composeSubstrateView,
+          substrateSampler: composeSampler,
+          swapView: outputView,
+          format,
+          width: sz.width,
+          height: sz.height,
+          dpr: gpu.dpr,
+          time,
+          dt,
+        });
 
         device.queue.submit([encoder.finish()]);
       },
@@ -706,6 +791,12 @@ export async function mountMotionDotApp(opts: MountOptions): Promise<MountHandle
         stopped = true;
         loop.stop();
         keyboardTeardown();
+        beforeFrameCallbacks.clear();
+        if (activeComposePass) {
+          activeComposePass.destroy?.();
+          activeComposePass = null;
+        }
+        defaultBlit.destroy?.();
         for (const el of [hud, filmToggle, audioSettingsButton, audioSettingsPanel.root, hotkeyLegend]) {
           el.remove();
         }
@@ -720,6 +811,25 @@ export async function mountMotionDotApp(opts: MountOptions): Promise<MountHandle
         }
         idx = targetIdx;
         syncOverlay();
+      },
+      setComposePass(pass: ComposePass | null): void {
+        if (stopped) return;
+        if (activeComposePass === pass) return;
+        if (activeComposePass) {
+          activeComposePass.destroy?.();
+        }
+        activeComposePass = pass;
+      },
+      onBeforeFrame(cb: () => void): () => void {
+        beforeFrameCallbacks.add(cb);
+        return () => {
+          beforeFrameCallbacks.delete(cb);
+        };
+      },
+      gpu: {
+        device,
+        queue: device.queue,
+        format,
       },
     };
   } catch (e) {

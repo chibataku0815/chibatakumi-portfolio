@@ -3,14 +3,43 @@
 import { useEffect, useState } from "react";
 import { Link, usePathname } from "@/i18n/navigation";
 import { portfolioData } from "@/shared/data/portfolio";
+import { LiquidGlassSurface } from "@/features/liquid-glass";
+import { BrandMark } from "./BrandMark";
 import { BrandWordmark } from "./BrandWordmark";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+
+// Nav — Apple Liquid Glass nav chrome.
+//
+// The visible glass material on the chips + panel is rendered by the WebGPU
+// front overlay canvas (`LiquidGlassFrontChrome`). Each chip / the panel is
+// registered as a `LiquidGlassSurface`; the front canvas reads each rect per
+// frame and paints the lensing/refraction material that samples motion-dot's
+// substrate.
+//
+// When the menu opens, the close-overlay (scrim) gets a CSS
+// `backdrop-filter: blur(...)` so the page content behind the sheet is
+// genuinely blurred — Apple's iOS 26 sheet behaviour. The blur is scoped to
+// the scrim only; it never touches the panel material itself (the panel
+// material is the WebGPU Liquid Glass surface).
+//
+// Layout (per iOS 26 / macOS Tahoe Liquid Glass design audit):
+//   - Brand chip:  48 × 48 px, top:24, left:32, capsule.
+//   - Menu chip:   48 × 48 px, top:24, right:32, capsule, icon-only.
+//   - Sheet panel: width min(420px, 100vw - 24px), top:12, right:12, bottom:12,
+//                  20px corner radius all four sides.
+//   - Modal scrim: full-viewport, backdrop-blur-md + black/30 tint.
 
 export function Nav() {
   const pathname = usePathname();
   const { navBrand } = portfolioData.branding;
   const { links } = portfolioData.navigation;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const [previousPathname, setPreviousPathname] = useState(pathname);
+  if (previousPathname !== pathname) {
+    setPreviousPathname(pathname);
+    if (isMenuOpen) setIsMenuOpen(false);
+  }
 
   useEffect(() => {
     document.body.style.overflow = isMenuOpen ? "hidden" : "";
@@ -20,135 +49,183 @@ export function Nav() {
   }, [isMenuOpen]);
 
   useEffect(() => {
-    setIsMenuOpen(false);
-  }, [pathname]);
+    if (!isMenuOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsMenuOpen(false);
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [isMenuOpen]);
 
   return (
     <>
-      <nav
-        data-theme="dark"
-        className="fixed left-0 top-0 z-50 w-full"
-      >
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 border-b border-white/[0.07]"
-          style={{
-            background: "rgba(12, 12, 14, 0.72)",
-            backdropFilter: "blur(24px) saturate(160%)",
-            WebkitBackdropFilter: "blur(24px) saturate(160%)",
-          }}
+      {/*
+        Surface measurement layer — invisible divs whose getBoundingClientRect
+        the front overlay canvas reads each frame. pointer-events-none so they
+        never intercept clicks; the hit layer below owns interaction.
+      */}
+      <div aria-hidden="true" className="pointer-events-none">
+        <LiquidGlassSurface
+          surfaceId="nav.brand"
+          kind="nav"
+          radius={24}
+          intensity={1.0}
+          brightness={0.7}
+          className="fixed left-8 top-6 h-12 w-12"
         />
-        <div className="relative mx-auto flex h-[var(--nav-height)] max-w-7xl items-center justify-between px-5 sm:px-8 lg:px-12">
-          <Link
-            href="/"
-            data-transition="true"
-            aria-label={navBrand}
-            className="min-w-0 text-white transition-opacity hover:opacity-80"
+        {!isMenuOpen && (
+          <LiquidGlassSurface
+            surfaceId="nav.menu"
+            kind="nav"
+            radius={24}
+            intensity={1.0}
+            brightness={0.7}
+            className="fixed right-8 top-6 h-12 w-12"
+          />
+        )}
+      </div>
+
+      {/* Hit / a11y layer — transparent Link + button matching the chip rects. */}
+      <nav
+        aria-label="Global"
+        className="pointer-events-none fixed inset-0"
+        style={{ zIndex: "var(--z-nav-hit, 1010)" }}
+      >
+        <Link
+          href="/"
+          data-transition="true"
+          aria-label={navBrand}
+          className="pointer-events-auto fixed left-8 top-6 grid h-12 w-12 cursor-pointer place-items-center rounded-full bg-transparent text-[rgba(248,250,255,0.92)] outline-none focus-visible:ring-2 focus-visible:ring-white/80"
+        >
+          <BrandMark size={22} />
+          <span className="sr-only">{navBrand}</span>
+        </Link>
+
+        {!isMenuOpen && (
+          <button
+            type="button"
+            aria-expanded={false}
+            aria-controls="global-menu-sheet"
+            aria-label="Open global menu"
+            className="pointer-events-auto fixed right-8 top-6 inline-flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-transparent text-[rgba(248,250,255,0.92)] outline-none focus-visible:ring-2 focus-visible:ring-white/80"
+            onClick={() => setIsMenuOpen(true)}
           >
-            <BrandWordmark compact />
-          </Link>
-
-          <div className="hidden items-center gap-3 md:flex">
-            {links.map(({ href, label }) => {
-              const isCurrent = href === "/" ? pathname === href : pathname.startsWith(href);
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  data-transition="true"
-                  aria-current={isCurrent ? "page" : undefined}
-                  className={`relative px-3 py-2 font-mono text-xs uppercase tracking-[0.12em] transition-colors duration-200 ${
-                    isCurrent
-                      ? "pointer-events-none text-white"
-                      : "text-white/55 hover:text-white/90"
-                  }`}
-                >
-                  {label}
-                  {isCurrent && (
-                    <span
-                      aria-hidden="true"
-                      className="pointer-events-none absolute bottom-1 left-3 right-3 h-px bg-white/60"
-                    />
-                  )}
-                </Link>
-              );
-            })}
-            <LanguageSwitcher />
-          </div>
-
-          <div className="flex items-center gap-2 md:hidden">
-            <LanguageSwitcher compact />
-            <button
-              type="button"
-              aria-expanded={isMenuOpen}
-              aria-controls="mobile-nav-panel"
-              aria-label={isMenuOpen ? "Close navigation" : "Open navigation"}
-              onClick={() => setIsMenuOpen((prev) => !prev)}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/[0.1] bg-black/40 text-white backdrop-blur-md"
-            >
-              <span className="sr-only">Menu</span>
-              <span className="flex flex-col gap-1.5">
-                <span
-                  className={`block h-px w-4 bg-current transition-transform duration-200 ${isMenuOpen ? "translate-y-[7px] rotate-45" : ""}`}
-                />
-                <span
-                  className={`block h-px w-4 bg-current transition-opacity duration-200 ${isMenuOpen ? "opacity-0" : "opacity-100"}`}
-                />
-                <span
-                  className={`block h-px w-4 bg-current transition-transform duration-200 ${isMenuOpen ? "-translate-y-[7px] -rotate-45" : ""}`}
-                />
-              </span>
-            </button>
-          </div>
-        </div>
+            <span aria-hidden="true" className="relative inline-block h-3 w-4">
+              <span className="absolute left-0 right-0 top-0 h-px bg-current" />
+              <span className="absolute left-0 right-0 top-1.5 h-px bg-current" />
+              <span className="absolute left-0 right-0 top-3 h-px bg-current" />
+            </span>
+            <span className="sr-only">Menu</span>
+          </button>
+        )}
       </nav>
 
-      <div
-        data-theme="dark"
-        className={`fixed inset-0 z-40 md:hidden ${isMenuOpen ? "pointer-events-auto" : "pointer-events-none"}`}
-        aria-hidden={!isMenuOpen}
-      >
+      {/*
+        Open menu — Sheet pattern with WebGPU Liquid Glass material on the
+        panel itself, and CSS backdrop-filter blur on the scrim behind the
+        panel. The scrim's CSS blur is what gives the "page pushed back +
+        blurred" sensation; the panel's material is procedural Liquid Glass
+        rendered by the front canvas.
+      */}
+      {isMenuOpen && (
         <div
-          className={`absolute inset-0 bg-black/65 backdrop-blur-md transition-opacity duration-300 ${isMenuOpen ? "opacity-100" : "opacity-0"}`}
-          onClick={() => setIsMenuOpen(false)}
-        />
-        <div
-          id="mobile-nav-panel"
-          className={`absolute inset-x-4 top-[calc(var(--nav-height)+1.5rem)] rounded-[var(--radius-panel)] border border-[var(--stroke-strong)] bg-[#111113]/90 p-5 shadow-[var(--shadow-elev-3)] backdrop-blur-xl transition-all duration-300 ${isMenuOpen ? "translate-y-0 opacity-100" : "-translate-y-3 opacity-0"}`}
+          data-theme="dark"
+          className="fixed inset-0"
+          style={{ zIndex: "var(--z-nav-panel, 1100)" }}
         >
-          <div className="mb-5 flex items-center justify-between border-b border-[var(--stroke-subtle)] pb-4">
-            <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--text-base-50)]">
-              Navigation
-            </p>
-            <span className="h-px w-12 bg-[var(--hairline-gradient)]" />
-          </div>
-          <div className="flex flex-col gap-2">
-            {links.map(({ href, label }) => {
-              const isCurrent = href === "/" ? pathname === href : pathname.startsWith(href);
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  data-transition="true"
-                  aria-current={isCurrent ? "page" : undefined}
-                  className={`group flex items-center justify-between rounded-[1.25rem] border px-4 py-4 text-left transition-all duration-200 ${
-                    isCurrent
-                      ? "border-[var(--stroke-strong)] bg-[var(--surface-2)] text-[var(--text-base)] shadow-[var(--shadow-elev-1)]"
-                      : "border-[var(--stroke-subtle)] bg-[var(--surface-3)] text-[var(--text-base-80)]"
-                  }`}
+          {/*
+            Scrim — blurs + dims the area BEHIND the sheet only. The right
+            inset matches the panel's outer bound (panel width + 12px gap)
+            so the panel's WebGPU Liquid Glass material is never blurred by
+            backdrop-filter on the scrim above it.
+          */}
+          <button
+            type="button"
+            aria-label="Close global menu"
+            className="absolute bottom-0 left-0 top-0 cursor-pointer bg-black/30 backdrop-blur-lg"
+            style={{ right: "calc(min(420px, calc(100vw - 1.5rem)) + 0.75rem)" }}
+            onClick={() => setIsMenuOpen(false)}
+          />
+          <LiquidGlassSurface
+            surfaceId="nav.panel"
+            kind="panel"
+            radius={20}
+            intensity={1.05}
+            brightness={0.7}
+            id="global-menu-sheet"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="global-menu-title"
+            className="absolute bottom-3 right-3 top-3 flex w-[min(420px,calc(100vw-1.5rem))] flex-col px-7 py-7 text-[rgba(248,250,255,0.92)] sm:px-8"
+          >
+            <div className="flex items-center justify-between gap-5 pb-5">
+              <Link
+                href="/"
+                data-transition="true"
+                aria-label={navBrand}
+                className="min-w-0 cursor-pointer transition-opacity hover:opacity-85"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <BrandWordmark compact />
+              </Link>
+              <button
+                type="button"
+                aria-label="Close global menu"
+                className="relative h-11 w-11 shrink-0 cursor-pointer rounded-full text-current transition-opacity hover:opacity-85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <span className="sr-only">Close</span>
+                <span className="absolute left-1/2 top-1/2 h-px w-5 -translate-x-1/2 -translate-y-1/2 rotate-45 bg-current" />
+                <span className="absolute left-1/2 top-1/2 h-px w-5 -translate-x-1/2 -translate-y-1/2 -rotate-45 bg-current" />
+              </button>
+            </div>
+
+            <div className="flex flex-1 flex-col justify-between gap-10 pt-6">
+              <div>
+                <p
+                  id="global-menu-title"
+                  className="mb-5 font-mono text-[10px] uppercase tracking-[0.28em] text-[rgba(248,250,255,0.55)]"
                 >
-                  <span className="text-balance text-[clamp(1.1rem,4.8vw,1.4rem)] font-medium leading-[1.05] tracking-[var(--tracking-tight)]">
-                    {label}
-                  </span>
-                  <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--text-base-40)]">
-                    0{links.findIndex((item) => item.href === href) + 1}
-                  </span>
-                </Link>
-              );
-            })}
-          </div>
+                  Global Menu
+                </p>
+                <div className="flex flex-col gap-1">
+                  {links.map(({ href, label }, index) => {
+                    const isCurrent = href === "/" ? pathname === href : pathname.startsWith(href);
+                    return (
+                      <Link
+                        key={href}
+                        href={href}
+                        data-transition="true"
+                        aria-current={isCurrent ? "page" : undefined}
+                        className={`group flex cursor-pointer items-center justify-between rounded-2xl px-3 py-3 text-left transition-opacity hover:opacity-85 ${
+                          isCurrent ? "text-[rgba(255,248,222,1)]" : "text-[rgba(248,250,255,0.92)]"
+                        }`}
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        <span className="text-[clamp(1.35rem,4vw,2rem)] font-medium leading-none tracking-normal">
+                          {label}
+                        </span>
+                        <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-[rgba(248,250,255,0.4)]">
+                          {String(index + 1).padStart(2, "0")}
+                        </span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between gap-5 pt-5">
+                <span className="font-mono text-[10px] uppercase tracking-[0.24em] text-[rgba(248,250,255,0.5)]">
+                  Locale
+                </span>
+                <LanguageSwitcher />
+              </div>
+            </div>
+          </LiquidGlassSurface>
         </div>
-      </div>
+      )}
     </>
   );
 }

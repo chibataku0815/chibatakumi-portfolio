@@ -8,3 +8,8 @@ export {
   type MotionStageStatus,
 } from "./MotionStageContext";
 export { useMotionDotSceneCycle } from "./useMotionDotSceneCycle";
+export {
+  MotionStageVisibilityProvider,
+  useHideMotionStageOnMount,
+  useMotionStageHidden,
+} from "./MotionStageVisibility";

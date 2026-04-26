@@ -13,10 +13,19 @@
 // Per `feedback_no_fallback_bug_hotbed.md`, when WebGPU is unavailable we
 // surface `kind: "unsupported"` and let the MotionUnsupportedBanner sibling
 // speak. No silent fallback motion.
+//
+// Stream C (renewal-2026 Wave 3): split into outer MotionStageProvider
+// (wraps MotionStageVisibilityProvider) and inner MotionStageMount (reads
+// hidden flag, gates / restarts the WebGPU loop when experiment routes
+// mount their own WebGPU surface).
 
 import { useEffect, useRef, useState } from "react";
 import { mountMotionDotApp, type MountHandle } from "@chibatakumi/motion-dot";
 import { MotionStageContext, type MotionStageStatus } from "./MotionStageContext";
+import {
+  MotionStageVisibilityProvider,
+  useMotionStageHidden,
+} from "./MotionStageVisibility";
 
 interface MotionStageProviderProps {
   readonly children: React.ReactNode;
@@ -26,28 +35,60 @@ interface MotionStageProviderProps {
 const DEFAULT_CANVAS_CLASS =
   "fixed inset-0 -z-10 pointer-events-none w-screen h-screen";
 
-export function MotionStageProvider({
+// Inner component — lives inside MotionStageVisibilityProvider so it can
+// read `useMotionStageHidden()`.  Restarts the WebGPU loop when `hidden`
+// toggles false→true→false (e.g. user navigates into /experiments/grid,
+// then back to the home route).
+function MotionStageMount({
+  canvasClassName,
   children,
-  canvasClassName = DEFAULT_CANVAS_CLASS,
-}: MotionStageProviderProps): React.ReactElement {
+}: {
+  canvasClassName: string;
+  children: React.ReactNode;
+}) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const overlayRef = useRef<HTMLDivElement | null>(null);
   const mountRef = useRef<MountHandle | null>(null);
   const [status, setStatus] = useState<MotionStageStatus>({ kind: "pending" });
+  const hidden = useMotionStageHidden();
 
   useEffect(() => {
+    // When a sub-route hides the global dot, stop the running loop.
+    if (hidden) {
+      const mount = mountRef.current;
+      if (mount) {
+        mount.stop();
+        mountRef.current = null;
+      }
+      // Keep status so consumers know the last known state.
+      return;
+    }
+
+    // hidden === false — (re)start the dot loop.
     let cancelled = false;
+    const publishStatus = (nextStatus: MotionStageStatus) => {
+      queueMicrotask(() => {
+        if (!cancelled) {
+          setStatus(nextStatus);
+        }
+      });
+    };
+
     const canvas = canvasRef.current;
     const overlay = overlayRef.current;
     if (!canvas || !overlay) return;
 
     if (typeof navigator === "undefined" || !("gpu" in navigator)) {
-      setStatus({
+      publishStatus({
         kind: "unsupported",
         reason: "WebGPU is not available in this browser.",
       });
-      return;
+      return () => {
+        cancelled = true;
+      };
     }
+
+    publishStatus({ kind: "pending" });
 
     (async () => {
       try {
@@ -80,7 +121,7 @@ export function MotionStageProvider({
         mountRef.current = null;
       }
     };
-  }, []);
+  }, [hidden]); // re-runs whenever hidden changes
 
   return (
     <MotionStageContext.Provider value={status}>
@@ -90,8 +131,26 @@ export function MotionStageProvider({
         className={canvasClassName}
         aria-hidden="true"
       />
-      <div ref={overlayRef} aria-hidden="true" />
+      <div
+        ref={overlayRef}
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0"
+        style={{ zIndex: "var(--z-motion-hud, 20)" }}
+      />
       {children}
     </MotionStageContext.Provider>
+  );
+}
+
+export function MotionStageProvider({
+  children,
+  canvasClassName = DEFAULT_CANVAS_CLASS,
+}: MotionStageProviderProps): React.ReactElement {
+  return (
+    <MotionStageVisibilityProvider>
+      <MotionStageMount canvasClassName={canvasClassName}>
+        {children}
+      </MotionStageMount>
+    </MotionStageVisibilityProvider>
   );
 }
