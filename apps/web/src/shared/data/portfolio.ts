@@ -188,11 +188,10 @@ export interface ArchivePageContent {
 }
 
 export interface ContactPageContent {
-  title: string;
-  description: string;
+  // Renewal 2026 reset (parent plan §4.1): the contact route is localized,
+  // so visible copy lives in `apps/web/messages/{ja,en}.json` under the
+  // `contact` namespace. Only the address (identity-level constant) stays here.
   email: string;
-  cta: string;
-  responseNote?: string;
 }
 
 export interface ProfileStrength {
@@ -431,12 +430,13 @@ export const portfolioData: PortfolioData = {
   // Navigation
   // ---------------------------------------------------------------------------
   navigation: {
+    // Renewal 2026 reset (parent plan §2.1): global nav is limited to the
+    // core identity surface. /photography and /filmtone are satellite LPs
+    // and are intentionally excluded from primary navigation.
     links: [
       { href: "/", label: "Home" },
-      { href: "/skills", label: "Skills" },
-      { href: "/interactive", label: "Interactive" },
-      { href: "/photography", label: "Photography" },
-      { href: "/profile", label: "Profile" },
+      { href: "/experiments", label: "Experiments" },
+      { href: "/journal", label: "Journal" },
       { href: "/contact", label: "Contact" },
     ],
   },
@@ -450,12 +450,12 @@ export const portfolioData: PortfolioData = {
     description:
       "Design direction, photography, and frontend implementation held to one editorial standard. Built as a production-grade motion system, not a disposable splash screen.",
     primaryCta: {
-      label: "View Skills",
-      href: "/skills",
+      label: "View Experiments",
+      href: "/experiments",
     },
     secondaryCta: {
-      label: "Open Profile",
-      href: "/profile",
+      label: "Read Journal",
+      href: "/journal",
     },
     socialLinks: [
       { label: "GitHub", href: "https://github.com/chibataku0815", icon: "github" },
@@ -470,7 +470,7 @@ export const portfolioData: PortfolioData = {
         description:
           "Creative direction translated into Next.js, TypeScript, motion systems, and real production constraints without losing precision.",
         proof: "Concept to shipped interface — same logic intact.",
-        href: "/skills",
+        href: "/experiments",
         accent: "#f0b25a",
         glow:
           "radial-gradient(circle at 28% 30%, color-mix(in srgb, var(--accent-amber1) 34%, transparent) 0%, transparent 34%), radial-gradient(circle at 74% 72%, rgba(84, 186, 255, 0.14) 0%, transparent 28%)",
@@ -483,7 +483,7 @@ export const portfolioData: PortfolioData = {
         description:
           "Photography, color, and framing that inform the product language itself instead of sitting beside it as decoration.",
         proof: "Frames as decision-making assets, not decoration.",
-        href: "/photography",
+        href: "/journal",
         accent: "#f5c36d",
         glow:
           "radial-gradient(circle at 72% 24%, rgba(255, 196, 61, 0.28) 0%, transparent 32%), radial-gradient(circle at 24% 76%, rgba(255, 120, 76, 0.12) 0%, transparent 24%)",
@@ -496,7 +496,7 @@ export const portfolioData: PortfolioData = {
         description:
           "Systems thinking that keeps brand voice, UI density, motion timing, and output quality aligned from concept through delivery.",
         proof: "One coherent standard across mediums.",
-        href: "/profile",
+        href: "/journal",
         accent: "#ecd7b5",
         glow:
           "radial-gradient(circle at 58% 38%, rgba(236, 215, 181, 0.2) 0%, transparent 26%), radial-gradient(circle at 22% 82%, rgba(255, 181, 77, 0.12) 0%, transparent 20%)",
@@ -643,13 +643,10 @@ export const portfolioData: PortfolioData = {
       ],
     },
 
-    // Contact Page
+    // Contact Page — visible copy lives in messages/{ja,en}.json under
+    // the `contact` namespace. Only the address stays here as identity data.
     contact: {
-      title: "お問い合わせ",
-      description: "具体的な要件が決まる前の、漠然とした段階でも構いません。\nまずは、お気兼ねなくご相談ください。",
       email: "hello@takumichiba.com",
-      cta: "内容を確認してメールを送る",
-      responseNote: "通常、2営業日以内に返信いたします。",
     },
 
     // Profile Page

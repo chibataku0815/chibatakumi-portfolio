@@ -24,3 +24,12 @@ export type {
 } from "./participant";
 
 export const GRID_PACKAGE_VERSION = "0.1.0-phase-b";
+
+// Standalone mount entry for /experiments/grid (Package 4 — Motion Works).
+// Re-exports keep the package surface area minimal: callers either use the
+// participant adapter (MotionStage host) or the mount entry (own canvas).
+export { mountMotionGridApp } from "./mount";
+export type {
+  MountGridOptions,
+  MountGridHandle,
+} from "./mount";

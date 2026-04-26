@@ -3,9 +3,9 @@
 /**
  * @file Stripe 決済完了タブから開く「ご支援ありがとう」ページの UI。
  * @description 感謝文・免責・Filmtone への導線。`session_id` があるときは POST verify で httpOnly Cookie を発行する。
- *   Wave 2 D5.1 で `/film-lab/support/thanks/FilmLabSupportThanksClient.tsx` から carry。
+ *   Wave 2 D5.1 で `/film-lab/support/thanks/FilmLabSupportThanksClient.tsx` から carry。Package 5 で `/filmtone/support/thanks/FilmtoneSupportThanksClient.tsx` へ canonical 移動。
  *   API path は `/api/film-lab/donation/verify` を維持（plan §6.2: donation API は Filmtone 独立ドメイン化までの暫定）。
- *   内部 Link 先のみ `/film-lab` → `/works/filmtone` に更新。
+ *   内部 Link 先は `/filmtone`（Package 5 canonicalization 後）。
  * @limitations verify に必要な env が無いときは Cookie を付けず、従来どおり Filmtone の `donationThanks` フォールバック可。
  */
 
@@ -126,7 +126,7 @@ export function FilmtoneSupportThanksClient({ checkoutSessionId }: FilmtoneSuppo
         </>
       ) : null}
       <Link
-        href={verifyState === "ok" ? "/works/filmtone" : "/works/filmtone?donationThanks=1"}
+        href={verifyState === "ok" ? "/filmtone" : "/filmtone?donationThanks=1"}
         className="mt-6 inline-flex w-fit rounded-xl bg-[var(--accent-amber1)] px-4 py-2.5 text-sm font-medium text-black transition-opacity hover:opacity-90"
       >
         {t("returnCta")}

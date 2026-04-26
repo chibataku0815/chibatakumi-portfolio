@@ -11,20 +11,20 @@ import { decodeSharedParamP } from "@/features/interactive/film-lab/params-codec
 import type { Params } from "@/features/interactive/film-lab/types";
 
 /**
- * @file Filmtone case study top page (`/works/filmtone`).
+ * @file Filmtone case study top page (`/filmtone`).
  * @description Wave 2 D5.1 で `/film-lab` から carry。D5.6 dynamic data isolation: server component が
  *   100% static (case study text + metadata)、cookie / searchParams の解決後に client island
  *   `<FilmLabFullPage />` を Suspense 越しではなく直接 mount。独立ドメイン化時は island の export source
  *   切替で static snapshot 化を容易にする (waitlist / donation を別 island にしたい場合は追って分割)。
- *   D5.7 で `metadata.alternates.canonical` を新パスへ inline。
+ *   D5.7 で `metadata.alternates.canonical` を新パスへ inline。Package 5 で `/works/filmtone` → `/filmtone` へ canonical 移動。
  */
 
 const BASE_URL = "https://www.chibatakumi.studio";
 
 function filmtoneOgPath(locale: string): string {
   return locale === "ja"
-    ? "/works/filmtone/og"
-    : `/en/works/filmtone/og`;
+    ? "/filmtone/og"
+    : `/en/filmtone/og`;
 }
 
 /**
@@ -50,8 +50,8 @@ export async function generateMetadata({
   const isJa = locale === "ja";
 
   const canonicalUrl = isJa
-    ? `${BASE_URL}/works/filmtone`
-    : `${BASE_URL}/en/works/filmtone`;
+    ? `${BASE_URL}/filmtone`
+    : `${BASE_URL}/en/filmtone`;
 
   let ogImageUrl = "/film-lab/og-image.jpg";
   if (searchParams) {
@@ -98,8 +98,8 @@ export async function generateMetadata({
     alternates: {
       canonical: canonicalUrl,
       languages: {
-        ja: `${BASE_URL}/works/filmtone`,
-        en: `${BASE_URL}/en/works/filmtone`,
+        ja: `${BASE_URL}/filmtone`,
+        en: `${BASE_URL}/en/filmtone`,
       },
     },
   };
@@ -114,11 +114,11 @@ async function buildFilmtoneJsonLd(locale: string) {
   const t = await getTranslations({ locale, namespace: "film-lab.jsonLd" });
   const isJa = locale === "ja";
   const pageUrl = isJa
-    ? `${BASE_URL}/works/filmtone`
-    : `${BASE_URL}/en/works/filmtone`;
+    ? `${BASE_URL}/filmtone`
+    : `${BASE_URL}/en/filmtone`;
   const downloadUrl = isJa
-    ? `${BASE_URL}/works/filmtone/download`
-    : `${BASE_URL}/en/works/filmtone/download`;
+    ? `${BASE_URL}/filmtone/download`
+    : `${BASE_URL}/en/filmtone/download`;
   return {
     "@context": "https://schema.org",
     "@graph": [

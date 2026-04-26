@@ -13,8 +13,8 @@ export async function generateMetadata({
   const t = await getTranslations({ locale, namespace: "film-lab.releaseNotes" });
   const isJa = locale === "ja";
   const canonicalUrl = isJa
-    ? `${BASE_URL}/works/filmtone/release-notes`
-    : `${BASE_URL}/en/works/filmtone/release-notes`;
+    ? `${BASE_URL}/filmtone/release-notes`
+    : `${BASE_URL}/en/filmtone/release-notes`;
 
   return {
     title: t("title"),
@@ -26,8 +26,8 @@ export async function generateMetadata({
     alternates: {
       canonical: canonicalUrl,
       languages: {
-        ja: `${BASE_URL}/works/filmtone/release-notes`,
-        en: `${BASE_URL}/en/works/filmtone/release-notes`,
+        ja: `${BASE_URL}/filmtone/release-notes`,
+        en: `${BASE_URL}/en/filmtone/release-notes`,
       },
     },
   };

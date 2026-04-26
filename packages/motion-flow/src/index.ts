@@ -52,3 +52,12 @@ export type { RibbonConfig } from "./render/ribbon-config";
 export type { FlowlineParam } from "./audio/params";
 
 export const FLOW_PACKAGE_VERSION = "0.1.0-phase-a";
+
+// Standalone mount entry for /experiments/flow (Package 4 — Motion Works).
+// Re-exports keep the package surface area minimal: callers either use the
+// participant adapter (MotionStage host) or the mount entry (own canvas).
+export { mountMotionFlowApp } from "./mount";
+export type {
+  MountFlowOptions,
+  MountFlowHandle,
+} from "./mount";

@@ -14,7 +14,7 @@ import {
 
 /**
  * @file ダウンロード完了ページ。DMG ダウンロード開始後にインストール手順・寄付導線を表示する。
- * @description Wave 2 D5.1 で `/film-lab/download/complete` から carry。`/works/filmtone/download` から遷移。
+ * @description Wave 2 D5.1 で `/film-lab/download/complete` から carry。Package 5 で `/filmtone/download/complete` へ canonical 移動。`/filmtone/download` から遷移。
  *   DMG は自動ダウンロード（iframe）。
  */
 

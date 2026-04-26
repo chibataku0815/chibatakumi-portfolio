@@ -23,10 +23,15 @@
 //                     (sourceKind !== "input" || inputStatus === "connected")
 //       - `silent`  → otherwise (idle, blocked, or pre-gesture)
 //   • No automatic source switching on first click — the controller's
-//     `default_track` source is the seed; `selectSource("file" | "input")`
-//     is owned by the experiments-side MicInputGate / future file picker.
-//   • Permission decline on mic surfaces is the responsibility of
-//     MicInputGate; this control does not invoke `getUserMedia` itself.
+//     `default_track` source is the seed. App-level
+//     `selectSource("file" | "input")` is not driven from this control.
+//     The earlier experiments-wide MicInputGate mount was removed in
+//     Package 7 (corrective) because no current experiments visual reads
+//     from the GlobalAudioController bus; `/experiments/dot` uses
+//     motion-dot's internal Audio Panel (own AudioBus) for mic input.
+//   • This control does not invoke `getUserMedia` itself. If a future
+//     GlobalAudioController-bound visual route mounts MicInputGate, the
+//     mic permission surface will live there.
 //
 // Layout (plan §5.5):
 //   Mounted by the root `[locale]/layout.tsx` and rendered as a fixed

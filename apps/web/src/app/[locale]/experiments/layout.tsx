@@ -1,16 +1,27 @@
-// Experiments layout — the persistent MotionStage now lives in the root
+// Experiments layout — the persistent MotionStage lives in the root
 // [locale] layout, so all routes (home, works, experiments) share the same
-// canvas. This layout adds:
-//   • the unsupported-banner sibling for the 3 lab pages, and
-//   • the mic-input opt-in gate (Wave 2 D5.5) — only the experiments
-//     surface offers mic input; the rest of the portfolio uses the
-//     ambient default-track source via the root SoundToggleControl.
+// canvas. This layout adds the unsupported-banner sibling for the three
+// lab pages.
 //
-// MicInputGate is anchored top-left so it never collides with the
-// bottom-right SoundToggleControl mounted in the root [locale] layout.
+// Audio / mic surface (Package 7 corrective, 2026-04-26):
+//   • /experiments/dot drives its visual from motion-dot's *internal*
+//     AudioBus (packages/motion-dot/src/main.ts) — distinct from the
+//     apps/web GlobalAudioController. The honest mic-input surface for
+//     dot is motion-dot's built-in Audio Panel (top-right film/audio
+//     buttons, "I" key, listed in the hotkey legend as "I Panel"),
+//     because that flow calls getUserMedia inside motion-dot and feeds
+//     motion-dot's own analyser.
+//   • /experiments/grid and /experiments/flow are ambient-only — neither
+//     motion-grid nor motion-flow consumes microphone input today.
+//   • apps/web's MicInputGate operates the GlobalAudioController bus,
+//     which no experiments-route visual currently reads from. Mounting
+//     it here would advertise "drive the motion with your voice" while
+//     the click has no visible effect, so the experiments-wide mount is
+//     intentionally removed. The component remains exported from
+//     @/features/audio for any future route that grows a
+//     GlobalAudioController-bound visualization.
 
 import { MotionUnsupportedBanner } from "@/features/motion";
-import { MicInputGate } from "@/features/audio";
 
 export default function ExperimentsLayout({
   children,
@@ -21,7 +32,6 @@ export default function ExperimentsLayout({
     <div className="relative min-h-screen w-full">
       {children}
       <MotionUnsupportedBanner />
-      <MicInputGate className="fixed top-4 left-4 z-50" />
     </div>
   );
 }

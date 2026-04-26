@@ -2,6 +2,20 @@
 
 このディレクトリは portfolio renewal 2026-04 プロジェクトのドキュメント。
 
+## 2026-04-26 Reset Notice
+
+`/Volumes/SamsungPortableSSDX5001/documents/life/.claude/plans/portfolio-renewal-2026-04.md`
+が現在の canonical SSoT です。旧 Wave 1 / Wave 2 の `34 / 36 = 94.4%`
+は infrastructure 進捗であり、launch readiness ではありません。
+
+実装 chat は先に
+[director-reset-ledger-2026-04-26.md](./director-reset-ledger-2026-04-26.md)
+を読み、担当する ledger / work package を宣言してから編集してください。
+
+新規のディレクション chat に渡す場合は
+[director-chat-handoff-2026-04-26.md](./director-chat-handoff-2026-04-26.md)
+を併読してください。
+
 ## 親計画 (single source of truth)
 
 `/Volumes/SamsungPortableSSDX5001/documents/life/.claude/plans/portfolio-renewal-2026-04.md`

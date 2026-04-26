@@ -1,18 +1,18 @@
 "use client";
 
-// MotionStageProvider — Renewal 2026 Wave 2 D2.8 (wholesale transplant).
+// MotionStageProvider — Wave 2 D2.8 (wholesale transplant).
 //
 // Mounts a single persistent <canvas> + an HTML overlay container at the
-// layout root, then boots the transplanted motion-dot-new-webgpu app via
-// `mountMotionDotApp`. The MountHandle is shared via context so consumer
-// routes can reconfigure the live mount (scene cycle, HUD visibility,
-// keyboard input) without remounting.
+// layout root, then boots the verbatim-transplanted motion-dot-new-webgpu
+// app via `mountMotionDotApp`. The mount runs continuously across route
+// navigations (canvas survives layout boundaries). All UI affordances —
+// HUD overlay, keyboard cluster, film toggle, audio settings panel, file
+// picker — come from motion-dot itself, exactly as in the original Vite
+// app.
 //
-// SSR boundary: this component is "use client". The locale layout still
-// renders SSR markup; the canvas only mounts after hydration.
-//
-// Unsupported browsers: per `feedback_no_fallback_bug_hotbed.md`, we DO NOT
-// render a fallback. We surface a `kind: "unsupported"` status.
+// Per `feedback_no_fallback_bug_hotbed.md`, when WebGPU is unavailable we
+// surface `kind: "unsupported"` and let the MotionUnsupportedBanner sibling
+// speak. No silent fallback motion.
 
 import { useEffect, useRef, useState } from "react";
 import { mountMotionDotApp, type MountHandle } from "@chibatakumi/motion-dot";
@@ -20,7 +20,6 @@ import { MotionStageContext, type MotionStageStatus } from "./MotionStageContext
 
 interface MotionStageProviderProps {
   readonly children: React.ReactNode;
-  /** Position the canvas. Default: fixed full-viewport behind page content. */
   readonly canvasClassName?: string;
 }
 
@@ -52,12 +51,12 @@ export function MotionStageProvider({
 
     (async () => {
       try {
-        // Boot with the original motion-dot-new-webgpu defaults: HUD visible,
-        // keyboard cluster enabled, audio off (user toggles via the audio
-        // settings panel — same as the original Vite app boot state).
         const mount = await mountMotionDotApp({
           canvas,
           hostOverlay: overlay,
+          onError: (err) => {
+            console.error("[motion-dot] mount error:", err);
+          },
         });
         if (cancelled) {
           mount.stop();
@@ -66,6 +65,7 @@ export function MotionStageProvider({
         mountRef.current = mount;
         setStatus({ kind: "ready", mount });
       } catch (err) {
+        console.error("[motion-dot] mount failed:", err);
         if (!cancelled) {
           setStatus({ kind: "error", error: err });
         }
@@ -90,11 +90,7 @@ export function MotionStageProvider({
         className={canvasClassName}
         aria-hidden="true"
       />
-      <div
-        ref={overlayRef}
-        aria-hidden="true"
-        className="motion-dot-overlay"
-      />
+      <div ref={overlayRef} aria-hidden="true" />
       {children}
     </MotionStageContext.Provider>
   );

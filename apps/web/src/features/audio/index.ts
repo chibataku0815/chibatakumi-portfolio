@@ -1,14 +1,19 @@
 // ── audio feature boundary ──
 //
 // Wave 1 Agent E (Stream D5.3) — singleton + React context.
-// Wave 2 Agent β (Streams D5.4 + D5.5) — root-mounted SoundToggleControl
-// and `/experiments/*` MicInputGate.
+// Wave 2 Agent β (Stream D5.4) — root-mounted SoundToggleControl.
+// Wave 2 Agent β (Stream D5.5) introduced MicInputGate; its
+// experiments-wide mount was later removed in Package 7 (corrective)
+// because no current experiments visual reads from the
+// GlobalAudioController bus. The component stays exported for any
+// future GlobalAudioController-bound visual route. The canonical mic
+// surface for `/experiments/dot` is motion-dot's internal Audio Panel.
 //
 //   import {
 //     AudioBusProvider,
 //     useAudioBus,
 //     SoundToggleControl,
-//     MicInputGate,
+//     MicInputGate, // exported, currently no JSX mount in apps/web
 //   } from "@/features/audio";
 
 export { GlobalAudioController } from "./GlobalAudioController";

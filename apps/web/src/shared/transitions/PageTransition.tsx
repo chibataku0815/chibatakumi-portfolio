@@ -5,12 +5,13 @@
 // In the wholesale-transplant model, motion-dot is no longer a swappable
 // MotionStage participant; it's the singleton mount. PageTransition
 // therefore has no participant to setActive on path change — the mount
-// stays alive across navigations and reconfigures via useMotionDotMount.
+// stays alive across navigations and is reconfigured by the
+// MotionStageProvider-driven hooks (e.g. useMotionDotSceneCycle on
+// Home).
 //
-// We keep this thin pass-through so that future participants (motion-grid,
-// motion-flow when they're rebuilt on top of the original codebase pattern
-// in Wave 3) can re-introduce a route-driven blend without disturbing the
-// JSX tree at apps/web/src/app/[locale]/layout.tsx.
+// We keep this thin pass-through so that future participants can
+// re-introduce a route-driven blend without disturbing the JSX tree at
+// apps/web/src/app/[locale]/layout.tsx.
 
 interface PageTransitionProps {
   children: React.ReactNode;

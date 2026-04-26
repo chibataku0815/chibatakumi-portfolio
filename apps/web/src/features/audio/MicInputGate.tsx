@@ -2,8 +2,16 @@
 
 // ── MicInputGate — Wave 2 D5.5 ──
 //
-// Opt-in mic input control for `/experiments/*` routes only. Renders a
-// permission-gated button that, on click:
+// Status (Package 7 corrective, 2026-04-26): no JSX mount in apps/web.
+// The experiments-wide mount was removed because no current experiments
+// visual reads from the GlobalAudioController bus this gate drives.
+// `/experiments/dot` exposes mic input via motion-dot's internal Audio
+// Panel instead. This component is preserved (exported from
+// @/features/audio) for any future GlobalAudioController-bound visual
+// route that grows a mic-driven analyser.
+//
+// Behaviour (when mounted): renders a permission-gated button that,
+// on click:
 //
 //   1. Calls `audio.ensureContext()` first — without an AudioContext the
 //      mic stream cannot be wired into the analyser graph. This must run
@@ -33,7 +41,7 @@
 //     unsupported state and is disabled.
 //
 // Visual placement is delegated to the parent layout via `className` —
-// MicInputGate stays positioning-agnostic so `experiments/layout.tsx` can
+// MicInputGate stays positioning-agnostic so any future route layout can
 // place it without colliding with the bottom-right SoundToggleControl.
 //
 // Reference: plan §2.3 (D5.5), feedback_design_quality_priority.md

@@ -39,55 +39,123 @@ const nextConfig: NextConfig = {
     },
   },
   /**
-   * Wave 1 IA migration (D4.11) — 301 redirects from old paths to new IA.
+   * Renewal 2026 reset (parent plan §3.2) — 301 redirects from legacy paths
+   * to the canonical IA (`/`, `/experiments`, `/journal`, `/contact`).
    *
    * Each logical path is registered twice: once for the bare `/old` form
    * (default locale, unprefixed thanks to `localePrefix: "as-needed"`) and
    * once for the explicit `/(en|ja)/old` form so locale-prefixed bookmarks
-   * keep their locale across the redirect.
+   * keep their locale across the redirect. Wildcard `:path*` collapses the
+   * nested-path entries.
    *
-   * Filmtone (`/film-lab/*`) redirects added in Wave 2 (D4.11 残) via
-   * wildcard pattern: 4 entries cover all nested paths (privacy, signature,
-   * roadmap, release-notes, support, support/thanks, download,
-   * download/complete, og) without explicit listing.
+   * Satellite canonicalization (`/filmtone`, `/photography`) has landed with
+   * the Satellite package (Renewal 2026 §3.2). Canonical routes are now
+   * `/[locale]/filmtone` and `/[locale]/photography`; legacy paths
+   * `/works/filmtone`, `/works/photography`, and `/film-lab` all 301 to
+   * their canonical Satellite destinations.
+   *
+   * `/motion/reference-works/:slug*` ordering must precede the bare
+   * `/motion → /experiments` rule so the dynamic match wins first.
    */
   async redirects() {
     return [
-      // /photography → /works/photography
+      // /works/photography → /photography (Renewal 2026 §3.2 — Satellite
+      // canonicalization landed: /[locale]/photography/page.tsx is now the
+      // real route, /works/photography is redirect-only).
       {
-        source: "/photography",
-        destination: "/works/photography",
+        source: "/works/photography",
+        destination: "/photography",
         permanent: true,
       },
       {
-        source: "/:locale(en|ja)/photography",
-        destination: "/:locale/works/photography",
+        source: "/:locale(en|ja)/works/photography",
+        destination: "/:locale/photography",
         permanent: true,
       },
-      // /interactive → /works
+
+      // /works/filmtone(:path*) → /filmtone(:path*) (§3.2 — Filmtone LP and
+      // children moved to /[locale]/filmtone; /works/filmtone is redirect-only).
       {
-        source: "/interactive",
-        destination: "/works",
-        permanent: true,
-      },
-      {
-        source: "/:locale(en|ja)/interactive",
-        destination: "/:locale/works",
-        permanent: true,
-      },
-      // /installation → /works/installation
-      {
-        source: "/installation",
-        destination: "/works/installation",
+        source: "/works/filmtone",
+        destination: "/filmtone",
         permanent: true,
       },
       {
-        source: "/:locale(en|ja)/installation",
-        destination: "/:locale/works/installation",
+        source: "/works/filmtone/:path*",
+        destination: "/filmtone/:path*",
+        permanent: true,
+      },
+      {
+        source: "/:locale(en|ja)/works/filmtone",
+        destination: "/:locale/filmtone",
+        permanent: true,
+      },
+      {
+        source: "/:locale(en|ja)/works/filmtone/:path*",
+        destination: "/:locale/filmtone/:path*",
+        permanent: true,
+      },
+
+      // /film-lab(:path*) → /filmtone(:path*) (§3.2 — legacy product name
+      // collapses onto the canonical Satellite path).
+      {
+        source: "/film-lab",
+        destination: "/filmtone",
+        permanent: true,
+      },
+      {
+        source: "/film-lab/:path*",
+        destination: "/filmtone/:path*",
+        permanent: true,
+      },
+      {
+        source: "/:locale(en|ja)/film-lab",
+        destination: "/:locale/filmtone",
+        permanent: true,
+      },
+      {
+        source: "/:locale(en|ja)/film-lab/:path*",
+        destination: "/:locale/filmtone/:path*",
+        permanent: true,
+      },
+
+      // /works/commercial → /experiments (parent plan §2.3 — removed from
+      // core IA; explicit redirect kept separate from /works/:path* wildcard
+      // to avoid order-of-evaluation ambiguity with other /works/* entries.)
+      {
+        source: "/works/commercial",
+        destination: "/experiments",
+        permanent: true,
+      },
+      {
+        source: "/:locale(en|ja)/works/commercial",
+        destination: "/:locale/experiments",
+        permanent: true,
+      },
+      // /works/installation → /experiments (parent plan §2.3 — same as above)
+      {
+        source: "/works/installation",
+        destination: "/experiments",
+        permanent: true,
+      },
+      {
+        source: "/:locale(en|ja)/works/installation",
+        destination: "/:locale/experiments",
+        permanent: true,
+      },
+      // /works → /experiments (parent plan §3.2)
+      {
+        source: "/works",
+        destination: "/experiments",
+        permanent: true,
+      },
+      {
+        source: "/:locale(en|ja)/works",
+        destination: "/:locale/experiments",
         permanent: true,
       },
       // /motion/reference-works/:slug* → /journal/motion-studies/:slug*
-      // (dynamic — must precede /motion catch-all below)
+      // (dynamic — must precede the bare /motion rule below so this wins)
       {
         source: "/motion/reference-works/:slug*",
         destination: "/journal/motion-studies/:slug*",
@@ -98,7 +166,7 @@ const nextConfig: NextConfig = {
         destination: "/:locale/journal/motion-studies/:slug*",
         permanent: true,
       },
-      // /motion → /experiments
+      // /motion → /experiments (parent plan §3.2)
       {
         source: "/motion",
         destination: "/experiments",
@@ -109,29 +177,63 @@ const nextConfig: NextConfig = {
         destination: "/:locale/experiments",
         permanent: true,
       },
-      // /skills → /craft
+      // /interactive → /experiments (parent plan §3.2)
       {
-        source: "/skills",
-        destination: "/craft",
+        source: "/interactive",
+        destination: "/experiments",
         permanent: true,
       },
       {
-        source: "/:locale(en|ja)/skills",
-        destination: "/:locale/craft",
+        source: "/:locale(en|ja)/interactive",
+        destination: "/:locale/experiments",
         permanent: true,
       },
-      // /profile → /about
+      // /about → / (parent plan §3.2)
+      {
+        source: "/about",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/:locale(en|ja)/about",
+        destination: "/:locale",
+        permanent: true,
+      },
+      // /craft → / (parent plan §3.2)
+      {
+        source: "/craft",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/:locale(en|ja)/craft",
+        destination: "/:locale",
+        permanent: true,
+      },
+      // /profile → / (parent plan §3.2)
       {
         source: "/profile",
-        destination: "/about",
+        destination: "/",
         permanent: true,
       },
       {
         source: "/:locale(en|ja)/profile",
-        destination: "/:locale/about",
+        destination: "/:locale",
         permanent: true,
       },
-      // /archive → /journal
+      // /skills → / (parent plan §3.2)
+      {
+        source: "/skills",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/:locale(en|ja)/skills",
+        destination: "/:locale",
+        permanent: true,
+      },
+      // /archive → /journal — kept from pre-reset; not in parent plan §3.2
+      // but points to a canonical destination, so retained for old bookmarks.
       {
         source: "/archive",
         destination: "/journal",
@@ -140,28 +242,6 @@ const nextConfig: NextConfig = {
       {
         source: "/:locale(en|ja)/archive",
         destination: "/:locale/journal",
-        permanent: true,
-      },
-      // Filmtone Wave 2 (D4.11 残): /film-lab/* → /works/filmtone/* via
-      // wildcard. 4 entries cover bare + locale-prefixed + nested paths.
-      {
-        source: "/film-lab",
-        destination: "/works/filmtone",
-        permanent: true,
-      },
-      {
-        source: "/film-lab/:path*",
-        destination: "/works/filmtone/:path*",
-        permanent: true,
-      },
-      {
-        source: "/:locale(en|ja)/film-lab",
-        destination: "/:locale/works/filmtone",
-        permanent: true,
-      },
-      {
-        source: "/:locale(en|ja)/film-lab/:path*",
-        destination: "/:locale/works/filmtone/:path*",
         permanent: true,
       },
     ];

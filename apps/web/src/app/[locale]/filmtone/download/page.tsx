@@ -13,7 +13,7 @@ import {
  * @file Filmtone Desktop の固定ダウンロード URL ページ。
  * @description 公開アセット URL が設定されているときはダウンロード完了ページへリダイレクトし（DMG は完了ページ側で自動トリガー）、
  *   未設定のときは案内ページを返します。
- *   Wave 2 D5.1 で `/film-lab/download` から carry。redirect 先と back link を `/works/filmtone/...` に更新。
+ *   Wave 2 D5.1 で `/film-lab/download` から carry。Package 5 で `/works/filmtone/download` → `/filmtone/download` へ canonical 移動。redirect 先と back link は `/filmtone/...`。
  * @limitations 実アセット自体のホスティングは別途必要です。このページは固定導線だけを提供します。
  */
 
@@ -31,8 +31,8 @@ export async function generateMetadata({
   });
   const isJa = locale === "ja";
   const canonicalUrl = isJa
-    ? `${BASE_URL}/works/filmtone/download`
-    : `${BASE_URL}/en/works/filmtone/download`;
+    ? `${BASE_URL}/filmtone/download`
+    : `${BASE_URL}/en/filmtone/download`;
 
   return {
     title: t("title"),
@@ -75,8 +75,8 @@ export async function generateMetadata({
     alternates: {
       canonical: canonicalUrl,
       languages: {
-        ja: `${BASE_URL}/works/filmtone/download`,
-        en: `${BASE_URL}/en/works/filmtone/download`,
+        ja: `${BASE_URL}/filmtone/download`,
+        en: `${BASE_URL}/en/filmtone/download`,
       },
     },
   };
@@ -99,7 +99,7 @@ export default async function FilmtoneDesktopDownloadPage({
 
   const downloadUrl = filmLabReadDesktopDownloadUrl();
   if (downloadUrl.length > 0) {
-    redirect("/works/filmtone/download/complete");
+    redirect("/filmtone/download/complete");
   }
 
   const t = await getTranslations({ locale, namespace: "film-lab.desktopRelease.downloadPage" });
@@ -137,7 +137,7 @@ export default async function FilmtoneDesktopDownloadPage({
 
         <div className="mt-6 flex flex-wrap items-center gap-3">
           <Link
-            href="/works/filmtone"
+            href="/filmtone"
             className="inline-flex items-center justify-center rounded-full border border-white/14 bg-white/8 px-4 py-2 text-sm text-white transition-colors hover:bg-white/14"
           >
             {t("backCta")}

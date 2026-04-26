@@ -130,7 +130,7 @@ export function FilmLabReleaseNotesContent() {
 
       <div className="mt-8 border-t border-white/10 pt-6">
         <Link
-          href="/works/filmtone"
+          href="/filmtone"
           className="text-xs text-white/60 transition-colors hover:text-white"
         >
           {t("backToFilmLab")}

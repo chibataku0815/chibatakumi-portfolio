@@ -5,7 +5,7 @@
  * 仕様: `next/og` の ImageResponse（Satori）。`ja` ロケール時は Noto Sans JP（@fontsource）を同梱読み込み。
  * 制限: 実際のグレード結果ピクセルは描画しない（静的ヒーロー画像のみ）。フォント読み込み失敗時は英字のみにフォールバック。
  *
- * Wave 2 D5.1: `/film-lab/og` から `/works/filmtone/og` へ移動。public asset path
+ * Wave 2 D5.1: `/film-lab/og` から carry → Lane B で `/filmtone/og` へ canonical 移動。public asset path
  *   (`/images/film-lab/default.jpg`, `/film-lab/og-image.jpg`) は変えない（asset paths は public/ のまま維持）。
  */
 
@@ -71,7 +71,7 @@ async function loadNotoSansJpWoff(weightKey: keyof typeof NOTO_FILES): Promise<A
     return bufferToArrayBuffer(buf);
   } catch (err) {
     console.error(
-      `[works/filmtone/og] loadNotoSansJpWoff: フォント読み込み失敗 fileName=${fileName} fontPath=${fontPath}`,
+      `[filmtone/og] loadNotoSansJpWoff: フォント読み込み失敗 fileName=${fileName} fontPath=${fontPath}`,
       err,
     );
     return null;
@@ -431,7 +431,7 @@ async function buildOgImageResponse(
 }
 
 /**
- * GET /[locale]/works/filmtone/og?v=1&p=...
+ * GET /[locale]/filmtone/og?v=1&p=...
  * クエリ p が有効なときはルック要約、無効時は汎用カード。
  */
 export async function GET(

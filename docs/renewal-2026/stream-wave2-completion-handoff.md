@@ -10,7 +10,7 @@
 | Wave 2 進捗 | 9 件 [x] = 累計 **34/36 = 94.4%** (Wave 1 後の母数訂正反映) |
 | 母数 | **36** (v3: 36→35 で D3.5 Storybook de-scope、v4: 35→36 で D2.8 motion-dot Phase A+2 quality remediation 追加) |
 | 並列方式 | Agent Teams 3 並列 (α / β / γ) + main chat δ verification |
-| Wave 1 → Wave 2 typecheck baseline | 1 error 維持 (`params-codec.test.ts:87` Params cast、Wave 1 起因外) |
+| Wave 1 → Wave 2 typecheck baseline | **4 errors 維持** (`layout.tsx:17` globals.css side-effect TS2882 + `desktop-release-info.test.ts:1` & `params-codec.test.ts:8` bun:test TS2307 × 2 + `params-codec.test.ts:87` Params cast TS2352、いずれも Wave 1 起因外) |
 | Build verify | ✓ Compiled successfully、67 pages prerendered (13 workers) |
 
 ---
@@ -121,8 +121,8 @@
 
 ### 重要な技術的修正記録
 
-1. **next.config.ts redirects() 最終 entries = 20** (16 base + 4 Filmtone wildcard)、handoff prompt 主張「32 entries」は誤計算、stream-status/4.md の数値訂正必要
-2. **typecheck baseline = 1 error** (`params-codec.test.ts:87`)、stream-status の「4 errors」は更新漏れ (Wave 1 で減少済)
+1. **next.config.ts redirects() 最終 entries = 20** (16 base + 4 Filmtone wildcard)。Director directive (Wave 1 後の post-audit) は「8 paths × 2 forms = 16 entries 追加」を指示したが、実装が **wildcard pattern (`/film-lab/:path*`) で 4 entries に集約**、結果 20 entries に。これは「誤計算」ではなく nested path (`/film-lab/support/thanks` 等) を漏れなくカバーするための合理的最適化
+2. **typecheck baseline = 4 errors** (`layout.tsx:17` globals.css side-effect + bun:test × 2 + `params-codec.test.ts:87` Params cast)、stream-status/4.md の「1 error」が誤記 (Director post-Wave 2 disk-verify audit で訂正)
 3. **next.config.ts Wave 1 既存 entries = 16** (8 paths × 2 forms)、stream-status 4.md の Director correction「16 → 14」は逆方向誤り、実 file 引用で 16 が正
 4. **Filmtone OG asset path** (`/film-lab/og-image.jpg` 等) は **route とは別概念**、physical asset path (`apps/web/public/film-lab/`) は維持
 
@@ -208,8 +208,8 @@ chibatakumi-portfolio renewal 2026 Wave 3 (QA Wave) を継続してください�
      Stream 5 D5.7 [~] continued (Filmtone 8 canonical inline; motion-studies 6 canonical + doc + Search Console deferred to Wave 3)
      Stream 2 D2.7 [~] smoke verified (formal kinetic-handoff/composite-25d/17 scene verify in Wave 3)
 
-     Wave 2 close: 35/35 = 100% core, Wave 3 QA Wave (D4.14/D4.15/D1.6/D5.7 finalize/D2.7 formal) only deferred.
-     Technical corrections recorded: redirects() final = 20 entries (16 base + 4 Filmtone wildcard, NOT 32 as handoff prompt claimed). typecheck baseline = 1 error (params-codec.test.ts:87, NOT 4).
+     Wave 2 close: 34/36 = 94.4% (core 進行)、partial [~] 4 件 (D2.7 smoke / D2.8 quality remediation 別 chat / D3.1 corner treatment Wave 3 / D5.7 motion-studies + doc Wave 3) + open [ ] 3 件 (D1.6 / D4.14 / D4.15) は Wave 3 QA Wave へ。
+     Technical records: redirects() final = 20 entries (16 base + 4 Filmtone wildcard、Director directive の explicit listing を実装が wildcard で集約し最適化)。typecheck baseline = 4 errors 維持 (Wave 1 から不変、layout.tsx:17 globals.css side-effect + bun:test × 2 + params-codec.test.ts:87 Params cast)。
 
      Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
      ```
@@ -220,7 +220,7 @@ chibatakumi-portfolio renewal 2026 Wave 3 (QA Wave) を継続してください�
 ## 6. 補足 — Wave 2 audit trail
 
 - **2026-04-26 Wave 2 plan approved** (life/.claude/plans/chibatakumi-portfolio-renewal-2026-wave-typed-frog.md)
-- **Phase 1 audit (main chat Explore)**: Filmtone /film-lab/* 構造 + redirect entries 実数 + audio infra + typography token 状態を verify、handoff doc の「16 entries → 14 entries」「4 errors」主張を訂正
+- **Phase 1 audit (main chat Explore)**: Filmtone /film-lab/* 構造 + redirect entries 実数 + audio infra + typography token 状態を verify、handoff doc の数値主張を実 file 引用で照合 (本記述自体に line 223 で「16→14 entries」「4→1 error」と書かれた節があったが、Director post-Wave 2 disk-verify audit で **typecheck は実 4 errors / redirects は wildcard で 20 entries** に訂正済)
 - **Wave 1 commit + push**: `df1bbbac` (Wave 2 plan approve 直後、user 同意経由)
 - **Wave 2 Agent 並列実行**: α (Filmtone 6 件) + β (Audio 2 件) + γ (Design System 1 件) + main chat δ (i18n smoke + dot smoke)
 - **Wave 2 deep pass**: typecheck (1 baseline 維持) + build (Compiled successfully、67 pages) + redirect smoke (8 case 全 308) + new IA routes smoke (全部 200) + i18n smoke (en 200、ja as-needed redirect 正常) + API alias smoke (新旧 path 同 behavior)

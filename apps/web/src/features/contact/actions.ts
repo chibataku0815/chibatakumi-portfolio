@@ -1,9 +1,27 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
+
 // =============================================================================
 // Contact Form Server Action
 // Slack Webhook Integration
+// Renewal 2026 reset (parent plan §4.1 / §5.4): minimal, localized contact
+// channel.
+// - Inquiry-type radio and company field were removed because they read as a
+//   service-funnel and made false promises about offerings that belong to the
+//   /photography and /filmtone satellite LPs.
+// - Locale is forwarded from the client via a hidden form field so error
+//   strings render in the visitor's language.
 // =============================================================================
+
+const SUPPORTED_LOCALES = ["ja", "en"] as const;
+type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
+
+function resolveLocale(raw: FormDataEntryValue | null): SupportedLocale {
+  return SUPPORTED_LOCALES.includes(raw as SupportedLocale)
+    ? (raw as SupportedLocale)
+    : "ja";
+}
 
 export interface ContactFormState {
   success: boolean;
@@ -11,8 +29,6 @@ export interface ContactFormState {
   fieldErrors?: {
     name?: string;
     email?: string;
-    company?: string;
-    inquiryType?: string;
     message?: string;
   };
 }
@@ -20,48 +36,35 @@ export interface ContactFormState {
 interface ContactFormData {
   name: string;
   email: string;
-  company: string;
-  inquiryType: string;
   message: string;
 }
 
-// Simple email validation
 function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-// Validate form data
-function validateFormData(data: ContactFormData): ContactFormState["fieldErrors"] {
+function validateFormData(
+  data: ContactFormData,
+  errorStrings: { name: string; email: string; message: string }
+): ContactFormState["fieldErrors"] {
   const errors: ContactFormState["fieldErrors"] = {};
 
   if (!data.name || data.name.trim().length < 2) {
-    errors.name = "お名前を入力してください";
+    errors.name = errorStrings.name;
   }
 
   if (!data.email || !isValidEmail(data.email)) {
-    errors.email = "有効なメールアドレスを入力してください";
-  }
-
-  if (!data.inquiryType) {
-    errors.inquiryType = "ご相談内容を選択してください";
+    errors.email = errorStrings.email;
   }
 
   if (!data.message || data.message.trim().length < 10) {
-    errors.message = "メッセージを10文字以上で入力してください";
+    errors.message = errorStrings.message;
   }
 
   return Object.keys(errors).length > 0 ? errors : undefined;
 }
 
-// Format message for Slack
-function formatSlackMessage(data: ContactFormData): object {
-  const inquiryLabels: Record<string, string> = {
-    project: "新規プロジェクト",
-    consultation: "技術相談",
-    collaboration: "コラボレーション",
-    other: "その他",
-  };
-
+function formatSlackMessage(data: ContactFormData, locale: SupportedLocale): object {
   return {
     blocks: [
       {
@@ -75,37 +78,16 @@ function formatSlackMessage(data: ContactFormData): object {
       {
         type: "section",
         fields: [
-          {
-            type: "mrkdwn",
-            text: `*お名前*\n${data.name}`,
-          },
-          {
-            type: "mrkdwn",
-            text: `*メールアドレス*\n${data.email}`,
-          },
+          { type: "mrkdwn", text: `*Name*\n${data.name}` },
+          { type: "mrkdwn", text: `*Email*\n${data.email}` },
         ],
       },
-      {
-        type: "section",
-        fields: [
-          {
-            type: "mrkdwn",
-            text: `*会社名/所属*\n${data.company || "-"}`,
-          },
-          {
-            type: "mrkdwn",
-            text: `*ご相談内容*\n${inquiryLabels[data.inquiryType] || data.inquiryType}`,
-          },
-        ],
-      },
-      {
-        type: "divider",
-      },
+      { type: "divider" },
       {
         type: "section",
         text: {
           type: "mrkdwn",
-          text: `*メッセージ*\n${data.message}`,
+          text: `*Message*\n${data.message}`,
         },
       },
       {
@@ -113,7 +95,7 @@ function formatSlackMessage(data: ContactFormData): object {
         elements: [
           {
             type: "mrkdwn",
-            text: `Sent at ${new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })}`,
+            text: `Locale: ${locale} — Sent at ${new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })}`,
           },
         ],
       },
@@ -125,39 +107,40 @@ export async function submitContactForm(
   _prevState: ContactFormState,
   formData: FormData
 ): Promise<ContactFormState> {
-  // Extract form data
+  const locale = resolveLocale(formData.get("locale"));
+  const t = await getTranslations({ locale, namespace: "contact.form.errors" });
+
   const data: ContactFormData = {
-    name: formData.get("name") as string || "",
-    email: formData.get("email") as string || "",
-    company: formData.get("company") as string || "",
-    inquiryType: formData.get("inquiryType") as string || "",
-    message: formData.get("message") as string || "",
+    name: (formData.get("name") as string) || "",
+    email: (formData.get("email") as string) || "",
+    message: (formData.get("message") as string) || "",
   };
 
-  // Validate
-  const fieldErrors = validateFormData(data);
+  const fieldErrors = validateFormData(data, {
+    name: t("name"),
+    email: t("email"),
+    message: t("message"),
+  });
   if (fieldErrors) {
     return { success: false, fieldErrors };
   }
 
-  // Send to Slack
   const webhookUrl = process.env.SLACK_WEBHOOK_URL;
 
   if (!webhookUrl) {
     console.error("SLACK_WEBHOOK_URL is not configured");
-    // In development, just log and succeed
     if (process.env.NODE_ENV === "development") {
-      console.log("Contact form submission (dev mode):", data);
+      console.log("Contact form submission (dev mode):", { ...data, locale });
       return { success: true };
     }
-    return { success: false, error: "送信設定が構成されていません" };
+    return { success: false, error: t("config") };
   }
 
   try {
     const response = await fetch(webhookUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formatSlackMessage(data)),
+      body: JSON.stringify(formatSlackMessage(data, locale)),
     });
 
     if (!response.ok) {
@@ -167,6 +150,6 @@ export async function submitContactForm(
     return { success: true };
   } catch (error) {
     console.error("Failed to send to Slack:", error);
-    return { success: false, error: "送信に失敗しました。しばらくしてから再度お試しください。" };
+    return { success: false, error: t("send") };
   }
 }

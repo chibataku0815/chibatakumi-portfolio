@@ -13,8 +13,8 @@ export async function generateMetadata({
   const t = await getTranslations({ locale, namespace: "film-lab.roadmap" });
   const isJa = locale === "ja";
   const canonicalUrl = isJa
-    ? `${BASE_URL}/works/filmtone/roadmap`
-    : `${BASE_URL}/en/works/filmtone/roadmap`;
+    ? `${BASE_URL}/filmtone/roadmap`
+    : `${BASE_URL}/en/filmtone/roadmap`;
 
   return {
     title: t("title"),
@@ -26,8 +26,8 @@ export async function generateMetadata({
     alternates: {
       canonical: canonicalUrl,
       languages: {
-        ja: `${BASE_URL}/works/filmtone/roadmap`,
-        en: `${BASE_URL}/en/works/filmtone/roadmap`,
+        ja: `${BASE_URL}/filmtone/roadmap`,
+        en: `${BASE_URL}/en/filmtone/roadmap`,
       },
     },
   };

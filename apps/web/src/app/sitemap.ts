@@ -12,61 +12,52 @@ const motionStudySlugs = [
 ] as const;
 
 /**
- * Wave 1 IA migration (D5.7) — sitemap reflects the new information
- * architecture. Old routes (/photography, /interactive, /installation,
- * /motion, /motion/reference-works/*, /skills, /profile, /archive) are
- * removed; they 301-redirect via `next.config.ts#redirects()`.
+ * Renewal 2026 reset (parent plan §2.1, §3.1, §7.1) — sitemap publishes only
+ * canonical IA surfaces whose content ledger is closed. Hollow / placeholder
+ * routes are intentionally excluded until the package that owns them lands
+ * real content; that package will re-register the route here.
  *
- * Filmtone surfaces migrated to `/works/filmtone/*` in Wave 2 (D5.1).
- * Old `/film-lab/*` paths 301-redirect via `next.config.ts#redirects()`
- * (wildcard pattern, 4 entries).
+ * Package 4 (Motion Works) re-added `/experiments/grid` and
+ * `/experiments/flow` after their destination clients were rebuilt on
+ * standalone mount entries (motion-grid `mountMotionGridApp` / motion-flow
+ * `mountMotionFlowApp`); the routes are no longer placeholders.
+ *
+ * Package 5 (Satellite Canonical Routes) landed `/photography` and `/filmtone`
+ * as canonical wrapper routes, along with selected Filmtone child routes whose
+ * content ledger is closed. Post-action confirmation routes (`/filmtone/download/complete`,
+ * `/filmtone/support/thanks`) and the OG image route (`/filmtone/og`) are excluded
+ * per sitemap convention: confirmation pages are not indexable entry points, and
+ * OG routes are metadata image handlers, not public pages.
+ *
+ * Excluded with reason:
+ * - `/works/*`, `/about`, `/craft` — legacy surfaces that 301-redirect via
+ *   `next.config.ts` and must never appear here.
+ *
+ * `/journal` is a real index (Core Content package, parent plan §7.2) and the
+ * `/journal/motion-studies/*` routes remain registered as first-class
+ * destinations.
  */
 const pages = [
   { path: "", changeFrequency: "monthly" as const, priority: 1 },
-  // New IA core
-  { path: "/works", changeFrequency: "monthly" as const, priority: 0.9 },
-  {
-    path: "/works/photography",
-    changeFrequency: "weekly" as const,
-    priority: 0.9,
-  },
-  {
-    path: "/works/commercial",
-    changeFrequency: "monthly" as const,
-    priority: 0.7,
-  },
-  {
-    path: "/works/installation",
-    changeFrequency: "monthly" as const,
-    priority: 0.7,
-  },
-  { path: "/craft", changeFrequency: "monthly" as const, priority: 0.7 },
-  { path: "/about", changeFrequency: "monthly" as const, priority: 0.7 },
-  { path: "/journal", changeFrequency: "monthly" as const, priority: 0.6 },
+  { path: "/experiments", changeFrequency: "monthly" as const, priority: 0.9 },
+  { path: "/experiments/dot", changeFrequency: "monthly" as const, priority: 0.8 },
+  { path: "/experiments/grid", changeFrequency: "monthly" as const, priority: 0.8 },
+  { path: "/experiments/flow", changeFrequency: "monthly" as const, priority: 0.8 },
+  { path: "/photography", changeFrequency: "monthly" as const, priority: 0.8 },
+  { path: "/filmtone", changeFrequency: "monthly" as const, priority: 0.8 },
+  { path: "/filmtone/download", changeFrequency: "monthly" as const, priority: 0.7 },
+  { path: "/filmtone/release-notes", changeFrequency: "monthly" as const, priority: 0.6 },
+  { path: "/filmtone/roadmap", changeFrequency: "monthly" as const, priority: 0.6 },
+  { path: "/filmtone/signature", changeFrequency: "monthly" as const, priority: 0.6 },
+  { path: "/filmtone/support", changeFrequency: "yearly" as const, priority: 0.5 },
+  { path: "/filmtone/privacy", changeFrequency: "yearly" as const, priority: 0.4 },
+  { path: "/journal", changeFrequency: "monthly" as const, priority: 0.7 },
   { path: "/contact", changeFrequency: "yearly" as const, priority: 0.6 },
-  // Motion studies (static reference works)
   ...motionStudySlugs.map((slug) => ({
     path: `/journal/motion-studies/${slug}`,
     changeFrequency: "yearly" as const,
     priority: 0.5,
   })),
-  // Filmtone (Wave 2 D5.1 — migrated from /film-lab/*)
-  { path: "/works/filmtone", changeFrequency: "monthly" as const, priority: 0.8 },
-  {
-    path: "/works/filmtone/download",
-    changeFrequency: "monthly" as const,
-    priority: 0.7,
-  },
-  {
-    path: "/works/filmtone/release-notes",
-    changeFrequency: "monthly" as const,
-    priority: 0.5,
-  },
-  {
-    path: "/works/filmtone/roadmap",
-    changeFrequency: "monthly" as const,
-    priority: 0.5,
-  },
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {

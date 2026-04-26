@@ -81,19 +81,19 @@ export type DotSceneName =
 export interface MountOptions {
   readonly canvas: HTMLCanvasElement;
   readonly hostOverlay?: HTMLElement;
-  readonly initialScene?: DotSceneName;
-  readonly sceneCycle?: { readonly scenes: ReadonlyArray<DotSceneName>; readonly intervalSec?: number } | false;
-  readonly hudVisible?: boolean;
-  readonly inputEnabled?: boolean;
-  readonly audioEnabled?: boolean;
   readonly onError?: (err: unknown) => void;
   readonly onReady?: () => void;
 }
 
 export interface MountHandle {
   stop(): void;
-  configure(partial: Partial<Omit<MountOptions, "canvas" | "hostOverlay" | "onError" | "onReady">>): void;
-  getStatus(): { sceneIndex: number; sceneName: DotSceneName };
+  /**
+   * Hard-switch the active scene by name (same path as the ←/→ arrow
+   * keys — no kinetic transition, the SDF metaball field smooths the
+   * change). No-op if a kinetic transition is currently playing or the
+   * name is not in the scene catalog.
+   */
+  setActiveScene(name: DotSceneName): void;
 }
 
 interface SceneEntry {
@@ -326,11 +326,7 @@ export async function mountMotionDotApp(opts: MountOptions): Promise<MountHandle
       participant: getTransitionParticipant(entry),
     }));
 
-    let idx = (() => {
-      if (!opts.initialScene) return 0;
-      const found = entries.findIndex((e) => e.name === opts.initialScene);
-      return found >= 0 ? found : 0;
-    })();
+    let idx = 0;
     let postEnabled = false;
     let galleryEnabled = false;
     let galleryMode: GalleryMode | null = null;
@@ -360,14 +356,12 @@ export async function mountMotionDotApp(opts: MountOptions): Promise<MountHandle
     const audioSettingsButton = createAudioSettingsButton(hostOverlay);
     const audioSettingsPanel = createAudioSettingsPanel(hostOverlay);
     const hotkeyLegend = createHotkeyLegend(hostOverlay);
-    let hudVisible = opts.hudVisible ?? true;
-    let optionsVisible = hudVisible;
+    let optionsVisible = true;
     let audioPanelOpen = false;
 
     function syncOptionsVisibility(): void {
-      setOptionsVisibility(filmToggle, audioSettingsButton, hotkeyLegend, hudVisible && optionsVisible);
-      setAudioSettingsPanelVisibility(audioSettingsPanel, hudVisible && optionsVisible && audioPanelOpen);
-      hud.style.display = hudVisible ? "" : "none";
+      setOptionsVisibility(filmToggle, audioSettingsButton, hotkeyLegend, optionsVisible);
+      setAudioSettingsPanelVisibility(audioSettingsPanel, optionsVisible && audioPanelOpen);
     }
 
     function syncOverlay(): void {
@@ -412,7 +406,7 @@ export async function mountMotionDotApp(opts: MountOptions): Promise<MountHandle
 
     audioController = createAudioController({
       audioBus,
-      defaultSrc: "audio.mp3",
+      defaultSrc: "/audio.mp3",
       storageKeyPrefix: "motion-dot-new-webgpu",
       onStateChange: () => {
         if (audioController.enabled) {
@@ -465,10 +459,10 @@ export async function mountMotionDotApp(opts: MountOptions): Promise<MountHandle
       return true;
     }
 
-    const keyboardDeps = {
+    const keyboardTeardown = bindKeyboardShortcuts({
       getSceneIndex: () => idx,
       getSceneCount: () => entries.length,
-      setSceneIndex: (nextIdx: number) => {
+      setSceneIndex: (nextIdx) => {
         idx = nextIdx;
       },
       disableGallery,
@@ -480,7 +474,7 @@ export async function mountMotionDotApp(opts: MountOptions): Promise<MountHandle
       },
       isTransitionActive: () => kineticHandoff.isActive(),
       getTransitionPhase: () => kineticHandoff.phase,
-      startTransition: (sourceIdx: number) => kineticHandoff.start(sourceIdx),
+      startTransition: (sourceIdx) => kineticHandoff.start(sourceIdx),
       stopTransition: () => kineticHandoff.stop(),
       resetCurrentScene: () => resetEntry(entries[idx]),
       toggleFilm: () => {
@@ -528,22 +522,7 @@ export async function mountMotionDotApp(opts: MountOptions): Promise<MountHandle
         }
       },
       syncOverlay,
-    };
-
-    let keyboardTeardown: (() => void) | null = null;
-    function setInputEnabled(enabled: boolean): void {
-      if (enabled && !keyboardTeardown) {
-        keyboardTeardown = bindKeyboardShortcuts(keyboardDeps);
-      } else if (!enabled && keyboardTeardown) {
-        keyboardTeardown();
-        keyboardTeardown = null;
-      }
-    }
-    setInputEnabled(opts.inputEnabled ?? true);
-
-    if (opts.audioEnabled) {
-      void audioController.toggle();
-    }
+    });
 
     syncOverlay();
 
@@ -718,89 +697,29 @@ export async function mountMotionDotApp(opts: MountOptions): Promise<MountHandle
     });
     loop.start();
 
-    // ── Auto-cycle (host-driven scene cycling) ──────────────
-    let cycleTimer: ReturnType<typeof setInterval> | null = null;
-    let cycleScenes: number[] = [];
-    let cycleStep = 0;
-    function setSceneCycle(cycle: MountOptions["sceneCycle"]): void {
-      if (cycleTimer !== null) {
-        clearInterval(cycleTimer);
-        cycleTimer = null;
-      }
-      if (!cycle) return;
-      cycleScenes = cycle.scenes
-        .map((name) => entries.findIndex((e) => e.name === name))
-        .filter((i) => i >= 0);
-      if (cycleScenes.length < 2) return;
-      const intervalMs = (cycle.intervalSec ?? 5.5) * 1000;
-      // Align cycleStep with current idx if possible
-      const startStep = cycleScenes.indexOf(idx);
-      cycleStep = startStep >= 0 ? startStep : 0;
-      cycleTimer = setInterval(() => {
-        if (kineticHandoff.isActive()) return;
-        cycleStep = (cycleStep + 1) % cycleScenes.length;
-        const targetIdx = cycleScenes[cycleStep];
-        if (targetIdx === idx) return;
-        const sourceIdx = idx;
-        idx = targetIdx;
-        kineticHandoff.start(sourceIdx);
-      }, intervalMs);
-    }
-    setSceneCycle(opts.sceneCycle ?? false);
-
     opts.onReady?.();
 
-    // ── Mount handle (host control surface) ─────────────────
     let stopped = false;
     return {
       stop(): void {
         if (stopped) return;
         stopped = true;
-        if (cycleTimer !== null) {
-          clearInterval(cycleTimer);
-          cycleTimer = null;
-        }
         loop.stop();
-        if (keyboardTeardown) {
-          keyboardTeardown();
-          keyboardTeardown = null;
-        }
-        // Detach overlay DOM (best-effort; HUD elements live inside hostOverlay)
+        keyboardTeardown();
         for (const el of [hud, filmToggle, audioSettingsButton, audioSettingsPanel.root, hotkeyLegend]) {
           el.remove();
         }
       },
-      configure(partial): void {
+      setActiveScene(name: DotSceneName): void {
         if (stopped) return;
-        if (partial.initialScene !== undefined) {
-          const found = entries.findIndex((e) => e.name === partial.initialScene);
-          if (found >= 0) {
-            const sourceIdx = idx;
-            idx = found;
-            if (sourceIdx !== found && !kineticHandoff.isActive()) {
-              kineticHandoff.start(sourceIdx);
-            }
-          }
+        if (kineticHandoff.isActive()) return;
+        const targetIdx = entries.findIndex((entry) => entry.name === name);
+        if (targetIdx < 0 || targetIdx === idx) return;
+        if (galleryEnabled) {
+          galleryEnabled = false;
         }
-        if (partial.sceneCycle !== undefined) {
-          setSceneCycle(partial.sceneCycle);
-        }
-        if (partial.hudVisible !== undefined) {
-          hudVisible = partial.hudVisible;
-          if (!hudVisible) optionsVisible = false;
-        }
-        if (partial.inputEnabled !== undefined) {
-          setInputEnabled(partial.inputEnabled);
-        }
-        if (partial.audioEnabled !== undefined) {
-          if (partial.audioEnabled !== audioController.enabled) {
-            void audioController.toggle();
-          }
-        }
+        idx = targetIdx;
         syncOverlay();
-      },
-      getStatus(): { sceneIndex: number; sceneName: DotSceneName } {
-        return { sceneIndex: idx, sceneName: entries[idx].name as DotSceneName };
       },
     };
   } catch (e) {

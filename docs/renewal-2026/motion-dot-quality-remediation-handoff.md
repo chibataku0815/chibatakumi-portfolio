@@ -1,3 +1,10 @@
+> ⚠️ **SUPERSEDED 2026-04-26** — この patchwork remediation 計画は撤回されました。
+> user directive「保守的意見は優先せず品質最優先 / motion-dot は本プロジェクトのままポートフォリオに移植したい」
+> を受けて、原 motion-dot-new-webgpu/src/ を verbatim 移植する wholesale transplant に切替。
+> 後継 plan: `life/.claude/plans/idempotent-knitting-dragon.md`
+> 後継 handoff: `docs/renewal-2026/motion-dot-transplant-handoff-2026-04-26.md`
+> 移植 commits: `d5702367` (transplant) + `42a15541` (boot defaults restore)
+
 # motion-dot Quality Remediation Handoff
 
 | 項目 | 値 |
