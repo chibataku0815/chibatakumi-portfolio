@@ -1,10 +1,6 @@
-import { PageTransition } from "@/shared/transitions";
-import { Nav } from "@/shared/components";
+import { AnalyticsPageTracker } from "@/shared/analytics/AnalyticsPageTracker";
 import { portfolioData } from "@/shared/data/portfolio";
 import { routing } from "@/i18n/routing";
-import { AnalyticsPageTracker } from "@/shared/analytics/AnalyticsPageTracker";
-import { MotionStageProvider } from "@/features/motion";
-import { AudioBusProvider, SoundToggleControl } from "@/features/audio";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
@@ -73,6 +69,12 @@ export async function generateMetadata({
   };
 }
 
+/**
+ * Locale shared core — Renewal 2026 Satellite Isolation Plan §3.1.
+ * `<html>` + `<body>` + i18n provider + analytics のみを担当する。
+ * Visual shell (Nav / MotionStage / LiquidGlass / theme wrapper) は
+ * `(portfolio)/layout.tsx` と `(satellite)/layout.tsx` がそれぞれ提供。
+ */
 export default async function LocaleLayout({
   children,
   params,
@@ -92,7 +94,7 @@ export default async function LocaleLayout({
   const gaMeasurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim();
 
   return (
-    <html lang={locale} className={fontVariables} data-theme="light">
+    <html lang={locale} className={fontVariables}>
       <body className="antialiased">
         {metaPixelId ? (
           <>
@@ -139,27 +141,12 @@ export default async function LocaleLayout({
             </Script>
           </>
         ) : null}
-        <MotionStageProvider>
-          {/*
-            AudioBusProvider sits inside MotionStageProvider so motion
-            participants (Wave 2 D5.4) can subscribe to the shared audio
-            bus, and inside NextIntlClientProvider so audio surfaces
-            (SoundToggleControl, MicInputGate) can read translated
-            aria-labels and helper text. — Wave 2 Agent β (D5.4).
-          */}
-          <NextIntlClientProvider messages={messages}>
-            <AudioBusProvider>
-              <Suspense fallback={null}>
-                <AnalyticsPageTracker />
-              </Suspense>
-              <PageTransition>
-                <Nav />
-                {children}
-              </PageTransition>
-              <SoundToggleControl />
-            </AudioBusProvider>
-          </NextIntlClientProvider>
-        </MotionStageProvider>
+        <NextIntlClientProvider messages={messages}>
+          <Suspense fallback={null}>
+            <AnalyticsPageTracker />
+          </Suspense>
+          {children}
+        </NextIntlClientProvider>
         <Analytics />
         <SpeedInsights />
       </body>
