@@ -50,7 +50,7 @@ export function Nav() {
 
           <div className="hidden items-center gap-3 md:flex">
             {links.map(({ href, label }) => {
-              const isCurrent = pathname === href;
+              const isCurrent = href === "/" ? pathname === href : pathname.startsWith(href);
               return (
                 <Link
                   key={href}
@@ -124,7 +124,7 @@ export function Nav() {
           </div>
           <div className="flex flex-col gap-2">
             {links.map(({ href, label }) => {
-              const isCurrent = pathname === href;
+              const isCurrent = href === "/" ? pathname === href : pathname.startsWith(href);
               return (
                 <Link
                   key={href}
