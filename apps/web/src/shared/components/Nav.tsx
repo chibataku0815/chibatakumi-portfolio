@@ -97,7 +97,9 @@ export function Nav() {
           href="/"
           data-transition="true"
           aria-label={navBrand}
-          className="pointer-events-auto fixed left-8 top-6 grid h-12 w-12 cursor-pointer place-items-center rounded-full bg-transparent text-[rgba(248,250,255,0.92)] outline-none focus-visible:ring-2 focus-visible:ring-white/80"
+          className={`fixed left-8 top-6 grid h-12 w-12 cursor-pointer place-items-center rounded-full bg-transparent text-[rgba(248,250,255,0.92)] outline-none focus-visible:ring-2 focus-visible:ring-white/80 ${
+            isMenuOpen ? "pointer-events-none" : "pointer-events-auto"
+          }`}
         >
           <BrandMark size={22} />
           <span className="sr-only">{navBrand}</span>
@@ -130,25 +132,21 @@ export function Nav() {
         rendered by the front canvas.
       */}
       {isMenuOpen && (
-        <div
-          data-theme="dark"
-          className="fixed inset-0"
-          style={{ zIndex: "var(--z-nav-panel, 1100)" }}
-        >
+        <>
           {/*
-            Scrim — blurs + dims the area BEHIND the sheet only. The right
-            inset matches the panel's outer bound (panel width + 12px gap)
-            so the panel's WebGPU Liquid Glass material is never blurred by
-            backdrop-filter on the scrim above it.
+            Scrim — blurs + dims the full viewport behind the sheet. The
+            WebGPU front canvas sits above this layer, so the panel material
+            remains crisp while the page/motion substrate is blurred.
           */}
           <button
             type="button"
             aria-label="Close global menu"
-            className="absolute bottom-0 left-0 top-0 cursor-pointer bg-black/30 backdrop-blur-lg"
-            style={{ right: "calc(min(420px, calc(100vw - 1.5rem)) + 0.75rem)" }}
+            className="fixed inset-0 cursor-pointer bg-black/30 backdrop-blur-lg"
+            style={{ zIndex: "var(--z-nav-panel-scrim, 1090)" }}
             onClick={() => setIsMenuOpen(false)}
           />
           <LiquidGlassSurface
+            data-theme="dark"
             surfaceId="nav.panel"
             kind="panel"
             radius={20}
@@ -158,7 +156,8 @@ export function Nav() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="global-menu-title"
-            className="absolute bottom-3 right-3 top-3 flex w-[min(420px,calc(100vw-1.5rem))] flex-col px-7 py-7 text-[rgba(248,250,255,0.92)] sm:px-8"
+            className="fixed bottom-8 right-8 top-8 flex w-[min(360px,calc(100vw-4rem))] flex-col px-7 py-7 text-[rgba(248,250,255,0.92)] sm:px-8"
+            style={{ zIndex: "var(--z-nav-panel-content, 1300)" }}
           >
             <div className="flex items-center justify-between gap-5 pb-5">
               <Link
@@ -224,7 +223,7 @@ export function Nav() {
               </div>
             </div>
           </LiquidGlassSurface>
-        </div>
+        </>
       )}
     </>
   );

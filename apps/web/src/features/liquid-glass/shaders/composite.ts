@@ -17,7 +17,7 @@
 //                              Inside SDF: alpha=mask (opaque Liquid Glass
 //                              with refracted motion-dot substrate). Used
 //                              by the front overlay canvas at
-//                              z=var(--z-nav-visual).
+//                              z=var(--z-nav-front-glass).
 //
 // Bind group:
 //   binding 0 — uniform (96 bytes per surface, dynamic offset)

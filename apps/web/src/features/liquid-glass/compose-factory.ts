@@ -13,7 +13,7 @@
 //        `fsComposite` (opaque output `mix(base, glass, mask)`). This is the
 //        original rail material that mixes the substrate behind motion-dot.
 //
-//   2. Front target (LiquidGlassFrontChrome canvas, z=var(--z-nav-visual)):
+//   2. Front target (LiquidGlassFrontChrome canvas, z=var(--z-nav-front-glass)):
 //      - Optional. Provided each frame via the `frontTarget` callback.
 //      - Cleared to (0,0,0,0) so outside SDFs the canvas is fully
 //        transparent and HTML/page show through.
@@ -401,8 +401,8 @@ export function createLiquidGlassComposePass(opts: {
       }
       backPass.end();
 
-      // FRONT render — alpha-aware over a transparent (or dim-when-panel)
-      // canvas at z=var(--z-nav-visual). Re-pack uniforms because the front
+      // FRONT render — alpha-aware over a transparent canvas at
+      // z=var(--z-nav-front-glass). Re-pack uniforms because the front
       // canvas may have different dimensions AND different dpr than
       // motion-dot's swap chain (motion-dot caps dpr at ~1.5 internally
       // while the front canvas may use 2.0). Use front.dpr for coordinate
@@ -420,9 +420,8 @@ export function createLiquidGlassComposePass(opts: {
         );
 
         // The scrim (dim + blur of HTML/page when sheet is open) is rendered
-        // in the DOM with CSS `backdrop-filter` outside the panel area —
-        // see Nav.tsx. The WebGPU front canvas only paints the per-surface
-        // Liquid Glass material here.
+        // in the DOM with CSS `backdrop-filter`; see Nav.tsx. The WebGPU
+        // front canvas only paints the per-surface Liquid Glass material here.
         const frontPass = ctx.encoder.beginRenderPass({
           label: "liquid-glass:compose front",
           colorAttachments: [

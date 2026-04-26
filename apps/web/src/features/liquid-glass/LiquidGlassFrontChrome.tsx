@@ -16,8 +16,7 @@
 //   2. We register a `getCurrentTarget()` callback with the provider. The
 //      compose pass invokes it inside motion-dot's frame encoder to acquire
 //      the front canvas's current swap-chain view.
-//   3. The compose pass clears this canvas with `(0,0,0,0)` (or a soft dim
-//      `(0,0,0,0.35)` when a `panel` surface is registered) and runs the
+//   3. The compose pass clears this canvas with `(0,0,0,0)` and runs the
 //      alpha-aware `fsCompositeAlpha` pipeline scissored per `kind:"nav"`,
 //      `"panel"`, or `"control"` surface.
 //
@@ -97,7 +96,7 @@ export function LiquidGlassFrontChrome(): React.ReactElement {
       ref={canvasRef}
       aria-hidden="true"
       className="pointer-events-none fixed inset-0 h-screen w-screen"
-      style={{ zIndex: "var(--z-nav-visual, 1000)" }}
+      style={{ zIndex: "var(--z-nav-front-glass, 1200)" }}
     />
   );
 }

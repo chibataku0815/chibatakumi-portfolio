@@ -223,7 +223,7 @@ export function LiquidGlassProvider({
 
   // Install the compose pass once motion-dot is ready. The pass owns BOTH
   // the back render (motion-dot swap chain at z=-10) and the front render
-  // (front overlay canvas at z=var(--z-nav-visual)) in a single encoder so
+  // (front overlay canvas at z=var(--z-nav-front-glass)) in a single encoder so
   // both paths share motion-dot's substrate texture and the same SDF/lensing
   // math. The front swap-chain view is supplied per-frame through the
   // registered front canvas callback.

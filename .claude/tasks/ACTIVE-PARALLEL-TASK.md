@@ -2,6 +2,21 @@
 
 ## 現在アクティブなタスク
 
+## Liquid Glass Nav Boundary Fix Phase A (2026-04-27)
+- **Agent:** Codex CLI / Agent Teams
+- **Started:** 2026-04-27T01:28:51+0900 (JST)
+- **Completed:** 2026-04-27T01:32:50+0900 (JST)
+- **Status:** 完了
+- **Files:**
+  - `apps/web/src/app/[locale]/(portfolio)/layout.tsx` (編集)
+  - `apps/web/src/features/liquid-glass/LiquidGlassFrontChrome.tsx` (編集)
+  - `apps/web/src/features/liquid-glass/LiquidGlassProvider.tsx` (コメント更新)
+  - `apps/web/src/features/liquid-glass/compose-factory.ts` (コメント更新)
+  - `apps/web/src/features/liquid-glass/shaders/composite.ts` (コメント更新)
+  - `apps/web/src/shared/components/Nav.tsx` (編集)
+  - `.claude/tasks/ACTIVE-PARALLEL-TASK.md` (編集)
+- **Notes:** Phase A の境界修正として scrim を full viewport に戻し、front canvas を `--z-nav-front-glass: 1200`、hit/icon layer を `--z-nav-hit: 1210`、panel DOM を `--z-nav-panel-content: 1300` に分離。fixed wrapper の stacking context で panel content が front canvas の背面に閉じ込められていたため、scrim/panel を root fixed siblings に変更。scoped lint と `git diff --check` は通過。typecheck は既知 baseline の `params-codec.test.ts:87` のみ。
+
 ## Staged Emphasis family extraction (2026-04-10)
 - **Agent:** Codex / GPT-5 worker03
 - **Started:** 2026-04-10T23:56:31+0900 (JST)
