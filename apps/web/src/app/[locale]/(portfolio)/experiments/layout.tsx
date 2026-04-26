@@ -23,15 +23,21 @@
 
 import { MotionUnsupportedBanner } from "@/features/motion";
 
+/**
+ * Experiments shell — `data-theme="dark"` + `.dark` 併記。
+ *
+ * `.dark` クラスは Radix Colors (slate-dark / amber-dark) の生パレット
+ * (`--amber-9`, `--slate-1..12` 等) を活性化するために必要。
+ * `data-theme="dark"` だけだと globals.css の alias (`--accent-amber1` 等)
+ * は当たるが、その alias が `var(--amber-9)` を chain reference するため
+ * Radix の `.dark` セレクタが無いと undefined チェーンになる。両者を併記する。
+ */
 export default function ExperimentsLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    {/* `.dark` クラスは Radix Colors (slate-dark / amber-dark) のパレットを活性化するために必要。
-        `data-theme="dark"` だけだと globals.css の alias は当たるが、`var(--amber-9)` など
-        Radix の生 token が undefined チェーンになる。両者を併記する。 */}
     <div className="dark relative min-h-screen w-full" data-theme="dark">
       {children}
       <MotionUnsupportedBanner />
