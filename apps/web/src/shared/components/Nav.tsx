@@ -25,13 +25,25 @@ export function Nav() {
 
   return (
     <>
-      <nav className="fixed left-0 top-0 z-50 w-full">
-        <div className="mx-auto flex h-[var(--nav-height)] max-w-7xl items-center justify-between px-5 sm:px-8 lg:px-12">
+      <nav
+        data-theme="dark"
+        className="fixed left-0 top-0 z-50 w-full"
+      >
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 border-b border-white/[0.07]"
+          style={{
+            background: "rgba(12, 12, 14, 0.72)",
+            backdropFilter: "blur(24px) saturate(160%)",
+            WebkitBackdropFilter: "blur(24px) saturate(160%)",
+          }}
+        />
+        <div className="relative mx-auto flex h-[var(--nav-height)] max-w-7xl items-center justify-between px-5 sm:px-8 lg:px-12">
           <Link
             href="/"
             data-transition="true"
             aria-label={navBrand}
-            className="min-w-0 transition-opacity hover:opacity-80"
+            className="min-w-0 text-white transition-opacity hover:opacity-80"
           >
             <BrandWordmark compact />
           </Link>
@@ -45,13 +57,19 @@ export function Nav() {
                   href={href}
                   data-transition="true"
                   aria-current={isCurrent ? "page" : undefined}
-                  className={`rounded-full px-3 py-2 font-mono text-xs uppercase tracking-[0.12em] transition-colors duration-200 ${
+                  className={`relative px-3 py-2 font-mono text-xs uppercase tracking-[0.12em] transition-colors duration-200 ${
                     isCurrent
-                      ? "pointer-events-none border border-[var(--stroke-strong)] bg-[var(--surface-2)] text-[var(--text-base)]"
-                      : "text-[var(--text-muted)] hover:text-[var(--text-base)]"
+                      ? "pointer-events-none text-white"
+                      : "text-white/55 hover:text-white/90"
                   }`}
                 >
                   {label}
+                  {isCurrent && (
+                    <span
+                      aria-hidden="true"
+                      className="pointer-events-none absolute bottom-1 left-3 right-3 h-px bg-white/60"
+                    />
+                  )}
                 </Link>
               );
             })}
@@ -66,7 +84,7 @@ export function Nav() {
               aria-controls="mobile-nav-panel"
               aria-label={isMenuOpen ? "Close navigation" : "Open navigation"}
               onClick={() => setIsMenuOpen((prev) => !prev)}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--stroke-subtle)] bg-[var(--surface-2)] text-[var(--text-base)] shadow-[var(--shadow-elev-1)]"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/[0.1] bg-black/40 text-white backdrop-blur-md"
             >
               <span className="sr-only">Menu</span>
               <span className="flex flex-col gap-1.5">
@@ -86,6 +104,7 @@ export function Nav() {
       </nav>
 
       <div
+        data-theme="dark"
         className={`fixed inset-0 z-40 md:hidden ${isMenuOpen ? "pointer-events-auto" : "pointer-events-none"}`}
         aria-hidden={!isMenuOpen}
       >
@@ -95,7 +114,7 @@ export function Nav() {
         />
         <div
           id="mobile-nav-panel"
-          className={`absolute inset-x-4 top-[calc(var(--nav-height)+1.5rem)] rounded-[var(--radius-panel)] border border-[var(--stroke-strong)] bg-[var(--surface-1)] p-5 shadow-[var(--shadow-elev-3)] transition-all duration-300 ${isMenuOpen ? "translate-y-0 opacity-100" : "-translate-y-3 opacity-0"}`}
+          className={`absolute inset-x-4 top-[calc(var(--nav-height)+1.5rem)] rounded-[var(--radius-panel)] border border-[var(--stroke-strong)] bg-[#111113]/90 p-5 shadow-[var(--shadow-elev-3)] backdrop-blur-xl transition-all duration-300 ${isMenuOpen ? "translate-y-0 opacity-100" : "-translate-y-3 opacity-0"}`}
         >
           <div className="mb-5 flex items-center justify-between border-b border-[var(--stroke-subtle)] pb-4">
             <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--text-base-50)]">

@@ -29,7 +29,7 @@ export default function ExperimentsLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative min-h-screen w-full">
+    <div className="relative min-h-screen w-full" data-theme="dark">
       {children}
       <MotionUnsupportedBanner />
     </div>
