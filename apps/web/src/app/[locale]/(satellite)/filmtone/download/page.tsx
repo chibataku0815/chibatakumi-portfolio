@@ -58,7 +58,7 @@ export async function generateMetadata({
       description: t("ogDescription"),
       images: [
         {
-          url: "/film-lab/og-image.jpg",
+          url: "/filmtone/og-image.jpg",
           width: 1200,
           height: 630,
         },
@@ -70,7 +70,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: t("ogTitle"),
       description: t("ogDescription"),
-      images: ["/film-lab/og-image.jpg"],
+      images: ["/filmtone/og-image.jpg"],
     },
     alternates: {
       canonical: canonicalUrl,

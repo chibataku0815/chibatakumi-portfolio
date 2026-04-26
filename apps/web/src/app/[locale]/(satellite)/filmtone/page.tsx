@@ -53,7 +53,7 @@ export async function generateMetadata({
     ? `${BASE_URL}/filmtone`
     : `${BASE_URL}/en/filmtone`;
 
-  let ogImageUrl = "/film-lab/og-image.jpg";
+  let ogImageUrl = "/filmtone/og-image.jpg";
   if (searchParams) {
     const sp = await searchParams;
     const pRaw = firstQueryValue(sp.p);
@@ -130,7 +130,7 @@ async function buildFilmtoneJsonLd(locale: string) {
         applicationCategory: "MultimediaApplication",
         operatingSystem: t("desktopOperatingSystem"),
         url: downloadUrl,
-        image: `${BASE_URL}/film-lab/og-image.jpg`,
+        image: `${BASE_URL}/filmtone/og-image.jpg`,
         author: {
           "@type": "Person",
           name: "Takumi Chiba",
@@ -147,7 +147,7 @@ async function buildFilmtoneJsonLd(locale: string) {
         browserRequirements: t("webDemoBrowserRequirements"),
         operatingSystem: t("webDemoOperatingSystem"),
         inLanguage: isJa ? "ja" : "en",
-        image: `${BASE_URL}/film-lab/og-image.jpg`,
+        image: `${BASE_URL}/filmtone/og-image.jpg`,
         isRelatedTo: { "@id": `${pageUrl}#desktop` },
       },
     ],

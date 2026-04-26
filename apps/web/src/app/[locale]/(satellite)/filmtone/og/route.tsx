@@ -5,8 +5,9 @@
  * 仕様: `next/og` の ImageResponse（Satori）。`ja` ロケール時は Noto Sans JP（@fontsource）を同梱読み込み。
  * 制限: 実際のグレード結果ピクセルは描画しない（静的ヒーロー画像のみ）。フォント読み込み失敗時は英字のみにフォールバック。
  *
- * Wave 2 D5.1: `/film-lab/og` から carry → Lane B で `/filmtone/og` へ canonical 移動。public asset path
- *   (`/images/film-lab/default.jpg`, `/film-lab/og-image.jpg`) は変えない（asset paths は public/ のまま維持）。
+ * Wave 2 D5.1: `/film-lab/og` から carry → Lane B で `/filmtone/og` へ canonical 移動。
+ * 2026-04-27 (Satellite Isolation 後続): public asset も `public/film-lab/` → `public/filmtone/` に移動済。
+ *   ヒーロー画像は `/images/film-lab/default.jpg` のまま (こちらは redirect rule の対象外で別ヒエラルキー)。
  */
 
 import { readFile } from "node:fs/promises";
