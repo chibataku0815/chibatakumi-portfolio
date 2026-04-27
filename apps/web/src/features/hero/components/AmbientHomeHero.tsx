@@ -35,7 +35,7 @@ export function AmbientHomeHero(): React.ReactElement {
   return (
     <section
       id="home-hero"
-      data-readability="focus"
+      data-readability="immersive"
       className="relative isolate flex min-h-[100svh] w-full flex-col items-start justify-end px-6 pb-16 sm:px-10 sm:pb-20 lg:px-16 lg:pb-24"
     >
       <div className="max-w-[min(56rem,calc(100vw-3rem))]">
