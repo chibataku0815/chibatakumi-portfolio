@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { EditorialSection } from "@/shared/components";
 import { portfolioData } from "@/shared/data/portfolio";
 
 const BASE_URL = portfolioData.site.siteUrl;
@@ -99,97 +98,155 @@ export default async function JournalPage({
   const t = await getTranslations({ locale, namespace: "journal" });
 
   return (
-    <main className="relative min-h-screen bg-[var(--bg-dark)] text-[var(--text-base)]">
-      <EditorialSection id="journal-hero" glass tone="hero" readability="focus">
-        <div className="relative px-6 pt-32 pb-12 sm:pt-36 sm:pb-16">
-          <div className="mx-auto max-w-5xl">
-            <p className="font-mono text-[11px] uppercase tracking-[0.32em] text-[var(--text-base-60)]">
+    <main className="relative min-h-screen text-[var(--text-base)]">
+      <article>
+        {/* HERO: editorial cover, motion-dot focus dim */}
+        <header
+          data-readability="focus"
+          className="px-6 pt-32 pb-20 sm:px-12 sm:pt-44 sm:pb-32 lg:px-20"
+        >
+          <div className="mx-auto max-w-6xl">
+            <p className="font-mono text-[10px] uppercase tracking-[0.32em] text-[var(--text-base-60)]">
               {t("eyebrow")}
             </p>
-            <h1 className="mt-6 text-[clamp(2.75rem,8vw,5rem)] font-semibold leading-[1.05] tracking-[-0.03em] text-[var(--text-base)]">
+            <h1 className="mt-12 text-[clamp(3.5rem,11vw,7rem)] font-medium leading-[0.95] tracking-[-0.04em] text-[var(--text-base)]">
               {t("title")}
             </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-[var(--text-muted)]">
+            <p className="mt-12 max-w-[44ch] text-[1.25rem] leading-[1.7] text-[var(--text-muted)]">
               {t("description")}
             </p>
-            <p className="mt-3 max-w-2xl text-base leading-relaxed text-[var(--text-base-70)]">
-              {t("intro")}
-            </p>
           </div>
-        </div>
-      </EditorialSection>
+        </header>
 
-      <section className="px-6 pb-32" data-readability="reading">
-        <div className="mx-auto max-w-5xl">
-          <div className="flex flex-col gap-2">
-            <p className="font-mono text-[11px] uppercase tracking-[0.32em] text-[var(--text-base-60)]">
-              {t("motionStudies.eyebrow")}
-            </p>
-            <h2 className="text-[clamp(1.75rem,4.5vw,2.5rem)] font-semibold leading-[1.1] tracking-[-0.02em] text-[var(--text-base)]">
-              {t("motionStudies.title")}
-            </h2>
-            <p className="mt-2 max-w-3xl text-base leading-relaxed text-[var(--text-base-70)]">
-              {t("motionStudies.intro")}
-            </p>
-          </div>
+        {/* BODY: editorial spread (1fr + sidebar), reading dim */}
+        <section
+          data-readability="reading"
+          className="px-6 pb-32 sm:px-12 lg:px-20"
+        >
+          <div className="mx-auto grid max-w-6xl gap-y-16 lg:grid-cols-[minmax(0,1fr)_280px] lg:gap-x-20">
+            {/* LEFT: intro + Motion Studies */}
+            <div>
+              <p className="max-w-[42rem] text-[1rem] leading-[1.85] text-[var(--text-base-80)]">
+                {t("intro")}
+              </p>
 
-          <ul className="mt-10 flex flex-col gap-6">
-            {motionStudies.map((entry, index) => (
-              <li key={entry.slug}>
-                <Link
-                  href={`/journal/motion-studies/${entry.slug}`}
-                  data-transition="true"
-                  aria-label={`${t(`motionStudies.entries.${entry.key}.title`)} — ${t("motionStudies.openLabel")}`}
-                  className="group relative isolate flex flex-col overflow-hidden rounded-[var(--radius-panel,1.5rem)] border border-[var(--stroke-subtle)] bg-[var(--surface-1)] p-8 transition-all duration-300 hover:border-[var(--stroke-strong)] hover:bg-[var(--surface-2)] sm:p-10"
+              <hr
+                className="my-20 h-px border-0"
+                style={{
+                  background:
+                    "linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent)",
+                }}
+              />
+
+              <header className="mb-16">
+                <p
+                  className="font-mono text-[10px] uppercase tracking-[0.32em]"
+                  style={{ color: "var(--heat-medium)" }}
                 >
-                  <span
-                    aria-hidden="true"
-                    className="pointer-events-none absolute inset-x-0 top-0 h-px"
-                    style={{
-                      background: `linear-gradient(90deg, transparent 0%, ${entry.accent} 50%, transparent 100%)`,
-                      opacity: 0.55,
-                    }}
-                  />
+                  {t("motionStudies.eyebrow")}
+                </p>
+                <h2 className="mt-3 text-[clamp(2rem,5vw,3rem)] font-medium leading-[1.05] tracking-[-0.025em] text-[var(--text-base)]">
+                  {t("motionStudies.title")}
+                </h2>
+                <p className="mt-4 max-w-[40rem] text-[0.95rem] leading-[1.7] text-[var(--text-base-70)]">
+                  {t("motionStudies.intro")}
+                </p>
+              </header>
 
-                  <div className="flex items-start justify-between gap-6">
-                    <div className="flex items-baseline gap-4">
-                      <span
-                        className="font-mono text-[11px] uppercase tracking-[0.32em]"
-                        style={{ color: entry.accent }}
-                      >
-                        {`0${index + 1}`}
-                      </span>
-                      <span className="font-mono text-[11px] uppercase tracking-[0.28em] text-[var(--text-base-60)]">
-                        {`/journal/motion-studies/${entry.slug}`}
-                      </span>
-                    </div>
-                  </div>
-
-                  <h3 className="mt-6 text-[clamp(1.5rem,3.5vw,2rem)] font-semibold leading-[1.15] tracking-[-0.02em] text-[var(--text-base)]">
-                    {t(`motionStudies.entries.${entry.key}.title`)}
-                  </h3>
-                  <p className="mt-2 font-mono text-[11px] uppercase tracking-[0.24em] text-[var(--text-base-70)]">
-                    {t(`motionStudies.entries.${entry.key}.context`)}
-                  </p>
-                  <p className="mt-4 max-w-3xl text-[16px] leading-relaxed text-[var(--text-base-80)]">
-                    {t(`motionStudies.entries.${entry.key}.summary`)}
-                  </p>
-
-                  <div className="mt-8 flex items-center gap-3 font-mono text-[12px] uppercase tracking-[0.24em] text-[var(--text-base-70)] transition-colors duration-200 group-hover:text-[var(--text-base)]">
-                    <span>{t("motionStudies.openLabel")}</span>
-                    <span
-                      aria-hidden="true"
-                      className="transition-transform duration-200 group-hover:translate-x-1"
+              <ol className="space-y-14">
+                {motionStudies.map((entry, i) => (
+                  <li key={entry.slug} id={entry.slug}>
+                    <Link
+                      href={`/journal/motion-studies/${entry.slug}`}
+                      data-transition="true"
+                      aria-label={`${t(`motionStudies.entries.${entry.key}.title`)} — ${t("motionStudies.openLabel")}`}
+                      className="group block"
                     >
-                      →
-                    </span>
+                      <div className="flex items-baseline gap-5">
+                        <span
+                          className="font-mono text-[10px] uppercase tabular-nums tracking-[0.25em]"
+                          style={{ color: entry.accent }}
+                        >
+                          {`No. ${String(i + 1).padStart(2, "0")}`}
+                        </span>
+                        <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--text-base-50)]">
+                          {entry.slug}
+                        </span>
+                      </div>
+                      <h3 className="mt-4 text-[clamp(1.5rem,3.4vw,2.25rem)] font-medium leading-[1.1] tracking-[-0.02em] text-[var(--text-base)] transition-colors duration-300 group-hover:text-white">
+                        {t(`motionStudies.entries.${entry.key}.title`)}
+                      </h3>
+                      <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.24em] text-[var(--text-base-60)]">
+                        {t(`motionStudies.entries.${entry.key}.context`)}
+                      </p>
+                      <p className="mt-5 max-w-[44rem] text-[0.95rem] leading-[1.75] text-[var(--text-base-80)]">
+                        {t(`motionStudies.entries.${entry.key}.summary`)}
+                      </p>
+                      <span className="mt-6 inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--text-base-60)] transition-all duration-300 group-hover:gap-3 group-hover:text-[var(--text-base)]">
+                        <span aria-hidden style={{ color: entry.accent }}>
+                          →
+                        </span>
+                        <span>{t("motionStudies.openLabel")}</span>
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ol>
+            </div>
+
+            {/* RIGHT: ToC + masthead meta */}
+            <aside className="space-y-12 lg:sticky lg:top-32 lg:self-start">
+              <div>
+                <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--text-base-50)]">
+                  Contents
+                </p>
+                <ol className="mt-4 space-y-2.5">
+                  {motionStudies.map((entry, i) => (
+                    <li key={entry.slug}>
+                      <a
+                        href={`#${entry.slug}`}
+                        className="block font-mono text-[11px] uppercase tracking-[0.18em] text-[var(--text-base-70)] transition-colors duration-200 hover:text-[var(--text-base)]"
+                      >
+                        <span
+                          className="tabular-nums"
+                          style={{ color: entry.accent }}
+                        >
+                          {String(i + 1).padStart(2, "0")}
+                        </span>
+                        <span className="ml-3">
+                          {t(`motionStudies.entries.${entry.key}.title`)}
+                        </span>
+                      </a>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+
+              <div>
+                <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--text-base-50)]">
+                  Edition
+                </p>
+                <dl className="mt-4 space-y-2 font-mono text-[10px] tracking-[0.18em] text-[var(--text-base-70)]">
+                  <div className="flex justify-between gap-4">
+                    <dt>Vol</dt>
+                    <dd className="text-[var(--text-base)]">01</dd>
                   </div>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
+                  <div className="flex justify-between gap-4">
+                    <dt>Updated</dt>
+                    <dd className="text-[var(--text-base)]">2026.04</dd>
+                  </div>
+                  <div className="flex justify-between gap-4">
+                    <dt>Studies</dt>
+                    <dd className="text-[var(--text-base)]">
+                      {motionStudies.length}
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+            </aside>
+          </div>
+        </section>
+      </article>
     </main>
   );
 }
