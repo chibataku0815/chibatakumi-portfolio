@@ -29,17 +29,16 @@ import { AudioBus, createAudioController, type AudioController } from "webgpu-mo
 import { DOT_WIRING, DOT_AUDIO_DELTA_BUFFER } from "./audio/wiring";
 import { createGalleryMode, type GalleryMode, type PanelRenderer } from "./scene/composite-25d";
 import {
-  createHud,
-  createFilmToggleButton,
-  createHotkeyLegend,
-  createAudioSettingsButton,
-  createAudioSettingsPanel,
+  createStatusPill,
+  createControlDock,
+  createHotkeyLegendPopover,
+  createAudioSettingsPopover,
   setOptionsVisibility,
-  setAudioSettingsPanelVisibility,
-  updateHud,
-  updateFilmToggleButton,
-  updateAudioSettingsButton,
-  updateAudioSettingsPanel,
+  setHotkeyPopoverVisibility,
+  setAudioSettingsPopoverVisibility,
+  updateStatusPill,
+  updateControlDock,
+  updateAudioSettingsPopover,
 } from "./ui/hud";
 import { bindKeyboardShortcuts } from "./input/keyboard";
 import {
@@ -397,21 +396,22 @@ export async function mountMotionDotApp(opts: MountOptions): Promise<MountHandle
     const { createMetaballPass } = await import("./render/metaball-pass");
     const legacyMetaball = createMetaballPass(device, offscreenFormat);
 
-    const hud = createHud(hostOverlay);
-    const filmToggle = createFilmToggleButton(hostOverlay);
-    const audioSettingsButton = createAudioSettingsButton(hostOverlay);
-    const audioSettingsPanel = createAudioSettingsPanel(hostOverlay);
-    const hotkeyLegend = createHotkeyLegend(hostOverlay);
+    const statusPill = createStatusPill(hostOverlay);
+    const dock = createControlDock(hostOverlay);
+    const hotkeysPopover = createHotkeyLegendPopover(hostOverlay);
+    const audioSettingsPopover = createAudioSettingsPopover(hostOverlay);
     let optionsVisible = true;
     let audioPanelOpen = false;
+    let hotkeysOpen = false;
 
     function syncOptionsVisibility(): void {
-      setOptionsVisibility(filmToggle, audioSettingsButton, hotkeyLegend, optionsVisible);
-      setAudioSettingsPanelVisibility(audioSettingsPanel, optionsVisible && audioPanelOpen);
+      setOptionsVisibility({ statusPill, dock, hotkeysPopover }, optionsVisible);
+      setHotkeyPopoverVisibility(hotkeysPopover, optionsVisible && hotkeysOpen);
+      setAudioSettingsPopoverVisibility(audioSettingsPopover, optionsVisible && audioPanelOpen);
     }
 
     function syncOverlay(): void {
-      updateHud(hud, {
+      updateStatusPill(statusPill, {
         sceneName: entries[idx].name,
         sceneIndex: idx,
         sceneCount: entries.length,
@@ -423,13 +423,13 @@ export async function mountMotionDotApp(opts: MountOptions): Promise<MountHandle
         layoutName: galleryMode?.getLayoutName() ?? "",
         onsetActivity: audioBus.onsets.globalOnset,
       });
-      updateFilmToggleButton(filmToggle, postEnabled);
-      updateAudioSettingsButton(audioSettingsButton, {
-        enabled: audioController.enabled,
-        panelOpen: audioPanelOpen,
-        sourceLabel: audioController.sourceLabel,
+      updateControlDock(dock, {
+        postEnabled,
+        audioPopoverOpen: audioPanelOpen,
+        hotkeysOpen,
+        audioActive: audioController.enabled,
       });
-      updateAudioSettingsPanel(audioSettingsPanel, {
+      updateAudioSettingsPopover(audioSettingsPopover, {
         enabled: audioController.enabled,
         sourceKind: audioController.sourceKind,
         inputStatus: audioController.inputStatus,
@@ -462,28 +462,34 @@ export async function mountMotionDotApp(opts: MountOptions): Promise<MountHandle
       },
     });
 
-    filmToggle.addEventListener("click", () => {
+    dock.filmButton.addEventListener("click", () => {
       postEnabled = !postEnabled;
       syncOverlay();
     });
 
-    audioSettingsButton.addEventListener("click", () => {
+    dock.audioButton.addEventListener("click", () => {
       audioPanelOpen = !audioPanelOpen;
+      if (audioPanelOpen) hotkeysOpen = false;
       syncOverlay();
     });
-    audioSettingsPanel.sourceButtons.default_track.addEventListener("click", () => {
+    dock.moreButton.addEventListener("click", () => {
+      hotkeysOpen = !hotkeysOpen;
+      if (hotkeysOpen) audioPanelOpen = false;
+      syncOverlay();
+    });
+    audioSettingsPopover.sourceButtons.default_track.addEventListener("click", () => {
       void audioController.selectSource("default_track");
     });
-    audioSettingsPanel.sourceButtons.file.addEventListener("click", () => {
+    audioSettingsPopover.sourceButtons.file.addEventListener("click", () => {
       void audioController.selectSource("file");
     });
-    audioSettingsPanel.sourceButtons.input.addEventListener("click", () => {
+    audioSettingsPopover.sourceButtons.input.addEventListener("click", () => {
       void audioController.selectSource("input");
     });
-    audioSettingsPanel.refreshButton.addEventListener("click", () => {
+    audioSettingsPopover.refreshButton.addEventListener("click", () => {
       void audioController.refreshInputDevices();
     });
-    audioSettingsPanel.actionButton.addEventListener("click", () => {
+    audioSettingsPopover.actionButton.addEventListener("click", () => {
       void (async () => {
         await audioController.toggle();
         if (audioController.enabled) {
@@ -491,9 +497,9 @@ export async function mountMotionDotApp(opts: MountOptions): Promise<MountHandle
         }
       })();
     });
-    audioSettingsPanel.deviceSelect.addEventListener("change", () => {
-      if (audioSettingsPanel.deviceSelect.value) {
-        void audioController.selectInputDevice(audioSettingsPanel.deviceSelect.value);
+    audioSettingsPopover.deviceSelect.addEventListener("change", () => {
+      if (audioSettingsPopover.deviceSelect.value) {
+        void audioController.selectInputDevice(audioSettingsPopover.deviceSelect.value);
       }
     });
 
@@ -797,7 +803,7 @@ export async function mountMotionDotApp(opts: MountOptions): Promise<MountHandle
           activeComposePass = null;
         }
         defaultBlit.destroy?.();
-        for (const el of [hud, filmToggle, audioSettingsButton, audioSettingsPanel.root, hotkeyLegend]) {
+        for (const el of [statusPill, dock.root, hotkeysPopover, audioSettingsPopover.root]) {
           el.remove();
         }
       },

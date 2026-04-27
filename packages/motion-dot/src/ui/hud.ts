@@ -1,17 +1,10 @@
-import {
-  createHotkeyLegend as createHotkeyLegendPrimitive,
-  createOverlayText,
-  createPillButton,
-  setGroupVisibility,
-  setVisibility,
-} from "webgpu-motion-dom";
 import type {
   AudioInputDevice,
   AudioInputStatus,
   AudioSourceKind,
 } from "webgpu-motion-audio";
 
-export interface HudState {
+export interface StatusPillState {
   readonly sceneName: string;
   readonly sceneIndex: number;
   readonly sceneCount: number;
@@ -24,13 +17,14 @@ export interface HudState {
   readonly onsetActivity?: number;
 }
 
-export interface AudioSettingsButtonState {
-  readonly enabled: boolean;
-  readonly panelOpen: boolean;
-  readonly sourceLabel: string;
+export interface DockState {
+  readonly postEnabled: boolean;
+  readonly audioPopoverOpen: boolean;
+  readonly hotkeysOpen: boolean;
+  readonly audioActive: boolean;
 }
 
-export interface AudioSettingsPanelState {
+export interface AudioSettingsPopoverState {
   readonly enabled: boolean;
   readonly sourceKind: AudioSourceKind;
   readonly inputStatus: AudioInputStatus;
@@ -40,7 +34,14 @@ export interface AudioSettingsPanelState {
   readonly inputPermissionGranted: boolean;
 }
 
-export interface AudioSettingsPanel {
+export interface ControlDockHandle {
+  readonly root: HTMLDivElement;
+  readonly filmButton: HTMLButtonElement;
+  readonly audioButton: HTMLButtonElement;
+  readonly moreButton: HTMLButtonElement;
+}
+
+export interface AudioSettingsPopover {
   readonly root: HTMLDivElement;
   readonly sourceButtons: Record<AudioSourceKind, HTMLButtonElement>;
   readonly deviceSection: HTMLDivElement;
@@ -51,145 +52,441 @@ export interface AudioSettingsPanel {
   readonly detailText: HTMLDivElement;
 }
 
-const HUD_Z_INDEX = "var(--z-motion-hud, 20)";
-const HUD_PANEL_Z_INDEX = "var(--z-motion-hud-panel, 30)";
-const HOTKEY_HELP_TEXT = "\u2190 \u2192 switch | 0 single | H options | R reset | F film | D gallery | A audio | I panel | M file | W text";
+export interface OptionsHandles {
+  readonly statusPill: HTMLElement;
+  readonly dock: ControlDockHandle;
+  readonly hotkeysPopover: HTMLElement;
+}
 
-export function createHud(parent?: ParentNode): HTMLDivElement {
-  return createOverlayText({
-    parent,
-    style: {
-      position: "fixed",
-      top: "var(--motion-hud-top, 16px)",
-      left: "16px",
-      fontFamily: "system-ui, sans-serif",
-      fontSize: "13px",
-      color: "#555",
-      pointerEvents: "none",
-      userSelect: "none",
-      lineHeight: "1.6",
-      maxWidth: "min(28rem, calc(100vw - 32px))",
-      overflow: "hidden",
-      textOverflow: "ellipsis",
+const FONT_STACK =
+  "var(--font-geist-sans), -apple-system, BlinkMacSystemFont, system-ui, sans-serif";
+
+const DOCK_BOTTOM_PX = 22;
+const DOCK_RIGHT_PX = 22;
+const DOCK_HEIGHT_ESTIMATE_PX = 56;
+const POPOVER_GAP_PX = 12;
+const POPOVER_BOTTOM = `${DOCK_BOTTOM_PX + DOCK_HEIGHT_ESTIMATE_PX + POPOVER_GAP_PX}px`;
+
+const HOTKEYS: ReadonlyArray<{ key: string; label: string }> = [
+  { key: "← →", label: "Scene" },
+  { key: "0", label: "Single" },
+  { key: "H", label: "Options" },
+  { key: "R", label: "Reset" },
+  { key: "F", label: "Film" },
+  { key: "T", label: "Transit" },
+  { key: "A", label: "Audio" },
+  { key: "D", label: "Gallery" },
+  { key: "I", label: "Panel" },
+  { key: "M", label: "File" },
+];
+
+interface ControlSurfaceOptions {
+  readonly radius?: number;
+  readonly intensity?: number;
+  readonly brightness?: number;
+  readonly tint?: string;
+}
+
+function markLiquidGlassControl(
+  el: HTMLElement,
+  id: string,
+  opts?: ControlSurfaceOptions,
+): void {
+  el.dataset.liquidGlassControl = id;
+  if (opts?.radius !== undefined) el.dataset.liquidGlassRadius = String(opts.radius);
+  if (opts?.intensity !== undefined) el.dataset.liquidGlassIntensity = String(opts.intensity);
+  if (opts?.brightness !== undefined) el.dataset.liquidGlassBrightness = String(opts.brightness);
+  if (opts?.tint) el.dataset.liquidGlassTint = opts.tint;
+}
+
+function applyStyles(el: HTMLElement, styles: Partial<CSSStyleDeclaration>): void {
+  Object.assign(el.style, styles);
+}
+
+function appendTo<T extends HTMLElement>(parent: ParentNode | undefined, el: T): T {
+  if (parent) parent.appendChild(el);
+  return el;
+}
+
+function makeSpan(text: string, color: string): HTMLSpanElement {
+  const span = document.createElement("span");
+  span.textContent = text;
+  span.style.color = color;
+  return span;
+}
+
+function makeSeparator(): HTMLSpanElement {
+  const span = document.createElement("span");
+  span.textContent = "·";
+  span.setAttribute("aria-hidden", "true");
+  applyStyles(span, {
+    color: "rgba(255,255,255,0.40)",
+    padding: "0 2px",
+  });
+  return span;
+}
+
+// ───────────────────────────────────────────────────────────
+// Status Pill (top-left, read-only)
+// ───────────────────────────────────────────────────────────
+
+export function createStatusPill(parent?: ParentNode): HTMLDivElement {
+  const root = document.createElement("div");
+  applyStyles(root, {
+    position: "fixed",
+    top: "var(--motion-hud-top, 90px)",
+    left: "18px",
+    padding: "8px 14px",
+    borderRadius: "14px",
+    background: "transparent",
+    color: "rgba(255,255,255,0.92)",
+    font: `500 12px/1 ${FONT_STACK}`,
+    letterSpacing: "0.02em",
+    pointerEvents: "none",
+    userSelect: "none",
+    whiteSpace: "nowrap",
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "6px",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    maxWidth: "min(28rem, calc(100vw - 36px))",
+  });
+  markLiquidGlassControl(root, "control.status", {
+    radius: 14,
+    intensity: 0.55,
+    brightness: 0.78,
+  });
+  return appendTo(parent, root);
+}
+
+export function updateStatusPill(pill: HTMLDivElement, state: StatusPillState): void {
+  const idx = String(state.sceneIndex + 1).padStart(2, "0");
+  const total = String(state.sceneCount).padStart(2, "0");
+  const mode = state.postEnabled ? "Film" : "Raw";
+
+  pill.replaceChildren();
+  pill.appendChild(makeSpan(`${idx}/${total}`, "rgba(255,255,255,0.62)"));
+  pill.appendChild(makeSeparator());
+  pill.appendChild(makeSpan(state.sceneName, "rgba(255,255,255,0.94)"));
+  pill.appendChild(makeSeparator());
+  pill.appendChild(makeSpan(mode, "rgba(255,255,255,0.78)"));
+
+  if (state.audioEnabled && (state.onsetActivity ?? 0) > 0.4) {
+    const beat = document.createElement("span");
+    beat.textContent = "●";
+    beat.setAttribute("aria-hidden", "true");
+    applyStyles(beat, {
+      color: "rgba(255,196,61,0.88)",
+      fontSize: "9px",
+      marginLeft: "4px",
+    });
+    pill.appendChild(beat);
+  }
+  if (state.galleryEnabled && state.layoutName) {
+    pill.appendChild(makeSeparator());
+    pill.appendChild(makeSpan(state.layoutName, "rgba(255,255,255,0.72)"));
+  }
+  if (state.transitionLabel) {
+    pill.appendChild(makeSeparator());
+    pill.appendChild(makeSpan(state.transitionLabel, "rgba(255,255,255,0.66)"));
+  }
+}
+
+// ───────────────────────────────────────────────────────────
+// Control Dock (bottom-right, primary actions)
+// ───────────────────────────────────────────────────────────
+
+const FILM_ICON_SVG =
+  '<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">' +
+  '<rect x="2" y="3" width="12" height="10" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.3"/>' +
+  '<line x1="2" y1="6.4" x2="14" y2="6.4" stroke="currentColor" stroke-width="0.9"/>' +
+  '<line x1="2" y1="9.6" x2="14" y2="9.6" stroke="currentColor" stroke-width="0.9"/>' +
+  "</svg>";
+
+const AUDIO_ICON_SVG =
+  '<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">' +
+  '<rect x="2.5" y="6.4" width="1.6" height="3.2" rx="0.8" fill="currentColor"/>' +
+  '<rect x="6.0" y="3.6" width="1.6" height="8.8" rx="0.8" fill="currentColor"/>' +
+  '<rect x="9.5" y="5.2" width="1.6" height="5.6" rx="0.8" fill="currentColor"/>' +
+  '<rect x="13.0" y="7.0" width="1.6" height="2.0" rx="0.8" fill="currentColor"/>' +
+  "</svg>";
+
+const MORE_ICON_SVG =
+  '<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">' +
+  '<circle cx="3" cy="8" r="1.4" fill="currentColor"/>' +
+  '<circle cx="8" cy="8" r="1.4" fill="currentColor"/>' +
+  '<circle cx="13" cy="8" r="1.4" fill="currentColor"/>' +
+  "</svg>";
+
+function createDockButton(label: string, iconSvg: string): HTMLButtonElement {
+  const btn = document.createElement("button");
+  btn.type = "button";
+  applyStyles(btn, {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "8px",
+    padding: "9px 14px",
+    border: "0",
+    borderRadius: "16px",
+    background: "transparent",
+    color: "rgba(255,255,255,0.82)",
+    font: `500 12px/1 ${FONT_STACK}`,
+    letterSpacing: "0.02em",
+    cursor: "pointer",
+    pointerEvents: "auto",
+    userSelect: "none",
+    transition: "background 140ms ease, color 140ms ease",
+  });
+
+  const icon = document.createElement("span");
+  icon.innerHTML = iconSvg;
+  applyStyles(icon, {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "14px",
+    height: "14px",
+    flex: "0 0 auto",
+  });
+
+  const text = document.createElement("span");
+  text.textContent = label;
+  text.style.whiteSpace = "nowrap";
+
+  btn.appendChild(icon);
+  btn.appendChild(text);
+
+  btn.addEventListener("pointerenter", () => {
+    if (btn.dataset.active !== "true") {
+      btn.style.color = "rgba(255,255,255,0.96)";
+    }
+  });
+  btn.addEventListener("pointerleave", () => {
+    if (btn.dataset.active !== "true") {
+      btn.style.color = "rgba(255,255,255,0.82)";
+    }
+  });
+
+  return btn;
+}
+
+function setDockButtonActive(btn: HTMLButtonElement, active: boolean): void {
+  btn.dataset.active = active ? "true" : "false";
+  btn.setAttribute("aria-pressed", active ? "true" : "false");
+  if (active) {
+    applyStyles(btn, {
+      background: "color-mix(in oklch, white 9%, transparent)",
+      color: "rgba(255,255,255,0.98)",
+    });
+  } else {
+    applyStyles(btn, {
+      background: "transparent",
+      color: "rgba(255,255,255,0.82)",
+    });
+  }
+}
+
+export function createControlDock(parent?: ParentNode): ControlDockHandle {
+  const root = document.createElement("div");
+  applyStyles(root, {
+    position: "fixed",
+    bottom: `${DOCK_BOTTOM_PX}px`,
+    right: `${DOCK_RIGHT_PX}px`,
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "2px",
+    padding: "6px",
+    borderRadius: "22px",
+    background: "transparent",
+    pointerEvents: "auto",
+    userSelect: "none",
+  });
+  root.setAttribute("role", "toolbar");
+  root.setAttribute("aria-label", "Motion controls");
+  markLiquidGlassControl(root, "control.dock", {
+    radius: 22,
+    intensity: 0.85,
+    brightness: 0.72,
+  });
+
+  const filmButton = createDockButton("Film", FILM_ICON_SVG);
+  filmButton.setAttribute("aria-label", "Toggle film grade (F)");
+  const audioButton = createDockButton("Audio", AUDIO_ICON_SVG);
+  audioButton.setAttribute("aria-label", "Audio settings (I)");
+  const moreButton = createDockButton("More", MORE_ICON_SVG);
+  moreButton.setAttribute("aria-label", "Hotkey reference (H)");
+
+  root.appendChild(filmButton);
+  root.appendChild(audioButton);
+  root.appendChild(moreButton);
+
+  appendTo(parent, root);
+  return { root, filmButton, audioButton, moreButton };
+}
+
+export function updateControlDock(dock: ControlDockHandle, state: DockState): void {
+  setDockButtonActive(dock.filmButton, state.postEnabled);
+  setDockButtonActive(dock.audioButton, state.audioPopoverOpen || state.audioActive);
+  setDockButtonActive(dock.moreButton, state.hotkeysOpen);
+}
+
+// ───────────────────────────────────────────────────────────
+// Hotkey Legend Popover
+// ───────────────────────────────────────────────────────────
+
+export function createHotkeyLegendPopover(parent?: ParentNode): HTMLDivElement {
+  const root = document.createElement("div");
+  applyStyles(root, {
+    position: "fixed",
+    bottom: POPOVER_BOTTOM,
+    right: `${DOCK_RIGHT_PX}px`,
+    display: "none",
+    gridTemplateColumns: "auto auto",
+    columnGap: "20px",
+    rowGap: "9px",
+    padding: "16px 18px",
+    borderRadius: "20px",
+    background: "transparent",
+    pointerEvents: "none",
+    userSelect: "none",
+    color: "rgba(255,255,255,0.90)",
+    font: `500 12px/1 ${FONT_STACK}`,
+  });
+  root.setAttribute("role", "list");
+  root.setAttribute("aria-label", "Keyboard shortcuts");
+  markLiquidGlassControl(root, "control.hotkeys", {
+    radius: 20,
+    intensity: 0.80,
+    brightness: 0.74,
+  });
+
+  for (const { key, label } of HOTKEYS) {
+    const row = document.createElement("div");
+    applyStyles(row, {
+      display: "contents",
+    });
+
+    const kbd = document.createElement("kbd");
+    kbd.textContent = key;
+    applyStyles(kbd, {
+      display: "inline-flex",
+      justifyContent: "center",
+      alignItems: "center",
+      minWidth: "26px",
+      padding: "3px 7px",
+      borderRadius: "6px",
+      background: "rgba(255,255,255,0.08)",
+      border: "1px solid rgba(255,255,255,0.14)",
+      color: "rgba(255,255,255,0.94)",
+      font: `500 11px/1.1 ui-monospace, "SF Mono", Menlo, monospace`,
+      letterSpacing: "0.04em",
       whiteSpace: "nowrap",
-      zIndex: HUD_Z_INDEX,
-    },
-  });
-}
+    });
 
-export function createFilmToggleButton(parent?: ParentNode): HTMLButtonElement {
-  return createPillButton({
-    parent,
-    style: {
-      position: "fixed",
-      top: "var(--motion-hud-top, 16px)",
-      right: "16px",
-      border: "1px solid rgba(255,255,255,0.16)",
-      background: "rgba(20,20,22,0.92)",
-      color: "#f3f3f3",
-      padding: "10px 14px",
-      fontFamily: "system-ui, sans-serif",
-      fontSize: "12px",
-      fontWeight: "600",
+    const labelEl = document.createElement("span");
+    labelEl.textContent = label;
+    applyStyles(labelEl, {
+      alignSelf: "center",
+      color: "rgba(255,255,255,0.84)",
       letterSpacing: "0.03em",
-      boxShadow: "0 14px 32px -16px rgba(0,0,0,0.55)",
-      pointerEvents: "auto",
-      zIndex: HUD_Z_INDEX,
-    },
-  });
+    });
+
+    row.appendChild(kbd);
+    row.appendChild(labelEl);
+    root.appendChild(row);
+  }
+
+  return appendTo(parent, root);
 }
 
-export function createAudioSettingsButton(parent?: ParentNode): HTMLButtonElement {
-  return createPillButton({
-    parent,
-    style: {
-      position: "fixed",
-      top: "calc(var(--motion-hud-top, 16px) + 48px)",
-      right: "16px",
-      border: "1px solid rgba(255,255,255,0.16)",
-      background: "rgba(20,20,22,0.92)",
-      color: "#f3f3f3",
-      padding: "10px 14px",
-      fontFamily: "system-ui, sans-serif",
-      fontSize: "12px",
-      fontWeight: "600",
-      letterSpacing: "0.03em",
-      boxShadow: "0 14px 32px -16px rgba(0,0,0,0.55)",
-      pointerEvents: "auto",
-      zIndex: HUD_Z_INDEX,
-    },
-  });
+export function setHotkeyPopoverVisibility(popover: HTMLElement, visible: boolean): void {
+  popover.style.display = visible ? "grid" : "none";
 }
 
-function createPanelSectionLabel(text: string): HTMLDivElement {
+// ───────────────────────────────────────────────────────────
+// Audio Settings Popover (re-skinned glass version of legacy panel)
+// ───────────────────────────────────────────────────────────
+
+function createPopoverSectionLabel(text: string): HTMLDivElement {
   const label = document.createElement("div");
   label.textContent = text;
-  label.style.fontSize = "10px";
-  label.style.fontWeight = "700";
-  label.style.letterSpacing = "0.08em";
-  label.style.textTransform = "uppercase";
-  label.style.color = "rgba(255,255,255,0.62)";
+  applyStyles(label, {
+    fontSize: "10px",
+    fontWeight: "700",
+    letterSpacing: "0.08em",
+    textTransform: "uppercase",
+    color: "rgba(255,255,255,0.62)",
+  });
   return label;
 }
 
 function createSourceButton(text: string): HTMLButtonElement {
-  return createPillButton({
-    textContent: text,
-    style: {
-      padding: "7px 10px",
-      border: "1px solid rgba(255,255,255,0.14)",
-      background: "rgba(255,255,255,0.06)",
-      color: "rgba(255,255,255,0.84)",
-      fontFamily: "system-ui, sans-serif",
-      fontSize: "11px",
-      fontWeight: "600",
-      letterSpacing: "0.03em",
-      boxShadow: "none",
-    },
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.textContent = text;
+  applyStyles(btn, {
+    padding: "7px 11px",
+    border: "1px solid rgba(255,255,255,0.14)",
+    borderRadius: "999px",
+    background: "rgba(255,255,255,0.06)",
+    color: "rgba(255,255,255,0.84)",
+    font: `600 11px/1 ${FONT_STACK}`,
+    letterSpacing: "0.02em",
+    cursor: "pointer",
+    transition: "background 140ms ease, color 140ms ease, border-color 140ms ease",
   });
+  return btn;
 }
 
-export function createAudioSettingsPanel(parent?: ParentNode): AudioSettingsPanel {
-  const root = createOverlayText({
-    parent,
-    style: {
-      position: "fixed",
-      top: "calc(var(--motion-hud-top, 16px) + 96px)",
-      right: "16px",
-      width: "min(320px, calc(100vw - 32px))",
-      padding: "14px",
-      borderRadius: "18px",
-      border: "1px solid rgba(255,255,255,0.12)",
-      background: "rgba(16,16,18,0.95)",
-      color: "#f3f3f3",
-      fontFamily: "system-ui, sans-serif",
-      boxShadow: "0 26px 56px -22px rgba(0,0,0,0.65)",
-      display: "none",
-      pointerEvents: "auto",
-      zIndex: HUD_PANEL_Z_INDEX,
-    },
+export function createAudioSettingsPopover(parent?: ParentNode): AudioSettingsPopover {
+  const root = document.createElement("div");
+  applyStyles(root, {
+    position: "fixed",
+    bottom: POPOVER_BOTTOM,
+    right: `${DOCK_RIGHT_PX}px`,
+    width: "min(320px, calc(100vw - 32px))",
+    padding: "16px 18px",
+    borderRadius: "24px",
+    background: "transparent",
+    color: "rgba(255,255,255,0.92)",
+    font: `400 12px/1.4 ${FONT_STACK}`,
+    display: "none",
+    pointerEvents: "auto",
+  });
+  root.setAttribute("role", "dialog");
+  root.setAttribute("aria-label", "Audio input settings");
+  markLiquidGlassControl(root, "control.audio", {
+    radius: 24,
+    intensity: 0.90,
+    brightness: 0.75,
   });
 
   const title = document.createElement("div");
   title.textContent = "Audio Input";
-  title.style.fontSize = "13px";
-  title.style.fontWeight = "700";
-  title.style.letterSpacing = "0.04em";
-  title.style.marginBottom = "12px";
+  applyStyles(title, {
+    fontSize: "13px",
+    fontWeight: "600",
+    letterSpacing: "0.03em",
+    color: "rgba(255,255,255,0.96)",
+    marginBottom: "14px",
+  });
 
-  const sourceLabel = createPanelSectionLabel("Source");
+  const sourceLabel = createPopoverSectionLabel("Source");
   sourceLabel.style.marginBottom = "8px";
 
   const sourceRow = document.createElement("div");
-  sourceRow.style.display = "flex";
-  sourceRow.style.flexWrap = "wrap";
-  sourceRow.style.gap = "8px";
-  sourceRow.style.marginBottom = "14px";
+  applyStyles(sourceRow, {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "6px",
+    marginBottom: "14px",
+  });
 
   const sourceButtons: Record<AudioSourceKind, HTMLButtonElement> = {
-    default_track: createSourceButton("Default Track"),
+    default_track: createSourceButton("Default"),
     file: createSourceButton("File"),
-    input: createSourceButton("Audio Input"),
+    input: createSourceButton("Live Input"),
   };
   sourceRow.append(
     sourceButtons.default_track,
@@ -198,82 +495,93 @@ export function createAudioSettingsPanel(parent?: ParentNode): AudioSettingsPane
   );
 
   const deviceSection = document.createElement("div");
-  deviceSection.style.display = "none";
-  deviceSection.style.marginBottom = "12px";
+  applyStyles(deviceSection, {
+    display: "none",
+    marginBottom: "12px",
+  });
 
-  const deviceLabel = createPanelSectionLabel("Device");
+  const deviceLabel = createPopoverSectionLabel("Device");
   deviceLabel.style.marginBottom = "8px";
 
   const deviceControls = document.createElement("div");
-  deviceControls.style.display = "grid";
-  deviceControls.style.gridTemplateColumns = "1fr auto";
-  deviceControls.style.gap = "8px";
-  deviceControls.style.alignItems = "center";
+  applyStyles(deviceControls, {
+    display: "grid",
+    gridTemplateColumns: "1fr auto",
+    gap: "8px",
+    alignItems: "center",
+  });
 
   const deviceSelect = document.createElement("select");
-  deviceSelect.style.width = "100%";
-  deviceSelect.style.padding = "10px 12px";
-  deviceSelect.style.borderRadius = "12px";
-  deviceSelect.style.border = "1px solid rgba(255,255,255,0.14)";
-  deviceSelect.style.background = "rgba(255,255,255,0.06)";
-  deviceSelect.style.color = "#f3f3f3";
-  deviceSelect.style.fontFamily = "system-ui, sans-serif";
-  deviceSelect.style.fontSize = "12px";
-  deviceSelect.style.outline = "none";
+  applyStyles(deviceSelect, {
+    width: "100%",
+    padding: "9px 12px",
+    borderRadius: "12px",
+    border: "1px solid rgba(255,255,255,0.14)",
+    background: "rgba(255,255,255,0.04)",
+    color: "rgba(255,255,255,0.94)",
+    font: `400 12px/1 ${FONT_STACK}`,
+    outline: "none",
+  });
 
-  const refreshButton = createPillButton({
-    textContent: "Refresh",
-    style: {
-      padding: "10px 12px",
-      border: "1px solid rgba(255,255,255,0.14)",
-      background: "rgba(255,255,255,0.06)",
-      color: "#f3f3f3",
-      fontFamily: "system-ui, sans-serif",
-      fontSize: "11px",
-      fontWeight: "600",
-      letterSpacing: "0.03em",
-      boxShadow: "none",
-    },
+  const refreshButton = document.createElement("button");
+  refreshButton.type = "button";
+  refreshButton.textContent = "Refresh";
+  applyStyles(refreshButton, {
+    padding: "9px 12px",
+    border: "1px solid rgba(255,255,255,0.14)",
+    borderRadius: "12px",
+    background: "rgba(255,255,255,0.04)",
+    color: "rgba(255,255,255,0.92)",
+    font: `600 11px/1 ${FONT_STACK}`,
+    letterSpacing: "0.02em",
+    cursor: "pointer",
   });
 
   deviceControls.append(deviceSelect, refreshButton);
   deviceSection.append(deviceLabel, deviceControls);
 
   const statusText = document.createElement("div");
-  statusText.style.fontSize = "12px";
-  statusText.style.color = "rgba(255,255,255,0.76)";
-  statusText.style.marginBottom = "8px";
-
-  const actionButton = createPillButton({
-    textContent: "Connect",
-    style: {
-      width: "100%",
-      padding: "10px 12px",
-      marginBottom: "10px",
-      border: "1px solid rgba(255,255,255,0.18)",
-      background: "rgba(255,255,255,0.12)",
-      color: "#fff",
-      fontFamily: "system-ui, sans-serif",
-      fontSize: "12px",
-      fontWeight: "700",
-      letterSpacing: "0.03em",
-      boxShadow: "none",
-    },
+  applyStyles(statusText, {
+    fontSize: "12px",
+    color: "rgba(255,255,255,0.78)",
+    marginBottom: "8px",
   });
 
   const detailText = document.createElement("div");
-  detailText.style.fontSize = "11px";
-  detailText.style.color = "rgba(255,255,255,0.62)";
-  detailText.style.lineHeight = "1.5";
-  detailText.style.marginBottom = "10px";
+  applyStyles(detailText, {
+    fontSize: "11px",
+    color: "rgba(255,255,255,0.62)",
+    lineHeight: "1.5",
+    marginBottom: "12px",
+  });
+
+  const actionButton = document.createElement("button");
+  actionButton.type = "button";
+  actionButton.textContent = "Connect";
+  applyStyles(actionButton, {
+    width: "100%",
+    padding: "10px 12px",
+    border: "1px solid rgba(255,255,255,0.20)",
+    borderRadius: "14px",
+    background: "rgba(255,255,255,0.10)",
+    color: "rgba(255,255,255,0.98)",
+    font: `600 12px/1 ${FONT_STACK}`,
+    letterSpacing: "0.03em",
+    cursor: "pointer",
+    marginBottom: "10px",
+    transition: "background 140ms ease, border-color 140ms ease, opacity 140ms ease",
+  });
 
   const helper = document.createElement("div");
   helper.textContent = "Monitoring is handled outside the browser";
-  helper.style.fontSize = "11px";
-  helper.style.color = "rgba(255,255,255,0.52)";
-  helper.style.lineHeight = "1.5";
+  applyStyles(helper, {
+    fontSize: "11px",
+    color: "rgba(255,255,255,0.50)",
+    lineHeight: "1.5",
+  });
 
   root.append(title, sourceLabel, sourceRow, deviceSection, statusText, detailText, actionButton, helper);
+  appendTo(parent, root);
 
   return {
     root,
@@ -285,91 +593,6 @@ export function createAudioSettingsPanel(parent?: ParentNode): AudioSettingsPane
     statusText,
     detailText,
   };
-}
-
-export function createHotkeyLegend(parent?: ParentNode): HTMLDivElement {
-  return createHotkeyLegendPrimitive([
-    { key: "← →", label: "Scene" },
-    { key: "0", label: "Single" },
-    { key: "H", label: "Options" },
-    { key: "R", label: "Reset" },
-    { key: "F", label: "Film" },
-    { key: "T", label: "Transit" },
-    { key: "A", label: "Audio" },
-    { key: "D", label: "Gallery" },
-    { key: "I", label: "Panel" },
-    { key: "M", label: "File" },
-  ], {
-    parent,
-    containerStyle: {
-      position: "fixed",
-      right: "16px",
-      bottom: "16px",
-      justifyContent: "flex-end",
-      maxWidth: "min(420px, calc(100vw - 32px))",
-      fontFamily: "system-ui, sans-serif",
-      fontSize: "11px",
-      color: "rgba(255,255,255,0.9)",
-      pointerEvents: "none",
-      userSelect: "none",
-      zIndex: HUD_Z_INDEX,
-    },
-    chipStyle: {
-      padding: "8px 10px",
-      borderRadius: "999px",
-      background: "rgba(18,18,20,0.88)",
-      border: "1px solid rgba(255,255,255,0.12)",
-      boxShadow: "0 14px 30px -14px rgba(0,0,0,0.55)",
-    },
-    keyStyle: {
-      fontSize: "11px",
-      fontWeight: "700",
-      padding: "4px 7px",
-      borderRadius: "999px",
-      background: "rgba(255,255,255,0.12)",
-      color: "#fff",
-    },
-    labelStyle: {
-      letterSpacing: "0.04em",
-    },
-  });
-}
-
-export function updateHud(hud: HTMLDivElement, state: HudState): void {
-  const postLabel = state.postEnabled ? "Film ON" : "Raw";
-  const beatChar = (state.onsetActivity ?? 0) > 0.3 ? "\u25CF" : "\u25CB";
-  const parts = [
-    `[${state.sceneIndex + 1}/${state.sceneCount}] ${state.sceneName}`,
-    postLabel,
-  ];
-
-  if (state.galleryEnabled) {
-    parts.push(`Gallery [${state.layoutName}]`);
-  }
-  if (state.audioEnabled) {
-    parts.push(`${beatChar} ${state.audioSourceLabel}`);
-  }
-  if (state.transitionLabel) {
-    parts.push(state.transitionLabel);
-  }
-
-  hud.textContent = parts.join("  \u2014  ");
-  hud.title = HOTKEY_HELP_TEXT;
-}
-
-export function updateFilmToggleButton(button: HTMLButtonElement, postEnabled: boolean): void {
-  button.textContent = postEnabled ? "Film: ON (F)" : "Film: OFF (F)";
-  button.style.background = postEnabled ? "rgba(36,36,36,0.86)" : "rgba(24,24,24,0.78)";
-  button.style.borderColor = postEnabled ? "rgba(255,255,255,0.36)" : "rgba(255,255,255,0.18)";
-}
-
-export function updateAudioSettingsButton(
-  button: HTMLButtonElement,
-  state: AudioSettingsButtonState,
-): void {
-  button.textContent = state.enabled ? `Audio Panel: ${state.sourceLabel}` : "Audio Panel (I)";
-  button.style.background = state.panelOpen ? "rgba(38,38,38,0.88)" : "rgba(24,24,24,0.78)";
-  button.style.borderColor = state.panelOpen ? "rgba(255,255,255,0.32)" : "rgba(255,255,255,0.18)";
 }
 
 function getStatusLabel(status: AudioInputStatus): string {
@@ -389,127 +612,134 @@ function getStatusLabel(status: AudioInputStatus): string {
   }
 }
 
-function getActionLabel(state: AudioSettingsPanelState): string {
+function getActionLabel(state: AudioSettingsPopoverState): string {
   if (state.enabled) {
-    if (state.sourceKind === "input") {
-      return "Disconnect Input";
-    }
-    if (state.sourceKind === "file") {
-      return "Stop File Audio";
-    }
+    if (state.sourceKind === "input") return "Disconnect Input";
+    if (state.sourceKind === "file") return "Stop File Audio";
     return "Stop Default Track";
   }
-
-  if (state.sourceKind === "input") {
-    return "Connect Input";
-  }
-  if (state.sourceKind === "file") {
-    return "Start File Audio";
-  }
+  if (state.sourceKind === "input") return "Connect Input";
+  if (state.sourceKind === "file") return "Start File Audio";
   return "Start Default Track";
 }
 
-function getDetailText(state: AudioSettingsPanelState): string {
+function getDetailText(state: AudioSettingsPopoverState): string {
   if (!state.inputSupported) {
     return "This browser cannot capture live audio input.";
   }
-
   if (state.sourceKind !== "input") {
-    return "Choose Audio Input to analyze Scarlett or another external interface.";
+    return "Choose Live Input to analyze Scarlett or another external interface.";
   }
-
   if (!state.inputPermissionGranted && state.inputStatus !== "blocked") {
-    return "Device names such as Scarlett Solo appear only after the browser microphone permission is granted.";
+    return "Device names appear only after the browser microphone permission is granted.";
   }
-
   if (state.inputStatus === "blocked") {
-    return "Microphone permission is blocked. Re-enable it in the browser site settings, then connect again.";
+    return "Microphone permission is blocked. Re-enable it in browser site settings, then connect again.";
   }
-
   if (state.inputStatus === "disconnected") {
     return "The selected input disappeared. Reconnect the interface or pick another device.";
   }
-
   if (!state.inputDevices.length) {
-    return "No browser-visible audio inputs were found. Check macOS Input settings and then refresh.";
+    return "No browser-visible audio inputs were found. Check macOS Input settings and refresh.";
   }
-
   return "Use Connect Input to start live analysis from the selected device.";
 }
 
 function setSourceButtonState(button: HTMLButtonElement, active: boolean): void {
-  button.style.background = active ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.06)";
-  button.style.borderColor = active ? "rgba(255,255,255,0.36)" : "rgba(255,255,255,0.14)";
-  button.style.color = active ? "#fff" : "rgba(255,255,255,0.84)";
+  if (active) {
+    applyStyles(button, {
+      background: "rgba(255,255,255,0.18)",
+      borderColor: "rgba(255,255,255,0.38)",
+      color: "rgba(255,255,255,0.98)",
+    });
+  } else {
+    applyStyles(button, {
+      background: "rgba(255,255,255,0.06)",
+      borderColor: "rgba(255,255,255,0.14)",
+      color: "rgba(255,255,255,0.84)",
+    });
+  }
 }
 
-function buildDeviceSignature(state: AudioSettingsPanelState): string {
+function buildDeviceSignature(state: AudioSettingsPopoverState): string {
   return state.inputDevices
     .map((device) => `${device.id}:${device.label}:${device.preferred ? 1 : 0}`)
     .join("|");
 }
 
-export function updateAudioSettingsPanel(
-  panel: AudioSettingsPanel,
-  state: AudioSettingsPanelState,
+export function updateAudioSettingsPopover(
+  popover: AudioSettingsPopover,
+  state: AudioSettingsPopoverState,
 ): void {
-  setSourceButtonState(panel.sourceButtons.default_track, state.sourceKind === "default_track");
-  setSourceButtonState(panel.sourceButtons.file, state.sourceKind === "file");
-  setSourceButtonState(panel.sourceButtons.input, state.sourceKind === "input");
-  panel.sourceButtons.input.disabled = !state.inputSupported;
-  panel.deviceSection.style.display = state.sourceKind === "input" && state.inputPermissionGranted ? "block" : "none";
-  panel.refreshButton.disabled = !state.inputSupported;
-  panel.statusText.textContent = `Status: ${getStatusLabel(state.inputStatus)}`;
-  panel.detailText.textContent = getDetailText(state);
-  panel.actionButton.textContent = getActionLabel(state);
-  panel.actionButton.disabled = state.sourceKind === "input"
+  setSourceButtonState(popover.sourceButtons.default_track, state.sourceKind === "default_track");
+  setSourceButtonState(popover.sourceButtons.file, state.sourceKind === "file");
+  setSourceButtonState(popover.sourceButtons.input, state.sourceKind === "input");
+  popover.sourceButtons.input.disabled = !state.inputSupported;
+  popover.deviceSection.style.display =
+    state.sourceKind === "input" && state.inputPermissionGranted ? "block" : "none";
+  popover.refreshButton.disabled = !state.inputSupported;
+  popover.statusText.textContent = `Status: ${getStatusLabel(state.inputStatus)}`;
+  popover.detailText.textContent = getDetailText(state);
+  popover.actionButton.textContent = getActionLabel(state);
+  popover.actionButton.disabled = state.sourceKind === "input"
     ? !state.inputSupported || state.inputStatus === "requesting"
     : false;
-  panel.actionButton.style.opacity = panel.actionButton.disabled ? "0.5" : "1";
-  panel.actionButton.style.cursor = panel.actionButton.disabled ? "default" : "pointer";
+  popover.actionButton.style.opacity = popover.actionButton.disabled ? "0.5" : "1";
+  popover.actionButton.style.cursor = popover.actionButton.disabled ? "default" : "pointer";
 
   const deviceSignature = buildDeviceSignature(state);
   const selectedValue = state.selectedInputDeviceId ?? "";
   const needsPlaceholder = !state.inputDevices.length
     || (selectedValue !== "" && !state.inputDevices.some((device) => device.id === selectedValue));
 
-  if (panel.root.dataset.deviceSignature !== deviceSignature || panel.root.dataset.needsPlaceholder !== String(needsPlaceholder)) {
-    panel.deviceSelect.replaceChildren();
+  if (
+    popover.root.dataset.deviceSignature !== deviceSignature
+    || popover.root.dataset.needsPlaceholder !== String(needsPlaceholder)
+  ) {
+    popover.deviceSelect.replaceChildren();
 
     if (needsPlaceholder) {
       const placeholder = document.createElement("option");
       placeholder.value = "";
-      placeholder.textContent = state.inputDevices.length ? "Selected device unavailable" : "No audio inputs found";
-      panel.deviceSelect.appendChild(placeholder);
+      placeholder.textContent = state.inputDevices.length
+        ? "Selected device unavailable"
+        : "No audio inputs found";
+      popover.deviceSelect.appendChild(placeholder);
     }
 
     for (const device of state.inputDevices) {
       const option = document.createElement("option");
       option.value = device.id;
       option.textContent = device.preferred ? `${device.label} (Preferred)` : device.label;
-      panel.deviceSelect.appendChild(option);
+      popover.deviceSelect.appendChild(option);
     }
 
-    panel.root.dataset.deviceSignature = deviceSignature;
-    panel.root.dataset.needsPlaceholder = String(needsPlaceholder);
+    popover.root.dataset.deviceSignature = deviceSignature;
+    popover.root.dataset.needsPlaceholder = String(needsPlaceholder);
   }
 
-  panel.deviceSelect.disabled = !state.inputSupported || !state.inputDevices.length;
-  panel.deviceSelect.value = needsPlaceholder ? "" : selectedValue;
+  popover.deviceSelect.disabled = !state.inputSupported || !state.inputDevices.length;
+  popover.deviceSelect.value = needsPlaceholder ? "" : selectedValue;
 }
+
+export function setAudioSettingsPopoverVisibility(
+  popover: AudioSettingsPopover,
+  visible: boolean,
+): void {
+  popover.root.style.display = visible ? "block" : "none";
+}
+
+// ───────────────────────────────────────────────────────────
+// Aggregate visibility (H key — toggle full options layer)
+// ───────────────────────────────────────────────────────────
 
 export function setOptionsVisibility(
-  filmButton: HTMLButtonElement,
-  audioButton: HTMLButtonElement,
-  legend: HTMLDivElement,
+  handles: OptionsHandles,
   visible: boolean,
 ): void {
-  setGroupVisibility([filmButton, audioButton, { element: legend, display: "flex" }], visible);
-}
-
-export function setAudioSettingsPanelVisibility(
-  panel: AudioSettingsPanel,
-  visible: boolean,
-): void {
-  setVisibility(panel.root, visible);
+  handles.statusPill.style.display = visible ? "inline-flex" : "none";
+  handles.dock.root.style.display = visible ? "inline-flex" : "none";
+  if (!visible) {
+    handles.hotkeysPopover.style.display = "none";
+  }
 }

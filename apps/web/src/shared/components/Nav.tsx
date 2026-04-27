@@ -43,8 +43,14 @@ export function Nav() {
 
   useEffect(() => {
     document.body.style.overflow = isMenuOpen ? "hidden" : "";
+    if (isMenuOpen) {
+      document.documentElement.setAttribute("data-nav-menu-open", "");
+    } else {
+      document.documentElement.removeAttribute("data-nav-menu-open");
+    }
     return () => {
       document.body.style.overflow = "";
+      document.documentElement.removeAttribute("data-nav-menu-open");
     };
   }, [isMenuOpen]);
 

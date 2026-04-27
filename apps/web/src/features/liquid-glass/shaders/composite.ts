@@ -257,4 +257,4 @@ export const LIQUID_GLASS_UNIFORM_FLOAT_COUNT = 24;
 export const LIQUID_GLASS_UNIFORM_BYTE_SIZE =
   LIQUID_GLASS_UNIFORM_FLOAT_COUNT * Float32Array.BYTES_PER_ELEMENT;
 /** Maximum number of liquid-glass surfaces drawn per frame. */
-export const LIQUID_GLASS_MAX_SURFACES = 16;
+export const LIQUID_GLASS_MAX_SURFACES = 48;

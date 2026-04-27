@@ -134,8 +134,8 @@ function MotionStageMount({
       <div
         ref={overlayRef}
         aria-hidden="true"
-        className="pointer-events-none fixed inset-0"
-        style={{ zIndex: "var(--z-motion-hud, 20)" }}
+        className="motion-stage-hud-overlay pointer-events-none fixed inset-0"
+        style={{ zIndex: "var(--z-motion-hud-content, 1210)" }}
       />
       {children}
     </MotionStageContext.Provider>

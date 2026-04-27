@@ -51,7 +51,7 @@ export default function PortfolioRouteLayout({
                                  LanguageSwitcher) rendered above the canvas.
       */}
       <style>
-        {`:root { --rail-x: 18px; --rail-y: 12px; --rail-height: 60px; --motion-hud-top: calc(var(--rail-y) + var(--rail-height) + 18px); --z-motion-hud: 20; --z-motion-hud-panel: 30; --z-nav-panel-scrim: 1090; --z-nav-front-glass: 1200; --z-nav-hit: 1210; --z-nav-panel-content: 1300; --z-nav-visual: var(--z-nav-front-glass); --z-nav-panel: var(--z-nav-panel-content); } @media (max-width: 720px) { :root { --rail-x: 10px; --rail-y: 8px; --rail-height: 56px; } }`}
+        {`:root { --rail-x: 18px; --rail-y: 12px; --rail-height: 60px; --motion-hud-top: calc(var(--rail-y) + var(--rail-height) + 18px); --z-motion-hud: 20; --z-motion-hud-panel: 30; --z-motion-hud-content: 1210; --z-nav-panel-scrim: 1090; --z-nav-front-glass: 1200; --z-nav-hit: 1210; --z-nav-panel-content: 1300; --z-nav-visual: var(--z-nav-front-glass); --z-nav-panel: var(--z-nav-panel-content); } :root[data-nav-menu-open] .motion-stage-hud-overlay { display: none; } @media (max-width: 720px) { :root { --rail-x: 10px; --rail-y: 8px; --rail-height: 56px; } }`}
       </style>
       <MotionStageProvider>
         {/*

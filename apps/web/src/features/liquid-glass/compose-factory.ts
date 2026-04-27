@@ -308,8 +308,7 @@ export function createLiquidGlassComposePass(opts: {
   ): { draws: DrawEntry[]; usedSlots: number } {
     const draws: DrawEntry[] = [];
     let slot = startOffsetIndex;
-    const surfaceCount = Math.min(state.surfaces.length, LIQUID_GLASS_MAX_SURFACES);
-    for (let i = 0; i < surfaceCount; i++) {
+    for (let i = 0; i < state.surfaces.length; i++) {
       if (slot >= LIQUID_GLASS_MAX_SURFACES) break;
       const surface = state.surfaces[i];
       if (!kindFilter.has(surface.kindId)) continue;

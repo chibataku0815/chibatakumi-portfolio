@@ -259,6 +259,94 @@ export function LiquidGlassProvider({
     };
   }, [buildFrameState, motionStage]);
 
+  // Observe non-React DOM (e.g. motion-dot HUD/control surfaces injected
+  // imperatively) carrying `data-liquid-glass-control`. This is distinct from
+  // the React `LiquidGlassSurface` path (`data-liquid-glass-surface`) so the
+  // two registration channels never double-register the same node.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const cleanups = new Map<Element, () => void>();
+
+    const attach = (el: Element) => {
+      if (!(el instanceof HTMLElement)) return;
+      if (cleanups.has(el)) return;
+      const id = el.dataset.liquidGlassControl;
+      if (!id) return;
+      const radius = el.dataset.liquidGlassRadius
+        ? Number.parseFloat(el.dataset.liquidGlassRadius)
+        : undefined;
+      const intensity = el.dataset.liquidGlassIntensity
+        ? Number.parseFloat(el.dataset.liquidGlassIntensity)
+        : undefined;
+      const brightness = el.dataset.liquidGlassBrightness
+        ? Number.parseFloat(el.dataset.liquidGlassBrightness)
+        : undefined;
+      const tint = el.dataset.liquidGlassTint;
+      const cleanup = registerSurface(el, {
+        id,
+        radius,
+        intensity,
+        brightness,
+        tint,
+        kind: "control",
+      });
+      cleanups.set(el, cleanup);
+    };
+
+    const detach = (el: Element) => {
+      const cleanup = cleanups.get(el);
+      if (cleanup) {
+        cleanup();
+        cleanups.delete(el);
+      }
+    };
+
+    document
+      .querySelectorAll("[data-liquid-glass-control]")
+      .forEach(attach);
+
+    const observer = new MutationObserver((records) => {
+      for (const record of records) {
+        record.addedNodes.forEach((node) => {
+          if (node instanceof HTMLElement) {
+            if (node.dataset.liquidGlassControl) attach(node);
+            node
+              .querySelectorAll("[data-liquid-glass-control]")
+              .forEach(attach);
+          }
+        });
+        record.removedNodes.forEach((node) => {
+          if (node instanceof HTMLElement) {
+            if (cleanups.has(node)) detach(node);
+            node
+              .querySelectorAll("[data-liquid-glass-control]")
+              .forEach(detach);
+          }
+        });
+        if (record.type === "attributes" && record.target instanceof HTMLElement) {
+          if (record.target.dataset.liquidGlassControl) {
+            attach(record.target);
+          } else if (cleanups.has(record.target)) {
+            detach(record.target);
+          }
+        }
+      }
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["data-liquid-glass-control"],
+    });
+
+    return () => {
+      observer.disconnect();
+      for (const cleanup of cleanups.values()) cleanup();
+      cleanups.clear();
+    };
+  }, [registerSurface]);
+
   const contextValue = useMemo<LiquidGlassContextValue>(
     () => ({ registerSurface, registerFrontCanvas }),
     [registerFrontCanvas, registerSurface],
