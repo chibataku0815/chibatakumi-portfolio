@@ -447,21 +447,6 @@ body {
   font-family: var(--font-family-sans);
 }
 
-body::after {
-  /* Film-grain wash. On a light substrate, `screen` blends toward white and
-     blows highlights out; `multiply` retains the substrate while adding
-     micro-texture. Opacity slightly raised to keep the grain perceptible
-     against the light hue. */
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background-image: var(--noise-texture);
-  opacity: 0.04;
-  mix-blend-mode: multiply;
-  z-index: 0;
-}
-
 main,
 section {
   position: relative;
