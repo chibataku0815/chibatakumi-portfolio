@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { EditorialSection } from "@/shared/components";
 import { portfolioData } from "@/shared/data/portfolio";
 
 const BASE_URL = portfolioData.site.siteUrl;
@@ -99,24 +100,26 @@ export default async function JournalPage({
 
   return (
     <main className="relative min-h-screen bg-[var(--bg-dark)] text-[var(--text-base)]">
-      <section className="relative px-6 pt-32 pb-12 sm:pt-36 sm:pb-16">
-        <div className="mx-auto max-w-5xl">
-          <p className="font-mono text-[11px] uppercase tracking-[0.32em] text-[var(--text-base-60)]">
-            {t("eyebrow")}
-          </p>
-          <h1 className="mt-6 text-[clamp(2.75rem,8vw,5rem)] font-semibold leading-[1.05] tracking-[-0.03em] text-[var(--text-base)]">
-            {t("title")}
-          </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-[var(--text-muted)]">
-            {t("description")}
-          </p>
-          <p className="mt-3 max-w-2xl text-base leading-relaxed text-[var(--text-base-70)]">
-            {t("intro")}
-          </p>
+      <EditorialSection id="journal-hero" glass tone="hero" readability="focus">
+        <div className="relative px-6 pt-32 pb-12 sm:pt-36 sm:pb-16">
+          <div className="mx-auto max-w-5xl">
+            <p className="font-mono text-[11px] uppercase tracking-[0.32em] text-[var(--text-base-60)]">
+              {t("eyebrow")}
+            </p>
+            <h1 className="mt-6 text-[clamp(2.75rem,8vw,5rem)] font-semibold leading-[1.05] tracking-[-0.03em] text-[var(--text-base)]">
+              {t("title")}
+            </h1>
+            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-[var(--text-muted)]">
+              {t("description")}
+            </p>
+            <p className="mt-3 max-w-2xl text-base leading-relaxed text-[var(--text-base-70)]">
+              {t("intro")}
+            </p>
+          </div>
         </div>
-      </section>
+      </EditorialSection>
 
-      <section className="px-6 pb-32">
+      <section className="px-6 pb-32" data-readability="reading">
         <div className="mx-auto max-w-5xl">
           <div className="flex flex-col gap-2">
             <p className="font-mono text-[11px] uppercase tracking-[0.32em] text-[var(--text-base-60)]">
