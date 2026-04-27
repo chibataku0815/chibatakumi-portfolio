@@ -39,7 +39,7 @@ export function AmbientHomeHero(): React.ReactElement {
       className="relative isolate flex min-h-[100svh] w-full flex-col items-start justify-end px-6 pb-16 sm:px-10 sm:pb-20 lg:px-16 lg:pb-24"
     >
       <div className="max-w-[min(56rem,calc(100vw-3rem))]">
-        <p className="font-mono text-[10px] uppercase tracking-[0.32em] text-[var(--text-base-60)] sm:text-[11px]">
+        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--text-base-60)] sm:text-[12px]">
           {site.author.role}
         </p>
         <h1 className="mt-6 leading-none">

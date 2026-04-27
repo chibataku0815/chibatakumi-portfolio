@@ -366,7 +366,7 @@ export const portfolioData: PortfolioData = {
     author: {
       name: "Takumi Chiba",
       email: "hello@takumichiba.com",
-      role: "Software Engineer & Photographer",
+      role: "Fullstack Engineer / Creative Director",
     },
   },
 
