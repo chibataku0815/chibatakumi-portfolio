@@ -13,6 +13,10 @@ import {
 import { usePathname } from "next/navigation";
 import { useMotionStage } from "@/features/motion";
 import {
+  getReadability,
+  useReadabilityRegions,
+} from "@/features/motion/useReadabilityRegions";
+import {
   createLiquidGlassComposePass,
   type LiquidGlassFrameState,
   type LiquidGlassFrameSurface,
@@ -94,6 +98,7 @@ export function LiquidGlassProvider({
 }: LiquidGlassProviderProps): React.ReactElement {
   const motionStage = useMotionStage();
   const pathname = usePathname();
+  useReadabilityRegions();
   const surfacesRef = useRef<LiquidGlassSurfaceRegistry>(new Map());
   const pointerRef = useRef({ x: 0, y: 0, active: 0 });
   const scrollRef = useRef({ y: 0, velocity: 0 });
@@ -185,6 +190,7 @@ export function LiquidGlassProvider({
 
   const buildFrameState = useCallback((): LiquidGlassFrameState => {
     const surfaces: LiquidGlassFrameSurface[] = [];
+    const readability = getReadability();
     for (const record of surfacesRef.current.values()) {
       const rect = record.element.getBoundingClientRect();
       if (rect.width < 1 || rect.height < 1) continue;
@@ -218,6 +224,7 @@ export function LiquidGlassProvider({
       scrollVelocity: scrollRef.current.velocity,
       routeAccent: routeAccentRef.current,
       reducedMotion: reducedMotionRef.current,
+      readability,
     };
   }, []);
 
@@ -238,6 +245,7 @@ export function LiquidGlassProvider({
       scrollVelocity: 0,
       routeAccent: FALLBACK_ACCENT,
       reducedMotion: false,
+      readability: 1,
     };
 
     const { pass } = createLiquidGlassComposePass({

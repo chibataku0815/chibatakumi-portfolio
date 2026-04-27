@@ -73,6 +73,13 @@ export interface LiquidGlassFrameState {
   /** Route accent RGB (0..1). Used as the default tint when a surface has tintAmount=0. */
   readonly routeAccent: readonly [number, number, number];
   readonly reducedMotion: boolean;
+  /**
+   * Substrate readability scalar in [0, 1]. 1 = full motion-dot bleed-through
+   * (default); 0 = substrate fully replaced by neutral mid-grey (vec3(0.82))
+   * for maximum text legibility. JS-controlled per frame from
+   * `useReadabilityRegions` (Stream B).
+   */
+  readonly readability: number;
 }
 
 export interface LiquidGlassFrontTarget {
@@ -290,6 +297,11 @@ export function createLiquidGlassComposePass(opts: {
     uniformScratch[21] = surface.tint[1];
     uniformScratch[22] = surface.tint[2];
     uniformScratch[23] = surface.tint[3];
+    // extra (readability + 3 reserved lanes)
+    uniformScratch[24] = Math.max(0, Math.min(1, state.readability ?? 1));
+    uniformScratch[25] = 0;
+    uniformScratch[26] = 0;
+    uniformScratch[27] = 0;
   }
 
   interface DrawEntry {

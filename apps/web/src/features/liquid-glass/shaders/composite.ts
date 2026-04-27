@@ -20,7 +20,7 @@
 //                              z=var(--z-nav-front-glass).
 //
 // Bind group:
-//   binding 0 — uniform (96 bytes per surface, dynamic offset)
+//   binding 0 — uniform (112 bytes per surface, dynamic offset)
 //   binding 1 — substrate sampler (linear)
 //   binding 2 — substrate texture_2d<f32>
 
@@ -32,6 +32,7 @@ struct FrameUniforms {
   rail_rect:              vec4f,
   rail_params:            vec4f,
   tint:                   vec4f,
+  extra:                  vec4f,
 };
 
 struct VOut {
@@ -94,7 +95,8 @@ fn roundedRectNormal(p: vec2f, rect: vec4f, radius: f32) -> vec2f {
 
 @fragment
 fn fsBlit(in: VOut) -> @location(0) vec4f {
-  return textureSampleLevel(substrateTexture, substrateSampler, in.uv, 0.0);
+  let s = textureSampleLevel(substrateTexture, substrateSampler, in.uv, 0.0);
+  return vec4f(mix(vec3(0.82), s.rgb, frame.extra.x), s.a);
 }
 
 // Shared lensing core. Returns rgb (clamped) + mask in alpha channel so the
@@ -232,7 +234,7 @@ fn fsComposite(in: VOut) -> @location(0) vec4f {
   let mask = result.a;
   let res = max(frame.resolution_time_dpr.xy, vec2f(1.0));
   let uv = clamp(p / res, vec2f(0.001), vec2f(0.999));
-  let base = textureSampleLevel(substrateTexture, substrateSampler, uv, 0.0).rgb;
+  let base = mix(vec3(0.82), textureSampleLevel(substrateTexture, substrateSampler, uv, 0.0).rgb, frame.extra.x);
   let outputColor = mix(base, glass, mask);
   return vec4f(clamp(outputColor, vec3f(0.0), vec3f(1.0)), 1.0);
 }
@@ -251,9 +253,9 @@ fn fsCompositeAlpha(in: VOut) -> @location(0) vec4f {
 }
 `;
 
-/** Number of f32 values in the per-surface uniform block (6 vec4f = 24 floats). */
-export const LIQUID_GLASS_UNIFORM_FLOAT_COUNT = 24;
-/** Per-surface uniform block in bytes (96 bytes). */
+/** Number of f32 values in the per-surface uniform block (7 vec4f = 28 floats). */
+export const LIQUID_GLASS_UNIFORM_FLOAT_COUNT = 28;
+/** Per-surface uniform block in bytes (112 bytes). */
 export const LIQUID_GLASS_UNIFORM_BYTE_SIZE =
   LIQUID_GLASS_UNIFORM_FLOAT_COUNT * Float32Array.BYTES_PER_ELEMENT;
 /** Maximum number of liquid-glass surfaces drawn per frame. */

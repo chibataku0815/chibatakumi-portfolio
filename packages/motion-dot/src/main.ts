@@ -189,11 +189,29 @@ const GALLERY_SCENE_DAMPING: Readonly<Record<number, Readonly<{
     softness: 0.65,
     rimIntensity: 0.45,
   },
+  3: {
+    particleIntensity: 0.46,
+    threshold: 0.32,
+    softness: 0.62,
+    rimIntensity: 0.40,
+  },
   6: {
     particleIntensity: 0.50,
     threshold: 0.35,
     softness: 0.70,
     rimIntensity: 0.52,
+  },
+  9: {
+    particleIntensity: 0.48,
+    threshold: 0.34,
+    softness: 0.66,
+    rimIntensity: 0.44,
+  },
+  10: {
+    particleIntensity: 0.42,
+    threshold: 0.30,
+    softness: 0.60,
+    rimIntensity: 0.38,
   },
 } as const;
 

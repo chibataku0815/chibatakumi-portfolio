@@ -7,3 +7,9 @@ export { MouseTextRing } from "./MouseTextRing";
 export { MagneticButton } from "./MagneticButton";
 export { ShaderButton } from "./ShaderButton";
 export { GlowButton } from "./GlowButton";
+export { EditorialSection } from "./EditorialSection";
+export type {
+  EditorialSectionProps,
+  EditorialSectionTone,
+  EditorialSectionReadability,
+} from "./EditorialSection";
