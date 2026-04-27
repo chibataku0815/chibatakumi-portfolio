@@ -53,7 +53,7 @@ export function EditorialSection({
       {glass ? (
         <LiquidGlassSurface
           surfaceId={`editorial.${id}`}
-          kind="panel"
+          kind="rail"
           intensity={intensity ?? 0.72}
         >
           {children}
