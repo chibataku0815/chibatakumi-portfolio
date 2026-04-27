@@ -61,7 +61,11 @@ export interface OptionsHandles {
 const FONT_STACK =
   "var(--font-geist-sans), -apple-system, BlinkMacSystemFont, system-ui, sans-serif";
 
-const DOCK_BOTTOM_PX = 22;
+// Status pill sits at the bottom edge; dock stacks above it with a 14px gap.
+const PILL_BOTTOM_PX = 22;
+const PILL_HEIGHT_ESTIMATE_PX = 32;
+const STACK_GAP_PX = 14;
+const DOCK_BOTTOM_PX = PILL_BOTTOM_PX + PILL_HEIGHT_ESTIMATE_PX + STACK_GAP_PX;
 const DOCK_RIGHT_PX = 22;
 const DOCK_HEIGHT_ESTIMATE_PX = 56;
 const POPOVER_GAP_PX = 12;
@@ -133,9 +137,14 @@ function makeSeparator(): HTMLSpanElement {
 export function createStatusPill(parent?: ParentNode): HTMLDivElement {
   const root = document.createElement("div");
   applyStyles(root, {
+    // Anchored to the bottom-right edge below the control dock — single
+    // right column, top-left masthead stays free, transitions like
+    // "[Transition] River Flow → Magnet" stay within the right gutter.
     position: "fixed",
-    top: "var(--motion-hud-top, 90px)",
-    left: "18px",
+    bottom: `var(--motion-hud-bottom, ${PILL_BOTTOM_PX}px)`,
+    right: `${DOCK_RIGHT_PX}px`,
+    top: "auto",
+    left: "auto",
     padding: "8px 14px",
     borderRadius: "14px",
     background: "transparent",
@@ -150,7 +159,7 @@ export function createStatusPill(parent?: ParentNode): HTMLDivElement {
     gap: "6px",
     overflow: "hidden",
     textOverflow: "ellipsis",
-    maxWidth: "min(28rem, calc(100vw - 36px))",
+    maxWidth: "min(28rem, calc(100vw - 44px))",
   });
   markLiquidGlassControl(root, "control.status", {
     radius: 14,
