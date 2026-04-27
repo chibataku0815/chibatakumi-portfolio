@@ -4,7 +4,7 @@ import { useActionState, useEffect, useRef, useState, useCallback } from "react"
 import { useTranslations } from "next-intl";
 import gsap from "gsap";
 import { submitContactForm, type ContactFormState } from "./actions";
-import { AnimatedHeading } from "@/shared/components";
+import { AnimatedHeading, EditorialSection } from "@/shared/components";
 
 // ARIGATO — kept as a stylistic brand element on success, identical for both
 // locales (a Japanese romanization that reads as a warm thanks regardless of
@@ -155,7 +155,8 @@ export default function ContactClient({ email, locale }: ContactClientProps) {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center px-6 py-24">
       <div ref={containerRef} className="w-full max-w-2xl">
-        <div ref={formContainerRef}>
+        <EditorialSection id="contact-form" tone="form" readability="focus">
+          <div ref={formContainerRef}>
           {/* Header */}
           <div className="mb-12 text-center">
             <AnimatedHeading
@@ -275,7 +276,8 @@ export default function ContactClient({ email, locale }: ContactClientProps) {
               </p>
             </div>
           </form>
-        </div>
+          </div>
+        </EditorialSection>
 
         {/* Success State */}
         <div
