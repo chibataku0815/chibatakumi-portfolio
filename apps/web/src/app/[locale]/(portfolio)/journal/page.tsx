@@ -7,49 +7,23 @@ const BASE_URL = portfolioData.site.siteUrl;
 
 type MotionStudyEntry = {
   key:
-    | "signalStrokeRelay"
-    | "anchoredProgressResolve"
-    | "boilingPosterAperture"
-    | "motifLoopBackground"
     | "stagedEmphasisPayoff"
-    | "temporalEchoResidue";
+    | "temporalEchoResidue"
+    | "signalStrokeRelay"
+    | "boilingPosterAperture";
   slug:
-    | "signal-stroke-relay"
-    | "anchored-progress-resolve"
-    | "boiling-poster-aperture"
-    | "motif-loop-background"
     | "staged-emphasis-payoff"
-    | "temporal-echo-residue";
+    | "temporal-echo-residue"
+    | "signal-stroke-relay"
+    | "boiling-poster-aperture";
   accent: string;
 };
 
 const motionStudies: readonly MotionStudyEntry[] = [
-  { key: "signalStrokeRelay", slug: "signal-stroke-relay", accent: "#f0b25a" },
-  {
-    key: "anchoredProgressResolve",
-    slug: "anchored-progress-resolve",
-    accent: "#3a8acd",
-  },
-  {
-    key: "boilingPosterAperture",
-    slug: "boiling-poster-aperture",
-    accent: "#b85cba",
-  },
-  {
-    key: "motifLoopBackground",
-    slug: "motif-loop-background",
-    accent: "#5cb88a",
-  },
-  {
-    key: "stagedEmphasisPayoff",
-    slug: "staged-emphasis-payoff",
-    accent: "#d96b6b",
-  },
-  {
-    key: "temporalEchoResidue",
-    slug: "temporal-echo-residue",
-    accent: "#7a7af0",
-  },
+  { key: "stagedEmphasisPayoff",  slug: "staged-emphasis-payoff",  accent: "#d96b6b" },
+  { key: "temporalEchoResidue",   slug: "temporal-echo-residue",   accent: "#7a7af0" },
+  { key: "signalStrokeRelay",     slug: "signal-stroke-relay",     accent: "#f0b25a" },
+  { key: "boilingPosterAperture", slug: "boiling-poster-aperture", accent: "#b85cba" },
 ] as const;
 
 export async function generateMetadata({

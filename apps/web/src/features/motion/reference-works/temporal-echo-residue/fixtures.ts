@@ -1,10 +1,4 @@
 export const temporalEchoResidueFixtures = {
-  copy: {
-    eyebrow: "Phase 3 / Work 06 / PixiJS Benchmark-Read Route",
-    title: "Temporal Echo Residue",
-    description:
-      "PixiJS を main home に固定し、first-source benchmark の lyric / stroke residue grammar を time-offset echo sample と residue gate で narrow reproduction する。",
-  },
   runtimeLabel: "PixiJS 8 / evaluator truth + work-local glyph residue adapter",
   techniqueFamily: [
     "temporal echo samples",

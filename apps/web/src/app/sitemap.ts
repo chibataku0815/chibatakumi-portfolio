@@ -3,9 +3,7 @@ import type { MetadataRoute } from "next";
 const BASE_URL = "https://www.chibatakumi.studio";
 
 const motionStudySlugs = [
-  "anchored-progress-resolve",
   "boiling-poster-aperture",
-  "motif-loop-background",
   "signal-stroke-relay",
   "staged-emphasis-payoff",
   "temporal-echo-residue",
