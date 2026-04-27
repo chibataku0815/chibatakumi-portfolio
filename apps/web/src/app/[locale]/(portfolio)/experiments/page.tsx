@@ -107,7 +107,7 @@ export default async function ExperimentsIndexPage({
         }}
       />
 
-      <section className="relative px-6 pt-32 pb-12 sm:pt-40 sm:pb-16">
+      <section className="relative px-6 pt-32 pb-12 sm:pt-40 sm:pb-16" data-readability="focus">
         <div className="mx-auto max-w-5xl">
           <p className="font-mono text-[11px] uppercase tracking-[0.32em] text-[var(--text-base-60)]">
             {t("eyebrow")}
