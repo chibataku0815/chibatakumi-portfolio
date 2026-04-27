@@ -17,7 +17,6 @@ import { AudioBusProvider, SoundToggleControl } from "@/features/audio";
  *  - `<LiquidGlassProvider>` (motion-dot のレンダリングループに ComposePass を差し込む)
  *  - `<AudioBusProvider>` + `<SoundToggleControl>`
  *  - `<PageTransition>` (route 遷移オーバーレイ)
- *  - `data-theme="light"` wrapper (light は default だが、route group 物理境界として明示)
  *
  * ⚠️ 外側 wrapper に `background-color` / `min-height` を付けない:
  *    MotionStageProvider の canvas は `fixed inset-0 -z-10` で背面配置される
@@ -32,7 +31,7 @@ export default function PortfolioRouteLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div data-theme="light">
+    <div>
       {/*
         Layer contract for portfolio routes:
           --motion-hud-top   : top inset for motion-dot HUD/film/audio chips.

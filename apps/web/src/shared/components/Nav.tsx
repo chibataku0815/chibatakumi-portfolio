@@ -152,7 +152,6 @@ export function Nav() {
             onClick={() => setIsMenuOpen(false)}
           />
           <LiquidGlassSurface
-            data-theme="dark"
             surfaceId="nav.panel"
             kind="panel"
             radius={20}

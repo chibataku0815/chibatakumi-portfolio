@@ -1,10 +1,8 @@
 // Tailwind 4 plugin — exposes the renewal 2026 design tokens as CSS variables
-// + utility classes. Light mode values land on `:root`; dark mode mirrors them
-// under `[data-theme="dark"]`. Auto-dark via `prefers-color-scheme: dark` is
-// scoped to `:root:not([data-theme])` so explicit user choices remain
-// authoritative.
+// + utility classes. Wave 4-1 で `data-theme="dark|light"` の二重モードを撤去し、
+// 単一のダークエディトリアル基盤として THEME.dark を `:root` に直接適用する。
 //
-// Reference: plan §2.3 (D3.1) and §5.6.
+// Reference: plan §2.3 (D3.1) and §5.6; Wave 4-1 consolidation.
 
 import plugin from "tailwindcss/plugin";
 
@@ -34,8 +32,8 @@ function themeVars(theme: ThemeColors): Record<string, string> {
 
 /**
  * Build the CSS variable map for the typography scale. Theme-agnostic — the
- * fluid clamp() values are identical in light/dark, so they live on `:root`
- * once instead of being duplicated under `[data-theme="dark"]`.
+ * fluid clamp() values are identical regardless of mode, so they live on
+ * `:root` alongside the consolidated dark theme.
  *
  * Reference: plan §2.3 (D3.2).
  */
@@ -67,17 +65,9 @@ const designSystemPlugin: ReturnType<typeof plugin> = plugin(({
 }) => {
   addBase({
     ":root": {
-      ...themeVars(THEME.light),
+      ...themeVars(THEME.dark),
       ...typographyVars(),
     },
-    // Auto-dark — only when the user has not explicitly chosen a theme.
-    // `:root:not([data-theme])` keeps the explicit light/dark toggles
-    // authoritative.
-    "@media (prefers-color-scheme: dark)": {
-      ":root:not([data-theme])": themeVars(THEME.dark),
-    },
-    '[data-theme="dark"]': themeVars(THEME.dark),
-    '[data-theme="light"]': themeVars(THEME.light),
   });
 
   addUtilities({

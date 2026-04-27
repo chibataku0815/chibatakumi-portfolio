@@ -4,28 +4,28 @@
 @source "../../../../packages/design-system/src";
 @source "../**/*.{js,ts,jsx,tsx,mdx}";
 
-/* Renewal 2026 — Light mode default.
-   Dark mode is opted-in via `[data-theme="dark"]` (Filmtone surfaces /film-lab/*
-   migrate in Wave 2 F by wrapping their layout in data-theme="dark"). Auto-dark
-   via prefers-color-scheme remains active for users who haven't set a theme.
-   Radix slate-dark + amber-dark Color Scales remain imported globally so the
-   raw `--slate-*` / `--amber-*` palettes are available — but the Filmtone
-   semantic aliases that *consume* those palettes (`--bg-dark`, `--text-base`,
-   `--accent-amber*`, `--fl-*`, `--logo-*`, `--transition-overlay`, glass
-   surfaces, shadows tuned for dark) are scoped under `[data-theme="dark"]`.
+/* Renewal 2026 — Single dark editorial substrate (Wave 4-1).
+   The entire site is one dark theme; the previous `data-theme="dark|light"`
+   dual-mode infrastructure was removed in Wave 4-1 and all tokens consolidated
+   to `:root`. Radix slate-dark + amber-dark Color Scales remain imported because
+   Filmtone surfaces (/film-lab/*) and the experiments shell still apply the
+   `.dark` class wrapper to activate Radix's `--slate-*` / `--amber-*` raw
+   palette. Semantic aliases (`--bg-dark`, `--text-base`, `--accent-amber*`,
+   `--fl-*`, `--logo-*`, `--transition-overlay`, glass surfaces, shadows) live
+   directly on `:root` below.
 */
 @import "@radix-ui/colors/slate-dark.css";
 @import "@radix-ui/colors/amber-dark.css";
 
 :root {
   /* ==========================================================================
-     Renewal 2026 — Light theme primaries (canonical via @chibatakumi/design-system)
+     Renewal 2026 — Dark editorial primaries (canonical via @chibatakumi/design-system)
      ========================================================================== */
-  --bg-primary: #D2D2D2;
-  --bg-secondary: #E8EAED;
-  --fg-primary: #1A1A1A;
-  --fg-secondary: #202124;
-  --accent: #FFFFFF;
+  --bg-primary: #0F1115;
+  --bg-secondary: #16181D;
+  --fg-primary: #ECEDEE;
+  --fg-secondary: #B4B4B4;
+  --accent: #FFB224;
 
   /* ==========================================================================
      Font Family Stacks (theme-agnostic)
@@ -205,15 +205,13 @@
   --nav-height: 3.75rem;
 
   /* ==========================================================================
-     Light-mode primitives (Renewal 2026, Phase B → Phase 3 readability fix).
+     Editorial dark substrate primitives (Renewal 2026, consolidated Wave 4-1).
      Radix slate-dark / amber-dark CSS files are imported above but are scoped
-     to `.dark, .dark-theme` (not `:root`). In Light mode, every existing token
-     that referenced `var(--slate-N)` / `var(--amber-N)` resolved to undefined,
-     which is why pages using `bg-[var(--bg-dark)]` painted nothing and the
-     motion-dot canvas bled through. We mirror the dark Radix palette here at
-     `:root` (matching hex values) so Light-mode portfolio pages render with
-     the editorial dark substrate by default; `.dark` class on Filmtone routes
-     overrides nothing because the values are intentionally identical.
+     to `.dark, .dark-theme` (not `:root`). We mirror the dark Radix palette
+     here at `:root` (matching hex values) so portfolio routes render with the
+     editorial dark substrate by default; the `.dark` class on Filmtone /
+     experiments wrappers reasserts the same values via Radix and remains a
+     no-op for the variables defined here.
      ========================================================================== */
   --slate-1: #111113;
   --slate-2: #18191b;
@@ -231,7 +229,7 @@
   --amber-10: #ffd60a;
   --amber-11: #ffca16;
 
-  /* Semantic aliases (mirror the [data-theme="dark"] block below). */
+  /* Semantic aliases — single dark substrate (Wave 4-1 consolidation). */
   --bg-dark: var(--slate-1);
   --bg-darker: var(--slate-2);
   --text-base: var(--slate-12);
@@ -241,6 +239,26 @@
   --logo-stroke: var(--slate-12);
   --logo-fill: var(--slate-12);
   --transition-overlay: var(--slate-4);
+
+  /* Filmtone Desktop 系パネルと揃えるガラス UI トークン（/film-lab）.
+     Wave 4-1 で `[data-theme="dark"]` から :root に昇格 — /photography /filmtone
+     のトークンチェーンを保つため、データテーマ属性削除と同時に必須。 */
+  --fl-bg-app: var(--slate-1);
+  --fl-bg-subtle: var(--slate-2);
+  --fl-bg-raised: var(--slate-3);
+  --fl-bg-interactive: var(--slate-4);
+  --fl-bg-interactive-hover: var(--slate-5);
+  --fl-border-subtle: var(--slate-6);
+  --fl-border-default: var(--slate-7);
+  --fl-border-strong: var(--slate-8);
+  --fl-text-primary: var(--slate-12);
+  --fl-text-secondary: var(--slate-11);
+  --fl-text-tertiary: var(--slate-10);
+  --fl-accent: var(--amber-9);
+  --fl-accent-emphasis: var(--amber-10);
+  --fl-on-accent: #14110a;
+  --fl-focus-ring: color-mix(in srgb, var(--amber-9) 45%, transparent);
+  --fl-frost-blur: 28px;
 
   /* ==========================================================================
      Editorial readability tokens (Phase 3, 2026-04-27).
@@ -261,99 +279,6 @@
   --motion-dot-readability-default: 1;
   --motion-dot-readability-focus: 0.55;
   --motion-dot-readability-reading: 0.35;
-}
-
-/* ============================================================================
-   Renewal 2026 — Dark theme opt-in.
-   The Filmtone surfaces (/film-lab/*) wrap their layout in `data-theme="dark"`
-   (Wave 2 F). All Radix slate-dark + amber-dark semantic aliases + glass UI
-   tokens live here so Light mode pages are NOT polluted by the dark palette.
-   Auto-dark via `prefers-color-scheme: dark` mirrors the same aliases on
-   `:root:not([data-theme="light"])` (see media query block below) so users
-   who haven't explicitly chosen Light still get a coherent dark experience.
-   ============================================================================ */
-[data-theme="dark"] {
-  /* Renewal 2026 primaries — dark variant. */
-  --bg-primary: #0F1115;
-  --bg-secondary: #16181D;
-  --fg-primary: #ECEDEE;
-  --fg-secondary: #B4B4B4;
-  --accent: #FFB224;
-
-  /* Semantic Aliases (Radix Colors) */
-  --bg-dark: var(--slate-1);
-  --bg-darker: var(--slate-2);
-  --text-base: var(--slate-12);
-  --text-muted: var(--slate-11);
-  --accent-amber1: var(--amber-9);
-  --accent-amber2: var(--amber-10);
-
-  /* Filmtone Desktop 系パネルと揃えるガラス UI トークン（/film-lab） */
-  --fl-bg-app: var(--slate-1);
-  --fl-bg-subtle: var(--slate-2);
-  --fl-bg-raised: var(--slate-3);
-  --fl-bg-interactive: var(--slate-4);
-  --fl-bg-interactive-hover: var(--slate-5);
-  --fl-border-subtle: var(--slate-6);
-  --fl-border-default: var(--slate-7);
-  --fl-border-strong: var(--slate-8);
-  --fl-text-primary: var(--slate-12);
-  --fl-text-secondary: var(--slate-11);
-  --fl-text-tertiary: var(--slate-10);
-  --fl-accent: var(--amber-9);
-  --fl-accent-emphasis: var(--amber-10);
-  --fl-on-accent: #14110a;
-  --fl-focus-ring: color-mix(in srgb, var(--amber-9) 45%, transparent);
-  --fl-frost-blur: 28px;
-
-  /* Logo / Transition tokens */
-  --logo-stroke: var(--slate-12);
-  --logo-fill: var(--slate-12);
-  --transition-overlay: var(--slate-4);
-}
-
-/* Auto-dark — applies the Filmtone dark aliases to users with
-   prefers-color-scheme: dark and no explicit theme override. We re-declare
-   here (rather than chain-assigning from [data-theme="dark"]) because CSS
-   custom property cascades on :root take precedence over data-theme attrs
-   only when more specific. Using `:root:not([data-theme="light"])` keeps
-   explicit Light mode overrides authoritative. */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg-primary: #0F1115;
-    --bg-secondary: #16181D;
-    --fg-primary: #ECEDEE;
-    --fg-secondary: #B4B4B4;
-    --accent: #FFB224;
-
-    --bg-dark: var(--slate-1);
-    --bg-darker: var(--slate-2);
-    --text-base: var(--slate-12);
-    --text-muted: var(--slate-11);
-    --accent-amber1: var(--amber-9);
-    --accent-amber2: var(--amber-10);
-
-    --fl-bg-app: var(--slate-1);
-    --fl-bg-subtle: var(--slate-2);
-    --fl-bg-raised: var(--slate-3);
-    --fl-bg-interactive: var(--slate-4);
-    --fl-bg-interactive-hover: var(--slate-5);
-    --fl-border-subtle: var(--slate-6);
-    --fl-border-default: var(--slate-7);
-    --fl-border-strong: var(--slate-8);
-    --fl-text-primary: var(--slate-12);
-    --fl-text-secondary: var(--slate-11);
-    --fl-text-tertiary: var(--slate-10);
-    --fl-accent: var(--amber-9);
-    --fl-accent-emphasis: var(--amber-10);
-    --fl-on-accent: #14110a;
-    --fl-focus-ring: color-mix(in srgb, var(--amber-9) 45%, transparent);
-    --fl-frost-blur: 28px;
-
-    --logo-stroke: var(--slate-12);
-    --logo-fill: var(--slate-12);
-    --transition-overlay: var(--slate-4);
-  }
 }
 
 /* ============================================================================
@@ -498,8 +423,8 @@
 }
 
 body {
-  /* Light mode default. Falls back to legacy `--bg-dark`/`--text-base` only
-     under `[data-theme="dark"]` (Filmtone) or via prefers-color-scheme auto. */
+  /* Single dark editorial substrate (Wave 4-1). `--bg-primary` / `--fg-primary`
+     resolve from :root; the previous `[data-theme="dark"]` opt-in was removed. */
   background: var(--bg-primary);
   color: var(--fg-primary);
   font-family: var(--font-family-sans);
