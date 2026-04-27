@@ -16,14 +16,13 @@ type MotionStudyEntry = {
     | "temporal-echo-residue"
     | "signal-stroke-relay"
     | "boiling-poster-aperture";
-  accent: string;
 };
 
 const motionStudies: readonly MotionStudyEntry[] = [
-  { key: "stagedEmphasisPayoff",  slug: "staged-emphasis-payoff",  accent: "#d96b6b" },
-  { key: "temporalEchoResidue",   slug: "temporal-echo-residue",   accent: "#7a7af0" },
-  { key: "signalStrokeRelay",     slug: "signal-stroke-relay",     accent: "#f0b25a" },
-  { key: "boilingPosterAperture", slug: "boiling-poster-aperture", accent: "#b85cba" },
+  { key: "stagedEmphasisPayoff",  slug: "staged-emphasis-payoff" },
+  { key: "temporalEchoResidue",   slug: "temporal-echo-residue" },
+  { key: "signalStrokeRelay",     slug: "signal-stroke-relay" },
+  { key: "boilingPosterAperture", slug: "boiling-poster-aperture" },
 ] as const;
 
 export async function generateMetadata({
@@ -80,10 +79,13 @@ export default async function JournalPage({
           className="px-6 pt-32 pb-20 sm:px-12 sm:pt-44 sm:pb-32 lg:px-20"
         >
           <div className="mx-auto max-w-6xl">
-            <p className="font-mono text-[10px] uppercase tracking-[0.32em] text-[var(--text-base-60)]">
+            <p className="font-sans font-medium text-[10px] uppercase tracking-[0.18em] text-[var(--text-base-60)]">
               {t("eyebrow")}
             </p>
-            <h1 className="mt-12 text-[clamp(3.5rem,11vw,7rem)] font-medium leading-[0.95] tracking-[-0.04em] text-[var(--text-base)]">
+            <h1
+              className="mt-12 text-[clamp(3.5rem,11vw,7rem)] font-medium leading-[0.95] tracking-[-0.04em] text-[var(--text-base)]"
+              style={{ fontFamily: "var(--font-family-display)" }}
+            >
               {t("title")}
             </h1>
             <p className="mt-12 max-w-[44ch] text-[1.25rem] leading-[1.7] text-[var(--text-muted)]">
@@ -113,13 +115,13 @@ export default async function JournalPage({
               />
 
               <header className="mb-16">
-                <p
-                  className="font-mono text-[10px] uppercase tracking-[0.32em]"
-                  style={{ color: "var(--heat-medium)" }}
-                >
+                <p className="font-sans font-medium text-[10px] uppercase tracking-[0.18em] text-[var(--text-base-60)]">
                   {t("motionStudies.eyebrow")}
                 </p>
-                <h2 className="mt-3 text-[clamp(2rem,5vw,3rem)] font-medium leading-[1.05] tracking-[-0.025em] text-[var(--text-base)]">
+                <h2
+                  className="mt-3 text-[clamp(2rem,5vw,3rem)] font-medium leading-[1.05] tracking-[-0.025em] text-[var(--text-base)]"
+                  style={{ fontFamily: "var(--font-family-display)" }}
+                >
                   {t("motionStudies.title")}
                 </h2>
                 <p className="mt-4 max-w-[40rem] text-[0.95rem] leading-[1.7] text-[var(--text-base-70)]">
@@ -137,29 +139,27 @@ export default async function JournalPage({
                       className="group block"
                     >
                       <div className="flex items-baseline gap-5">
-                        <span
-                          className="font-mono text-[10px] uppercase tabular-nums tracking-[0.25em]"
-                          style={{ color: entry.accent }}
-                        >
+                        <span className="font-sans font-medium text-[10px] uppercase tabular-nums tracking-[0.16em] text-[var(--text-base-40)]">
                           {`No. ${String(i + 1).padStart(2, "0")}`}
                         </span>
-                        <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--text-base-50)]">
+                        <span className="font-sans font-medium text-[10px] uppercase tracking-[0.14em] text-[var(--text-base-50)]">
                           {entry.slug}
                         </span>
                       </div>
-                      <h3 className="mt-4 text-[clamp(1.5rem,3.4vw,2.25rem)] font-medium leading-[1.1] tracking-[-0.02em] text-[var(--text-base)] transition-colors duration-300 group-hover:text-black">
+                      <h3
+                        className="mt-4 text-[clamp(1.5rem,3.4vw,2.25rem)] font-medium leading-[1.1] tracking-[-0.02em] text-[var(--text-base)] transition-colors duration-300 group-hover:text-black"
+                        style={{ fontFamily: "var(--font-family-display)" }}
+                      >
                         {t(`motionStudies.entries.${entry.key}.title`)}
                       </h3>
-                      <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.24em] text-[var(--text-base-60)]">
+                      <p className="mt-2 font-sans font-medium text-[10px] uppercase tracking-[0.14em] text-[var(--text-base-60)]">
                         {t(`motionStudies.entries.${entry.key}.context`)}
                       </p>
                       <p className="mt-5 max-w-[44rem] text-[0.95rem] leading-[1.75] text-[var(--text-base-80)]">
                         {t(`motionStudies.entries.${entry.key}.summary`)}
                       </p>
-                      <span className="mt-6 inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--text-base-60)] transition-all duration-300 group-hover:gap-3 group-hover:text-[var(--text-base)]">
-                        <span aria-hidden style={{ color: entry.accent }}>
-                          →
-                        </span>
+                      <span className="mt-6 inline-flex items-center gap-2 font-sans font-medium text-[10px] uppercase tracking-[0.14em] text-[var(--text-base-60)] transition-all duration-300 group-hover:gap-3 group-hover:text-[var(--text-base)]">
+                        <span aria-hidden>→</span>
                         <span>{t("motionStudies.openLabel")}</span>
                       </span>
                     </Link>
@@ -171,7 +171,7 @@ export default async function JournalPage({
             {/* RIGHT: ToC + masthead meta */}
             <aside className="space-y-12 lg:sticky lg:top-32 lg:self-start">
               <div>
-                <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--text-base-50)]">
+                <p className="font-sans font-medium text-[10px] uppercase tracking-[0.18em] text-[var(--text-base-50)]">
                   Contents
                 </p>
                 <ol className="mt-4 space-y-2.5">
@@ -179,12 +179,9 @@ export default async function JournalPage({
                     <li key={entry.slug}>
                       <a
                         href={`#${entry.slug}`}
-                        className="block font-mono text-[11px] uppercase tracking-[0.18em] text-[var(--text-base-70)] transition-colors duration-200 hover:text-[var(--text-base)]"
+                        className="block font-sans font-medium text-[11px] uppercase tracking-[0.12em] text-[var(--text-base-70)] transition-colors duration-200 hover:text-[var(--text-base)]"
                       >
-                        <span
-                          className="tabular-nums"
-                          style={{ color: entry.accent }}
-                        >
+                        <span className="tabular-nums text-[var(--text-base-40)]">
                           {String(i + 1).padStart(2, "0")}
                         </span>
                         <span className="ml-3">
@@ -197,10 +194,10 @@ export default async function JournalPage({
               </div>
 
               <div>
-                <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--text-base-50)]">
+                <p className="font-sans font-medium text-[10px] uppercase tracking-[0.18em] text-[var(--text-base-50)]">
                   Edition
                 </p>
-                <dl className="mt-4 space-y-2 font-mono text-[10px] tracking-[0.18em] text-[var(--text-base-70)]">
+                <dl className="mt-4 space-y-2 font-sans font-medium tabular-nums text-[10px] tracking-[0.10em] text-[var(--text-base-70)]">
                   <div className="flex justify-between gap-4">
                     <dt>Vol</dt>
                     <dd className="text-[var(--text-base)]">01</dd>
