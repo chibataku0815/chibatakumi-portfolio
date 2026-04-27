@@ -24,11 +24,15 @@
 import { MotionUnsupportedBanner } from "@/features/motion";
 
 /**
- * Experiments shell — `.dark` ラッパーのみ。
+ * Experiments shell — light substrate に統合 (Wave 4-3)。
  *
- * `.dark` クラスは Radix Colors (slate-dark / amber-dark) の生パレット
- * (`--amber-9`, `--slate-1..12` 等) を活性化するために必要。
- * Wave 4-1 で `data-theme="dark"` を撤去 — semantic alias は :root に統合済。
+ * Wave 4-1 で `data-theme="dark"` を撤去、Wave 4-3 で「背景ダーク」概念を廃止し
+ * `.dark` ラッパーも外した。motion-dot canvas (light substrate) の上に最小 UI を
+ * 重ねる構成のため、`.dark` で Radix dark scale を強制すると alias が逆向きに
+ * 解決されてしまう (text が light、bg が dark)。
+ *
+ * 各 client (dot/grid/flow) は token chain (`--text-base` 等) を介して :root の
+ * light scale を参照するので、shell 側に追加 class は不要。
  */
 export default function ExperimentsLayout({
   children,
@@ -36,7 +40,7 @@ export default function ExperimentsLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="dark relative min-h-screen w-full">
+    <div className="relative min-h-screen w-full">
       {children}
       <MotionUnsupportedBanner />
     </div>

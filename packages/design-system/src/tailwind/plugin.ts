@@ -1,8 +1,13 @@
 // Tailwind 4 plugin — exposes the renewal 2026 design tokens as CSS variables
-// + utility classes. Wave 4-1 で `data-theme="dark|light"` の二重モードを撤去し、
-// 単一のダークエディトリアル基盤として THEME.dark を `:root` に直接適用する。
+// + utility classes. Wave 4-1 で `data-theme="dark|light"` の二重モードを撤去し
+// :root に統合、Wave 4-3 で方向を light に再反転 (motion-dot canvas が light
+// 基盤を hardcode しているため)。THEME.light を :root に適用し、Filmtone 等
+// の `.dark` scope は globals.css の Radix slate-dark/amber-dark import が
+// alias を再解釈する。`--accent` の semantic は globals.css の :root override
+// が canonical (`#B86E00`) で、ここの `THEME.light.accent` (`#FFFFFF`) は
+// design-system 単独利用時の最終フォールバックでしかない。
 //
-// Reference: plan §2.3 (D3.1) and §5.6; Wave 4-1 consolidation.
+// Reference: plan §2.3 (D3.1) and §5.6; Wave 4-1 consolidation; Wave 4-3 flip.
 
 import plugin from "tailwindcss/plugin";
 
@@ -65,7 +70,7 @@ const designSystemPlugin: ReturnType<typeof plugin> = plugin(({
 }) => {
   addBase({
     ":root": {
-      ...themeVars(THEME.dark),
+      ...themeVars(THEME.light),
       ...typographyVars(),
     },
   });

@@ -134,7 +134,7 @@ export default async function JournalPage({
                 className="my-20 h-px border-0"
                 style={{
                   background:
-                    "linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent)",
+                    "linear-gradient(90deg, transparent, rgba(0,0,0,0.22), transparent)",
                 }}
               />
 
@@ -173,7 +173,7 @@ export default async function JournalPage({
                           {entry.slug}
                         </span>
                       </div>
-                      <h3 className="mt-4 text-[clamp(1.5rem,3.4vw,2.25rem)] font-medium leading-[1.1] tracking-[-0.02em] text-[var(--text-base)] transition-colors duration-300 group-hover:text-white">
+                      <h3 className="mt-4 text-[clamp(1.5rem,3.4vw,2.25rem)] font-medium leading-[1.1] tracking-[-0.02em] text-[var(--text-base)] transition-colors duration-300 group-hover:text-black">
                         {t(`motionStudies.entries.${entry.key}.title`)}
                       </h3>
                       <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.24em] text-[var(--text-base-60)]">

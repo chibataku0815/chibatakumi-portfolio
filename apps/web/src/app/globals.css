@@ -4,28 +4,41 @@
 @source "../../../../packages/design-system/src";
 @source "../**/*.{js,ts,jsx,tsx,mdx}";
 
-/* Renewal 2026 — Single dark editorial substrate (Wave 4-1).
-   The entire site is one dark theme; the previous `data-theme="dark|light"`
-   dual-mode infrastructure was removed in Wave 4-1 and all tokens consolidated
-   to `:root`. Radix slate-dark + amber-dark Color Scales remain imported because
-   Filmtone surfaces (/film-lab/*) and the experiments shell still apply the
-   `.dark` class wrapper to activate Radix's `--slate-*` / `--amber-*` raw
-   palette. Semantic aliases (`--bg-dark`, `--text-base`, `--accent-amber*`,
-   `--fl-*`, `--logo-*`, `--transition-overlay`, glass surfaces, shadows) live
-   directly on `:root` below.
+/* Renewal 2026 — Single LIGHT editorial substrate (Wave 4-3).
+   The motion-dot WebGPU canvas is the kinetic substrate of the entire site
+   and renders a hardcoded light background (bgColor [0.82,0.82,0.82] in
+   packages/motion-dot/src/render/metaball-pass.ts). Wave 4-1 mistakenly
+   consolidated tokens to dark, leaving every portfolio route with light text
+   on the light canvas; Wave 4-3 abolishes the dark-bg concept entirely and
+   re-flips :root tokens to light. Dark text reads against the canvas; the
+   `--bg-dark` alias name is kept (16 consumers) but now resolves to a near-
+   white slate-1 — the name is vestigial, not load-bearing.
+
+   Radix Color Scales: slate.css + amber.css scope to :root / .light /
+   .light-theme; slate-dark.css + amber-dark.css scope to .dark / .dark-theme.
+   Importing all four lets the same alias (e.g. --text-base: var(--slate-12))
+   automatically resolve to dark text under :root and to light text under any
+   ancestor with the `.dark` class — which is exactly what Filmtone's
+   satellite shell (the only remaining dark identity besides the
+   `body:has(.photography-page)` page-scoped override) needs.
 */
+@import "@radix-ui/colors/slate.css";
+@import "@radix-ui/colors/amber.css";
 @import "@radix-ui/colors/slate-dark.css";
 @import "@radix-ui/colors/amber-dark.css";
 
 :root {
   /* ==========================================================================
-     Renewal 2026 — Dark editorial primaries (canonical via @chibatakumi/design-system)
+     Renewal 2026 — LIGHT editorial primaries (Wave 4-3 re-flip).
+     `--bg-primary` matches motion-dot canvas bgColor (0.82 ≈ #D2D2D2) so the
+     body underneath the canvas resolves to the same hue, avoiding seams
+     where the canvas does not paint (mobile address-bar resize, etc.).
      ========================================================================== */
-  --bg-primary: #0F1115;
-  --bg-secondary: #16181D;
-  --fg-primary: #ECEDEE;
-  --fg-secondary: #B4B4B4;
-  --accent: #FFB224;
+  --bg-primary: #D2D2D2;
+  --bg-secondary: #E8EAED;
+  --fg-primary: #1A1A1A;
+  --fg-secondary: #202124;
+  --accent: #B86E00;
 
   /* ==========================================================================
      Font Family Stacks (theme-agnostic)
@@ -117,35 +130,40 @@
   --radius-pill: 999px;
 
   /* ==========================================================================
-     Shadow Tokens
+     Shadow Tokens — tuned for light substrate (Wave 4-3).
+     Drop-shadow opacities ~halved vs the dark-substrate values; inset highlight
+     flipped from white to a faint dark wash so panels feel pressed into the
+     light substrate, not floating above a void. Glow tokens shift from cool
+     white (invisible on light) to warm amber so progress / pulse states still
+     register.
      ========================================================================== */
-  --shadow-ambient: 0 18px 50px rgba(0, 0, 0, 0.32);
-  --shadow-directional: 0 2px 0 rgba(255, 255, 255, 0.04) inset;
+  --shadow-ambient: 0 18px 50px rgba(0, 0, 0, 0.12);
+  --shadow-directional: 0 2px 0 rgba(0, 0, 0, 0.04) inset;
   --shadow-elev-1:
-    0 10px 30px rgba(0, 0, 0, 0.24),
-    0 0 0 1px rgba(255, 255, 255, 0.03),
+    0 10px 30px rgba(0, 0, 0, 0.10),
+    0 0 0 1px rgba(0, 0, 0, 0.06),
     var(--shadow-directional);
   --shadow-elev-2:
-    0 18px 44px rgba(0, 0, 0, 0.32),
-    0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 18px 44px rgba(0, 0, 0, 0.12),
+    0 0 0 1px rgba(0, 0, 0, 0.07),
     var(--shadow-directional);
   --shadow-elev-3:
-    0 28px 72px rgba(0, 0, 0, 0.42),
-    0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 28px 72px rgba(0, 0, 0, 0.16),
+    0 0 0 1px rgba(0, 0, 0, 0.09),
     var(--shadow-directional);
-  --shadow-contact: 0 24px 54px rgba(0, 0, 0, 0.34);
+  --shadow-contact: 0 24px 54px rgba(0, 0, 0, 0.14);
   --shadow-inset-film:
-    inset 0 1px 0 rgba(255, 255, 255, 0.05),
-    inset 0 -18px 42px rgba(0, 0, 0, 0.22);
-  --shadow-heat-reflect: 0 0 28px rgba(255, 183, 77, 0.1);
+    inset 0 1px 0 rgba(0, 0, 0, 0.04),
+    inset 0 -18px 42px rgba(0, 0, 0, 0.08);
+  --shadow-heat-reflect: 0 0 28px rgba(255, 183, 77, 0.18);
   --shadow-frame-glass: var(--shadow-contact), var(--shadow-inset-film);
   --shadow-frame-panel:
     var(--shadow-contact),
     var(--shadow-inset-film),
     var(--shadow-heat-reflect);
-  --shadow-glow-sm: 0 0 8px rgba(250, 250, 250, 0.6);
-  --shadow-glow-md: 0 0 12px rgba(250, 250, 250, 0.6);
-  --shadow-glow-lg: 0 0 8px rgba(250, 250, 250, 0.6), 0 0 20px rgba(250, 250, 250, 0.3);
+  --shadow-glow-sm: 0 0 8px rgba(255, 196, 61, 0.55);
+  --shadow-glow-md: 0 0 12px rgba(255, 196, 61, 0.55);
+  --shadow-glow-lg: 0 0 8px rgba(255, 196, 61, 0.6), 0 0 20px rgba(255, 196, 61, 0.32);
 
   /* ==========================================================================
      Animation Timing Tokens
@@ -205,31 +223,21 @@
   --nav-height: 3.75rem;
 
   /* ==========================================================================
-     Editorial dark substrate primitives (Renewal 2026, consolidated Wave 4-1).
-     Radix slate-dark / amber-dark CSS files are imported above but are scoped
-     to `.dark, .dark-theme` (not `:root`). We mirror the dark Radix palette
-     here at `:root` (matching hex values) so portfolio routes render with the
-     editorial dark substrate by default; the `.dark` class on Filmtone /
-     experiments wrappers reasserts the same values via Radix and remains a
-     no-op for the variables defined here.
-     ========================================================================== */
-  --slate-1: #111113;
-  --slate-2: #18191b;
-  --slate-3: #212225;
-  --slate-4: #272a2d;
-  --slate-5: #2e3135;
-  --slate-6: #363a3f;
-  --slate-7: #43484e;
-  --slate-8: #5a6169;
-  --slate-9: #696e77;
-  --slate-10: #777b84;
-  --slate-11: #b0b4ba;
-  --slate-12: #edeef0;
-  --amber-9: #ffc53d;
-  --amber-10: #ffd60a;
-  --amber-11: #ffca16;
+     Editorial substrate primitives (Wave 4-3 — light substrate).
 
-  /* Semantic aliases — single dark substrate (Wave 4-1 consolidation). */
+     The `--slate-*` and `--amber-*` raw scales are NOT redeclared here: they
+     come from `@radix-ui/colors/slate.css` + `amber.css` (scoped to :root,
+     .light, .light-theme — gives light hex values) and from `slate-dark.css`
+     + `amber-dark.css` (scoped to .dark, .dark-theme — gives dark hex values).
+
+     The semantic aliases below therefore resolve scope-aware:
+       :root (default)        → slate-12 = #1c2024 (dark text on light bg)
+       .dark (Filmtone shell) → slate-12 = #edeef0 (light text on dark bg)
+     The `--bg-dark` name is vestigial (16 consumers reference it); under the
+     light substrate it now resolves to slate-1 (≈ #fcfcfd, near-white) and
+     plays the role of "canonical bg". Renaming is deferred — name is just a
+     handle, the Radix scope chain carries the meaning.
+     ========================================================================== */
   --bg-dark: var(--slate-1);
   --bg-darker: var(--slate-2);
   --text-base: var(--slate-12);
@@ -238,7 +246,7 @@
   --accent-amber2: var(--amber-10);
   --logo-stroke: var(--slate-12);
   --logo-fill: var(--slate-12);
-  --transition-overlay: var(--slate-4);
+  --transition-overlay: #1a1a1a;
 
   /* Filmtone Desktop 系パネルと揃えるガラス UI トークン（/film-lab）.
      Wave 4-1 で `[data-theme="dark"]` から :root に昇格 — /photography /filmtone
@@ -272,8 +280,8 @@
   --editorial-radius: 1.4rem;
   --editorial-border: 1px solid color-mix(in srgb, var(--slate-12) 9%, transparent);
   --editorial-shadow:
-    0 18px 48px rgba(0, 0, 0, 0.34),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    0 18px 48px rgba(0, 0, 0, 0.10),
+    inset 0 1px 0 rgba(0, 0, 0, 0.04);
   --leading-cjk: 1.85;
   --tracking-cjk: 0.015em;
   --motion-dot-readability-default: 1;
@@ -423,21 +431,26 @@
 }
 
 body {
-  /* Single dark editorial substrate (Wave 4-1). `--bg-primary` / `--fg-primary`
-     resolve from :root; the previous `[data-theme="dark"]` opt-in was removed. */
+  /* Single LIGHT editorial substrate (Wave 4-3). `--bg-primary` matches the
+     motion-dot canvas's hardcoded bgColor so the body and the canvas share
+     the same hue. `--fg-primary` is dark text against this light substrate. */
   background: var(--bg-primary);
   color: var(--fg-primary);
   font-family: var(--font-family-sans);
 }
 
 body::after {
+  /* Film-grain wash. On a light substrate, `screen` blends toward white and
+     blows highlights out; `multiply` retains the substrate while adding
+     micro-texture. Opacity slightly raised to keep the grain perceptible
+     against the light hue. */
   content: "";
   position: fixed;
   inset: 0;
   pointer-events: none;
   background-image: var(--noise-texture);
-  opacity: 0.018;
-  mix-blend-mode: screen;
+  opacity: 0.04;
+  mix-blend-mode: multiply;
   z-index: 0;
 }
 

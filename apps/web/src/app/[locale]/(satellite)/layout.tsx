@@ -8,8 +8,11 @@ import { AudioBusProvider } from "@/features/audio";
  *
  * 提供する surface:
  *  - `.dark` wrapper:
- *    - `.dark` は Radix Colors の生パレット (`--amber-9`, `--slate-1..12` 等) を活性化
- *    - Wave 4-1 で `data-theme="dark"` を撤去 — globals.css の semantic alias は :root に統合済
+ *    - `.dark` は Radix Colors の dark scale (`--slate-1..12`, `--amber-9..11`) を活性化
+ *    - Wave 4-1 で `data-theme="dark"` を撤去、Wave 4-3 で site 全体を light substrate に
+ *      再統合した後も Filmtone は dark editor identity を保つため `.dark` を維持
+ *    - `bg-[var(--slate-1)]` で .dark scope の slate-1 (≈ #111113) を背景に取り、
+ *      `--bg-primary` (現在は light の #D2D2D2) には依存しない
  *  - `<AudioBusProvider>` (Filmtone audio surfaces 用に維持)
  *
  * 意図的に提供しない:
@@ -24,7 +27,7 @@ export default function SatelliteRouteLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="dark min-h-dvh bg-[var(--bg-primary)]">
+    <div className="dark min-h-dvh bg-[var(--slate-1)]">
       <AudioBusProvider>{children}</AudioBusProvider>
     </div>
   );
