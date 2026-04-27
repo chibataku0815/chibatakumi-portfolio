@@ -400,28 +400,21 @@ export function HomeHero() {
               ref={titleCapRef}
               className="frame-line-secondary absolute right-0 top-0 h-px w-[42%]"
             />
-            <h1
-              ref={titleRef}
-              className="relative z-10"
-              style={{
-                filter:
-                  "drop-shadow(0 2px 28px rgba(0,0,0,0.45)) drop-shadow(0 0 80px rgba(0,0,0,0.25))",
-              }}
-            >
+            <h1 ref={titleRef} className="relative z-10">
               <svg
-                viewBox={branding.wordmark.viewBox}
+                viewBox={branding.wordmarkItalic.viewBox}
                 fill="none"
-                aria-label={branding.wordmark.ariaLabel}
+                aria-label={branding.wordmarkItalic.ariaLabel}
                 role="img"
                 className="h-auto w-full max-w-[54rem]"
               >
                 <g fill="var(--text-base)">
-                  {branding.wordmark.primaryPaths.map((d, i) => (
+                  {branding.wordmarkItalic.primaryPaths.map((d, i) => (
                     <path key={`hp-${i}`} d={d} />
                   ))}
                 </g>
-                <g fill="color-mix(in srgb, var(--text-base) 78%, var(--accent-amber1))">
-                  {branding.wordmark.secondaryPaths.map((d, i) => (
+                <g fill="var(--text-base-60)">
+                  {branding.wordmarkItalic.secondaryPaths.map((d, i) => (
                     <path key={`hs-${i}`} d={d} />
                   ))}
                 </g>

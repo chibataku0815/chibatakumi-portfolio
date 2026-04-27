@@ -14,7 +14,6 @@
 
 import type { DotSceneName } from "@chibatakumi/motion-dot";
 import { useMotionDotSceneCycle } from "@/features/motion";
-import { EditorialSection } from "@/shared/components";
 import { portfolioData } from "@/shared/data/portfolio";
 
 const HOME_AMBIENT_CYCLE = [
@@ -30,25 +29,41 @@ export function AmbientHomeHero(): React.ReactElement {
     intervalSec: 5.5,
   });
 
-  const { site } = portfolioData;
+  const { site, branding } = portfolioData;
+  const wordmark = branding.wordmarkItalic;
 
   return (
-    <EditorialSection
+    <section
       id="home-hero"
-      glass
-      tone="hero"
-      readability="focus"
+      data-readability="focus"
       className="relative isolate flex min-h-[100svh] w-full flex-col items-start justify-end px-6 pb-16 sm:px-10 sm:pb-20 lg:px-16 lg:pb-24"
     >
-      <div className="max-w-3xl">
+      <div className="max-w-[min(56rem,calc(100vw-3rem))]">
         <p className="font-mono text-[10px] uppercase tracking-[0.32em] text-[var(--text-base-60)] sm:text-[11px]">
           {site.author.role}
         </p>
-        <h1 className="mt-4 text-balance text-[clamp(2.4rem,6vw,4.6rem)] font-medium leading-[1.04] text-[var(--text-base)]">
-          {site.author.name}
+        <h1 className="mt-6 leading-none">
+          <svg
+            viewBox={wordmark.viewBox}
+            fill="none"
+            aria-label={wordmark.ariaLabel}
+            role="img"
+            className="block h-auto w-full"
+          >
+            <g fill="var(--text-base)">
+              {wordmark.primaryPaths.map((d, i) => (
+                <path key={`hp-${i}`} d={d} />
+              ))}
+            </g>
+            <g fill="var(--text-base-60)">
+              {wordmark.secondaryPaths.map((d, i) => (
+                <path key={`hs-${i}`} d={d} />
+              ))}
+            </g>
+          </svg>
         </h1>
       </div>
-    </EditorialSection>
+    </section>
   );
 }
 
