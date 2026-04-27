@@ -284,9 +284,17 @@
     inset 0 1px 0 rgba(0, 0, 0, 0.04);
   --leading-cjk: 1.85;
   --tracking-cjk: 0.015em;
+  /* Wave 4-3 — light substrate readability tuning. Lower scalar = more
+     metaball energy dim in shader composite. Light substrate makes residual
+     dot edges more perceptible under copy than the dark substrate did, so
+     focus/reading are pushed deeper. The shader-side dim transitions
+     smoothly via @property + IntersectionObserver, so no section boundary
+     is ever drawn — unlike a CSS scrim. Future per-region shader effects
+     (blur, saturation, vignette, chromatic) should ride this same
+     data-readability → JS ref → shader uniform pipeline. */
   --motion-dot-readability-default: 1;
-  --motion-dot-readability-focus: 0.55;
-  --motion-dot-readability-reading: 0.35;
+  --motion-dot-readability-focus: 0.42;
+  --motion-dot-readability-reading: 0.20;
 }
 
 /* ============================================================================
