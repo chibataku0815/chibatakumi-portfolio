@@ -14,6 +14,7 @@
 
 import type { DotSceneName } from "@chibatakumi/motion-dot";
 import { useMotionDotSceneCycle } from "@/features/motion";
+import { EditorialSection } from "@/shared/components";
 import { portfolioData } from "@/shared/data/portfolio";
 
 const HOME_AMBIENT_CYCLE = [
@@ -32,7 +33,13 @@ export function AmbientHomeHero(): React.ReactElement {
   const { site } = portfolioData;
 
   return (
-    <section className="relative isolate flex min-h-[100svh] w-full flex-col items-start justify-end px-6 pb-16 sm:px-10 sm:pb-20 lg:px-16 lg:pb-24">
+    <EditorialSection
+      id="home-hero"
+      glass
+      tone="hero"
+      readability="focus"
+      className="relative isolate flex min-h-[100svh] w-full flex-col items-start justify-end px-6 pb-16 sm:px-10 sm:pb-20 lg:px-16 lg:pb-24"
+    >
       <div className="max-w-3xl">
         <p className="font-mono text-[10px] uppercase tracking-[0.32em] text-[var(--text-base-60)] sm:text-[11px]">
           {site.author.role}
@@ -41,7 +48,7 @@ export function AmbientHomeHero(): React.ReactElement {
           {site.author.name}
         </h1>
       </div>
-    </section>
+    </EditorialSection>
   );
 }
 
