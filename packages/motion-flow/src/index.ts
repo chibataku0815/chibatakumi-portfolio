@@ -61,3 +61,10 @@ export type {
   MountFlowOptions,
   MountFlowHandle,
 } from "./mount";
+// Re-export compose-pass types so callers can register a custom compose pass
+// (e.g. the LiquidGlass front-chrome compose pass) without taking a direct
+// dependency on @chibatakumi/motion-core/compose.
+export type {
+  ComposePass,
+  ComposePassFrameContext,
+} from "@chibatakumi/motion-core/compose";

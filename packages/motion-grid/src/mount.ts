@@ -63,6 +63,10 @@ import {
   type MotionFilmPostPass,
 } from "webgpu-motion-post";
 import { FILM_STOCK_CANON } from "webgpu-motion-art";
+import {
+  createDefaultBlitPass,
+  type ComposePass,
+} from "@chibatakumi/motion-core/compose";
 
 // ── Pure helpers (top-level: no DOM, SSR safe) ──────────────────────────────
 
@@ -190,6 +194,27 @@ export interface MountGridOptions {
 
 export interface MountGridHandle {
   stop(): void;
+  /**
+   * Hot-swap the final-stage compose pass at runtime. Pass `null` to fall
+   * back to the default pass-through blit. Mirrors motion-dot's MountHandle
+   * so the LiquidGlass compose pass can drive grid the same way.
+   */
+  setComposePass(pass: ComposePass | null): void;
+  /**
+   * Subscribe to a callback fired at the start of each frame, before the
+   * encoder is built. Returns an unsubscribe fn.
+   */
+  onBeforeFrame(cb: () => void): () => void;
+  /**
+   * WebGPU resources owned by motion-grid. Exposed so a ComposePass
+   * implementation can construct its own pipelines, samplers, and uniform
+   * buffers using the same device. Do not destroy the device.
+   */
+  readonly gpu: {
+    readonly device: GPUDevice;
+    readonly queue: GPUQueue;
+    readonly format: GPUTextureFormat;
+  };
 }
 
 // ── Mount entry ──────────────────────────────────────────────────────────────
@@ -222,6 +247,19 @@ export async function mountMotionGridApp(
       tonemap: TONEMAP_STATIC,
     });
     const filmPassthrough: MotionFilmPostPass = createPassthroughFilmPostPass(device, format);
+
+    // ── Compose pass plumbing (parallel to motion-dot/main.ts) ────────────
+    const composeSampler = device.createSampler({
+      label: "motion-grid:compose substrate sampler",
+      magFilter: "nearest",
+      minFilter: "nearest",
+      addressModeU: "clamp-to-edge",
+      addressModeV: "clamp-to-edge",
+    });
+    const defaultBlit = createDefaultBlitPass(device, format);
+    let activeComposePass: ComposePass | null = null;
+    const beforeFrameCallbacks = new Set<() => void>();
+
     const audioController: AudioController = createAudioController({
       audioBus,
       storageKeyPrefix: "motion-grid-guided-webgpu",
@@ -578,6 +616,16 @@ export async function mountMotionGridApp(
     const loop = createFixedStepLoop({
       fps: 45,
       frame: ({ dt, time }) => {
+        // Fire onBeforeFrame subscribers (consumers update uniforms / DOM
+        // rects / surface lists here before any GPU encoding starts).
+        for (const cb of beforeFrameCallbacks) {
+          try {
+            cb();
+          } catch (err) {
+            console.error("[motion-grid] onBeforeFrame callback threw:", err);
+          }
+        }
+
         const size = resizeCanvas(gpu);
         scene.resize(size.width, size.height);
         maybeStartPendingWordHandoff();
@@ -622,6 +670,14 @@ export async function mountMotionGridApp(
           height: size.height,
           format: offscreenFormat,
         });
+        // Compose substrate — post-effect output, sampled by the compose pass.
+        // Same format as the swap chain so the default blit preserves bits.
+        const composeSubstrateView = offscreenTargets.get("compose-substrate", {
+          label: "motion-grid:compose-substrate",
+          width: size.width,
+          height: size.height,
+          format,
+        });
         const encoder = device.createCommandEncoder({ label: "frame" });
 
         const alphaK = 1 - Math.exp(-dt / TEXT_ALPHA_TAU);
@@ -630,11 +686,29 @@ export async function mountMotionGridApp(
         (filmEnabled ? filmPost : filmPassthrough).render(
           encoder,
           offscreen,
-          outputView,
+          composeSubstrateView,
           time,
           size.width,
           size.height,
         );
+
+        // Final stage: compose substrate into swap chain. Default blit when
+        // no LiquidGlass compose pass is registered.
+        const composePass = activeComposePass ?? defaultBlit;
+        composePass.render({
+          encoder,
+          device,
+          queue: device.queue,
+          substrateView: composeSubstrateView,
+          substrateSampler: composeSampler,
+          swapView: outputView,
+          format,
+          width: size.width,
+          height: size.height,
+          dpr: gpu.dpr,
+          time,
+          dt,
+        });
 
         device.queue.submit([encoder.finish()]);
       },
@@ -656,11 +730,37 @@ export async function mountMotionGridApp(
         cluster.element.remove();
         // Destroy AudioController
         audioController.destroy();
+        // Destroy compose pipeline
+        beforeFrameCallbacks.clear();
+        if (activeComposePass) {
+          activeComposePass.destroy?.();
+          activeComposePass = null;
+        }
+        defaultBlit.destroy?.();
         // Destroy GPU resources
         try { scene.destroy(); } catch { /* ignore */ }
         try { renderPass.destroy(); } catch { /* ignore */ }
         try { filmPost.destroy(); } catch { /* ignore */ }
         try { filmPassthrough.destroy(); } catch { /* ignore */ }
+      },
+      setComposePass(pass: ComposePass | null): void {
+        if (stopped) return;
+        if (activeComposePass === pass) return;
+        if (activeComposePass) {
+          activeComposePass.destroy?.();
+        }
+        activeComposePass = pass;
+      },
+      onBeforeFrame(cb: () => void): () => void {
+        beforeFrameCallbacks.add(cb);
+        return () => {
+          beforeFrameCallbacks.delete(cb);
+        };
+      },
+      gpu: {
+        device,
+        queue: device.queue,
+        format,
       },
     };
   } catch (err) {
