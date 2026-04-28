@@ -18,6 +18,8 @@
     "@chibatakumi/motion-core": "workspace:*",
     "webgpu-motion-audio": "workspace:*",
     "webgpu-motion-art": "workspace:*",
+    "webgpu-motion-dom": "workspace:*",
+    "webgpu-motion-input": "workspace:*",
     "webgpu-motion-post": "workspace:*",
     "webgpu-motion-shell": "workspace:*"
   },

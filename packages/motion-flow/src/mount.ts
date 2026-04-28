@@ -1,19 +1,25 @@
 // Standalone mount entry — Renewal 2026 Motion Works (Package 4).
 //
-// Mirrors life/output/motion-flowline-webgpu/src/main.ts as a host-driven
-// mount API: caller provides the canvas, we drive the loop until stop().
-// MotionStageProvider hosts only motion-dot, so /experiments/flow mounts its
-// own canvas via this entry. Audio controller / HUD / keyboard cluster are
-// intentionally omitted — the 7-scene auto-cycle (84 s full rotation) keeps
-// the surface alive without input. Per `feedback_no_fallback_bug_hotbed.md`:
-// WebGPU init failure throws; route callers surface the error explicitly.
+// Full port of life/output/motion-flowline-webgpu/src/main.ts as a host-driven
+// mount API: caller provides canvas + hostOverlay, we drive the loop until stop().
+// AudioBus + AudioController, tap-to-start overlay, HUD with scene picker,
+// keyboard (1-7 pin / 0 auto / R reseed / A audio / F film / ? help), and
+// audio-reactive FLOWLINE_WIRING composite are all included.
 //
-// Audio is wired with a zeroed delta buffer (intensity = 0), so ribbon
-// pulses use scene defaults and the film-post composite reads the static
-// flowline grain baseline plus the canon bloom/vignette/tonemap. Adding
-// audio playback is a Phase A+1 concern.
+// Differences from original main.ts:
+// - requireMotionAppElements() removed: caller passes canvas directly
+// - document.body.appendChild → hostOverlay.appendChild
+// - defaultSrc: "audio.mp3" → opts.defaultAudioSrc ?? "/audio.mp3"
+// - bindFlowlineKeyboard returns dispose(); stop() calls it
+// - showFallback removed; catch calls opts.onError?.(err) then re-throws
+// - stop() is idempotent; cleans up overlay, HUD, keyboard, GPU resources
 
 import { FILM_STOCK_CANON } from "webgpu-motion-art";
+import {
+  AudioBus,
+  createAudioController,
+  type AudioController,
+} from "webgpu-motion-audio";
 import {
   createFilmPostPass,
   type MotionFilmPostConfig,
@@ -27,6 +33,7 @@ import {
 } from "webgpu-motion-shell";
 import {
   FLOWLINE_AUDIO_DELTA_BUFFER,
+  FLOWLINE_WIRING,
 } from "./audio/wiring";
 import {
   createFlowlineCompute,
@@ -36,6 +43,10 @@ import {
   FLOWLINE_DEFAULT_CONFIG,
   type FlowlineConfig,
 } from "./compute/flowline-config";
+import {
+  FLOWLINE_KEYMAP_ENTRIES,
+  bindFlowlineKeyboard,
+} from "./input/bindings";
 import {
   createRibbonPass,
   type RibbonPassHandle,
@@ -48,15 +59,35 @@ import {
   SCENES,
   SCENE_CYCLE_DURATION_SEC,
   createFlowlineSceneController,
-  type FlowlineSceneController,
 } from "./scene";
 import {
   createHeroSdf,
   HERO_PLACEMENT,
 } from "./text/glyph-registry";
+import {
+  createFlowlineHud,
+  setFlowlineHudKeymapVisible,
+  updateFlowlineHud,
+  updateFlowlineHudAudio,
+} from "./ui/hud";
 
 const OFFSCREEN_FORMAT: GPUTextureFormat = "rgba16float";
 
+function clamp01(value: number): number {
+  return Math.min(Math.max(value, 0), 1);
+}
+
+function shapeIntensity(raw: number): number {
+  return clamp01((raw - 0.08) / 0.72);
+}
+
+// Flowline-specific film tuning. Canon values were designed for grid's
+// architectural stillness; here the thin ribbons read as "insufficiently
+// filmic" at canon grain (0.07 intensity, 0.22 radialMix). We raise baseline
+// grain ~2.3× so the ink ribbons carry visible film texture at rest, and
+// push radialMix down so grain appears evenly across the frame rather than
+// concentrating at the edges. Size is dropped slightly to give thin lines
+// finer texture detail instead of uniform clumps.
 const GRAIN_STATIC = {
   intensity: 0.18,
   size: 0.52,
@@ -94,6 +125,10 @@ function composeFilmConfig(
 
 export interface MountFlowOptions {
   readonly canvas: HTMLCanvasElement;
+  /** Required. HUD + tap-to-start overlay are appended here. */
+  readonly hostOverlay: HTMLElement;
+  /** Default audio track URL. Defaults to "/audio.mp3" (Next.js public root). */
+  readonly defaultAudioSrc?: string;
   readonly onError?: (err: unknown) => void;
   readonly onReady?: () => void;
 }
@@ -105,7 +140,7 @@ export interface MountFlowHandle {
 export async function mountMotionFlowApp(
   opts: MountFlowOptions,
 ): Promise<MountFlowHandle> {
-  const { canvas } = opts;
+  const { canvas, hostOverlay } = opts;
 
   try {
     const gpu = await initGpu(canvas);
@@ -118,6 +153,12 @@ export async function mountMotionFlowApp(
       FILM_STOCK_CANON,
     );
 
+    const audioBus = new AudioBus({
+      demoStyle: "beat",
+      intensityAttackTau: 1.5,
+      intensityReleaseTau: 3.0,
+    });
+
     const baseCompute: FlowlineConfig = FLOWLINE_DEFAULT_CONFIG;
     const baseRibbon: RibbonConfig = RIBBON_DEFAULT_CONFIG;
     const initialScene = SCENES[0];
@@ -127,6 +168,10 @@ export async function mountMotionFlowApp(
       ...initialScene.compute,
     };
 
+    // Phase 11 — hero glyph SDF. Generated once at startup on the CPU and
+    // uploaded to GPU as r32float. The texture lives for the full app
+    // lifetime; only the Comb/Flow scene samples it meaningfully (other
+    // scenes carry combStrength=0 which short-circuits the sampling branch).
     const heroSdf = createHeroSdf(device);
 
     const flowlineCompute: FlowlineComputeHandle = createFlowlineCompute(device, {
@@ -144,7 +189,7 @@ export async function mountMotionFlowApp(
       config: { ...baseRibbon, ...initialScene.ribbon },
     });
 
-    const sceneController: FlowlineSceneController = createFlowlineSceneController({
+    const sceneController = createFlowlineSceneController({
       compute: flowlineCompute,
       initialScene,
       baseCompute,
@@ -152,6 +197,108 @@ export async function mountMotionFlowApp(
     });
 
     let lastCycleIdx = 0;
+    let autoCycleEnabled = true;
+    let filmEnabled = true;
+    let keymapVisible = false;
+
+    const audioController: AudioController = createAudioController({
+      audioBus,
+      defaultSrc: opts.defaultAudioSrc ?? "/audio.mp3",
+      storageKeyPrefix: "flowline",
+      onStateChange: () => {
+        if (audioController.enabled) {
+          filmEnabled = true;
+        }
+        updateStartOverlay();
+      },
+    });
+
+    // Click-to-start overlay: browser autoplay policy requires a user gesture
+    // before the bundled track can play. One tap enables audio and dismisses
+    // the overlay — zero subsequent decisions required for M4 verification.
+    const startOverlay = document.createElement("div");
+    Object.assign(startOverlay.style, {
+      position: "fixed",
+      inset: "0",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      flexDirection: "column",
+      gap: "10px",
+      background: "rgba(26,26,26,0.78)",
+      color: "#fffff2",
+      fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+      fontSize: "14px",
+      letterSpacing: "0.08em",
+      cursor: "pointer",
+      zIndex: "50",
+      userSelect: "none",
+      backdropFilter: "blur(6px)",
+    } satisfies Partial<CSSStyleDeclaration>);
+    const headline = document.createElement("div");
+    headline.textContent = "TAP TO START";
+    headline.style.fontSize = "18px";
+    headline.style.letterSpacing = "0.24em";
+    const sub = document.createElement("div");
+    sub.textContent = "motion-flowline-webgpu · Phase 11";
+    sub.style.opacity = "0.62";
+    sub.style.fontSize = "11px";
+    startOverlay.append(headline, sub);
+    hostOverlay.appendChild(startOverlay);
+
+    function updateStartOverlay(): void {
+      if (audioController.enabled) {
+        startOverlay.style.display = "none";
+      }
+    }
+
+    const startClickHandler = (): void => {
+      void audioController.toggle();
+    };
+    startOverlay.addEventListener("click", startClickHandler);
+
+    const hud = createFlowlineHud({
+      parent: hostOverlay,
+      scenes: SCENES.map((scene, idx) => ({
+        id: String(idx),
+        label: scene.name,
+        hotkey: String(idx + 1),
+      })),
+      onPickScene: (id) => {
+        const idx = Number(id);
+        if (Number.isNaN(idx) || idx < 0 || idx >= SCENES.length) return;
+        autoCycleEnabled = false;
+        sceneController.switchTo(SCENES[idx]);
+      },
+      onAuto: () => {
+        autoCycleEnabled = true;
+      },
+      keymapEntries: FLOWLINE_KEYMAP_ENTRIES,
+    });
+
+    const disposeKeyboard = bindFlowlineKeyboard({
+      pinScene: (idx) => {
+        if (idx < 0 || idx >= SCENES.length) return;
+        autoCycleEnabled = false;
+        sceneController.switchTo(SCENES[idx]);
+      },
+      resumeAuto: () => {
+        autoCycleEnabled = true;
+      },
+      reseed: () => {
+        sceneController.participant.reset();
+      },
+      toggleAudio: async () => {
+        await audioController.toggle();
+      },
+      toggleFilm: () => {
+        filmEnabled = !filmEnabled;
+      },
+      toggleKeymap: () => {
+        keymapVisible = !keymapVisible;
+        setFlowlineHudKeymapVisible(hud, keymapVisible);
+      },
+    });
 
     const loop = createFixedStepLoop({
       fps: 45,
@@ -168,24 +315,36 @@ export async function mountMotionFlowApp(
 
         const encoder = device.createCommandEncoder({ label: "flowline-frame" });
 
-        const cycleIdx =
-          Math.floor(time / SCENE_CYCLE_DURATION_SEC) % SCENES.length;
-        if (cycleIdx !== lastCycleIdx) {
-          sceneController.switchTo(SCENES[cycleIdx]);
-          lastCycleIdx = cycleIdx;
+        if (autoCycleEnabled) {
+          const cycleIdx =
+            Math.floor(time / SCENE_CYCLE_DURATION_SEC) % SCENES.length;
+          if (cycleIdx !== lastCycleIdx) {
+            sceneController.switchTo(SCENES[cycleIdx]);
+            lastCycleIdx = cycleIdx;
+          }
         }
 
         const frameConfig = sceneController.tick(encoder, dt);
 
-        // Audio is not wired in this mount — keep the delta buffer at zero so
-        // composeFilmConfig reads the static baseline. (FLOWLINE_AUDIO_DELTA_
-        // BUFFER is module-scoped; reset every frame in case a future caller
-        // shares the buffer.)
-        for (const key of Object.keys(FLOWLINE_AUDIO_DELTA_BUFFER) as Array<
-          keyof typeof FLOWLINE_AUDIO_DELTA_BUFFER
-        >) {
-          FLOWLINE_AUDIO_DELTA_BUFFER[key] = 0;
-        }
+        // Advance audio analysis. When disabled, bus zeros out — wiring resolves
+        // to 0 deltas and the visual falls back to the canon baseline.
+        audioBus.update(audioController.enabled ? dt : 0);
+        const intensity = audioController.enabled
+          ? shapeIntensity(audioBus.intensity)
+          : 0;
+        const bands = audioController.enabled
+          ? audioBus.bands
+          : { bass: 0, mid: 0, treble: 0, energy: 0 };
+        const onsets = audioController.enabled
+          ? audioBus.onsets
+          : { bassOnset: 0, midOnset: 0, trebleOnset: 0, globalOnset: 0 };
+
+        FLOWLINE_WIRING.resolveInto(
+          FLOWLINE_AUDIO_DELTA_BUFFER,
+          bands,
+          onsets,
+          intensity,
+        );
 
         flowlineCompute.update(encoder, {
           time,
@@ -198,9 +357,9 @@ export async function mountMotionFlowApp(
           attractorY:        frameConfig.compute.attractorY,
           attractorStrength: frameConfig.compute.attractorStrength,
           vorticity:         frameConfig.compute.vorticity,
-          breathStrength:    0,
-          vorticityPulse:    0,
-          rimPulse:          0,
+          breathStrength:    FLOWLINE_AUDIO_DELTA_BUFFER["field.breathStrength"],
+          vorticityPulse:    FLOWLINE_AUDIO_DELTA_BUFFER["field.vorticityPulse"],
+          rimPulse:          FLOWLINE_AUDIO_DELTA_BUFFER["trail.rimPulse"],
           glyphCenterX:      HERO_PLACEMENT.centerX,
           glyphCenterY:      HERO_PLACEMENT.centerY,
           glyphWidth:        HERO_PLACEMENT.width,
@@ -219,10 +378,21 @@ export async function mountMotionFlowApp(
         ribbonPass.render(encoder, sceneView, {
           viewWidth: size.width,
           viewHeight: size.height,
-          rimPulse: 0,
+          rimPulse: FLOWLINE_AUDIO_DELTA_BUFFER["trail.rimPulse"],
         });
 
-        filmPost.updateConfig(composeFilmConfig(FLOWLINE_AUDIO_DELTA_BUFFER));
+        if (filmEnabled) {
+          filmPost.updateConfig(composeFilmConfig(FLOWLINE_AUDIO_DELTA_BUFFER));
+        } else {
+          filmPost.updateConfig({
+            grain: GRAIN_STATIC,
+            chromaticAberration: CHROMATIC_STATIC,
+            bloom: BLOOM_STATIC,
+            vignette: VIGNETTE_STATIC,
+            tonemap: TONEMAP_STATIC,
+          });
+        }
+
         filmPost.render(
           encoder,
           sceneView,
@@ -233,9 +403,30 @@ export async function mountMotionFlowApp(
         );
 
         device.queue.submit([encoder.finish()]);
+
+        const activeSceneId = String(
+          SCENES.findIndex((s) => s.name === sceneController.target.name),
+        );
+        updateFlowlineHud(
+          hud,
+          {
+            sceneName: sceneController.target.name,
+            autoEnabled: autoCycleEnabled,
+            filmEnabled,
+            audioEnabled: audioController.enabled,
+            audioSourceLabel: audioController.sourceLabel,
+            onsetActivity: onsets.globalOnset,
+          },
+          activeSceneId,
+        );
+        updateFlowlineHudAudio(hud, { bands, onsets, intensity });
       },
     });
     loop.start();
+
+    console.info(
+      `[flowline] Phase 14 ready — ${SCENES.length} scenes × ${SCENE_CYCLE_DURATION_SEC}s auto-cycle (${initialCompute.nAgents} agents × ${initialCompute.nTrail} trail, SDF ${heroSdf.sdf.width}×${heroSdf.sdf.height} r32float). Keys: 1-7 pin, 0 auto, R reseed, A audio, F film, ? help.`,
+    );
 
     opts.onReady?.();
 
@@ -245,6 +436,16 @@ export async function mountMotionFlowApp(
         if (stopped) return;
         stopped = true;
         loop.stop();
+        disposeKeyboard();
+        startOverlay.removeEventListener("click", startClickHandler);
+        startOverlay.remove();
+        hud.overlay.element.remove();
+        hud.selector.element.remove();
+        hud.meter.element.remove();
+        hud.keymap.element.remove();
+        if (audioController.enabled) {
+          void audioController.toggle();
+        }
         try { flowlineCompute.destroy(); } catch { /* ignore */ }
         try { ribbonPass.destroy(); } catch { /* ignore */ }
         try { filmPost.destroy(); } catch { /* ignore */ }
