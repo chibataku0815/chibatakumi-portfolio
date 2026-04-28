@@ -36,19 +36,19 @@ export function AmbientHomeHero(): React.ReactElement {
     <section
       id="home-hero"
       data-readability="immersive"
-      className="relative isolate flex min-h-[var(--vvh,100dvh)] w-full flex-col items-start justify-end px-6 pb-[calc(var(--mobile-bottom-reserve)+24px)] sm:px-10 sm:pb-20 lg:px-16 lg:pb-24"
+      className="relative isolate flex min-h-[100svh] w-full flex-col items-start justify-end px-6 pb-16 sm:px-10 sm:pb-20 lg:px-16 lg:pb-24"
     >
       <div className="max-w-[min(56rem,calc(100vw-3rem))]">
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--text-base-60)] sm:text-[12px]">
           {site.author.role}
         </p>
-        <h1 className="mt-5 leading-none sm:mt-6">
+        <h1 className="mt-6 leading-none">
           <svg
             viewBox={wordmark.viewBox}
             fill="none"
             aria-label={wordmark.ariaLabel}
             role="img"
-            className="block h-auto w-full max-w-[min(100%,92vw)]"
+            className="block h-auto w-full"
           >
             <g fill="var(--text-base)">
               {wordmark.primaryPaths.map((d, i) => (

@@ -55,7 +55,6 @@ export interface SoundToggleControlProps {
 export function SoundToggleControl({ className }: SoundToggleControlProps) {
   const audio = useAudioBus();
   const t = useTranslations("audio.toggle");
-  const controlClassName = ["sound-toggle-control", className].filter(Boolean).join(" ");
 
   const state: SoundState = useMemo(() => {
     if (!audio) return "silent";
@@ -78,7 +77,7 @@ export function SoundToggleControl({ className }: SoundToggleControlProps) {
         onClick={() => {
           // No-op until provider mounts.
         }}
-        className={controlClassName}
+        className={className}
         style={fixedBottomRightStyle}
         disabled
       />
@@ -110,7 +109,7 @@ export function SoundToggleControl({ className }: SoundToggleControlProps) {
         }
         audio.setMute(!audio.mute);
       }}
-      className={controlClassName}
+      className={className}
       style={fixedBottomRightStyle}
     />
   );
@@ -122,9 +121,7 @@ export function SoundToggleControl({ className }: SoundToggleControlProps) {
 // modal overlays (which use 100+).
 const fixedBottomRightStyle: React.CSSProperties = {
   position: "fixed",
-  right: "max(16px, var(--safe-right, 0px))",
-  bottom: "calc(var(--safe-bottom, 0px) + 16px)",
-  width: 44,
-  height: 44,
+  right: "1rem",
+  bottom: "1rem",
   zIndex: 50,
 };

@@ -2,6 +2,13 @@ import type { MetadataRoute } from "next";
 
 const BASE_URL = "https://www.chibatakumi.studio";
 
+const motionStudySlugs = [
+  "boiling-poster-aperture",
+  "signal-stroke-relay",
+  "staged-emphasis-payoff",
+  "temporal-echo-residue",
+] as const;
+
 /**
  * Renewal 2026 reset (parent plan §2.1, §3.1, §7.1) — sitemap publishes only
  * canonical IA surfaces whose content ledger is closed. Hollow / placeholder
@@ -24,9 +31,9 @@ const BASE_URL = "https://www.chibatakumi.studio";
  * - `/works/*`, `/about`, `/craft` — legacy surfaces that 301-redirect via
  *   `next.config.ts` and must never appear here.
  *
- * `/journal` is a real index (Core Content package, parent plan §7.2).
- * Motion-study detail routes are intentionally excluded until individual works
- * pass the public portfolio quality gate.
+ * `/journal` is a real index (Core Content package, parent plan §7.2) and the
+ * `/journal/motion-studies/*` routes remain registered as first-class
+ * destinations.
  */
 const pages = [
   { path: "", changeFrequency: "monthly" as const, priority: 1 },
@@ -44,6 +51,11 @@ const pages = [
   { path: "/filmtone/privacy", changeFrequency: "yearly" as const, priority: 0.4 },
   { path: "/journal", changeFrequency: "monthly" as const, priority: 0.7 },
   { path: "/contact", changeFrequency: "yearly" as const, priority: 0.6 },
+  ...motionStudySlugs.map((slug) => ({
+    path: `/journal/motion-studies/${slug}`,
+    changeFrequency: "yearly" as const,
+    priority: 0.5,
+  })),
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {

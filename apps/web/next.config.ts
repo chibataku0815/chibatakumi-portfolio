@@ -3,13 +3,6 @@ import createNextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
-const retiredMotionStudySlugs = [
-  "boiling-poster-aperture",
-  "signal-stroke-relay",
-  "staged-emphasis-payoff",
-  "temporal-echo-residue",
-] as const;
-
 const nextConfig: NextConfig = {
   transpilePackages: [
     "film-lab-core",
@@ -61,8 +54,8 @@ const nextConfig: NextConfig = {
    * `/works/filmtone`, `/works/photography`, and `/film-lab` all 301 to
    * their canonical Satellite destinations.
    *
-   * Retired motion-study URLs resolve to `/journal` before the legacy
-   * `/motion/reference-works/:slug*` redirect can expose unpublished work.
+   * `/motion/reference-works/:slug*` ordering must precede the bare
+   * `/motion → /experiments` rule so the dynamic match wins first.
    */
   async redirects() {
     return [
@@ -161,32 +154,8 @@ const nextConfig: NextConfig = {
         destination: "/:locale/experiments",
         permanent: true,
       },
-      // Retired public motion-study pages: keep old URLs intentional without
-      // exposing the private reference-work implementations.
-      ...retiredMotionStudySlugs.flatMap((slug) => [
-        {
-          source: `/journal/motion-studies/${slug}`,
-          destination: "/journal",
-          permanent: true,
-        },
-        {
-          source: `/:locale(en|ja)/journal/motion-studies/${slug}`,
-          destination: "/:locale/journal",
-          permanent: true,
-        },
-        {
-          source: `/motion/reference-works/${slug}`,
-          destination: "/journal",
-          permanent: true,
-        },
-        {
-          source: `/:locale(en|ja)/motion/reference-works/${slug}`,
-          destination: "/:locale/journal",
-          permanent: true,
-        },
-      ]),
       // /motion/reference-works/:slug* → /journal/motion-studies/:slug*
-      // (dynamic fallback for future registered reference-work slugs)
+      // (dynamic — must precede the bare /motion rule below so this wins)
       {
         source: "/motion/reference-works/:slug*",
         destination: "/journal/motion-studies/:slug*",

@@ -1,3 +1,0 @@
-[submodule "vendor/webgpu-motion-libs"]
-	path = vendor/webgpu-motion-libs
-	url = https://github.com/chibataku0815/webgpu-motion-libs.git

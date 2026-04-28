@@ -59,7 +59,7 @@ const FONT_STACK =
 const INK_ON_GLASS = "rgba(26,26,26,0.92)";
 const INK_ON_GLASS_MUTED = "rgba(26,26,26,0.66)";
 const INK_ON_GLASS_ACTIVE = "rgba(255,255,255,0.98)";
-const BG_ACTIVE_OVERLAY = "transparent";
+const BG_ACTIVE_OVERLAY = "rgba(26,26,26,0.86)";
 const TEXT_SHADOW = "0 1px 0 rgba(255,255,255,0.55)";
 
 export type FlowlineHudState = {
@@ -69,7 +69,6 @@ export type FlowlineHudState = {
   readonly audioEnabled: boolean;
   readonly audioSourceLabel: string;
   readonly onsetActivity: number;
-  readonly keymapVisible: boolean;
 };
 
 export type FlowlineHud = {
@@ -77,17 +76,12 @@ export type FlowlineHud = {
   readonly selector: SceneSelector;
   readonly meter: AudioMeter;
   readonly keymap: KeymapHud;
-  readonly touchStrip: HTMLDivElement;
 };
 
 export type CreateFlowlineHudOptions = {
   readonly scenes: readonly SceneSelectorItem[];
   readonly onPickScene: (id: string) => void;
   readonly onAuto: () => void;
-  readonly onReseed: () => void;
-  readonly onToggleFilm: () => void;
-  readonly onToggleAudio: () => void | Promise<void>;
-  readonly onToggleHelp: () => void;
   readonly keymapEntries: readonly KeymapEntry[];
   /** Parent element to append HUD atoms into. Defaults to document.body if omitted. */
   readonly parent?: ParentNode;
@@ -100,88 +94,11 @@ const METER_FIELDS: readonly AudioMeterFieldKey[] = [
   "intensity",
 ];
 
-function createTouchStripButton(
-  key: string,
-  label: string,
-  action: string,
-): HTMLButtonElement {
-  const button = document.createElement("button");
-  button.type = "button";
-  button.dataset.flowlineTouchAction = action;
-  button.setAttribute("aria-label", `${label} (${key})`);
-  Object.assign(button.style, {
-    display: "grid",
-    gridTemplateColumns: "auto minmax(0, 1fr)",
-    alignItems: "center",
-    gap: "4px",
-    minHeight: "44px",
-    padding: "0 6px",
-    border: "0",
-    borderBottom: "1px solid rgba(26,26,26,0.18)",
-    borderRadius: "0",
-    background: "transparent",
-    color: INK_ON_GLASS_MUTED,
-    textShadow: TEXT_SHADOW,
-    cursor: "pointer",
-    fontFamily: FONT_STACK,
-    fontSize: "10.5px",
-    fontWeight: "700",
-    letterSpacing: "0.04em",
-    textTransform: "uppercase",
-  } satisfies Partial<CSSStyleDeclaration>);
-
-  const keyEl = document.createElement("span");
-  keyEl.textContent = key;
-  Object.assign(keyEl.style, {
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-    minWidth: "24px",
-    height: "24px",
-    borderRadius: "0",
-    fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
-    fontSize: "10px",
-    background: "transparent",
-    color: INK_ON_GLASS_MUTED,
-  } satisfies Partial<CSSStyleDeclaration>);
-
-  const labelEl = document.createElement("span");
-  labelEl.textContent = label;
-  Object.assign(labelEl.style, {
-    minWidth: "0",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
-  } satisfies Partial<CSSStyleDeclaration>);
-
-  button.append(keyEl, labelEl);
-  return button;
-}
-
-function setTouchButtonState(
-  strip: HTMLDivElement,
-  action: string,
-  active: boolean,
-): void {
-  const button = strip.querySelector<HTMLButtonElement>(
-    `[data-flowline-touch-action="${action}"]`,
-  );
-  if (!button) return;
-  button.setAttribute("aria-pressed", active ? "true" : "false");
-  Object.assign(button.style, {
-    background: active ? BG_ACTIVE_OVERLAY : "transparent",
-    color: active ? INK_ON_GLASS_ACTIVE : INK_ON_GLASS_MUTED,
-    textShadow: TEXT_SHADOW,
-    textDecoration: active ? "underline" : "none",
-    textUnderlineOffset: "5px",
-  } satisfies Partial<CSSStyleDeclaration>);
-}
-
 export function createFlowlineHud(options: CreateFlowlineHudOptions): FlowlineHud {
   const overlay = createHudOverlay({
     parent: options.parent,
     // Push below the Nav rail (brand at top:24, 48×48 → bottom 72) with 24px gap.
-    position: { top: "calc(var(--safe-top, 0px) + 88px)", left: "24px" },
+    position: { top: "96px", left: "24px" },
   });
   Object.assign(overlay.element.style, {
     padding: "10px 18px",
@@ -214,10 +131,12 @@ export function createFlowlineHud(options: CreateFlowlineHudOptions): FlowlineHu
     borderRadius: "18px",
     background: "transparent",
   } satisfies Partial<CSSStyleDeclaration>);
-  // On mobile the selector's long row needs to sit below the text HUD; at
-  // 402px wide it otherwise overlaps the scene/post/audio labels.
-  selector.element.style.top = "calc(var(--safe-top, 0px) + 204px)";
-  selector.element.style.right = "max(16px, var(--safe-right, 0px))";
+  // Vendor places SceneSelector at top:16/right:16. The Nav menu pill is at
+  // top:24, right:32, 48×48 (bottom 72). Push the selector down past it
+  // (top:96 = 72 + 24 gap) so the long button row never collides with the
+  // hamburger.
+  selector.element.style.top = "96px";
+  selector.element.style.right = "24px";
   markLiquidGlassControl(selector.element, "control.flow.scenes", {
     radius: 18,
     intensity: 0.75,
@@ -240,9 +159,8 @@ export function createFlowlineHud(options: CreateFlowlineHudOptions): FlowlineHu
     textShadow: TEXT_SHADOW,
     fontFamily: FONT_STACK,
   } satisfies Partial<CSSStyleDeclaration>);
-  // Selector is below the text HUD; meter slots beneath it with a 16px gap.
-  meter.element.style.top = "calc(var(--safe-top, 0px) + 268px)";
-  meter.element.style.right = "max(16px, var(--safe-right, 0px))";
+  // Selector is at top:96 with ~46px content; meter slots beneath with 16px gap.
+  meter.element.style.top = "160px";
   markLiquidGlassControl(meter.element, "control.flow.audio", {
     radius: 16,
     intensity: 0.70,
@@ -264,47 +182,15 @@ export function createFlowlineHud(options: CreateFlowlineHudOptions): FlowlineHu
     fontFamily: FONT_STACK,
   } satisfies Partial<CSSStyleDeclaration>);
   // Vendor anchors keymap at right:16/bottom:16; lift to 24/24 for parity.
-  keymap.element.style.right = "max(16px, var(--safe-right, 0px))";
-  keymap.element.style.bottom = "calc(var(--safe-bottom, 0px) + 76px)";
+  keymap.element.style.right = "24px";
+  keymap.element.style.bottom = "24px";
   markLiquidGlassControl(keymap.element, "control.flow.keymap", {
     radius: 20,
     intensity: 0.80,
     brightness: 0.74,
   });
 
-  const touchStrip = document.createElement("div");
-  Object.assign(touchStrip.style, {
-    position: "fixed",
-    right: "max(16px, var(--safe-right, 0px))",
-    bottom: "calc(var(--safe-bottom, 0px) + 16px)",
-    display: "grid",
-    gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
-    gap: "12px",
-    width: "min(360px, calc(100vw - var(--safe-left, 0px) - var(--safe-right, 0px) - 32px))",
-    padding: "0",
-    borderRadius: "0",
-    background: "transparent",
-    pointerEvents: "auto",
-    userSelect: "none",
-    boxSizing: "border-box",
-  } satisfies Partial<CSSStyleDeclaration>);
-  touchStrip.setAttribute("role", "toolbar");
-  touchStrip.setAttribute("aria-label", "Flow touch controls");
-
-  const reseedButton = createTouchStripButton("R", "Seed", "reseed");
-  const filmButton = createTouchStripButton("F", "Film", "film");
-  const audioButton = createTouchStripButton("A", "Audio", "audio");
-  const helpButton = createTouchStripButton("?", "Help", "help");
-  reseedButton.addEventListener("click", options.onReseed);
-  filmButton.addEventListener("click", options.onToggleFilm);
-  audioButton.addEventListener("click", () => {
-    void options.onToggleAudio();
-  });
-  helpButton.addEventListener("click", options.onToggleHelp);
-  touchStrip.append(reseedButton, filmButton, audioButton, helpButton);
-  (options.parent ?? document.body).appendChild(touchStrip);
-
-  return { overlay, selector, meter, keymap, touchStrip };
+  return { overlay, selector, meter, keymap };
 }
 
 // Re-styles SceneSelector buttons to white-on-glass after each vendor update.
@@ -326,15 +212,12 @@ function styleSceneSelectorButtons(
     Object.assign(btn.style, {
       fontFamily: FONT_STACK,
       padding: "8px 14px",
-      minHeight: "44px",
       borderRadius: "12px",
       boxShadow: "none",
       border: "none",
       background: isActive ? BG_ACTIVE_OVERLAY : "transparent",
       color: isActive ? INK_ON_GLASS_ACTIVE : INK_ON_GLASS_MUTED,
-      textShadow: TEXT_SHADOW,
-      textDecoration: isActive ? "underline" : "none",
-      textUnderlineOffset: "5px",
+      textShadow: isActive ? "none" : TEXT_SHADOW,
     } satisfies Partial<CSSStyleDeclaration>);
   });
 }
@@ -360,9 +243,6 @@ export function updateFlowlineHud(
   });
   // Re-apply our glass overrides — vendor updateSceneSelector clobbered them.
   styleSceneSelectorButtons(hud.selector.element, activeSceneId, state.autoEnabled);
-  setTouchButtonState(hud.touchStrip, "film", state.filmEnabled);
-  setTouchButtonState(hud.touchStrip, "audio", state.audioEnabled);
-  setTouchButtonState(hud.touchStrip, "help", state.keymapVisible);
 }
 
 export function updateFlowlineHudAudio(
@@ -374,5 +254,4 @@ export function updateFlowlineHudAudio(
 
 export function setFlowlineHudKeymapVisible(hud: FlowlineHud, visible: boolean): void {
   updateKeymapHud(hud.keymap, { visible });
-  setTouchButtonState(hud.touchStrip, "help", visible);
 }

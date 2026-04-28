@@ -79,7 +79,7 @@ export function Nav() {
           radius={24}
           intensity={1.0}
           brightness={0.7}
-          className="fixed left-[var(--nav-chip-left)] top-[var(--nav-chip-top)] h-12 w-12"
+          className="fixed left-8 top-6 h-12 w-12"
         />
         {!isMenuOpen && (
           <LiquidGlassSurface
@@ -88,7 +88,7 @@ export function Nav() {
             radius={24}
             intensity={1.0}
             brightness={0.7}
-            className="fixed right-[var(--nav-chip-right)] top-[var(--nav-chip-top)] h-12 w-12"
+            className="fixed right-8 top-6 h-12 w-12"
           />
         )}
       </div>
@@ -103,7 +103,7 @@ export function Nav() {
           href="/"
           data-transition="true"
           aria-label={navBrand}
-          className={`fixed left-[var(--nav-chip-left)] top-[var(--nav-chip-top)] grid h-12 w-12 cursor-pointer place-items-center rounded-full bg-transparent text-[rgba(248,250,255,0.92)] outline-none focus-visible:ring-2 focus-visible:ring-white/80 ${
+          className={`fixed left-8 top-6 grid h-12 w-12 cursor-pointer place-items-center rounded-full bg-transparent text-[rgba(248,250,255,0.92)] outline-none focus-visible:ring-2 focus-visible:ring-white/80 ${
             isMenuOpen ? "pointer-events-none" : "pointer-events-auto"
           }`}
         >
@@ -117,7 +117,7 @@ export function Nav() {
             aria-expanded={false}
             aria-controls="global-menu-sheet"
             aria-label="Open global menu"
-            className="pointer-events-auto fixed right-[var(--nav-chip-right)] top-[var(--nav-chip-top)] inline-flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-transparent text-[rgba(248,250,255,0.92)] outline-none focus-visible:ring-2 focus-visible:ring-white/80"
+            className="pointer-events-auto fixed right-8 top-6 inline-flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-transparent text-[rgba(248,250,255,0.92)] outline-none focus-visible:ring-2 focus-visible:ring-white/80"
             onClick={() => setIsMenuOpen(true)}
           >
             <span aria-hidden="true" className="relative inline-block h-3 w-4">
@@ -161,22 +161,15 @@ export function Nav() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="global-menu-title"
-            className="fixed flex flex-col overflow-y-auto overscroll-contain px-7 py-7 text-[rgba(248,250,255,0.92)] sm:px-8"
-            style={{
-              top: "var(--nav-panel-top)",
-              right: "var(--nav-panel-right)",
-              bottom: "var(--nav-panel-bottom)",
-              width: "var(--nav-panel-width)",
-              maxHeight: "var(--nav-panel-max-height)",
-              zIndex: "var(--z-nav-panel-content, 1300)",
-            }}
+            className="fixed bottom-8 right-8 top-8 flex w-[min(360px,calc(100vw-4rem))] flex-col px-7 py-7 text-[rgba(248,250,255,0.92)] sm:px-8"
+            style={{ zIndex: "var(--z-nav-panel-content, 1300)" }}
           >
             <div className="flex items-center justify-between gap-5 pb-5">
               <Link
                 href="/"
                 data-transition="true"
                 aria-label={navBrand}
-                className="inline-flex min-h-11 min-w-0 cursor-pointer items-center transition-opacity hover:opacity-85"
+                className="min-w-0 cursor-pointer transition-opacity hover:opacity-85"
                 onClick={() => setIsMenuOpen(false)}
               >
                 <BrandWordmark compact />
@@ -203,18 +196,15 @@ export function Nav() {
                 </p>
                 <div className="flex flex-col gap-1">
                   {links.map(({ href, label }, index) => {
-                    const isCurrent =
-                      href === "/" ? pathname === href : pathname.startsWith(href);
+                    const isCurrent = href === "/" ? pathname === href : pathname.startsWith(href);
                     return (
                       <Link
                         key={href}
                         href={href}
                         data-transition="true"
                         aria-current={isCurrent ? "page" : undefined}
-                        className={`group flex min-h-11 cursor-pointer items-center justify-between rounded-2xl px-3 py-3 text-left transition-opacity hover:opacity-85 ${
-                          isCurrent
-                            ? "text-[rgba(255,248,222,1)]"
-                            : "text-[rgba(248,250,255,0.92)]"
+                        className={`group flex cursor-pointer items-center justify-between rounded-2xl px-3 py-3 text-left transition-opacity hover:opacity-85 ${
+                          isCurrent ? "text-[rgba(255,248,222,1)]" : "text-[rgba(248,250,255,0.92)]"
                         }`}
                         onClick={() => setIsMenuOpen(false)}
                       >

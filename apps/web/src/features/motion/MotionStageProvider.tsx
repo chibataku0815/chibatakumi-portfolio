@@ -34,7 +34,7 @@ interface MotionStageProviderProps {
 }
 
 const DEFAULT_CANVAS_CLASS =
-  "app-fixed-viewport -z-10 pointer-events-none";
+  "fixed inset-0 -z-10 pointer-events-none w-screen h-screen";
 
 // Inner component — lives inside MotionStageVisibilityProvider so it can
 // read `useMotionStageHidden()`.  Restarts the WebGPU loop when `hidden`
@@ -146,7 +146,7 @@ function MotionStageMount({
       <div
         ref={overlayRef}
         aria-hidden="true"
-        className="motion-stage-hud-overlay app-fixed-viewport pointer-events-none"
+        className="motion-stage-hud-overlay pointer-events-none fixed inset-0"
         style={{ zIndex: "var(--z-motion-hud-content, 1210)" }}
       />
       {children}

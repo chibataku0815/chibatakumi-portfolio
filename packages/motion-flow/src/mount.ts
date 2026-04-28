@@ -294,35 +294,7 @@ export async function mountMotionFlowApp(
     };
     startOverlay.addEventListener("click", startClickHandler);
 
-    const pinScene = (sceneIdx: number): void => {
-      if (sceneIdx < 0 || sceneIdx >= SCENES.length) return;
-      autoCycleEnabled = false;
-      sceneController.switchTo(SCENES[sceneIdx]);
-    };
-
-    const resumeAuto = (): void => {
-      autoCycleEnabled = true;
-    };
-
-    const reseed = (): void => {
-      sceneController.participant.reset();
-    };
-
-    const toggleFilm = (): void => {
-      filmEnabled = !filmEnabled;
-    };
-
-    const toggleAudio = async (): Promise<void> => {
-      await audioController.toggle();
-    };
-
-    let hud: ReturnType<typeof createFlowlineHud>;
-    const toggleKeymap = (): void => {
-      keymapVisible = !keymapVisible;
-      setFlowlineHudKeymapVisible(hud, keymapVisible);
-    };
-
-    hud = createFlowlineHud({
+    const hud = createFlowlineHud({
       parent: hostOverlay,
       scenes: SCENES.map((scene, idx) => ({
         id: String(idx),
@@ -331,24 +303,38 @@ export async function mountMotionFlowApp(
       })),
       onPickScene: (id) => {
         const idx = Number(id);
-        if (Number.isNaN(idx)) return;
-        pinScene(idx);
+        if (Number.isNaN(idx) || idx < 0 || idx >= SCENES.length) return;
+        autoCycleEnabled = false;
+        sceneController.switchTo(SCENES[idx]);
       },
-      onAuto: resumeAuto,
-      onReseed: reseed,
-      onToggleFilm: toggleFilm,
-      onToggleAudio: toggleAudio,
-      onToggleHelp: toggleKeymap,
+      onAuto: () => {
+        autoCycleEnabled = true;
+      },
       keymapEntries: FLOWLINE_KEYMAP_ENTRIES,
     });
 
     const disposeKeyboard = bindFlowlineKeyboard({
-      pinScene,
-      resumeAuto,
-      reseed,
-      toggleAudio,
-      toggleFilm,
-      toggleKeymap,
+      pinScene: (idx) => {
+        if (idx < 0 || idx >= SCENES.length) return;
+        autoCycleEnabled = false;
+        sceneController.switchTo(SCENES[idx]);
+      },
+      resumeAuto: () => {
+        autoCycleEnabled = true;
+      },
+      reseed: () => {
+        sceneController.participant.reset();
+      },
+      toggleAudio: async () => {
+        await audioController.toggle();
+      },
+      toggleFilm: () => {
+        filmEnabled = !filmEnabled;
+      },
+      toggleKeymap: () => {
+        keymapVisible = !keymapVisible;
+        setFlowlineHudKeymapVisible(hud, keymapVisible);
+      },
     });
 
     const loop = createFixedStepLoop({
@@ -503,7 +489,6 @@ export async function mountMotionFlowApp(
             audioEnabled: audioController.enabled,
             audioSourceLabel: audioController.sourceLabel,
             onsetActivity: onsets.globalOnset,
-            keymapVisible,
           },
           activeSceneId,
         );
@@ -531,7 +516,6 @@ export async function mountMotionFlowApp(
         hud.selector.element.remove();
         hud.meter.element.remove();
         hud.keymap.element.remove();
-        hud.touchStrip.remove();
         if (audioController.enabled) {
           void audioController.toggle();
         }

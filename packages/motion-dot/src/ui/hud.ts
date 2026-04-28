@@ -69,32 +69,19 @@ const DOCK_BOTTOM_PX = PILL_BOTTOM_PX + PILL_HEIGHT_ESTIMATE_PX + STACK_GAP_PX;
 const DOCK_RIGHT_PX = 22;
 const DOCK_HEIGHT_ESTIMATE_PX = 56;
 const POPOVER_GAP_PX = 12;
-const HUD_RIGHT = `var(--motion-hud-right, ${DOCK_RIGHT_PX}px)`;
-const STATUS_BOTTOM = `var(--motion-hud-status-bottom, ${PILL_BOTTOM_PX}px)`;
-const DOCK_BOTTOM = `var(--motion-hud-dock-bottom, ${DOCK_BOTTOM_PX}px)`;
-const POPOVER_BOTTOM =
-  `var(--motion-hud-popover-bottom, ${DOCK_BOTTOM_PX + DOCK_HEIGHT_ESTIMATE_PX + POPOVER_GAP_PX}px)`;
+const POPOVER_BOTTOM = `${DOCK_BOTTOM_PX + DOCK_HEIGHT_ESTIMATE_PX + POPOVER_GAP_PX}px`;
 
-const HUD_GEOMETRY = {
-  dockShellRadius: 24,
-  statusRadius: 12,
-  popoverRadius: 20,
-  internalControlRadius: 10,
-} as const;
-
-const TOUCH_ACTIONS: ReadonlyArray<{
-  action: string;
-  key: string;
-  label: string;
-  ariaLabel: string;
-}> = [
-  { action: "prev", key: "←", label: "Prev", ariaLabel: "Previous scene" },
-  { action: "next", key: "→", label: "Next", ariaLabel: "Next scene" },
-  { action: "reset", key: "R", label: "Reset", ariaLabel: "Reset current scene" },
-  { action: "transition", key: "T", label: "Transit", ariaLabel: "Trigger scene transition" },
-  { action: "gallery", key: "D/0", label: "Gallery", ariaLabel: "Toggle gallery mode" },
-  { action: "text", key: "W", label: "Text", ariaLabel: "Change living typography text" },
-  { action: "file", key: "M", label: "File", ariaLabel: "Open audio file picker" },
+const HOTKEYS: ReadonlyArray<{ key: string; label: string }> = [
+  { key: "← →", label: "Scene" },
+  { key: "0", label: "Single" },
+  { key: "H", label: "Options" },
+  { key: "R", label: "Reset" },
+  { key: "F", label: "Film" },
+  { key: "T", label: "Transit" },
+  { key: "A", label: "Audio" },
+  { key: "D", label: "Gallery" },
+  { key: "I", label: "Panel" },
+  { key: "M", label: "File" },
 ];
 
 interface ControlSurfaceOptions {
@@ -137,7 +124,7 @@ function makeSeparator(): HTMLSpanElement {
   span.textContent = "·";
   span.setAttribute("aria-hidden", "true");
   applyStyles(span, {
-    color: "rgba(255,255,255,0.32)",
+    color: "rgba(255,255,255,0.40)",
     padding: "0 2px",
   });
   return span;
@@ -154,14 +141,14 @@ export function createStatusPill(parent?: ParentNode): HTMLDivElement {
     // right column, top-left masthead stays free, transitions like
     // "[Transition] River Flow → Magnet" stay within the right gutter.
     position: "fixed",
-    bottom: STATUS_BOTTOM,
-    right: HUD_RIGHT,
+    bottom: `var(--motion-hud-bottom, ${PILL_BOTTOM_PX}px)`,
+    right: `${DOCK_RIGHT_PX}px`,
     top: "auto",
     left: "auto",
-    padding: "7px 12px",
-    borderRadius: `${HUD_GEOMETRY.statusRadius}px`,
+    padding: "8px 14px",
+    borderRadius: "14px",
     background: "transparent",
-    color: "rgba(255,255,255,0.82)",
+    color: "rgba(255,255,255,0.92)",
     font: `500 12px/1 ${FONT_STACK}`,
     letterSpacing: "0.02em",
     pointerEvents: "none",
@@ -175,9 +162,9 @@ export function createStatusPill(parent?: ParentNode): HTMLDivElement {
     maxWidth: "min(28rem, calc(100vw - 44px))",
   });
   markLiquidGlassControl(root, "control.status", {
-    radius: HUD_GEOMETRY.statusRadius,
-    intensity: 0.42,
-    brightness: 0.82,
+    radius: 14,
+    intensity: 0.55,
+    brightness: 0.78,
   });
   return appendTo(parent, root);
 }
@@ -188,11 +175,11 @@ export function updateStatusPill(pill: HTMLDivElement, state: StatusPillState): 
   const mode = state.postEnabled ? "Film" : "Raw";
 
   pill.replaceChildren();
-  pill.appendChild(makeSpan(`${idx}/${total}`, "rgba(255,255,255,0.54)"));
+  pill.appendChild(makeSpan(`${idx}/${total}`, "rgba(255,255,255,0.62)"));
   pill.appendChild(makeSeparator());
-  pill.appendChild(makeSpan(state.sceneName, "rgba(255,255,255,0.86)"));
+  pill.appendChild(makeSpan(state.sceneName, "rgba(255,255,255,0.94)"));
   pill.appendChild(makeSeparator());
-  pill.appendChild(makeSpan(mode, "rgba(255,255,255,0.68)"));
+  pill.appendChild(makeSpan(mode, "rgba(255,255,255,0.78)"));
 
   if (state.audioEnabled && (state.onsetActivity ?? 0) > 0.4) {
     const beat = document.createElement("span");
@@ -207,11 +194,11 @@ export function updateStatusPill(pill: HTMLDivElement, state: StatusPillState): 
   }
   if (state.galleryEnabled && state.layoutName) {
     pill.appendChild(makeSeparator());
-    pill.appendChild(makeSpan(state.layoutName, "rgba(255,255,255,0.62)"));
+    pill.appendChild(makeSpan(state.layoutName, "rgba(255,255,255,0.72)"));
   }
   if (state.transitionLabel) {
     pill.appendChild(makeSeparator());
-    pill.appendChild(makeSpan(state.transitionLabel, "rgba(255,255,255,0.58)"));
+    pill.appendChild(makeSpan(state.transitionLabel, "rgba(255,255,255,0.66)"));
   }
 }
 
@@ -248,10 +235,9 @@ function createDockButton(label: string, iconSvg: string): HTMLButtonElement {
     display: "inline-flex",
     alignItems: "center",
     gap: "8px",
-    minHeight: "44px",
-    padding: "0 14px",
+    padding: "9px 14px",
     border: "0",
-    borderRadius: `${HUD_GEOMETRY.internalControlRadius}px`,
+    borderRadius: "16px",
     background: "transparent",
     color: "rgba(255,255,255,0.82)",
     font: `500 12px/1 ${FONT_STACK}`,
@@ -299,17 +285,13 @@ function setDockButtonActive(btn: HTMLButtonElement, active: boolean): void {
   btn.setAttribute("aria-pressed", active ? "true" : "false");
   if (active) {
     applyStyles(btn, {
+      background: "color-mix(in oklch, white 9%, transparent)",
       color: "rgba(255,255,255,0.98)",
-      background: "rgba(255,255,255,0.055)",
-      textDecoration: "underline",
-      textUnderlineOffset: "5px",
-      textDecorationThickness: "1px",
     });
   } else {
     applyStyles(btn, {
       background: "transparent",
       color: "rgba(255,255,255,0.82)",
-      textDecoration: "none",
     });
   }
 }
@@ -318,13 +300,13 @@ export function createControlDock(parent?: ParentNode): ControlDockHandle {
   const root = document.createElement("div");
   applyStyles(root, {
     position: "fixed",
-    bottom: DOCK_BOTTOM,
-    right: HUD_RIGHT,
+    bottom: `${DOCK_BOTTOM_PX}px`,
+    right: `${DOCK_RIGHT_PX}px`,
     display: "inline-flex",
     alignItems: "center",
     gap: "2px",
     padding: "6px",
-    borderRadius: `${HUD_GEOMETRY.dockShellRadius}px`,
+    borderRadius: "22px",
     background: "transparent",
     pointerEvents: "auto",
     userSelect: "none",
@@ -332,7 +314,7 @@ export function createControlDock(parent?: ParentNode): ControlDockHandle {
   root.setAttribute("role", "toolbar");
   root.setAttribute("aria-label", "Motion controls");
   markLiquidGlassControl(root, "control.dock", {
-    radius: HUD_GEOMETRY.dockShellRadius,
+    radius: 22,
     intensity: 0.85,
     brightness: 0.72,
   });
@@ -342,7 +324,7 @@ export function createControlDock(parent?: ParentNode): ControlDockHandle {
   const audioButton = createDockButton("Audio", AUDIO_ICON_SVG);
   audioButton.setAttribute("aria-label", "Audio settings (I)");
   const moreButton = createDockButton("More", MORE_ICON_SVG);
-  moreButton.setAttribute("aria-label", "Touch actions and hotkeys (H)");
+  moreButton.setAttribute("aria-label", "Hotkey reference (H)");
 
   root.appendChild(filmButton);
   root.appendChild(audioButton);
@@ -367,84 +349,61 @@ export function createHotkeyLegendPopover(parent?: ParentNode): HTMLDivElement {
   applyStyles(root, {
     position: "fixed",
     bottom: POPOVER_BOTTOM,
-    right: HUD_RIGHT,
+    right: `${DOCK_RIGHT_PX}px`,
     display: "none",
-    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-    gap: "0 18px",
-    width: "min(316px, calc(100vw - 32px))",
-    maxHeight: "var(--motion-touch-panel-max-height, calc(100dvh - 160px))",
-    overflowY: "auto",
-    padding: "14px 18px",
-    borderRadius: `${HUD_GEOMETRY.popoverRadius}px`,
+    gridTemplateColumns: "auto auto",
+    columnGap: "20px",
+    rowGap: "9px",
+    padding: "16px 18px",
+    borderRadius: "20px",
     background: "transparent",
-    pointerEvents: "auto",
+    pointerEvents: "none",
     userSelect: "none",
     color: "rgba(255,255,255,0.90)",
     font: `500 12px/1 ${FONT_STACK}`,
   });
-  root.setAttribute("role", "dialog");
-  root.setAttribute("aria-label", "Motion touch actions");
+  root.setAttribute("role", "list");
+  root.setAttribute("aria-label", "Keyboard shortcuts");
   markLiquidGlassControl(root, "control.hotkeys", {
-    radius: HUD_GEOMETRY.popoverRadius,
-    intensity: 0.74,
-    brightness: 0.75,
+    radius: 20,
+    intensity: 0.80,
+    brightness: 0.74,
   });
 
-  for (const { action, key, label, ariaLabel } of TOUCH_ACTIONS) {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.dataset.motionDotAction = action;
-    button.setAttribute("aria-label", `${ariaLabel} (${key})`);
-    applyStyles(button, {
-      display: "grid",
-      gridTemplateColumns: "auto minmax(0, 1fr)",
-      alignItems: "center",
-      gap: "8px",
-      minHeight: "44px",
-      padding: "8px 10px",
-      border: "0",
-      borderBottom: "1px solid rgba(255,255,255,0.18)",
-      borderRadius: `${HUD_GEOMETRY.internalControlRadius}px`,
-      background: "transparent",
-      color: "rgba(255,255,255,0.90)",
-      cursor: "pointer",
-      font: `600 12px/1 ${FONT_STACK}`,
-      letterSpacing: "0.02em",
-      textAlign: "left",
+  for (const { key, label } of HOTKEYS) {
+    const row = document.createElement("div");
+    applyStyles(row, {
+      display: "contents",
     });
+
     const kbd = document.createElement("kbd");
     kbd.textContent = key;
     applyStyles(kbd, {
       display: "inline-flex",
       justifyContent: "center",
       alignItems: "center",
-      minWidth: "32px",
-      padding: "0",
-      borderRadius: `${HUD_GEOMETRY.internalControlRadius}px`,
-      background: "transparent",
-      border: "0",
-      color: "rgba(255,255,255,0.68)",
+      minWidth: "26px",
+      padding: "3px 7px",
+      borderRadius: "6px",
+      background: "rgba(255,255,255,0.08)",
+      border: "1px solid rgba(255,255,255,0.14)",
+      color: "rgba(255,255,255,0.94)",
       font: `500 11px/1.1 ui-monospace, "SF Mono", Menlo, monospace`,
       letterSpacing: "0.04em",
       whiteSpace: "nowrap",
     });
 
     const labelEl = document.createElement("span");
-    labelEl.dataset.motionDotActionLabel = action;
     labelEl.textContent = label;
     applyStyles(labelEl, {
       alignSelf: "center",
       color: "rgba(255,255,255,0.84)",
       letterSpacing: "0.03em",
-      minWidth: "0",
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-      whiteSpace: "nowrap",
     });
 
-    button.appendChild(kbd);
-    button.appendChild(labelEl);
-    root.appendChild(button);
+    row.appendChild(kbd);
+    row.appendChild(labelEl);
+    root.appendChild(row);
   }
 
   return appendTo(parent, root);
@@ -452,55 +411,6 @@ export function createHotkeyLegendPopover(parent?: ParentNode): HTMLDivElement {
 
 export function setHotkeyPopoverVisibility(popover: HTMLElement, visible: boolean): void {
   popover.style.display = visible ? "grid" : "none";
-}
-
-function setActionPressed(popover: HTMLElement, action: string, pressed: boolean): void {
-  const button = popover.querySelector<HTMLButtonElement>(
-    `[data-motion-dot-action="${action}"]`,
-  );
-  if (!button) return;
-  button.setAttribute("aria-pressed", pressed ? "true" : "false");
-  if (pressed) {
-    applyStyles(button, {
-      background: "rgba(255,255,255,0.055)",
-      borderColor: "rgba(255,255,255,0.46)",
-      color: "rgba(255,255,255,0.98)",
-      textDecoration: "underline",
-      textUnderlineOffset: "5px",
-    });
-  } else {
-    applyStyles(button, {
-      background: "transparent",
-      borderColor: "rgba(255,255,255,0.18)",
-      color: "rgba(255,255,255,0.90)",
-      textDecoration: "none",
-    });
-  }
-}
-
-export function updateHotkeyActionPanel(
-  popover: HTMLElement,
-  state: {
-    readonly galleryEnabled: boolean;
-    readonly transitionActive: boolean;
-  },
-): void {
-  setActionPressed(popover, "gallery", state.galleryEnabled);
-  setActionPressed(popover, "transition", state.transitionActive);
-
-  const galleryLabel = popover.querySelector<HTMLElement>(
-    '[data-motion-dot-action-label="gallery"]',
-  );
-  if (galleryLabel) {
-    galleryLabel.textContent = state.galleryEnabled ? "Single" : "Gallery";
-  }
-  const galleryButton = popover.querySelector<HTMLButtonElement>(
-    '[data-motion-dot-action="gallery"]',
-  );
-  galleryButton?.setAttribute(
-    "aria-label",
-    state.galleryEnabled ? "Return to single scene (0)" : "Enable gallery mode (D)",
-  );
 }
 
 // ───────────────────────────────────────────────────────────
@@ -525,10 +435,9 @@ function createSourceButton(text: string): HTMLButtonElement {
   btn.type = "button";
   btn.textContent = text;
   applyStyles(btn, {
-    minHeight: "44px",
-    padding: "0 13px",
+    padding: "7px 11px",
     border: "1px solid rgba(255,255,255,0.14)",
-    borderRadius: `${HUD_GEOMETRY.internalControlRadius}px`,
+    borderRadius: "999px",
     background: "rgba(255,255,255,0.06)",
     color: "rgba(255,255,255,0.84)",
     font: `600 11px/1 ${FONT_STACK}`,
@@ -544,12 +453,10 @@ export function createAudioSettingsPopover(parent?: ParentNode): AudioSettingsPo
   applyStyles(root, {
     position: "fixed",
     bottom: POPOVER_BOTTOM,
-    right: HUD_RIGHT,
+    right: `${DOCK_RIGHT_PX}px`,
     width: "min(320px, calc(100vw - 32px))",
-    maxHeight: "var(--motion-touch-panel-max-height, calc(100dvh - 160px))",
-    overflowY: "auto",
     padding: "16px 18px",
-    borderRadius: `${HUD_GEOMETRY.popoverRadius}px`,
+    borderRadius: "24px",
     background: "transparent",
     color: "rgba(255,255,255,0.92)",
     font: `400 12px/1.4 ${FONT_STACK}`,
@@ -559,8 +466,8 @@ export function createAudioSettingsPopover(parent?: ParentNode): AudioSettingsPo
   root.setAttribute("role", "dialog");
   root.setAttribute("aria-label", "Audio input settings");
   markLiquidGlassControl(root, "control.audio", {
-    radius: HUD_GEOMETRY.popoverRadius,
-    intensity: 0.82,
+    radius: 24,
+    intensity: 0.90,
     brightness: 0.75,
   });
 
@@ -616,9 +523,8 @@ export function createAudioSettingsPopover(parent?: ParentNode): AudioSettingsPo
   const deviceSelect = document.createElement("select");
   applyStyles(deviceSelect, {
     width: "100%",
-    minHeight: "44px",
-    padding: "0 12px",
-    borderRadius: `${HUD_GEOMETRY.internalControlRadius + 2}px`,
+    padding: "9px 12px",
+    borderRadius: "12px",
     border: "1px solid rgba(255,255,255,0.14)",
     background: "rgba(255,255,255,0.04)",
     color: "rgba(255,255,255,0.94)",
@@ -630,10 +536,9 @@ export function createAudioSettingsPopover(parent?: ParentNode): AudioSettingsPo
   refreshButton.type = "button";
   refreshButton.textContent = "Refresh";
   applyStyles(refreshButton, {
-    minHeight: "44px",
-    padding: "0 12px",
+    padding: "9px 12px",
     border: "1px solid rgba(255,255,255,0.14)",
-    borderRadius: `${HUD_GEOMETRY.internalControlRadius + 2}px`,
+    borderRadius: "12px",
     background: "rgba(255,255,255,0.04)",
     color: "rgba(255,255,255,0.92)",
     font: `600 11px/1 ${FONT_STACK}`,
@@ -664,10 +569,9 @@ export function createAudioSettingsPopover(parent?: ParentNode): AudioSettingsPo
   actionButton.textContent = "Connect";
   applyStyles(actionButton, {
     width: "100%",
-    minHeight: "44px",
-    padding: "0 12px",
+    padding: "10px 12px",
     border: "1px solid rgba(255,255,255,0.20)",
-    borderRadius: `${HUD_GEOMETRY.internalControlRadius + 2}px`,
+    borderRadius: "14px",
     background: "rgba(255,255,255,0.10)",
     color: "rgba(255,255,255,0.98)",
     font: `600 12px/1 ${FONT_STACK}`,

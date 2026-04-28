@@ -28,20 +28,6 @@
 @import "@radix-ui/colors/amber-dark.css";
 
 :root {
-  --app-vh: 100svh;
-  --app-dvh: 100dvh;
-  --vvh: 100dvh;
-  --vvw: 100vw;
-  --vv-offset-top: 0px;
-  --vv-offset-left: 0px;
-  --safe-top: env(safe-area-inset-top, 0px);
-  --safe-right: env(safe-area-inset-right, 0px);
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
-  --safe-left: env(safe-area-inset-left, 0px);
-  --mobile-edge-x: max(18px, var(--safe-left));
-  --mobile-edge-y: max(16px, var(--safe-top));
-  --mobile-bottom-reserve: calc(var(--safe-bottom) + 112px);
-
   /* ==========================================================================
      Renewal 2026 — LIGHT editorial primaries (Wave 4-3 re-flip).
      `--bg-primary` matches motion-dot canvas bgColor (0.82 ≈ #D2D2D2) so the
@@ -539,22 +525,12 @@ body {
   background: var(--bg-primary);
   color: var(--fg-primary);
   font-family: var(--font-family-sans);
-  min-height: var(--app-vh);
-  overflow-x: clip;
 }
 
 main,
 section {
   position: relative;
   z-index: 1;
-}
-
-.app-fixed-viewport {
-  position: fixed;
-  top: var(--vv-offset-top, 0px);
-  left: var(--vv-offset-left, 0px);
-  width: 100vw;
-  height: var(--vvh, 100dvh);
 }
 
 .text-balance {

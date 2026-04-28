@@ -1,0 +1,59 @@
+// gpu-fx-presets — Reusable WebGPU shader effect library
+// Each effect: create*(device, w, h, config?) → Effect<Config>
+
+export type { Effect } from "./types";
+export type { AttractorConfig, AudioReactiveBands, MetaballParticleSource, ParticleStateSnapshot } from "./metaball-types";
+export {
+  METABALL_PARTICLE_BYTES,
+  METABALL_PARTICLE_FLOATS,
+} from "./metaball-types";
+
+export { createPrismCaustic, PRISM_CAUSTIC_DEFAULTS } from "./prism-caustic";
+export type { PrismCausticConfig } from "./prism-caustic";
+
+export { createAurora, AURORA_DEFAULTS } from "./aurora";
+export type { AuroraConfig } from "./aurora";
+
+export { createSpectrumFan, SPECTRUM_FAN_DEFAULTS, SPECTRUM_FAN_PRESETS } from "./spectrum-fan";
+export type { SpectrumFanConfig, SpectrumFanPreset } from "./spectrum-fan";
+
+export {
+  createMarginGlow,
+  MARGIN_GLOW_DEFAULTS,
+  MARGIN_GLOW_PRESETS,
+} from "./margin-glow";
+export type { MarginGlowConfig, MarginGlowPreset } from "./margin-glow";
+
+export { createMetaballSDF, METABALL_SDF_DEFAULTS } from "./metaball-sdf";
+export type { MetaballSDF, MetaballSDFConfig } from "./metaball-sdf";
+
+export { createMetaballEffect } from "./metaball-scene";
+
+export {
+  createChainParticles,
+  createConvergeParticles,
+  createDeltaParticles,
+  createFireflyParticles,
+  createFlockParticles,
+  createGridFluidParticles,
+  createHelixParticles,
+  createMagnetParticles,
+  createMitosisParticles,
+  createMolecularParticles,
+  createOrbitParticles,
+  createPendulumParticles,
+  createPhaseTransitionParticles,
+  createRippleParticles,
+  createRiverParticles,
+  createTextAttractorParticles,
+} from "./particles";
+export type { TextAttractorConfig } from "./particles";
+export {
+  createPathFlowParticles,
+  createSvgFlowParticles,
+  parseSvgPath,
+  parseSvgFile,
+  RIVER_PRESET,
+  DELTA_PRESET,
+} from "./particles";
+export type { PathSegment, PathFlowConfig } from "./particles";
