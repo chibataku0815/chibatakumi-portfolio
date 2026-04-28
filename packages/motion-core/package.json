@@ -32,6 +32,10 @@
     "./stage": {
       "types": "./src/stage/index.ts",
       "import": "./src/stage/index.ts"
+    },
+    "./compose": {
+      "types": "./src/compose/index.ts",
+      "import": "./src/compose/index.ts"
     }
   },
   "dependencies": {
