@@ -15,6 +15,7 @@ import {
   type MountFlowHandle,
 } from "@chibatakumi/motion-flow";
 import { useHideMotionStageOnMount } from "@/features/motion/MotionStageVisibility";
+import { useRegisterActiveMotionStage } from "@/features/motion";
 
 type Status =
   | { kind: "pending" }
@@ -29,6 +30,7 @@ export default function ExperimentsFlowClient() {
   const overlayRef = useRef<HTMLDivElement | null>(null);
   const mountRef = useRef<MountFlowHandle | null>(null);
   const [status, setStatus] = useState<Status>({ kind: "pending" });
+  const setActiveStage = useRegisterActiveMotionStage();
 
   useEffect(() => {
     let cancelled = false;
@@ -56,6 +58,16 @@ export default function ExperimentsFlowClient() {
         }
         mountRef.current = handle;
         setStatus({ kind: "ready" });
+        // Register this mount as the active motion stage so the LiquidGlass
+        // compose pass refracts the motion-flow substrate while we're on
+        // this route.
+        setActiveStage({
+          device: handle.gpu.device,
+          queue: handle.gpu.queue,
+          format: handle.gpu.format,
+          setComposePass: handle.setComposePass,
+          onBeforeFrame: handle.onBeforeFrame,
+        });
       } catch (err) {
         if (!cancelled) {
           setStatus({
@@ -68,10 +80,11 @@ export default function ExperimentsFlowClient() {
 
     return () => {
       cancelled = true;
+      setActiveStage(null);
       mountRef.current?.stop();
       mountRef.current = null;
     };
-  }, []);
+  }, [setActiveStage]);
 
   return (
     <main className="relative min-h-screen w-full">

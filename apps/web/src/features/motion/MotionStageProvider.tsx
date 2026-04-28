@@ -26,6 +26,7 @@ import {
   MotionStageVisibilityProvider,
   useMotionStageHidden,
 } from "./MotionStageVisibility";
+import { useRegisterActiveMotionStage } from "./ActiveMotionStage";
 
 interface MotionStageProviderProps {
   readonly children: React.ReactNode;
@@ -51,6 +52,7 @@ function MotionStageMount({
   const mountRef = useRef<MountHandle | null>(null);
   const [status, setStatus] = useState<MotionStageStatus>({ kind: "pending" });
   const hidden = useMotionStageHidden();
+  const setActiveStage = useRegisterActiveMotionStage();
 
   useEffect(() => {
     // When a sub-route hides the global dot, stop the running loop.
@@ -60,6 +62,8 @@ function MotionStageMount({
         mount.stop();
         mountRef.current = null;
       }
+      // Release the active stage slot so /experiments/* can claim it.
+      setActiveStage(null);
       // Keep status so consumers know the last known state.
       return;
     }
@@ -105,6 +109,13 @@ function MotionStageMount({
         }
         mountRef.current = mount;
         setStatus({ kind: "ready", mount });
+        setActiveStage({
+          device: mount.gpu.device,
+          queue: mount.gpu.queue,
+          format: mount.gpu.format,
+          setComposePass: mount.setComposePass,
+          onBeforeFrame: mount.onBeforeFrame,
+        });
       } catch (err) {
         console.error("[motion-dot] mount failed:", err);
         if (!cancelled) {
@@ -120,8 +131,9 @@ function MotionStageMount({
         mount.stop();
         mountRef.current = null;
       }
+      setActiveStage(null);
     };
-  }, [hidden]); // re-runs whenever hidden changes
+  }, [hidden, setActiveStage]); // re-runs whenever hidden changes
 
   return (
     <MotionStageContext.Provider value={status}>

@@ -26,7 +26,7 @@
 // over a shared device.
 
 import { useEffect, useRef } from "react";
-import { useMotionStage } from "@/features/motion";
+import { useActiveMotionStage } from "@/features/motion";
 import {
   useLiquidGlassRegisterFrontCanvas,
   type FrontCanvasRegistration,
@@ -36,15 +36,15 @@ const DPR_CAP = 2;
 
 export function LiquidGlassFrontChrome(): React.ReactElement {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const motionStage = useMotionStage();
+  const activeStage = useActiveMotionStage();
   const registerFrontCanvas = useLiquidGlassRegisterFrontCanvas();
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    if (motionStage.kind !== "ready") return;
+    if (!activeStage) return;
 
-    const { device, format } = motionStage.mount.gpu;
+    const { device, format } = activeStage;
     const context = canvas.getContext("webgpu");
     if (!context) return;
     const gpuContext = context;
@@ -89,7 +89,7 @@ export function LiquidGlassFrontChrome(): React.ReactElement {
         // best-effort cleanup
       }
     };
-  }, [motionStage, registerFrontCanvas]);
+  }, [activeStage, registerFrontCanvas]);
 
   return (
     <canvas

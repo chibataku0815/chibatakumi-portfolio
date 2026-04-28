@@ -1,6 +1,9 @@
 import { PageTransition } from "@/shared/transitions";
 import { Nav } from "@/shared/components";
-import { MotionStageProvider } from "@/features/motion";
+import {
+  ActiveMotionStageProvider,
+  MotionStageProvider,
+} from "@/features/motion";
 import {
   LiquidGlassFrontChrome,
   LiquidGlassProvider,
@@ -52,27 +55,30 @@ export default function PortfolioRouteLayout({
       <style>
         {`:root { --rail-x: 18px; --rail-y: 12px; --rail-height: 60px; --motion-hud-top: calc(var(--rail-y) + var(--rail-height) + 18px); --z-motion-hud: 20; --z-motion-hud-panel: 30; --z-motion-hud-content: 1210; --z-nav-panel-scrim: 1090; --z-nav-front-glass: 1200; --z-nav-hit: 1210; --z-nav-panel-content: 1300; --z-nav-visual: var(--z-nav-front-glass); --z-nav-panel: var(--z-nav-panel-content); } :root[data-nav-menu-open] .motion-stage-hud-overlay { display: none; } @media (max-width: 720px) { :root { --rail-x: 10px; --rail-y: 8px; --rail-height: 56px; } }`}
       </style>
-      <MotionStageProvider>
-        {/*
-          AudioBusProvider sits inside MotionStageProvider so motion
-          participants (Wave 2 D5.4) can subscribe to the shared audio bus.
-          LiquidGlassProvider sits inside MotionStageProvider so it can read
-          the motion-dot MountHandle via useMotionStage(); it plugs a back
-          ComposePass for `kind: "rail"` surfaces and exposes a frame-state
-          getter that `LiquidGlassFrontChrome` consumes for `kind: "nav"` /
-          `"panel"` surfaces in the front overlay canvas.
-        */}
-        <LiquidGlassProvider>
-          <AudioBusProvider>
-            <PageTransition>
-              <Nav />
-              {children}
-            </PageTransition>
-            <SoundToggleControl />
-          </AudioBusProvider>
-          <LiquidGlassFrontChrome />
-        </LiquidGlassProvider>
-      </MotionStageProvider>
+      <ActiveMotionStageProvider>
+        <MotionStageProvider>
+          {/*
+            AudioBusProvider sits inside MotionStageProvider so motion
+            participants (Wave 2 D5.4) can subscribe to the shared audio bus.
+            LiquidGlassProvider reads the *active* motion stage via
+            useActiveMotionStage() — usually motion-dot, but on
+            /experiments/{grid,flow} the route's local mount registers itself
+            instead, so the Apple Liquid Glass compose pass follows whichever
+            stage is driving the substrate. LiquidGlassFrontChrome consumes
+            the same active stage for the front overlay canvas device.
+          */}
+          <LiquidGlassProvider>
+            <AudioBusProvider>
+              <PageTransition>
+                <Nav />
+                {children}
+              </PageTransition>
+              <SoundToggleControl />
+            </AudioBusProvider>
+            <LiquidGlassFrontChrome />
+          </LiquidGlassProvider>
+        </MotionStageProvider>
+      </ActiveMotionStageProvider>
     </div>
   );
 }

@@ -15,6 +15,32 @@
 import { createOverlayText } from "webgpu-motion-dom";
 import { MAX_HERO_TOKEN_CHARS, MIN_HERO_TOKEN_CHARS } from "../scene/typography/hero-token";
 
+// ── Apple Liquid Glass surface marker (parallel to motion-dot/hud.ts) ────────
+// Stamp `data-liquid-glass-control` so apps/web/LiquidGlassProvider's
+// MutationObserver registers the element as a glass surface and the front-
+// chrome compose pass refracts the motion-grid substrate through it.
+interface ControlSurfaceOptions {
+  readonly radius?: number;
+  readonly intensity?: number;
+  readonly brightness?: number;
+  readonly tint?: string;
+}
+
+function markLiquidGlassControl(
+  el: HTMLElement,
+  id: string,
+  opts?: ControlSurfaceOptions,
+): void {
+  el.dataset.liquidGlassControl = id;
+  if (opts?.radius !== undefined) el.dataset.liquidGlassRadius = String(opts.radius);
+  if (opts?.intensity !== undefined) el.dataset.liquidGlassIntensity = String(opts.intensity);
+  if (opts?.brightness !== undefined) el.dataset.liquidGlassBrightness = String(opts.brightness);
+  if (opts?.tint) el.dataset.liquidGlassTint = opts.tint;
+}
+
+const FONT_STACK =
+  'var(--font-geist-sans), -apple-system, BlinkMacSystemFont, system-ui, sans-serif';
+
 export interface HudState {
   readonly sceneName: string;
   readonly heroToken: string;
@@ -40,59 +66,84 @@ export interface InputOverlayState {
   readonly invalidHint?: string;
 }
 
+// Dark-on-glass token set. motion-grid's substrate is dominated by
+// near-white #d1d1d1 (the grid lines are thin alpha strokes, so the field
+// reads light). White text on a light-refracting glass is invisible — the
+// motion-dot pattern (white text on glass) only works because motion-dot's
+// dark dot field provides per-pixel contrast under the surface.
+//
+// On glass over a light substrate the legible choice is dark ink with a
+// light text-shadow emboss. Active state stays dark (inverse-style highlight
+// matching the original #1a1a1a affordance) — a white overlay would vanish
+// against the same light substrate.
 const TOKEN = {
-  ink: "#1a1a1a",
-  paper: "#D1D1D1",
-  inkInverse: "#D1D1D1",
-  bg: "rgba(255,255,255,0.62)",
-  bgActive: "#1a1a1a",
-  divider: "rgba(26,26,26,0.16)",
-  radius: "2px",
+  inkOnGlass: "rgba(26,26,26,0.92)",
+  inkOnGlassMuted: "rgba(26,26,26,0.66)",
+  inkOnGlassActive: "rgba(255,255,255,0.98)",
+  inkOnGlassDisabled: "rgba(26,26,26,0.36)",
+  inkOnGlassDisabledLabel: "rgba(26,26,26,0.28)",
+  bgActiveOverlay: "rgba(26,26,26,0.86)",
+  textShadow: "0 1px 0 rgba(255,255,255,0.55)",
   marginCells: 1,
   labelHideBelowCellSize: 20,
-  disabledLabelColor: "rgba(26,26,26,0.40)",
-  focusRingColor: "rgba(26,26,26,0.40)",
+  focusRingColor: "rgba(26,26,26,0.55)",
   fontMono: "ui-monospace, SFMono-Regular, Menlo, monospace",
-  fontStack: "system-ui, sans-serif",
+  fontStack: FONT_STACK,
 } as const;
 
 const overlayTextCache = new WeakMap<HTMLDivElement, string>();
 
 export function createHud(container: HTMLElement): HTMLDivElement {
-  return createOverlayText({
+  // Status pill — top-left, glass surface. `top: 60px` clears the z-20
+  // "experiments / grid" header at top: 24px, left: 24px.
+  const root = createOverlayText({
     parent: container,
     style: {
       position: "fixed",
-      top: "16px",
+      top: "60px",
       left: "16px",
+      padding: "8px 14px",
+      borderRadius: "14px",
+      background: "transparent",
       fontFamily: TOKEN.fontStack,
       fontSize: "12px",
+      fontWeight: "500",
       letterSpacing: "0.02em",
-      color: "#444",
+      color: TOKEN.inkOnGlass,
+      textShadow: TOKEN.textShadow,
       pointerEvents: "none",
       userSelect: "none",
-      lineHeight: "1.55",
+      lineHeight: "1.4",
+      whiteSpace: "nowrap",
     },
   });
+  markLiquidGlassControl(root, "control.grid.status", {
+    radius: 14,
+    intensity: 0.55,
+    brightness: 0.78,
+  });
+  return root;
 }
 
 export function createInputOverlay(container: HTMLElement): HTMLDivElement {
-  return createOverlayText({
+  // Input overlay — sits below the status pill (60 + ~32 height + 16 gap ≈
+  // 108). Same glass parameters as status; revealed via display flip.
+  const root = createOverlayText({
     parent: container,
     style: {
       position: "fixed",
-      top: "72px",
+      top: "108px",
       left: "16px",
       minWidth: "min(320px, calc(100vw - 32px))",
       maxWidth: "min(420px, calc(100vw - 32px))",
-      padding: "10px 12px",
-      borderRadius: TOKEN.radius,
-      background: TOKEN.bg,
-      border: `1px solid ${TOKEN.divider}`,
+      padding: "10px 14px",
+      borderRadius: "14px",
+      background: "transparent",
       fontFamily: TOKEN.fontStack,
       fontSize: "12px",
       letterSpacing: "0.02em",
-      color: TOKEN.ink,
+      color: TOKEN.inkOnGlass,
+      textShadow: TOKEN.textShadow,
       pointerEvents: "none",
       userSelect: "none",
       lineHeight: "1.45",
@@ -100,6 +151,12 @@ export function createInputOverlay(container: HTMLElement): HTMLDivElement {
       display: "none",
     },
   });
+  markLiquidGlassControl(root, "control.grid.input", {
+    radius: 14,
+    intensity: 0.55,
+    brightness: 0.78,
+  });
+  return root;
 }
 
 export function updateInputOverlay(overlay: HTMLDivElement, state: InputOverlayState): void {
@@ -180,15 +237,24 @@ export function createControlCluster(
     parent: container,
     style: {
       position: "fixed",
-      right: "0px",
-      bottom: "0px",
+      right: "16px",
+      bottom: "16px",
+      padding: "8px 10px",
+      borderRadius: "18px",
+      background: "transparent",
       display: "flex",
       flexDirection: "column",
       alignItems: "flex-end",
+      gap: "4px",
       pointerEvents: "auto",
       userSelect: "none",
       transition: "opacity 160ms ease-out",
     },
+  });
+  markLiquidGlassControl(element, "control.grid.cluster", {
+    radius: 18,
+    intensity: 0.75,
+    brightness: 0.74,
   });
 
   const chips = new Map<string, ChipRecord>();
@@ -216,21 +282,24 @@ export function createControlCluster(
     if (!record.enabled) {
       record.button.style.cursor = "default";
       record.keyEl.style.background = "transparent";
-      record.keyEl.style.color = TOKEN.ink;
-      record.labelEl.style.color = TOKEN.disabledLabelColor;
+      record.keyEl.style.color = TOKEN.inkOnGlassDisabled;
+      record.labelEl.style.color = TOKEN.inkOnGlassDisabledLabel;
       record.button.disabled = true;
       return;
     }
     record.button.style.cursor = "pointer";
     record.button.disabled = false;
     if (record.active) {
-      record.keyEl.style.background = TOKEN.bgActive;
-      record.keyEl.style.color = TOKEN.inkInverse;
-      record.labelEl.style.color = TOKEN.ink;
+      // Active state on glass — semi-transparent white overlay, brighter ink.
+      // Avoids opaque dark backgrounds that would punch a hole through the
+      // glass refraction.
+      record.keyEl.style.background = TOKEN.bgActiveOverlay;
+      record.keyEl.style.color = TOKEN.inkOnGlassActive;
+      record.labelEl.style.color = TOKEN.inkOnGlass;
     } else {
       record.keyEl.style.background = "transparent";
-      record.keyEl.style.color = TOKEN.ink;
-      record.labelEl.style.color = TOKEN.ink;
+      record.keyEl.style.color = TOKEN.inkOnGlass;
+      record.labelEl.style.color = TOKEN.inkOnGlassMuted;
     }
   }
 
@@ -311,7 +380,7 @@ function createChip(def: ControlChipDef): ChipRecord {
     background: "transparent",
     border: "none",
     boxShadow: "none",
-    color: TOKEN.ink,
+    color: TOKEN.inkOnGlass,
     cursor: "pointer",
     fontFamily: TOKEN.fontStack,
     outline: "none",
@@ -329,7 +398,7 @@ function createChip(def: ControlChipDef): ChipRecord {
     fontFamily: TOKEN.fontMono,
     fontWeight: "700",
     lineHeight: "1",
-    color: TOKEN.ink,
+    color: TOKEN.inkOnGlass,
     background: "transparent",
   } satisfies Partial<CSSStyleDeclaration>);
   keyEl.textContent = def.key;
@@ -345,7 +414,7 @@ function createChip(def: ControlChipDef): ChipRecord {
     textTransform: "uppercase",
     whiteSpace: "nowrap",
     overflow: "hidden",
-    color: TOKEN.ink,
+    color: TOKEN.inkOnGlassMuted,
   } satisfies Partial<CSSStyleDeclaration>);
   labelEl.textContent = def.label;
 

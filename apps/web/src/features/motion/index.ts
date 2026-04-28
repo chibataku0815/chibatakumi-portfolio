@@ -13,3 +13,9 @@ export {
   useHideMotionStageOnMount,
   useMotionStageHidden,
 } from "./MotionStageVisibility";
+export {
+  ActiveMotionStageProvider,
+  useActiveMotionStage,
+  useRegisterActiveMotionStage,
+  type ActiveStageHandle,
+} from "./ActiveMotionStage";

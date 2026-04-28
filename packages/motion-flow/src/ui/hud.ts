@@ -1,6 +1,14 @@
 // Flowline HUD composition. Wraps webgpu-motion-ui atoms into the 4 panels
 // main.ts needs: text overlay (top-left), scene selector (top-right),
 // audio meter (below selector), keymap help (bottom-right, toggled by `?`).
+//
+// Each atom's `.element` is also stamped with `data-liquid-glass-control` so
+// LiquidGlassProvider's MutationObserver registers it as an Apple Liquid
+// Glass surface and the front-chrome compose pass refracts the motion-flow
+// substrate through it. Vendor-internal background colors (white pills, dark
+// keymap panel) are neutralized post-creation. The SceneSelector child
+// buttons are re-styled inside an `updateSceneSelector` wrapper because the
+// vendor updater rewrites button colors on every state tick.
 
 import {
   createAudioMeter,
@@ -20,6 +28,39 @@ import {
   type SceneSelector,
   type SceneSelectorItem,
 } from "webgpu-motion-ui";
+
+// ── Apple Liquid Glass surface marker (parallel to motion-dot/hud.ts) ────────
+interface ControlSurfaceOptions {
+  readonly radius?: number;
+  readonly intensity?: number;
+  readonly brightness?: number;
+  readonly tint?: string;
+}
+
+function markLiquidGlassControl(
+  el: HTMLElement,
+  id: string,
+  opts?: ControlSurfaceOptions,
+): void {
+  el.dataset.liquidGlassControl = id;
+  if (opts?.radius !== undefined) el.dataset.liquidGlassRadius = String(opts.radius);
+  if (opts?.intensity !== undefined) el.dataset.liquidGlassIntensity = String(opts.intensity);
+  if (opts?.brightness !== undefined) el.dataset.liquidGlassBrightness = String(opts.brightness);
+  if (opts?.tint) el.dataset.liquidGlassTint = opts.tint;
+}
+
+const FONT_STACK =
+  'var(--font-geist-sans), -apple-system, BlinkMacSystemFont, system-ui, sans-serif';
+
+// Dark-on-glass — motion-flow's substrate is paletteGpuColor("paper") = #d1d1d1,
+// so the glass refracts a near-white field. White text vanishes; dark ink
+// with a light text-shadow emboss is the legible choice. Active state stays
+// dark (inverse-style highlight, matching the original chip affordance).
+const INK_ON_GLASS = "rgba(26,26,26,0.92)";
+const INK_ON_GLASS_MUTED = "rgba(26,26,26,0.66)";
+const INK_ON_GLASS_ACTIVE = "rgba(255,255,255,0.98)";
+const BG_ACTIVE_OVERLAY = "rgba(26,26,26,0.86)";
+const TEXT_SHADOW = "0 1px 0 rgba(255,255,255,0.55)";
 
 export type FlowlineHudState = {
   readonly sceneName: string;
@@ -56,25 +97,113 @@ const METER_FIELDS: readonly AudioMeterFieldKey[] = [
 export function createFlowlineHud(options: CreateFlowlineHudOptions): FlowlineHud {
   const overlay = createHudOverlay({
     parent: options.parent,
-    position: { top: "16px", left: "16px" },
+    // Bump down past the z-20 "experiments / flow" header at top: 24px.
+    position: { top: "60px", left: "16px" },
   });
+  Object.assign(overlay.element.style, {
+    padding: "8px 14px",
+    borderRadius: "14px",
+    fontFamily: FONT_STACK,
+    fontWeight: "500",
+    color: INK_ON_GLASS,
+    textShadow: TEXT_SHADOW,
+    background: "transparent",
+  } satisfies Partial<CSSStyleDeclaration>);
+  markLiquidGlassControl(overlay.element, "control.flow.overlay", {
+    radius: 14,
+    intensity: 0.55,
+    brightness: 0.78,
+  });
+
   const selector = createSceneSelector({
     parent: options.parent,
     items: options.scenes,
     onPick: options.onPickScene,
     onAuto: options.onAuto,
   });
+  Object.assign(selector.element.style, {
+    padding: "6px",
+    borderRadius: "18px",
+    background: "transparent",
+  } satisfies Partial<CSSStyleDeclaration>);
+  markLiquidGlassControl(selector.element, "control.flow.scenes", {
+    radius: 18,
+    intensity: 0.75,
+    brightness: 0.74,
+  });
+  // Initial button styling — overridden again on every updateSceneSelector tick.
+  styleSceneSelectorButtons(selector.element, null, true);
+
   const meter = createAudioMeter({
     parent: options.parent,
     fields: METER_FIELDS,
-    position: { top: "52px", right: "16px" },
+    // Slot below the selector at y=16+selector_height(~32)+pad(~12)+gap(8)≈68
+    position: { top: "108px", right: "16px" },
   });
+  Object.assign(meter.element.style, {
+    padding: "10px 12px",
+    borderRadius: "16px",
+    background: "transparent",
+    border: "none",
+    color: INK_ON_GLASS,
+    textShadow: TEXT_SHADOW,
+    fontFamily: FONT_STACK,
+  } satisfies Partial<CSSStyleDeclaration>);
+  markLiquidGlassControl(meter.element, "control.flow.audio", {
+    radius: 16,
+    intensity: 0.70,
+    brightness: 0.76,
+  });
+
   const keymap = createKeymapHud({
     parent: options.parent,
     entries: options.keymapEntries,
     title: "Keys (? toggle)",
   });
+  Object.assign(keymap.element.style, {
+    padding: "12px 14px",
+    borderRadius: "20px",
+    background: "transparent",
+    border: "none",
+    color: INK_ON_GLASS,
+    textShadow: TEXT_SHADOW,
+    fontFamily: FONT_STACK,
+  } satisfies Partial<CSSStyleDeclaration>);
+  markLiquidGlassControl(keymap.element, "control.flow.keymap", {
+    radius: 20,
+    intensity: 0.80,
+    brightness: 0.74,
+  });
+
   return { overlay, selector, meter, keymap };
+}
+
+// Re-styles SceneSelector buttons to white-on-glass after each vendor update.
+// The vendor `updateSceneSelector` writes background/color/borderColor onto
+// every button, so our flat overrides survive only by being re-applied each
+// tick. `activeId === null` means selector is in pre-update initial state.
+function styleSceneSelectorButtons(
+  element: HTMLDivElement,
+  activeId: string | null,
+  autoEnabled: boolean,
+): void {
+  const buttons = element.querySelectorAll<HTMLButtonElement>("button");
+  buttons.forEach((btn) => {
+    const id = btn.dataset.chipId ?? "";
+    const isAuto = id === "__auto__";
+    const isActive = isAuto
+      ? autoEnabled
+      : !autoEnabled && id === activeId;
+    Object.assign(btn.style, {
+      fontFamily: FONT_STACK,
+      borderRadius: "12px",
+      boxShadow: "none",
+      border: "none",
+      background: isActive ? BG_ACTIVE_OVERLAY : "transparent",
+      color: isActive ? INK_ON_GLASS_ACTIVE : INK_ON_GLASS_MUTED,
+      textShadow: isActive ? "none" : TEXT_SHADOW,
+    } satisfies Partial<CSSStyleDeclaration>);
+  });
 }
 
 export function updateFlowlineHud(
@@ -96,6 +225,8 @@ export function updateFlowlineHud(
     activeId: activeSceneId,
     autoEnabled: state.autoEnabled,
   });
+  // Re-apply our glass overrides — vendor updateSceneSelector clobbered them.
+  styleSceneSelectorButtons(hud.selector.element, activeSceneId, state.autoEnabled);
 }
 
 export function updateFlowlineHudAudio(

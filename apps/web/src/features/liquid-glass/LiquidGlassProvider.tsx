@@ -11,7 +11,7 @@ import {
   type HTMLAttributes,
 } from "react";
 import { usePathname } from "next/navigation";
-import { useMotionStage } from "@/features/motion";
+import { useActiveMotionStage } from "@/features/motion";
 import {
   getReadability,
   useReadabilityRegions,
@@ -96,7 +96,7 @@ const LiquidGlassContext = createContext<LiquidGlassContextValue | null>(null);
 export function LiquidGlassProvider({
   children,
 }: LiquidGlassProviderProps): React.ReactElement {
-  const motionStage = useMotionStage();
+  const activeStage = useActiveMotionStage();
   const pathname = usePathname();
   useReadabilityRegions();
   const surfacesRef = useRef<LiquidGlassSurfaceRegistry>(new Map());
@@ -228,16 +228,18 @@ export function LiquidGlassProvider({
     };
   }, []);
 
-  // Install the compose pass once motion-dot is ready. The pass owns BOTH
-  // the back render (motion-dot swap chain at z=-10) and the front render
-  // (front overlay canvas at z=var(--z-nav-front-glass)) in a single encoder so
-  // both paths share motion-dot's substrate texture and the same SDF/lensing
-  // math. The front swap-chain view is supplied per-frame through the
-  // registered front canvas callback.
+  // Install the compose pass on whichever motion stage is currently active.
+  // Usually that is motion-dot (home / portfolio routes), but on
+  // /experiments/{grid,flow} the route's local mount registers itself instead
+  // (see ActiveMotionStage). The pass owns BOTH the back render (active
+  // stage swap chain at z=-10) and the front render (front overlay canvas at
+  // z=var(--z-nav-front-glass)) in a single encoder so both paths share the
+  // active substrate texture and the same SDF/lensing math. The front
+  // swap-chain view is supplied per-frame through the registered front
+  // canvas callback.
   useEffect(() => {
-    if (motionStage.kind !== "ready") return;
-    const handle = motionStage.mount;
-    const { device, format } = handle.gpu;
+    if (!activeStage) return;
+    const { device, format } = activeStage;
 
     let cachedFrame: LiquidGlassFrameState = {
       surfaces: [],
@@ -255,17 +257,17 @@ export function LiquidGlassProvider({
       frontTarget: () => frontCanvasRef.current?.getCurrentTarget() ?? null,
     });
 
-    const unsubscribeBeforeFrame = handle.onBeforeFrame(() => {
+    const unsubscribeBeforeFrame = activeStage.onBeforeFrame(() => {
       cachedFrame = buildFrameState();
     });
 
-    handle.setComposePass(pass);
+    activeStage.setComposePass(pass);
 
     return () => {
       unsubscribeBeforeFrame();
-      handle.setComposePass(null);
+      activeStage.setComposePass(null);
     };
-  }, [buildFrameState, motionStage]);
+  }, [buildFrameState, activeStage]);
 
   // Observe non-React DOM (e.g. motion-dot HUD/control surfaces injected
   // imperatively) carrying `data-liquid-glass-control`. This is distinct from
