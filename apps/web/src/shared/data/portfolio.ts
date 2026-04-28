@@ -365,7 +365,7 @@ export const portfolioData: PortfolioData = {
     locale: "ja",
     author: {
       name: "Takumi Chiba",
-      email: "hello@takumichiba.com",
+      email: "chiba@fores-tone.co.jp",
       role: "Fullstack Engineer / Creative Director",
     },
   },
@@ -673,7 +673,7 @@ export const portfolioData: PortfolioData = {
     // Contact Page — visible copy lives in messages/{ja,en}.json under
     // the `contact` namespace. Only the address stays here as identity data.
     contact: {
-      email: "hello@takumichiba.com",
+      email: "chiba@fores-tone.co.jp",
     },
 
     // Profile Page

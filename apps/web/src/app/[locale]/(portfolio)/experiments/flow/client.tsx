@@ -1,11 +1,12 @@
 "use client";
 
 // /experiments/flow — Renewal 2026 Motion Works (Package 4).
-// Mounts motion-flow's standalone WebGPU app on a route-owned canvas. The
-// global MotionStageProvider (motion-dot) sits at z=-10 in the layout and is
-// visually covered by this opaque canvas at z=0. Per
-// `feedback_no_fallback_bug_hotbed.md`, when WebGPU is unavailable we render
-// an explicit unsupported message — no silent fallback.
+// Three live WebGPU surfaces — dot, grid, flow.
+// Mounts motion-flow's standalone WebGPU app on a route-owned canvas.
+// Suspends the global MotionStage (motion-dot) loop while mounted so two
+// WebGPU contexts do not contend for the GPU.
+// Per `feedback_no_fallback_bug_hotbed.md`, when WebGPU is unavailable we
+// render an explicit unsupported message — no silent fallback.
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
@@ -13,6 +14,7 @@ import {
   mountMotionFlowApp,
   type MountFlowHandle,
 } from "@chibatakumi/motion-flow";
+import { useHideMotionStageOnMount } from "@/features/motion/MotionStageVisibility";
 
 type Status =
   | { kind: "pending" }
@@ -21,15 +23,18 @@ type Status =
   | { kind: "error"; message: string };
 
 export default function ExperimentsFlowClient() {
+  useHideMotionStageOnMount();
   const t = useTranslations("experiments.unsupported");
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const overlayRef = useRef<HTMLDivElement | null>(null);
   const mountRef = useRef<MountFlowHandle | null>(null);
   const [status, setStatus] = useState<Status>({ kind: "pending" });
 
   useEffect(() => {
     let cancelled = false;
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    const overlay = overlayRef.current;
+    if (!canvas || !overlay) return;
 
     if (typeof navigator === "undefined" || !("gpu" in navigator)) {
       setStatus({ kind: "unsupported" });
@@ -40,6 +45,7 @@ export default function ExperimentsFlowClient() {
       try {
         const handle = await mountMotionFlowApp({
           canvas,
+          hostOverlay: overlay,
           onError: (err) => {
             console.error("[motion-flow] mount error:", err);
           },
@@ -51,7 +57,6 @@ export default function ExperimentsFlowClient() {
         mountRef.current = handle;
         setStatus({ kind: "ready" });
       } catch (err) {
-        console.error("[motion-flow] mount failed:", err);
         if (!cancelled) {
           setStatus({
             kind: "error",
@@ -63,28 +68,31 @@ export default function ExperimentsFlowClient() {
 
     return () => {
       cancelled = true;
-      const handle = mountRef.current;
-      if (handle) {
-        handle.stop();
-        mountRef.current = null;
-      }
+      mountRef.current?.stop();
+      mountRef.current = null;
     };
   }, []);
 
   return (
-    <main className="relative min-h-screen w-full bg-[var(--bg-dark)]">
+    <main className="relative min-h-screen w-full">
       <canvas
         ref={canvasRef}
         className="fixed inset-0 z-0 h-screen w-screen"
         aria-hidden="true"
       />
-      <header className="fixed top-6 left-6 z-10 font-mono text-[11px] uppercase tracking-[0.32em] text-white/80 mix-blend-difference">
+      {/* hostOverlay for HUD/keyboard/cluster injected by motion-flow mount */}
+      <div
+        ref={overlayRef}
+        className="fixed inset-0 z-10 pointer-events-none [&>*]:pointer-events-auto"
+        aria-hidden="true"
+      />
+      <header className="fixed top-6 left-6 z-20 font-sans font-medium text-[10px] uppercase tracking-[0.18em] text-[var(--text-base-60)] mix-blend-difference">
         experiments / flow
       </header>
       {status.kind !== "ready" && status.kind !== "pending" ? (
         <div
           role="alert"
-          className="fixed inset-x-0 bottom-0 z-20 mx-auto m-6 max-w-2xl rounded-xl border border-amber-300/30 bg-black/70 p-4 text-sm leading-relaxed text-amber-100 backdrop-blur-md"
+          className="fixed inset-x-0 bottom-0 z-30 mx-auto m-6 max-w-2xl rounded-xl border border-amber-300/30 bg-black/70 p-4 text-sm leading-relaxed text-amber-100 backdrop-blur-md"
         >
           <p className="mb-1 font-medium">{t("headline")}</p>
           <p className="text-amber-100/80">

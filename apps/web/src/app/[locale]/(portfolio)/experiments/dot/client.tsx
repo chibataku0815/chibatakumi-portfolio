@@ -7,7 +7,7 @@
 export default function ExperimentsDotClient() {
   return (
     <main className="relative min-h-screen w-full">
-      <header className="fixed top-6 left-6 z-10 text-white/80 text-xs tracking-widest uppercase mix-blend-difference">
+      <header className="fixed top-6 left-6 z-10 font-sans font-medium text-[10px] uppercase tracking-[0.18em] text-[var(--text-base-60)] mix-blend-difference">
         experiments / dot
       </header>
     </main>

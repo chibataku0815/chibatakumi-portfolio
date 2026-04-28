@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, type CSSProperties, type ReactNode } from "react";
 import gsap from "gsap";
 
 interface AnimatedHeadingProps {
   children: ReactNode;
   as?: "h1" | "h2" | "h3";
   className?: string;
+  style?: CSSProperties;
   delay?: number;
 }
 
@@ -20,6 +21,7 @@ export function AnimatedHeading({
   children,
   as: Tag = "h1",
   className = "",
+  style,
   delay = 0.4,
 }: AnimatedHeadingProps) {
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -49,7 +51,7 @@ export function AnimatedHeading({
   }, [delay]);
 
   return (
-    <Tag ref={headingRef} className={className}>
+    <Tag ref={headingRef} className={className} style={style}>
       {children}
     </Tag>
   );
