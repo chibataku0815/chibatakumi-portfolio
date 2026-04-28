@@ -55,7 +55,8 @@ const nextConfig: NextConfig = {
    * their canonical Satellite destinations.
    *
    * `/motion/reference-works/:slug*` ordering must precede the bare
-   * `/motion → /experiments` rule so the dynamic match wins first.
+   * `/motion → /experiments` rule so archived study bookmarks collapse to the
+   * curated Journal index instead of the Experiments index.
    */
   async redirects() {
     return [
@@ -154,16 +155,16 @@ const nextConfig: NextConfig = {
         destination: "/:locale/experiments",
         permanent: true,
       },
-      // /motion/reference-works/:slug* → /journal/motion-studies/:slug*
-      // (dynamic — must precede the bare /motion rule below so this wins)
+      // /motion/reference-works/:slug* → /journal
+      // (public motion-study detail routes are hidden until quality-gated)
       {
         source: "/motion/reference-works/:slug*",
-        destination: "/journal/motion-studies/:slug*",
+        destination: "/journal",
         permanent: true,
       },
       {
         source: "/:locale(en|ja)/motion/reference-works/:slug*",
-        destination: "/:locale/journal/motion-studies/:slug*",
+        destination: "/:locale/journal",
         permanent: true,
       },
       // /motion → /experiments (parent plan §3.2)
