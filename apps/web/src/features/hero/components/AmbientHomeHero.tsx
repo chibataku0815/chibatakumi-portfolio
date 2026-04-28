@@ -13,6 +13,7 @@
 // rotation only, no HUD/keyboard/audio reconfiguration.
 
 import type { DotSceneName } from "@chibatakumi/motion-dot";
+import Image from "next/image";
 import { useMotionDotSceneCycle } from "@/features/motion";
 import { portfolioData } from "@/shared/data/portfolio";
 
@@ -29,38 +30,34 @@ export function AmbientHomeHero(): React.ReactElement {
     intervalSec: 5.5,
   });
 
-  const { site, branding } = portfolioData;
-  const wordmark = branding.wordmarkItalic;
+  const { branding } = portfolioData;
+  const descriptorLockup = branding.descriptorLockup;
 
   return (
     <section
       id="home-hero"
       data-readability="immersive"
-      className="relative isolate flex min-h-[100svh] w-full flex-col items-start justify-end px-6 pb-16 sm:px-10 sm:pb-20 lg:px-16 lg:pb-24"
+      className="relative isolate flex min-h-[100svh] w-full flex-col items-start justify-end overflow-hidden px-6 pb-44 pt-32 sm:px-10 sm:pb-36 lg:px-16 lg:pb-40"
     >
-      <div className="max-w-[min(56rem,calc(100vw-3rem))]">
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--text-base-60)] sm:text-[12px]">
-          {site.author.role}
-        </p>
-        <h1 className="mt-6 leading-none">
-          <svg
-            viewBox={wordmark.viewBox}
-            fill="none"
-            aria-label={wordmark.ariaLabel}
-            role="img"
-            className="block h-auto w-full"
-          >
-            <g fill="var(--text-base)">
-              {wordmark.primaryPaths.map((d, i) => (
-                <path key={`hp-${i}`} d={d} />
-              ))}
-            </g>
-            <g fill="var(--text-base-60)">
-              {wordmark.secondaryPaths.map((d, i) => (
-                <path key={`hs-${i}`} d={d} />
-              ))}
-            </g>
-          </svg>
+      <div className="w-full max-w-[min(86rem,calc(100vw-3rem))] sm:max-w-[min(86rem,calc(100vw-5rem))] lg:max-w-[min(86rem,calc(100vw-8rem))]">
+        <h1 className="leading-none">
+          <span className="sr-only">{descriptorLockup.ariaLabel}</span>
+          <Image
+            src={descriptorLockup.lightSrc}
+            alt=""
+            aria-hidden="true"
+            width={descriptorLockup.width}
+            height={Math.round(descriptorLockup.height)}
+            priority
+            unoptimized
+            sizes="(max-width: 640px) calc(100vw - 3rem), (max-width: 1024px) calc(100vw - 5rem), min(86rem, calc(100vw - 8rem))"
+            className="block h-auto w-full max-w-[86rem]"
+            style={{
+              aspectRatio: `${descriptorLockup.width} / ${descriptorLockup.height}`,
+              filter:
+                "drop-shadow(0 2px 28px rgba(0,0,0,0.42)) drop-shadow(0 0 72px rgba(0,0,0,0.28))",
+            }}
+          />
         </h1>
       </div>
     </section>
