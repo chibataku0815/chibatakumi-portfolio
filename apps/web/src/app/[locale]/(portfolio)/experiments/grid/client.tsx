@@ -99,7 +99,7 @@ export default function ExperimentsGridClient() {
        */}
       <div
         ref={overlayRef}
-        className="fixed inset-0 pointer-events-none [&>*]:pointer-events-auto"
+        className="motion-stage-hud-overlay fixed inset-0 pointer-events-none [&>*]:pointer-events-auto"
         style={{ zIndex: "var(--z-motion-hud-content, 1210)" }}
         aria-hidden="true"
       />
