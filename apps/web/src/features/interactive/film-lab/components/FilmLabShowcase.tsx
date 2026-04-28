@@ -70,7 +70,7 @@ export function FilmLabShowcase() {
               {t("sampleHint")}
             </p>
             <Link
-              href="/film-lab"
+              href="/filmtone"
               className="mt-3 inline-flex min-h-[44px] max-w-fit items-center justify-center rounded-lg border border-white/15 bg-white/5 px-4 text-sm text-[var(--text-base-70)] transition-colors hover:border-white/25 hover:bg-white/10 hover:text-[var(--text-base)]"
             >
               {t("openFullApp")}

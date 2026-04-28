@@ -34,27 +34,27 @@ interface FilmLabProofVideoDefinition {
 const filmLabProofVideoDefinitions: readonly FilmLabProofVideoDefinition[] = [
   {
     id: "gradedLookA",
-    publicPath: "/film-lab/proof/graded-look-a.mp4",
+    publicPath: "/filmtone/proof/graded-look-a.mp4",
     aspectRatio: 16 / 9,
   },
   {
     id: "gradedLookB",
-    publicPath: "/film-lab/proof/graded-look-b.mp4",
+    publicPath: "/filmtone/proof/graded-look-b.mp4",
     aspectRatio: 16 / 9,
   },
   {
     id: "compareNightStreet",
-    publicPath: "/film-lab/proof/compare-night-street.mp4",
+    publicPath: "/filmtone/proof/compare-night-street.mp4",
     aspectRatio: 1316 / 1080,
   },
   {
     id: "compareDaylightWalk",
-    publicPath: "/film-lab/proof/compare-daylight-walk.mp4",
+    publicPath: "/filmtone/proof/compare-daylight-walk.mp4",
     aspectRatio: 1316 / 1080,
   },
   {
     id: "compareDarkInterior",
-    publicPath: "/film-lab/proof/compare-dark-interior.mp4",
+    publicPath: "/filmtone/proof/compare-dark-interior.mp4",
     aspectRatio: 1316 / 1080,
   },
 ] as const;

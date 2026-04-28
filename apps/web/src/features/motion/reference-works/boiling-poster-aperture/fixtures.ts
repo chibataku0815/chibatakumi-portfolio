@@ -1,10 +1,4 @@
 export const boilingPosterApertureFixtures = {
-  copy: {
-    eyebrow: "Phase 1 / PixiJS Library-Fit Reference Work",
-    title: "Boiling Poster Aperture",
-    description:
-      "PixiJS を main home に固定し、boiling edge・mask gate・displacement-led reveal・secondary action を一枚絵の poster grammar に絞って検証する narrow browser-first proof。",
-  },
   runtimeLabel: "PixiJS 8 / work-local runtime truth",
   techniqueFamily: [
     "Boiling",

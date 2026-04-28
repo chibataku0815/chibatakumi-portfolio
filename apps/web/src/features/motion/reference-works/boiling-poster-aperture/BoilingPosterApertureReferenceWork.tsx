@@ -1,9 +1,11 @@
 "use client";
 
+import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import { boilingPosterApertureFixtures } from "./fixtures";
 import { BoilingPosterApertureSurface } from "./BoilingPosterApertureSurface";
 
-type BoilingPosterApertureReferenceWorkProps = {
+type Props = {
   autoPlay?: boolean;
   captureMode?: boolean;
   frameOverride?: number | null;
@@ -13,10 +15,10 @@ export function BoilingPosterApertureReferenceWork({
   autoPlay = true,
   captureMode = false,
   frameOverride = null,
-}: BoilingPosterApertureReferenceWorkProps) {
+}: Props) {
   if (captureMode) {
     return (
-      <main className="min-h-screen bg-[var(--bg-dark)] px-2 py-2 text-[var(--text-base)] sm:px-3 sm:py-3">
+      <main className="min-h-screen px-2 py-2 sm:px-3 sm:py-3">
         <div className="mx-auto max-w-7xl">
           <BoilingPosterApertureSurface
             autoPlay={autoPlay}
@@ -28,86 +30,108 @@ export function BoilingPosterApertureReferenceWork({
     );
   }
 
+  return <DetailPage autoPlay={autoPlay} frameOverride={frameOverride} />;
+}
+
+function DetailPage({
+  autoPlay,
+  frameOverride,
+}: {
+  autoPlay: boolean;
+  frameOverride: number | null;
+}) {
+  const t = useTranslations("journal.motionStudies");
+  const tEntry = useTranslations("journal.motionStudies.entries.boilingPosterAperture");
+
   return (
-    <main className="min-h-screen bg-[var(--bg-dark)] px-4 py-24 text-[var(--text-base)] sm:px-6 lg:px-8">
-      <div className="mx-auto flex max-w-7xl flex-col gap-8">
-        <header className="max-w-3xl">
-          <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-[var(--text-base-60)]">
-            Phase 1 / Work 02 / PixiJS Home
-          </p>
-          <h1 className="mt-4 text-[clamp(2.5rem,7vw,5.5rem)] font-semibold leading-[0.94] tracking-[-0.05em] text-[var(--text-base)]">
-            Boiling Poster Aperture
-          </h1>
-          <p className="mt-5 max-w-2xl text-base leading-relaxed text-[var(--text-muted)] sm:text-lg">
-            Controlled aperture reveal を主イベントに固定した `PixiJS` narrow proof。
-            `boiling / mask / displacement / secondary action` だけを work-local runtime
-            で検証する。
-          </p>
+    <main className="relative min-h-screen text-[var(--text-base)]">
+      <article>
+        <header
+          data-readability="focus"
+          className="px-6 pt-32 pb-20 sm:px-12 sm:pt-32 sm:pb-24 lg:px-20"
+        >
+          <div className="mx-auto max-w-6xl">
+            <Link
+              href="/journal#boiling-poster-aperture"
+              data-transition="true"
+              className="font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--text-base-50)] transition-colors hover:text-[var(--text-base)]"
+            >
+              {t("backLabel")}
+            </Link>
+            <p className="mt-10 font-mono text-[10px] uppercase tracking-[0.32em] text-[var(--text-base-60)]">
+              {tEntry("context")}
+            </p>
+            <h1 className="mt-8 text-[clamp(2.5rem,8vw,5.5rem)] font-medium leading-[0.96] tracking-[-0.04em] text-[var(--text-base)]">
+              {tEntry("title")}
+            </h1>
+            <p className="mt-8 max-w-[44ch] text-[1.125rem] leading-[1.7] text-[var(--text-muted)]">
+              {tEntry("heroProse")}
+            </p>
+          </div>
         </header>
 
-        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
-          <BoilingPosterApertureSurface
-            autoPlay={autoPlay}
-            frameOverride={frameOverride}
-          />
-
-          <aside className="rounded-[28px] border border-white/10 bg-white/[0.03] p-6">
-            <div className="space-y-6">
-              <section>
-                <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--text-base-60)]">
-                  Runtime
-                </p>
-                <p className="mt-3 text-sm leading-relaxed text-[var(--text-muted)]">
+        <section
+          data-readability="reading"
+          className="px-6 pb-32 sm:px-12 lg:px-20"
+        >
+          <div className="mx-auto grid max-w-6xl gap-y-12 lg:grid-cols-[minmax(0,1fr)_280px] lg:gap-x-20">
+            <div>
+              <BoilingPosterApertureSurface
+                autoPlay={autoPlay}
+                frameOverride={frameOverride}
+              />
+            </div>
+            <aside className="space-y-10 lg:sticky lg:top-32 lg:self-start">
+              <SidebarSection label="Runtime">
+                <p className="text-sm leading-relaxed text-[var(--text-base-80)]">
                   {boilingPosterApertureFixtures.runtimeLabel}
                 </p>
-              </section>
+              </SidebarSection>
 
-              <section>
-                <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--text-base-60)]">
-                  Technique Family
-                </p>
-                <ul className="mt-3 space-y-2 text-sm text-[var(--text-base)]">
+              <SidebarSection label="Stack">
+                <ul className="space-y-1.5 font-mono text-[12px] tracking-[0.06em] text-[var(--text-base-80)]">
                   {boilingPosterApertureFixtures.techniqueFamily.map((item) => (
-                    <li
-                      key={item}
-                      className="border-l border-white/15 pl-3 font-mono text-[12px] tracking-[0.12em]"
-                    >
-                      {item}
-                    </li>
+                    <li key={item}>{item}</li>
                   ))}
                 </ul>
-              </section>
+              </SidebarSection>
 
-              <section>
-                <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--text-base-60)]">
-                  Extraction Targets
-                </p>
-                <ul className="mt-3 space-y-2 text-sm text-[var(--text-base)]">
+              <SidebarSection label="Extraction">
+                <ul className="space-y-1.5 font-mono text-[12px] tracking-[0.06em] text-[var(--text-base-80)]">
                   {boilingPosterApertureFixtures.extractionTargets.map((target) => (
-                    <li
-                      key={target}
-                      className="border-l border-white/15 pl-3 font-mono text-[12px] tracking-[0.12em]"
-                    >
-                      {target}
-                    </li>
+                    <li key={target}>{target}</li>
                   ))}
                 </ul>
-              </section>
+              </SidebarSection>
 
-              <section>
-                <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--text-base-60)]">
-                  Non-Goals
-                </p>
-                <ul className="mt-3 space-y-2 text-sm leading-relaxed text-[var(--text-muted)]">
+              <SidebarSection label="Non-Goals">
+                <ul className="space-y-2 text-sm leading-relaxed text-[var(--text-muted)]">
                   {boilingPosterApertureFixtures.nonGoals.map((item) => (
                     <li key={item}>{item}</li>
                   ))}
                 </ul>
-              </section>
-            </div>
-          </aside>
-        </div>
-      </div>
+              </SidebarSection>
+            </aside>
+          </div>
+        </section>
+      </article>
     </main>
+  );
+}
+
+function SidebarSection({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section>
+      <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--text-base-50)]">
+        {label}
+      </p>
+      <div className="mt-3">{children}</div>
+    </section>
   );
 }

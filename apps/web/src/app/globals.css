@@ -1,62 +1,78 @@
 @import "tailwindcss";
 /* Web で workspace の film-lab-ui をビルド対象に含める（未指定だと Tailwind クラスが生成されずトグル等が崩れる） */
 @source "../../../../packages/film-lab-ui/src";
+@source "../../../../packages/design-system/src";
 @source "../**/*.{js,ts,jsx,tsx,mdx}";
+
+/* Renewal 2026 — Single LIGHT editorial substrate (Wave 4-3).
+   The motion-dot WebGPU canvas is the kinetic substrate of the entire site
+   and renders a hardcoded light background (bgColor [0.82,0.82,0.82] in
+   packages/motion-dot/src/render/metaball-pass.ts). Wave 4-1 mistakenly
+   consolidated tokens to dark, leaving every portfolio route with light text
+   on the light canvas; Wave 4-3 abolishes the dark-bg concept entirely and
+   re-flips :root tokens to light. Dark text reads against the canvas; the
+   `--bg-dark` alias name is kept (16 consumers) but now resolves to a near-
+   white slate-1 — the name is vestigial, not load-bearing.
+
+   Radix Color Scales: slate.css + amber.css scope to :root / .light /
+   .light-theme; slate-dark.css + amber-dark.css scope to .dark / .dark-theme.
+   Importing all four lets the same alias (e.g. --text-base: var(--slate-12))
+   automatically resolve to dark text under :root and to light text under any
+   ancestor with the `.dark` class — which is exactly what Filmtone's
+   satellite shell (the only remaining dark identity besides the
+   `body:has(.photography-page)` page-scoped override) needs.
+*/
+@import "@radix-ui/colors/slate.css";
+@import "@radix-ui/colors/amber.css";
 @import "@radix-ui/colors/slate-dark.css";
 @import "@radix-ui/colors/amber-dark.css";
 
 :root {
+  --app-vh: 100svh;
+  --app-dvh: 100dvh;
+  --vvh: 100dvh;
+  --vvw: 100vw;
+  --vv-offset-top: 0px;
+  --vv-offset-left: 0px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --mobile-edge-x: max(18px, var(--safe-left));
+  --mobile-edge-y: max(16px, var(--safe-top));
+  --mobile-bottom-reserve: calc(var(--safe-bottom) + 112px);
+
   /* ==========================================================================
-     Semantic Aliases (Radix Colors)
+     Renewal 2026 — LIGHT editorial primaries (Wave 4-3 re-flip).
+     `--bg-primary` matches motion-dot canvas bgColor (0.82 ≈ #D2D2D2) so the
+     body underneath the canvas resolves to the same hue, avoiding seams
+     where the canvas does not paint (mobile address-bar resize, etc.).
      ========================================================================== */
-  --bg-dark: var(--slate-1);
-  --bg-darker: var(--slate-2);
-  --text-base: var(--slate-12);
-  --text-muted: var(--slate-11);
-  --accent-amber1: var(--amber-9);
-  --accent-amber2: var(--amber-10);
-
-  /* Filmtone Desktop 系パネルと揃えるガラス UI トークン（Web デモ・/film-lab） */
-  --fl-bg-app: var(--slate-1);
-  --fl-bg-subtle: var(--slate-2);
-  --fl-bg-raised: var(--slate-3);
-  --fl-bg-interactive: var(--slate-4);
-  --fl-bg-interactive-hover: var(--slate-5);
-  --fl-border-subtle: var(--slate-6);
-  --fl-border-default: var(--slate-7);
-  --fl-border-strong: var(--slate-8);
-  --fl-text-primary: var(--slate-12);
-  --fl-text-secondary: var(--slate-11);
-  --fl-text-tertiary: var(--slate-10);
-  --fl-accent: var(--amber-9);
-  --fl-accent-emphasis: var(--amber-10);
-  --fl-on-accent: #14110a;
-  --fl-focus-ring: color-mix(in srgb, var(--amber-9) 45%, transparent);
-  --fl-frost-blur: 28px;
+  --bg-primary: #D2D2D2;
+  --bg-secondary: #E8EAED;
+  --fg-primary: #1A1A1A;
+  --fg-secondary: #202124;
+  --accent: #B86E00;
 
   /* ==========================================================================
-     Font Family Stacks
+     Font Family Stacks (theme-agnostic)
      ========================================================================== */
   --font-family-sans: var(--font-geist-sans), var(--font-noto-sans-jp),
     "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
   --font-family-mono: var(--font-geist-mono), "SFMono-Regular", "Consolas",
     monospace;
+  /* Display headings — Jost (geometric humanist) extends the Hero wordmark voice. */
+  --font-family-display: var(--font-jost), var(--font-geist-sans),
+    "Hiragino Sans", "Hiragino Kaku Gothic ProN", sans-serif;
 
-  /* Logo / Transition tokens */
-  --logo-stroke: var(--slate-12);
-  --logo-fill: var(--slate-12);
-  /* Use a darker contrast for page transition blocks */
-  --transition-overlay: var(--slate-4);
   --noise-texture: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 
-  /* Typography Scale - Award-Worthy Level (モバイル対応) */
-  --type-display-hero: clamp(3.5rem, 15vw, 14rem);    /* 56–224px Hero (モバイル最小調整) */
-  --type-display-xl: clamp(2.5rem, 10vw, 10rem);      /* 40–160px Skill Title (モバイル最小調整) */
-  --type-display-lg: clamp(2rem, 6vw, 6rem);          /* 32–96px */
-  --type-heading: clamp(1.5rem, 3.5vw, 3rem);         /* 24–48px Section */
-  --type-body-lg: clamp(1rem, 1.4vw, 1.4rem);         /* 16–22.4px */
-  --type-body: 1rem;                                   /* 16px */
-  --type-caption: 0.875rem;                            /* 14px */
+  /* Typography Scale — Award-Worthy Level (モバイル対応).
+     Canonical: @chibatakumi/design-system/tokens/typography → exposed as
+     --type-display-hero / --type-display-xl / --type-display-lg / --type-heading
+     / --type-body-lg / --type-body / --type-caption via the design-system
+     Tailwind plugin (`typographyVars()` in packages/design-system/src/tailwind/plugin.ts).
+     Consumers (e.g. SkillsSections) keep referencing var(--type-display-*). */
 
   /* Letter Spacing - Extreme Contrast */
   --tracking-ultra-tight: -0.06em;  /* Hero用 */
@@ -131,35 +147,40 @@
   --radius-pill: 999px;
 
   /* ==========================================================================
-     Shadow Tokens
+     Shadow Tokens — tuned for light substrate (Wave 4-3).
+     Drop-shadow opacities ~halved vs the dark-substrate values; inset highlight
+     flipped from white to a faint dark wash so panels feel pressed into the
+     light substrate, not floating above a void. Glow tokens shift from cool
+     white (invisible on light) to warm amber so progress / pulse states still
+     register.
      ========================================================================== */
-  --shadow-ambient: 0 18px 50px rgba(0, 0, 0, 0.32);
-  --shadow-directional: 0 2px 0 rgba(255, 255, 255, 0.04) inset;
+  --shadow-ambient: 0 18px 50px rgba(0, 0, 0, 0.12);
+  --shadow-directional: 0 2px 0 rgba(0, 0, 0, 0.04) inset;
   --shadow-elev-1:
-    0 10px 30px rgba(0, 0, 0, 0.24),
-    0 0 0 1px rgba(255, 255, 255, 0.03),
+    0 10px 30px rgba(0, 0, 0, 0.10),
+    0 0 0 1px rgba(0, 0, 0, 0.06),
     var(--shadow-directional);
   --shadow-elev-2:
-    0 18px 44px rgba(0, 0, 0, 0.32),
-    0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 18px 44px rgba(0, 0, 0, 0.12),
+    0 0 0 1px rgba(0, 0, 0, 0.07),
     var(--shadow-directional);
   --shadow-elev-3:
-    0 28px 72px rgba(0, 0, 0, 0.42),
-    0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 28px 72px rgba(0, 0, 0, 0.16),
+    0 0 0 1px rgba(0, 0, 0, 0.09),
     var(--shadow-directional);
-  --shadow-contact: 0 24px 54px rgba(0, 0, 0, 0.34);
+  --shadow-contact: 0 24px 54px rgba(0, 0, 0, 0.14);
   --shadow-inset-film:
-    inset 0 1px 0 rgba(255, 255, 255, 0.05),
-    inset 0 -18px 42px rgba(0, 0, 0, 0.22);
-  --shadow-heat-reflect: 0 0 28px rgba(255, 183, 77, 0.1);
+    inset 0 1px 0 rgba(0, 0, 0, 0.04),
+    inset 0 -18px 42px rgba(0, 0, 0, 0.08);
+  --shadow-heat-reflect: 0 0 28px rgba(255, 183, 77, 0.18);
   --shadow-frame-glass: var(--shadow-contact), var(--shadow-inset-film);
   --shadow-frame-panel:
     var(--shadow-contact),
     var(--shadow-inset-film),
     var(--shadow-heat-reflect);
-  --shadow-glow-sm: 0 0 8px rgba(250, 250, 250, 0.6);
-  --shadow-glow-md: 0 0 12px rgba(250, 250, 250, 0.6);
-  --shadow-glow-lg: 0 0 8px rgba(250, 250, 250, 0.6), 0 0 20px rgba(250, 250, 250, 0.3);
+  --shadow-glow-sm: 0 0 8px rgba(255, 196, 61, 0.55);
+  --shadow-glow-md: 0 0 12px rgba(255, 196, 61, 0.55);
+  --shadow-glow-lg: 0 0 8px rgba(255, 196, 61, 0.6), 0 0 20px rgba(255, 196, 61, 0.32);
 
   /* ==========================================================================
      Animation Timing Tokens
@@ -217,6 +238,226 @@
   --breath-lg: 100vh;    /* φ⁰ × 100 */
   --breath-xl: 161.8vh;  /* φ × 100 */
   --nav-height: 3.75rem;
+
+  /* ==========================================================================
+     Editorial substrate primitives (Wave 4-3 — light substrate).
+
+     The `--slate-*` and `--amber-*` raw scales are NOT redeclared here: they
+     come from `@radix-ui/colors/slate.css` + `amber.css` (scoped to :root,
+     .light, .light-theme — gives light hex values) and from `slate-dark.css`
+     + `amber-dark.css` (scoped to .dark, .dark-theme — gives dark hex values).
+
+     The semantic aliases below therefore resolve scope-aware:
+       :root (default)        → slate-12 = #1c2024 (dark text on light bg)
+       .dark (Filmtone shell) → slate-12 = #edeef0 (light text on dark bg)
+     The `--bg-dark` name is vestigial (16 consumers reference it); under the
+     light substrate it now resolves to slate-1 (≈ #fcfcfd, near-white) and
+     plays the role of "canonical bg". Renaming is deferred — name is just a
+     handle, the Radix scope chain carries the meaning.
+     ========================================================================== */
+  --bg-dark: var(--slate-1);
+  --bg-darker: var(--slate-2);
+  --text-base: var(--slate-12);
+  --text-muted: var(--slate-11);
+  --accent-amber1: var(--amber-9);
+  --accent-amber2: var(--amber-10);
+  --logo-stroke: var(--slate-12);
+  --logo-fill: var(--slate-12);
+  --transition-overlay: #1a1a1a;
+
+  /* Filmtone Desktop 系パネルと揃えるガラス UI トークン（/film-lab）.
+     Wave 4-1 で `[data-theme="dark"]` から :root に昇格 — /photography /filmtone
+     のトークンチェーンを保つため、データテーマ属性削除と同時に必須。 */
+  --fl-bg-app: var(--slate-1);
+  --fl-bg-subtle: var(--slate-2);
+  --fl-bg-raised: var(--slate-3);
+  --fl-bg-interactive: var(--slate-4);
+  --fl-bg-interactive-hover: var(--slate-5);
+  --fl-border-subtle: var(--slate-6);
+  --fl-border-default: var(--slate-7);
+  --fl-border-strong: var(--slate-8);
+  --fl-text-primary: var(--slate-12);
+  --fl-text-secondary: var(--slate-11);
+  --fl-text-tertiary: var(--slate-10);
+  --fl-accent: var(--amber-9);
+  --fl-accent-emphasis: var(--amber-10);
+  --fl-on-accent: #14110a;
+  --fl-focus-ring: color-mix(in srgb, var(--amber-9) 45%, transparent);
+  --fl-frost-blur: 28px;
+
+  /* ==========================================================================
+     Editorial readability tokens (Phase 3, 2026-04-27).
+     Surface translucency + scrim + glass blur for body sections that sit
+     directly on the motion-dot canvas, used by the `<EditorialSection>`
+     component (CSS-only fallback) and `.editorial-prose` utility.
+     ========================================================================== */
+  --surface-editorial-flat: color-mix(in srgb, var(--slate-1) 92%, transparent);
+  --scrim-editorial: color-mix(in srgb, var(--slate-12) 6%, transparent);
+  --glass-editorial-blur: 24px;
+  --editorial-radius: 1.4rem;
+  --editorial-border: 1px solid color-mix(in srgb, var(--slate-12) 9%, transparent);
+  --editorial-shadow:
+    0 18px 48px rgba(0, 0, 0, 0.10),
+    inset 0 1px 0 rgba(0, 0, 0, 0.04);
+  --leading-cjk: 1.85;
+  --tracking-cjk: 0.015em;
+  /* Wave 4-3 — light substrate readability tuning. Lower scalar = more
+     metaball energy dim in shader composite. Light substrate makes residual
+     dot edges more perceptible under copy than the dark substrate did, so
+     focus/reading are pushed deeper. The shader-side dim transitions
+     smoothly via @property + IntersectionObserver, so no section boundary
+     is ever drawn — unlike a CSS scrim. Future per-region shader effects
+     (blur, saturation, vignette, chromatic) should ride this same
+     data-readability → JS ref → shader uniform pipeline. */
+  --motion-dot-readability-default: 1;
+  --motion-dot-readability-focus: 0.42;
+  --motion-dot-readability-reading: 0.20;
+}
+
+.dark,
+.dark-theme {
+  /* Re-resolve semantic aliases inside Radix dark scopes. Custom properties
+     inherited from :root keep their light computed values otherwise. */
+  --text-base-90: color-mix(in srgb, var(--slate-12) 90%, transparent);
+  --text-base-80: color-mix(in srgb, var(--slate-12) 80%, transparent);
+  --text-base-70: color-mix(in srgb, var(--slate-12) 70%, transparent);
+  --text-base-60: color-mix(in srgb, var(--slate-12) 60%, transparent);
+  --text-base-50: color-mix(in srgb, var(--slate-12) 50%, transparent);
+  --text-base-40: color-mix(in srgb, var(--slate-12) 40%, transparent);
+  --text-base-30: color-mix(in srgb, var(--slate-12) 30%, transparent);
+  --text-base-20: color-mix(in srgb, var(--slate-12) 20%, transparent);
+
+  --bg-overlay-40: color-mix(in srgb, var(--slate-12) 40%, transparent);
+  --bg-overlay-20: color-mix(in srgb, var(--slate-12) 20%, transparent);
+  --bg-overlay-10: color-mix(in srgb, var(--slate-12) 10%, transparent);
+  --bg-overlay-5: color-mix(in srgb, var(--slate-12) 5%, transparent);
+
+  --stroke-subtle: color-mix(in srgb, var(--slate-12) 12%, transparent);
+  --stroke-strong: color-mix(in srgb, var(--slate-12) 22%, transparent);
+  --stroke-heat: color-mix(in srgb, var(--accent-amber1) 55%, transparent);
+  --frame-line-primary: color-mix(in srgb, var(--slate-12) 26%, transparent);
+  --frame-line-secondary: color-mix(in srgb, var(--accent-amber1) 34%, transparent);
+  --surface-1: color-mix(in srgb, var(--slate-1) 84%, transparent);
+  --surface-2: color-mix(in srgb, var(--slate-2) 90%, transparent);
+  --surface-3: color-mix(in srgb, var(--slate-3) 72%, transparent);
+  --surface-glass-dark: color-mix(in srgb, var(--slate-2) 74%, transparent);
+  --surface-editorial-panel: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--slate-2) 92%, transparent),
+    color-mix(in srgb, var(--slate-1) 86%, transparent)
+  );
+  --hairline-gradient: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--slate-12) 28%, transparent) 50%,
+    transparent 100%
+  );
+  --section-divider-strong: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--slate-12) 12%, transparent) 18%,
+    color-mix(in srgb, var(--accent-amber1) 55%, transparent) 50%,
+    color-mix(in srgb, var(--slate-12) 12%, transparent) 82%,
+    transparent 100%
+  );
+
+  --bg-dark: var(--slate-1);
+  --bg-darker: var(--slate-2);
+  --text-base: var(--slate-12);
+  --text-muted: var(--slate-11);
+  --accent-amber1: var(--amber-9);
+  --accent-amber2: var(--amber-10);
+  --logo-stroke: var(--slate-12);
+  --logo-fill: var(--slate-12);
+
+  --fl-bg-app: var(--slate-1);
+  --fl-bg-subtle: var(--slate-2);
+  --fl-bg-raised: var(--slate-3);
+  --fl-bg-interactive: var(--slate-4);
+  --fl-bg-interactive-hover: var(--slate-5);
+  --fl-border-subtle: var(--slate-6);
+  --fl-border-default: var(--slate-7);
+  --fl-border-strong: var(--slate-8);
+  --fl-text-primary: var(--slate-12);
+  --fl-text-secondary: var(--slate-11);
+  --fl-text-tertiary: var(--slate-10);
+  --fl-accent: var(--amber-9);
+  --fl-accent-emphasis: var(--amber-10);
+  --fl-on-accent: #14110a;
+  --fl-focus-ring: color-mix(in srgb, var(--amber-9) 45%, transparent);
+
+  --surface-editorial-flat: color-mix(in srgb, var(--slate-1) 92%, transparent);
+  --scrim-editorial: color-mix(in srgb, var(--slate-12) 6%, transparent);
+  --editorial-border: 1px solid color-mix(in srgb, var(--slate-12) 9%, transparent);
+}
+
+/* ============================================================================
+   Editorial readability — Phase 3 (2026-04-27).
+
+   `--motion-dot-readability` is a smooth-animated scalar (0..1) that tells
+   the Liquid Glass shader composite how much of the motion-dot substrate
+   should bleed through (1 = full, 0 = mostly dimmed to a muted floor).
+
+   Sections opt-in via `data-readability="focus|reading|immersive"`. The JS
+   hook `useReadabilityRegions` watches these via IntersectionObserver and
+   writes the dominant section's value to documentElement, with rAF lerp
+   smoothing. The same scalar is also exposed to JS via a module ref so
+   LiquidGlassProvider can populate the shader uniform without per-frame
+   getComputedStyle reads.
+
+   Why @property: registering with a syntax of <number> makes the value
+   smoothly interpolate across the implicit transition below, which means
+   the shader receives a continuous signal even when the IntersectionObserver
+   delivers a step change.
+   ============================================================================ */
+@property --motion-dot-readability {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 1;
+}
+
+:root {
+  --motion-dot-readability: 1;
+  transition: --motion-dot-readability 0.6s var(--motion-ease-soft);
+}
+[data-readability="focus"]     { --motion-dot-readability: var(--motion-dot-readability-focus); }
+[data-readability="reading"]   { --motion-dot-readability: var(--motion-dot-readability-reading); }
+[data-readability="immersive"] { --motion-dot-readability: var(--motion-dot-readability-default); }
+
+@media (prefers-reduced-motion: reduce) {
+  :root { transition: none; }
+}
+
+.editorial-surface-flat {
+  background: var(--surface-editorial-flat);
+  backdrop-filter: blur(var(--glass-editorial-blur)) saturate(1.15);
+  -webkit-backdrop-filter: blur(var(--glass-editorial-blur)) saturate(1.15);
+  border: var(--editorial-border);
+  border-radius: var(--editorial-radius);
+  box-shadow: var(--editorial-shadow);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .editorial-surface-flat {
+    background: var(--slate-1);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+/* CJK-safe long-form prose. Avoid `text-wrap: balance` (forces equal lines
+   and breaks awkwardly mid-phrase in Japanese) and `text-shadow` (looks
+   fuzzy on CJK glyph terminals). Real readability work is done by surface
+   contrast + substrate dim, not type tricks. */
+.editorial-prose {
+  max-width: 38rem;
+  line-height: var(--leading-cjk);
+  letter-spacing: var(--tracking-cjk);
+  text-wrap: pretty;
+  word-break: auto-phrase;
+}
+.editorial-prose > * + * {
+  margin-top: 1.1em;
 }
 
 /**
@@ -292,26 +533,28 @@
 }
 
 body {
-  background: var(--bg-dark);
-  color: var(--text-base);
+  /* Single LIGHT editorial substrate (Wave 4-3). `--bg-primary` matches the
+     motion-dot canvas's hardcoded bgColor so the body and the canvas share
+     the same hue. `--fg-primary` is dark text against this light substrate. */
+  background: var(--bg-primary);
+  color: var(--fg-primary);
   font-family: var(--font-family-sans);
-}
-
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background-image: var(--noise-texture);
-  opacity: 0.018;
-  mix-blend-mode: screen;
-  z-index: 0;
+  min-height: var(--app-vh);
+  overflow-x: clip;
 }
 
 main,
 section {
   position: relative;
   z-index: 1;
+}
+
+.app-fixed-viewport {
+  position: fixed;
+  top: var(--vv-offset-top, 0px);
+  left: var(--vv-offset-left, 0px);
+  width: 100vw;
+  height: var(--vvh, 100dvh);
 }
 
 .text-balance {

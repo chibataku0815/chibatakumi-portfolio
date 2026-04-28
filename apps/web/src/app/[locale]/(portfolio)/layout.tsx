@@ -1,0 +1,84 @@
+import { PageTransition } from "@/shared/transitions";
+import { Nav } from "@/shared/components";
+import {
+  ActiveMotionStageProvider,
+  MotionStageProvider,
+} from "@/features/motion";
+import {
+  LiquidGlassFrontChrome,
+  LiquidGlassProvider,
+} from "@/features/liquid-glass";
+import { AudioBusProvider, SoundToggleControl } from "@/features/audio";
+
+/**
+ * Portfolio shell — Renewal 2026 Satellite Isolation Plan §3.2.
+ *
+ * 適用範囲: `/`, `/about`, `/contact`, `/craft`, `/experiments`, `/journal`, `/works`
+ * 提供する surface:
+ *  - `<Nav />` (renewal global navigation)
+ *  - `<MotionStageProvider>` (motion-dot canvas のホスト)
+ *  - `<LiquidGlassProvider>` (motion-dot のレンダリングループに ComposePass を差し込む)
+ *  - `<AudioBusProvider>` + `<SoundToggleControl>`
+ *  - `<PageTransition>` (route 遷移オーバーレイ)
+ *
+ * ⚠️ 外側 wrapper に `background-color` / `min-height` を付けない:
+ *    MotionStageProvider の canvas は `fixed inset-0 -z-10` で背面配置される
+ *    (`features/motion/MotionStageProvider.tsx:27,87`)。bg を付けると canvas が
+ *    完全に隠れて motion-dot が表示されなくなる。詳細は plan §3.2 警告を参照。
+ *
+ * 範囲外: `/filmtone`, `/photography` — 別 route group `(satellite)/layout.tsx` が独自 shell を提供。
+ */
+export default function PortfolioRouteLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      {/*
+        Layer contract for portfolio routes:
+          --motion-hud-top   : top inset for motion-dot HUD/film/audio chips.
+          --z-motion-hud     : motion-dot HUD/control chips (lowest of the
+                               persistent overlays).
+          --z-motion-hud-panel: motion-dot audio settings panel — above the
+                               HUD chips but still below the nav.
+          --z-nav-front-glass: front overlay canvas painted by
+                               `LiquidGlassFrontChrome` (the visible Liquid
+                               Glass material for brand pill / menu pill /
+                               open menu panel).
+          --z-nav-hit        : transparent <Link>/<button> hit & a11y layer,
+                               above the front glass so icons stay crisp.
+          --z-nav-panel-scrim: full-viewport CSS backdrop-filter scrim.
+          --z-nav-panel-content: open menu DOM contents (BrandWordmark, links,
+                                 LanguageSwitcher) rendered above the canvas.
+      */}
+      <style>
+        {`:root { --rail-x: 18px; --rail-y: 12px; --rail-height: 60px; --motion-hud-top: calc(var(--rail-y) + var(--rail-height) + 18px); --motion-hud-right: 22px; --motion-hud-status-bottom: 22px; --motion-hud-dock-bottom: 68px; --motion-hud-popover-bottom: 136px; --motion-touch-panel-max-height: calc(var(--vvh, 100dvh) - 160px); --nav-chip-left: 32px; --nav-chip-right: 32px; --nav-chip-top: 24px; --nav-panel-top: 32px; --nav-panel-right: 32px; --nav-panel-bottom: 32px; --nav-panel-width: min(360px, calc(100vw - 4rem)); --nav-panel-max-height: calc(var(--vvh, 100dvh) - 64px); --z-motion-hud: 20; --z-motion-hud-panel: 30; --z-motion-hud-content: 1210; --z-nav-panel-scrim: 1090; --z-nav-front-glass: 1200; --z-nav-hit: 1220; --z-nav-panel-content: 1300; --z-nav-visual: var(--z-nav-front-glass); --z-nav-panel: var(--z-nav-panel-content); } :root[data-nav-menu-open] .motion-stage-hud-overlay, :root[data-nav-menu-open] .sound-toggle-control { display: none; } @media (max-width: 720px) { :root { --rail-x: var(--mobile-edge-x); --rail-y: var(--mobile-edge-y); --rail-height: 56px; --motion-hud-right: max(16px, var(--safe-right)); --motion-hud-status-bottom: calc(var(--safe-bottom) + 16px); --motion-hud-dock-bottom: calc(var(--safe-bottom) + 62px); --motion-hud-popover-bottom: calc(var(--safe-bottom) + 130px); --motion-touch-panel-max-height: calc(var(--vvh, 100dvh) - var(--safe-top) - var(--safe-bottom) - 160px); --nav-chip-left: max(16px, var(--safe-left)); --nav-chip-right: max(16px, var(--safe-right)); --nav-chip-top: calc(var(--safe-top) + 16px); --nav-panel-top: calc(var(--safe-top) + 16px); --nav-panel-right: max(16px, var(--safe-right)); --nav-panel-bottom: calc(var(--safe-bottom) + 16px); --nav-panel-width: min(360px, calc(100vw - var(--safe-left) - var(--safe-right) - 32px)); --nav-panel-max-height: calc(var(--vvh, 100dvh) - var(--safe-top) - var(--safe-bottom) - 32px); } }`}
+      </style>
+      <ActiveMotionStageProvider>
+        <MotionStageProvider>
+          {/*
+            AudioBusProvider sits inside MotionStageProvider so motion
+            participants (Wave 2 D5.4) can subscribe to the shared audio bus.
+            LiquidGlassProvider reads the *active* motion stage via
+            useActiveMotionStage() — usually motion-dot, but on
+            /experiments/{grid,flow} the route's local mount registers itself
+            instead, so the Apple Liquid Glass compose pass follows whichever
+            stage is driving the substrate. LiquidGlassFrontChrome consumes
+            the same active stage for the front overlay canvas device.
+          */}
+          <LiquidGlassProvider>
+            <AudioBusProvider>
+              <PageTransition>
+                <Nav />
+                {children}
+              </PageTransition>
+              <SoundToggleControl />
+            </AudioBusProvider>
+            <LiquidGlassFrontChrome />
+          </LiquidGlassProvider>
+        </MotionStageProvider>
+      </ActiveMotionStageProvider>
+    </div>
+  );
+}

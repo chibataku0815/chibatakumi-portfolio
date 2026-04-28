@@ -104,7 +104,7 @@ export const ControlPanel = forwardRef<FilmLabCoreRef, ControlPanelProps>(functi
 
   /* Smart Look の可視判定 */
   const smartLookPathOk =
-    pathname.includes("/film-lab") && !pathname.includes("/support");
+    (pathname.includes("/filmtone") || pathname.includes("/film-lab")) && !pathname.includes("/support");
   const smartLookHasDesktopBff =
     typeof smartLookApiBaseUrl === "string" &&
     smartLookApiBaseUrl.trim().length > 0;

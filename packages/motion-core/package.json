@@ -1,0 +1,50 @@
+{
+  "name": "@chibatakumi/motion-core",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Renewal 2026 — Motion Core. Re-exports webgpu-motion-* libs and adds MotionParticipant API for portfolio shell.",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts"
+    },
+    "./shell": {
+      "types": "./src/shell/index.ts",
+      "import": "./src/shell/index.ts"
+    },
+    "./audio": {
+      "types": "./src/audio/index.ts",
+      "import": "./src/audio/index.ts"
+    },
+    "./post": {
+      "types": "./src/post/index.ts",
+      "import": "./src/post/index.ts"
+    },
+    "./art": {
+      "types": "./src/art/index.ts",
+      "import": "./src/art/index.ts"
+    },
+    "./participant": {
+      "types": "./src/participant/index.ts",
+      "import": "./src/participant/index.ts"
+    },
+    "./stage": {
+      "types": "./src/stage/index.ts",
+      "import": "./src/stage/index.ts"
+    },
+    "./compose": {
+      "types": "./src/compose/index.ts",
+      "import": "./src/compose/index.ts"
+    }
+  },
+  "dependencies": {
+    "webgpu-motion-shell": "workspace:*",
+    "webgpu-motion-audio": "workspace:*",
+    "webgpu-motion-post": "workspace:*",
+    "webgpu-motion-art": "workspace:*"
+  },
+  "devDependencies": {
+    "@webgpu/types": "^0.1.52"
+  }
+}

@@ -14,6 +14,13 @@ export const signalStrokeRelayFixtures = {
     y: 248,
   },
   railLabel: "Main home: Theatre.js + Motion + SVG",
+  techniqueFamily: [
+    "trim path window",
+    "staggered cue chain",
+    "offset & delay gate",
+    "match cut anchor",
+  ],
+  subjectLabel: "Title cue relay",
   paths: {
     lead:
       "M 108 204 L 444 204 C 506 204 546 192 590 162 C 608 150 622 142 638 142 L 690 142",

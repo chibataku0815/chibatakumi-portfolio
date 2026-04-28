@@ -143,7 +143,7 @@ function FilmLabFullPageHydrationPlaceholder() {
  * @description Desktop 公開版の条件を Web の Film Lab ページで案内するカード。
  *   公開面は「価値 → 要件 → 行動（DL・問い合わせ）」までに留め、LUT/寄付/製品差分の細部はアプリ内ヘルプ等へ寄せる。
  *   DL 導線の視認性のため `film-lab-desktop-release-notice` でごく弱い box-shadow パルス（`globals.css`、 reduced-motion 時は停止）。
- * @limitations 実ファイル URL は固定ルート `/film-lab/download` 側で環境変数を見て解決します。
+ * @limitations 実ファイル URL は固定ルート `/filmtone/download` 側で環境変数を見て解決します。
  * @param root0 - オプション
  * @param root0.suppressTopMargin - LP 内で trust 見出し直後に置くときなど、上マージンを消す
  */
@@ -1333,13 +1333,13 @@ export function FilmLabFullPage({
 
       <nav className="mt-12 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-white/10 pt-8">
         <Link
-          href="/film-lab/roadmap"
+          href="/filmtone/roadmap"
           className="film-lab-lp-body text-xs text-[var(--text-base-60)] transition-colors hover:text-[var(--text-base)]"
         >
           {tLp("roadmapLink")}
         </Link>
         <Link
-          href="/film-lab/release-notes"
+          href="/filmtone/release-notes"
           className="film-lab-lp-body text-xs text-[var(--text-base-60)] transition-colors hover:text-[var(--text-base)]"
         >
           {tLp("releaseNotesLink")}

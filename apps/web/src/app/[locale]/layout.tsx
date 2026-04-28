@@ -1,14 +1,13 @@
-import { PageTransition } from "@/shared/transitions";
-import { Nav } from "@/shared/components";
+import { AnalyticsPageTracker } from "@/shared/analytics/AnalyticsPageTracker";
+import { VisualViewportSync } from "@/features/viewport/VisualViewportSync";
 import { portfolioData } from "@/shared/data/portfolio";
 import { routing } from "@/i18n/routing";
-import { AnalyticsPageTracker } from "@/shared/analytics/AnalyticsPageTracker";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { setRequestLocale, getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { Suspense } from "react";
 import { fontVariables } from "../fonts";
@@ -17,6 +16,13 @@ import "../globals.css";
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#D2D2D2",
+};
 
 export async function generateMetadata({
   params,
@@ -71,6 +77,12 @@ export async function generateMetadata({
   };
 }
 
+/**
+ * Locale shared core — Renewal 2026 Satellite Isolation Plan §3.1.
+ * `<html>` + `<body>` + i18n provider + analytics のみを担当する。
+ * Visual shell (Nav / MotionStage / LiquidGlass / theme wrapper) は
+ * `(portfolio)/layout.tsx` と `(satellite)/layout.tsx` がそれぞれ提供。
+ */
 export default async function LocaleLayout({
   children,
   params,
@@ -90,8 +102,9 @@ export default async function LocaleLayout({
   const gaMeasurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim();
 
   return (
-    <html lang={locale} className={`dark ${fontVariables}`}>
+    <html lang={locale} className={fontVariables}>
       <body className="antialiased">
+        <VisualViewportSync />
         {metaPixelId ? (
           <>
             <Script id="meta-pixel" strategy="afterInteractive">
@@ -141,10 +154,7 @@ export default async function LocaleLayout({
           <Suspense fallback={null}>
             <AnalyticsPageTracker />
           </Suspense>
-          <PageTransition>
-            <Nav />
-            {children}
-          </PageTransition>
+          {children}
         </NextIntlClientProvider>
         <Analytics />
         <SpeedInsights />

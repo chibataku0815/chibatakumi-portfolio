@@ -8,7 +8,7 @@
 export const filmLabDesktopSupportEmail = "chiba@fores-tone.co.jp";
 export const filmLabDesktopMinimumMacos = "11.0";
 export const filmLabDesktopArchitecture = "Apple Silicon (arm64)";
-export const filmLabDesktopDownloadRoute = "/film-lab/download";
+export const filmLabDesktopDownloadRoute = "/filmtone/download";
 
 /**
  * 公開 DMG の固定リンク先を環境変数から読みます。

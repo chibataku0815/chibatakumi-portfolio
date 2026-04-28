@@ -1,0 +1,21 @@
+// apps/web motion feature — public boundary.
+
+export { MotionStageProvider } from "./MotionStageProvider";
+export { MotionUnsupportedBanner } from "./MotionUnsupported";
+export {
+  MotionStageContext,
+  useMotionStage,
+  type MotionStageStatus,
+} from "./MotionStageContext";
+export { useMotionDotSceneCycle } from "./useMotionDotSceneCycle";
+export {
+  MotionStageVisibilityProvider,
+  useHideMotionStageOnMount,
+  useMotionStageHidden,
+} from "./MotionStageVisibility";
+export {
+  ActiveMotionStageProvider,
+  useActiveMotionStage,
+  useRegisterActiveMotionStage,
+  type ActiveStageHandle,
+} from "./ActiveMotionStage";

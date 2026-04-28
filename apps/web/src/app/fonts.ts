@@ -1,4 +1,4 @@
-import { Geist, Geist_Mono, Noto_Sans_JP } from "next/font/google";
+import { Geist, Geist_Mono, Jost, Noto_Sans_JP } from "next/font/google";
 
 /**
  * Geist Sans - Primary Latin font
@@ -42,10 +42,27 @@ export const notoSansJP = Noto_Sans_JP({
 });
 
 /**
+ * Jost - Display headings (upright weight)
+ *
+ * Geometric humanist sans, Futura-inspired but warmer. Pairs with the
+ * Jost-800 italic SVG wordmark in Hero — same family, different role:
+ * italic asserts voice, upright informs. Body text remains Geist Sans.
+ */
+export const jost = Jost({
+  variable: "--font-jost",
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  style: ["normal"],
+  display: "swap",
+  preload: false,
+});
+
+/**
  * Combined font class names for <html> element
  */
 export const fontVariables = [
   geistSans.variable,
   geistMono.variable,
   notoSansJP.variable,
+  jost.variable,
 ].join(" ");

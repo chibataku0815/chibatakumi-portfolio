@@ -108,7 +108,7 @@ export default function PhotographyClient() {
   }, []);
 
   return (
-    <main ref={mainRef} className="min-h-screen overflow-hidden">
+    <main ref={mainRef} className="photography-page min-h-screen overflow-hidden">
       <div className="pointer-events-none absolute inset-0">
         <div className="photography-grain-layer" />
         <div className="photography-ambient-orb section-atmosphere left-[4%] top-[24rem] h-52 w-52 opacity-70" />

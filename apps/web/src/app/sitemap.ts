@@ -2,31 +2,48 @@ import type { MetadataRoute } from "next";
 
 const BASE_URL = "https://www.chibatakumi.studio";
 
+/**
+ * Renewal 2026 reset (parent plan §2.1, §3.1, §7.1) — sitemap publishes only
+ * canonical IA surfaces whose content ledger is closed. Hollow / placeholder
+ * routes are intentionally excluded until the package that owns them lands
+ * real content; that package will re-register the route here.
+ *
+ * Package 4 (Motion Works) re-added `/experiments/grid` and
+ * `/experiments/flow` after their destination clients were rebuilt on
+ * standalone mount entries (motion-grid `mountMotionGridApp` / motion-flow
+ * `mountMotionFlowApp`); the routes are no longer placeholders.
+ *
+ * Package 5 (Satellite Canonical Routes) landed `/photography` and `/filmtone`
+ * as canonical wrapper routes, along with selected Filmtone child routes whose
+ * content ledger is closed. Post-action confirmation routes (`/filmtone/download/complete`,
+ * `/filmtone/support/thanks`) and the OG image route (`/filmtone/og`) are excluded
+ * per sitemap convention: confirmation pages are not indexable entry points, and
+ * OG routes are metadata image handlers, not public pages.
+ *
+ * Excluded with reason:
+ * - `/works/*`, `/about`, `/craft` — legacy surfaces that 301-redirect via
+ *   `next.config.ts` and must never appear here.
+ *
+ * `/journal` is a real index (Core Content package, parent plan §7.2).
+ * Motion-study detail routes are intentionally excluded until individual works
+ * pass the public portfolio quality gate.
+ */
 const pages = [
   { path: "", changeFrequency: "monthly" as const, priority: 1 },
-  { path: "/skills", changeFrequency: "monthly" as const, priority: 0.8 },
-  { path: "/photography", changeFrequency: "weekly" as const, priority: 0.9 },
-  { path: "/profile", changeFrequency: "monthly" as const, priority: 0.7 },
-  { path: "/contact", changeFrequency: "yearly" as const, priority: 0.6 },
+  { path: "/experiments", changeFrequency: "monthly" as const, priority: 0.9 },
+  { path: "/experiments/dot", changeFrequency: "monthly" as const, priority: 0.8 },
+  { path: "/experiments/grid", changeFrequency: "monthly" as const, priority: 0.8 },
+  { path: "/experiments/flow", changeFrequency: "monthly" as const, priority: 0.8 },
+  { path: "/photography", changeFrequency: "monthly" as const, priority: 0.8 },
+  { path: "/filmtone", changeFrequency: "monthly" as const, priority: 0.8 },
+  { path: "/filmtone/download", changeFrequency: "monthly" as const, priority: 0.7 },
+  { path: "/filmtone/release-notes", changeFrequency: "monthly" as const, priority: 0.6 },
+  { path: "/filmtone/roadmap", changeFrequency: "monthly" as const, priority: 0.6 },
+  { path: "/filmtone/signature", changeFrequency: "monthly" as const, priority: 0.6 },
+  { path: "/filmtone/support", changeFrequency: "yearly" as const, priority: 0.5 },
+  { path: "/filmtone/privacy", changeFrequency: "yearly" as const, priority: 0.4 },
   { path: "/journal", changeFrequency: "monthly" as const, priority: 0.7 },
-  { path: "/works", changeFrequency: "monthly" as const, priority: 0.7 },
-  { path: "/interactive", changeFrequency: "monthly" as const, priority: 0.8 },
-  { path: "/film-lab", changeFrequency: "monthly" as const, priority: 0.8 },
-  {
-    path: "/film-lab/download",
-    changeFrequency: "monthly" as const,
-    priority: 0.7,
-  },
-  {
-    path: "/film-lab/release-notes",
-    changeFrequency: "monthly" as const,
-    priority: 0.5,
-  },
-  {
-    path: "/film-lab/roadmap",
-    changeFrequency: "monthly" as const,
-    priority: 0.5,
-  },
+  { path: "/contact", changeFrequency: "yearly" as const, priority: 0.6 },
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {

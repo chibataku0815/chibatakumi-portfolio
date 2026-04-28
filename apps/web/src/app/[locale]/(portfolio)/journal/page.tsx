@@ -12,6 +12,7 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "journal" });
   const isJa = locale === "ja";
+
   const canonicalUrl = isJa ? `${BASE_URL}/journal` : `${BASE_URL}/en/journal`;
 
   return {
@@ -49,14 +50,21 @@ export default async function JournalPage({
   const t = await getTranslations({ locale, namespace: "journal" });
 
   return (
-    <main className="min-h-screen bg-[var(--bg-dark)] pt-32 pb-24 text-[var(--text-base)]">
+    <main className="relative min-h-screen text-[var(--text-base)]">
       <article>
-        <header className="px-6 pb-20">
-          <div className="mx-auto max-w-4xl">
-            <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--text-base-60)]">
+        {/* HERO: editorial cover, motion-dot focus dim */}
+        <header
+          data-readability="focus"
+          className="px-6 pt-32 pb-20 sm:px-12 sm:pt-44 sm:pb-32 lg:px-20"
+        >
+          <div className="mx-auto max-w-6xl">
+            <p className="font-sans font-medium text-[10px] uppercase tracking-[0.18em] text-[var(--text-base-60)]">
               {t("eyebrow")}
             </p>
-            <h1 className="mt-12 text-[clamp(3.5rem,11vw,7rem)] font-semibold leading-[0.95] tracking-[-0.04em]">
+            <h1
+              className="mt-12 text-[clamp(3.5rem,11vw,7rem)] font-medium leading-[0.95] tracking-[-0.04em] text-[var(--text-base)]"
+              style={{ fontFamily: "var(--font-family-display)" }}
+            >
               {t("title")}
             </h1>
             <p className="mt-12 max-w-[44ch] text-[1.25rem] leading-[1.7] text-[var(--text-muted)]">
@@ -65,8 +73,12 @@ export default async function JournalPage({
           </div>
         </header>
 
-        <section className="px-6">
-          <div className="mx-auto max-w-4xl">
+        {/* BODY: editorial shell, reading dim */}
+        <section
+          data-readability="reading"
+          className="px-6 pb-32 sm:px-12 lg:px-20"
+        >
+          <div className="mx-auto max-w-6xl">
             <p className="max-w-[42rem] text-[1rem] leading-[1.85] text-[var(--text-base-80)]">
               {t("intro")}
             </p>
