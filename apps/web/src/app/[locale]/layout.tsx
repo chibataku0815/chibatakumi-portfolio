@@ -1,4 +1,5 @@
 import { AnalyticsPageTracker } from "@/shared/analytics/AnalyticsPageTracker";
+import { VisualViewportSync } from "@/features/viewport/VisualViewportSync";
 import { portfolioData } from "@/shared/data/portfolio";
 import { routing } from "@/i18n/routing";
 import { Analytics } from "@vercel/analytics/next";
@@ -6,7 +7,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { setRequestLocale, getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { Suspense } from "react";
 import { fontVariables } from "../fonts";
@@ -15,6 +16,13 @@ import "../globals.css";
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#D2D2D2",
+};
 
 export async function generateMetadata({
   params,
@@ -96,6 +104,7 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} className={fontVariables}>
       <body className="antialiased">
+        <VisualViewportSync />
         {metaPixelId ? (
           <>
             <Script id="meta-pixel" strategy="afterInteractive">

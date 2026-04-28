@@ -41,6 +41,7 @@ import {
 } from "./scene/typography/hero-word-pattern-registry";
 import {
   MAX_HERO_TOKEN_CHARS,
+  MIN_HERO_TOKEN_CHARS,
   sanitizeHeroTokenInput,
 } from "./scene/typography/hero-token";
 import {
@@ -506,6 +507,34 @@ export async function mountMotionGridApp(
       syncDraftToCommittedToken();
     };
 
+    const shouldUsePromptInput = (): boolean =>
+      typeof window !== "undefined"
+      && window.matchMedia?.("(pointer: coarse)").matches === true;
+
+    const promptHeroTokenInput = (): void => {
+      if (scene.isAnyHandoffActive()) {
+        return;
+      }
+
+      const currentToken = scene.getSnapshot().heroToken;
+      const nextToken = window.prompt("Enter hero token", currentToken);
+      if (nextToken === null) {
+        return;
+      }
+
+      setDraftHeroToken(nextToken);
+      if (!draftValidation.ok || !draftMorphValidation.ok) {
+        window.alert(
+          resolveInputHint(draftValidation, draftMorphValidation)
+            ?? `Use ${MIN_HERO_TOKEN_CHARS}-${MAX_HERO_TOKEN_CHARS} chars: A-Z 0-9 . space`,
+        );
+        syncDraftToCommittedToken();
+        return;
+      }
+
+      confirmInputMode();
+    };
+
     const resetScene = (): void => {
       clearQueuedPatternHandoff();
       clearPendingWordHandoff();
@@ -573,6 +602,8 @@ export async function mountMotionGridApp(
           onClick: () => {
             if (inputModeActive) {
               cancelInputMode();
+            } else if (shouldUsePromptInput()) {
+              promptHeroTokenInput();
             } else {
               enterInputMode();
             }

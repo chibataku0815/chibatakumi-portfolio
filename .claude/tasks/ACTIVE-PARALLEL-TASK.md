@@ -2,6 +2,56 @@
 
 ## 現在アクティブなタスク
 
+## Portfolio Mobile UI Outer-Shell Reduction (2026-04-28)
+- **Agent:** Codex CLI
+- **Started:** 2026-04-28T20:08:20+0900 (JST)
+- **Completed:** 2026-04-28T20:19:46+0900 (JST)
+- **Status:** 完了
+- **Branch:** `feat/renewal-2026-phase2-motion-dot`
+- **Changed Files:**
+  - `packages/motion-dot/src/ui/hud.ts` (編集)
+  - `packages/motion-flow/src/ui/hud.ts` (編集)
+  - `apps/web/src/shared/components/LanguageSwitcher.tsx` (編集)
+  - `.claude/tasks/ACTIVE-PARALLEL-TASK.md` (編集)
+- **Notes:**
+  - Mobile-focused follow-up for card-in-card reduction: motion-dot action buttons now render as direct text rows with separators instead of nested rounded button cards.
+  - Flow mobile touch strip now uses direct text targets and underlines for active state, removing the extra glass wrapper and filled inner chips while preserving 44px targets.
+  - Menu locale switcher no longer nests a rounded pill inside the glass menu; active locale is indicated by a baseline.
+  - Verification: `bun run --cwd apps/web build`, scoped ESLint for `LanguageSwitcher`, and `git diff --check` passed. Headed Playwright iPhone 15 Pro approximation screenshots/metrics saved under `output/playwright/2026-04-28-mobile-shell-reduction/`; no horizontal overflow, no detected small touch targets, and no rounded filled child controls in the checked mobile states.
+
+## Portfolio Mobile Safari Layout + Touch Controller Fix (2026-04-28)
+- **Agent:** Codex CLI
+- **Started:** 2026-04-28T19:43:41+0900 (JST)
+- **Completed:** 2026-04-28T20:04:13+0900 (JST)
+- **Status:** 完了
+- **Branch:** `feat/renewal-2026-phase2-motion-dot`
+- **Plan:** `/Volumes/SamsungPortableSSDX5001/documents/life/docs/guides/2026-04-28-portfolio-mobile-safari-layout-touch-controller-plan.md`
+- **Changed Files:**
+  - `apps/web/src/app/[locale]/layout.tsx` (編集)
+  - `apps/web/src/app/globals.css` (編集)
+  - `apps/web/src/app/[locale]/(portfolio)/layout.tsx` (編集)
+  - `apps/web/src/features/viewport/VisualViewportSync.tsx` (新規)
+  - `apps/web/src/features/motion/MotionStageProvider.tsx` (編集)
+  - `apps/web/src/features/liquid-glass/LiquidGlassFrontChrome.tsx` (編集)
+  - `apps/web/src/features/hero/components/AmbientHomeHero.tsx` (編集)
+  - `apps/web/src/features/audio/SoundToggleControl.tsx` (編集)
+  - `apps/web/src/features/contact/ContactClient.tsx` (編集)
+  - `apps/web/src/shared/components/Nav.tsx` (編集)
+  - `apps/web/src/shared/components/LanguageSwitcher.tsx` (編集)
+  - `apps/web/src/app/[locale]/(portfolio)/experiments/grid/client.tsx` (編集)
+  - `apps/web/src/app/[locale]/(portfolio)/experiments/flow/client.tsx` (編集)
+  - `packages/motion-dot/src/ui/hud.ts` (編集)
+  - `packages/motion-dot/src/main.ts` (編集)
+  - `packages/motion-grid/src/ui/hud.ts` (編集)
+  - `packages/motion-grid/src/mount.ts` (編集)
+  - `packages/motion-flow/src/ui/hud.ts` (編集)
+  - `packages/motion-flow/src/mount.ts` (編集)
+- **Notes:**
+  - Added visual viewport CSS variable sync and `viewport-fit=cover`; fixed motion canvases/overlays to `visualViewport` height/offset to reduce mobile Safari URL-bar layout drift.
+  - Made nav/menu/sound/contact/language controls safe-area aware with 44px touch targets; nav-open hides overlapping motion HUD controls.
+  - Replaced motion-dot keyboard legend with real touch action buttons and routed dot/flow/grid mobile controls through shared action helpers instead of synthetic keyboard events.
+  - Verification: `bun run --cwd apps/web build` passed; scoped ESLint passed with existing `<img>` warning; Playwright mobile Safari approximation screenshots/metrics saved under `output/playwright/2026-04-28-mobile-safari-after-r3/` and `output/playwright/2026-04-28-mobile-safari-flow-strip-r4/` with horizontal overflow false and no detected small touch targets.
+
 ## Hero Wordmark Tier 2 Tuning — Per-pair Kerning + Procedural Background (2026-04-27)
 - **Agent:** Claude Opus 4.7 (orchestrator-director 単独統括 + 4 parallel subagents via Agent Teams)
 - **Started:** 2026-04-27T18:30:00+0900 (JST)

@@ -103,6 +103,8 @@ export function createHud(container: HTMLElement): HTMLDivElement {
       top: "96px",
       left: "24px",
       padding: "10px 18px",
+      boxSizing: "border-box",
+      maxWidth: "calc(100vw - 48px)",
       borderRadius: "14px",
       background: "transparent",
       fontFamily: TOKEN.fontStack,
@@ -114,7 +116,8 @@ export function createHud(container: HTMLElement): HTMLDivElement {
       pointerEvents: "none",
       userSelect: "none",
       lineHeight: "1.4",
-      whiteSpace: "nowrap",
+      whiteSpace: "normal",
+      overflowWrap: "anywhere",
     },
   });
   markLiquidGlassControl(root, "control.grid.status", {
@@ -239,6 +242,7 @@ export function createControlCluster(
       position: "fixed",
       right: "24px",
       bottom: "24px",
+      maxWidth: "calc(100vw - var(--safe-left, 0px) - var(--safe-right, 0px) - 32px)",
       padding: "10px 14px",
       borderRadius: "18px",
       background: "transparent",
@@ -246,6 +250,7 @@ export function createControlCluster(
       flexDirection: "column",
       alignItems: "flex-end",
       gap: "6px",
+      boxSizing: "border-box",
       pointerEvents: "auto",
       userSelect: "none",
       transition: "opacity 160ms ease-out",
@@ -267,8 +272,10 @@ export function createControlCluster(
     Object.assign(rowEl.style, {
       display: "flex",
       flexDirection: "row",
+      flexWrap: "wrap",
       justifyContent: "flex-end",
       alignItems: "stretch",
+      gap: "2px",
     } satisfies Partial<CSSStyleDeclaration>);
     for (const def of row) {
       const record = createChip(def);
@@ -334,16 +341,23 @@ export function createControlCluster(
     },
     setMetrics(cellSize, rightPx, bottomPx) {
       const cs = Math.max(Math.round(cellSize), 1);
+      const coarsePointer = typeof window !== "undefined"
+        && window.matchMedia?.("(pointer: coarse)").matches === true;
+      const minTargetPx = coarsePointer ? 44 : 1;
       if (cs !== lastCellSize) {
         const keyPx = cs >= 24 ? 11 : 10;
         const labelPx = cs >= 24 ? 10 : 9;
         const showLabels = cs >= TOKEN.labelHideBelowCellSize;
         for (const record of chips.values()) {
-          const chipW = record.cellsWide * cs;
+          const chipW = Math.max(record.cellsWide * cs, minTargetPx);
+          const chipH = Math.max(cs, minTargetPx);
+          const keySize = Math.max(cs, minTargetPx);
           record.button.style.width = `${chipW}px`;
-          record.button.style.height = `${cs}px`;
-          record.keyEl.style.width = `${cs}px`;
-          record.keyEl.style.height = `${cs}px`;
+          record.button.style.height = `${chipH}px`;
+          record.button.style.minWidth = `${minTargetPx}px`;
+          record.button.style.minHeight = `${minTargetPx}px`;
+          record.keyEl.style.width = `${keySize}px`;
+          record.keyEl.style.height = `${chipH}px`;
           record.keyEl.style.fontSize = `${keyPx}px`;
           record.labelEl.style.fontSize = `${labelPx}px`;
           record.labelEl.style.display = showLabels ? "" : "none";
@@ -353,11 +367,11 @@ export function createControlCluster(
       const r = Math.round(rightPx);
       const b = Math.round(bottomPx);
       if (r !== lastRight) {
-        element.style.right = `${r}px`;
+        element.style.right = `calc(${r}px + var(--safe-right, 0px))`;
         lastRight = r;
       }
       if (b !== lastBottom) {
-        element.style.bottom = `${b}px`;
+        element.style.bottom = `calc(${b}px + var(--safe-bottom, 0px))`;
         lastBottom = b;
       }
     },
@@ -368,6 +382,7 @@ function createChip(def: ControlChipDef): ChipRecord {
   const cellsWide = def.cellsWide ?? 3;
   const button = document.createElement("button");
   button.type = "button";
+  button.setAttribute("aria-label", `${def.label} (${def.key})`);
   Object.assign(button.style, {
     position: "relative",
     display: "flex",

@@ -39,7 +39,7 @@ export default function ExperimentsGridClient() {
     if (!canvas || !overlay) return;
 
     if (typeof navigator === "undefined" || !("gpu" in navigator)) {
-      setStatus({ kind: "unsupported" });
+      queueMicrotask(() => setStatus({ kind: "unsupported" }));
       return;
     }
 
@@ -99,23 +99,23 @@ export default function ExperimentsGridClient() {
        */}
       <div
         ref={overlayRef}
-        className="motion-stage-hud-overlay fixed inset-0 pointer-events-none [&>*]:pointer-events-auto"
+        className="motion-stage-hud-overlay app-fixed-viewport pointer-events-none [&>*]:pointer-events-auto"
         style={{ zIndex: "var(--z-motion-hud-content, 1210)" }}
         aria-hidden="true"
       />
-      <main className="relative min-h-screen w-full">
+      <main className="relative min-h-[var(--vvh,100dvh)] w-full">
         <canvas
           ref={canvasRef}
-          className="fixed inset-0 z-0 h-screen w-screen"
+          className="app-fixed-viewport z-0"
           aria-hidden="true"
         />
-        <header className="fixed top-6 left-6 z-20 font-sans font-medium text-[10px] uppercase tracking-[0.18em] text-[var(--text-base-60)] mix-blend-difference">
+        <header className="fixed left-[max(16px,var(--safe-left))] top-[calc(var(--safe-top)+16px)] z-20 font-sans font-medium text-[10px] uppercase tracking-[0.18em] text-[var(--text-base-60)] mix-blend-difference">
           experiments / grid
         </header>
       {status.kind !== "ready" && status.kind !== "pending" ? (
         <div
           role="alert"
-          className="fixed inset-x-0 bottom-0 z-30 mx-auto m-6 max-w-2xl rounded-xl border border-amber-300/30 bg-black/70 p-4 text-sm leading-relaxed text-amber-100 backdrop-blur-md"
+          className="fixed inset-x-0 bottom-[calc(var(--safe-bottom)+1rem)] z-30 mx-auto m-6 max-w-2xl rounded-xl border border-amber-300/30 bg-black/70 p-4 text-sm leading-relaxed text-amber-100 backdrop-blur-md"
         >
           <p className="mb-1 font-medium">{t("headline")}</p>
           <p className="text-amber-100/80">

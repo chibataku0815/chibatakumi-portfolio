@@ -179,7 +179,7 @@ export default function ContactClient({ email, locale }: ContactClientProps) {
               </span>
               <a
                 href={`mailto:${email}`}
-                className="text-[1.25rem] font-medium leading-[1.4] text-[var(--text-base)] underline decoration-[var(--text-base-30)] decoration-1 underline-offset-[8px] transition-colors duration-300 hover:decoration-[var(--text-base)] sm:text-[1.5rem]"
+                className="inline-flex min-h-11 items-center text-[1.25rem] font-medium leading-[1.4] text-[var(--text-base)] underline decoration-[var(--text-base-30)] decoration-1 underline-offset-[8px] transition-colors duration-300 hover:decoration-[var(--text-base)] sm:text-[1.5rem]"
                 style={{ fontFamily: "var(--font-family-display)" }}
               >
                 {email}
@@ -489,7 +489,7 @@ function SubmitButton({ isPending, submitLabel, submittingLabel }: SubmitButtonP
       <button
         type="submit"
         disabled={isPending}
-        className="group inline-flex items-center gap-4 border-b border-[var(--text-base)] pb-2 font-sans text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--text-base)] transition-opacity duration-300 hover:opacity-70 disabled:cursor-not-allowed disabled:opacity-40"
+        className="group inline-flex min-h-11 items-center gap-4 border-b border-[var(--text-base)] font-sans text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--text-base)] transition-opacity duration-300 hover:opacity-70 disabled:cursor-not-allowed disabled:opacity-40"
       >
         {isPending ? (
           <>
