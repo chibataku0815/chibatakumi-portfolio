@@ -300,6 +300,83 @@
   --motion-dot-readability-reading: 0.20;
 }
 
+.dark,
+.dark-theme {
+  /* Re-resolve semantic aliases inside Radix dark scopes. Custom properties
+     inherited from :root keep their light computed values otherwise. */
+  --text-base-90: color-mix(in srgb, var(--slate-12) 90%, transparent);
+  --text-base-80: color-mix(in srgb, var(--slate-12) 80%, transparent);
+  --text-base-70: color-mix(in srgb, var(--slate-12) 70%, transparent);
+  --text-base-60: color-mix(in srgb, var(--slate-12) 60%, transparent);
+  --text-base-50: color-mix(in srgb, var(--slate-12) 50%, transparent);
+  --text-base-40: color-mix(in srgb, var(--slate-12) 40%, transparent);
+  --text-base-30: color-mix(in srgb, var(--slate-12) 30%, transparent);
+  --text-base-20: color-mix(in srgb, var(--slate-12) 20%, transparent);
+
+  --bg-overlay-40: color-mix(in srgb, var(--slate-12) 40%, transparent);
+  --bg-overlay-20: color-mix(in srgb, var(--slate-12) 20%, transparent);
+  --bg-overlay-10: color-mix(in srgb, var(--slate-12) 10%, transparent);
+  --bg-overlay-5: color-mix(in srgb, var(--slate-12) 5%, transparent);
+
+  --stroke-subtle: color-mix(in srgb, var(--slate-12) 12%, transparent);
+  --stroke-strong: color-mix(in srgb, var(--slate-12) 22%, transparent);
+  --stroke-heat: color-mix(in srgb, var(--accent-amber1) 55%, transparent);
+  --frame-line-primary: color-mix(in srgb, var(--slate-12) 26%, transparent);
+  --frame-line-secondary: color-mix(in srgb, var(--accent-amber1) 34%, transparent);
+  --surface-1: color-mix(in srgb, var(--slate-1) 84%, transparent);
+  --surface-2: color-mix(in srgb, var(--slate-2) 90%, transparent);
+  --surface-3: color-mix(in srgb, var(--slate-3) 72%, transparent);
+  --surface-glass-dark: color-mix(in srgb, var(--slate-2) 74%, transparent);
+  --surface-editorial-panel: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--slate-2) 92%, transparent),
+    color-mix(in srgb, var(--slate-1) 86%, transparent)
+  );
+  --hairline-gradient: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--slate-12) 28%, transparent) 50%,
+    transparent 100%
+  );
+  --section-divider-strong: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--slate-12) 12%, transparent) 18%,
+    color-mix(in srgb, var(--accent-amber1) 55%, transparent) 50%,
+    color-mix(in srgb, var(--slate-12) 12%, transparent) 82%,
+    transparent 100%
+  );
+
+  --bg-dark: var(--slate-1);
+  --bg-darker: var(--slate-2);
+  --text-base: var(--slate-12);
+  --text-muted: var(--slate-11);
+  --accent-amber1: var(--amber-9);
+  --accent-amber2: var(--amber-10);
+  --logo-stroke: var(--slate-12);
+  --logo-fill: var(--slate-12);
+
+  --fl-bg-app: var(--slate-1);
+  --fl-bg-subtle: var(--slate-2);
+  --fl-bg-raised: var(--slate-3);
+  --fl-bg-interactive: var(--slate-4);
+  --fl-bg-interactive-hover: var(--slate-5);
+  --fl-border-subtle: var(--slate-6);
+  --fl-border-default: var(--slate-7);
+  --fl-border-strong: var(--slate-8);
+  --fl-text-primary: var(--slate-12);
+  --fl-text-secondary: var(--slate-11);
+  --fl-text-tertiary: var(--slate-10);
+  --fl-accent: var(--amber-9);
+  --fl-accent-emphasis: var(--amber-10);
+  --fl-on-accent: #14110a;
+  --fl-focus-ring: color-mix(in srgb, var(--amber-9) 45%, transparent);
+
+  --surface-editorial-flat: color-mix(in srgb, var(--slate-1) 92%, transparent);
+  --scrim-editorial: color-mix(in srgb, var(--slate-12) 6%, transparent);
+  --editorial-border: 1px solid color-mix(in srgb, var(--slate-12) 9%, transparent);
+}
+
 /* ============================================================================
    Editorial readability — Phase 3 (2026-04-27).
 
