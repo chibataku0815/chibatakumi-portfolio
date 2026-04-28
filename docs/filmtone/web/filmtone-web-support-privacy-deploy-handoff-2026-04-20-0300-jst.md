@@ -7,7 +7,7 @@ This is a fresh, stand-alone handoff for deploying the Filmtone iOS app's **Supp
 Read this document end-to-end before taking any action.
 
 Related documents:
-- **iOS fastlane release handoff (parent work)**: `docs/filmtone-ios-public-release-handoff-2026-04-20-0215-jst.md`
+- **iOS fastlane release handoff (parent work)**: `docs/filmtone/ios/filmtone-ios-public-release-handoff-2026-04-20-0215-jst.md`
 - **iOS release plan file (life repo)**: `/Volumes/SamsungPortableSSDX5001/documents/life/.claude/plans/3-twinkling-hammock.md`
 
 ---
@@ -318,8 +318,8 @@ done
 
 | 用途 | パス |
 |---|---|
-| 本ドキュメント | `docs/filmtone-web-support-privacy-deploy-handoff-2026-04-20-0300-jst.md` |
-| 親チャット handoff（参照のみ） | `docs/filmtone-ios-public-release-handoff-2026-04-20-0215-jst.md` |
+| 本ドキュメント | `docs/filmtone/web/filmtone-web-support-privacy-deploy-handoff-2026-04-20-0300-jst.md` |
+| 親チャット handoff（参照のみ） | `docs/filmtone/ios/filmtone-ios-public-release-handoff-2026-04-20-0215-jst.md` |
 | Support page 本体 | `apps/web/src/app/[locale]/film-lab/support/page.tsx` |
 | Privacy page 本体 | `apps/web/src/app/[locale]/film-lab/privacy/page.tsx` |
 | SSOT 定数（2 page.tsx の import 元）| `apps/web/src/features/interactive/film-lab/ios-release-info.ts` |
@@ -348,7 +348,7 @@ done
 
 ## 9. Non-Negotiable Process Rules
 
-`docs/filmtone-ios-public-release-handoff-2026-04-20-0215-jst.md` §3.3 と整合:
+`docs/filmtone/ios/filmtone-ios-public-release-handoff-2026-04-20-0215-jst.md` §3.3 と整合:
 
 - 推論ではなく検証ベースで進める
 - Fallback 設計禁止（auto backend switching、silent retry などを page.tsx に埋め込まない）

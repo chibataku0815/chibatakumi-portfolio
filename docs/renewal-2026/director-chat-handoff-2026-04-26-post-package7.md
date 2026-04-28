@@ -153,8 +153,8 @@ Closed for current reset scope:
   advertising mic-driven motion they do not consume.
 - motion-dot package TypeScript check is clean.
 - Package 6 narrow visual evidence exists:
-  - `docs/renewal-2026/package6-home-evidence.png`
-  - `docs/renewal-2026/package6-experiments-dot-evidence.png`
+  - `docs/renewal-2026/assets/package6-home-evidence.png`
+  - `docs/renewal-2026/assets/package6-experiments-dot-evidence.png`
 
 Deferred QA (not current blockers):
 
@@ -438,8 +438,8 @@ Sensitive dirty streams include:
   - `apps/web/src/features/motion/*`
   - `apps/web/src/features/hero/components/AmbientHomeHero.tsx`
   - `apps/web/src/app/[locale]/experiments/dot/client.tsx`
-  - `docs/renewal-2026/package6-home-evidence.png`
-  - `docs/renewal-2026/package6-experiments-dot-evidence.png`
+  - `docs/renewal-2026/assets/package6-home-evidence.png`
+  - `docs/renewal-2026/assets/package6-experiments-dot-evidence.png`
 - Package 7 overlap work:
   - `apps/web/src/app/[locale]/experiments/layout.tsx`
 - Other unrelated streams:

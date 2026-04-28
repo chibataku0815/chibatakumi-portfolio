@@ -22,7 +22,7 @@ Renewal 2026 のモーション基盤。`webgpu-motion-*` 8 packages を再エ�
 4. このパッケージから `vendor/...` 配下の package を re-export
 5. `MotionParticipant` API の実装
 
-詳細は `docs/renewal-2026/stream-1-motion-core-handoff.md` 参照。
+詳細は `docs/renewal-2026/archive/wave1-2/stream-1-motion-core-handoff.md` 参照。
 
 ## 依存（Stream 1 で確定）
 

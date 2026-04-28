@@ -12,7 +12,7 @@ Use these sources, in order:
 2. Git tags in this repo: `desktop-v*`
 3. Desktop package version: `apps/desktop-film-lab-batch/package.json`
 4. Desktop release notes: `apps/desktop-film-lab-batch/RELEASE_NOTES-v<version>.md`
-5. Candidate QA handoff docs: `docs/filmtone-desktop-v*-qa-handoff-*.md`
+5. Candidate QA handoff docs: `docs/filmtone/desktop/filmtone-desktop-v*-qa-handoff-*.md`
 
 If these sources disagree, report the disagreement explicitly before planning.
 

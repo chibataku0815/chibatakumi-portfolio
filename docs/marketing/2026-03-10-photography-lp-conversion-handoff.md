@@ -305,8 +305,8 @@ NEXT_PUBLIC_META_PIXEL_ID      # Meta Pixel（任意）
 | `docs/marketing/2026-03-10-cafe-cursor-instagram-ads-brief.md` | 広告ブリーフ |
 | `docs/marketing/2026-03-10-cafe-cursor-instagram-ads-creative.md` | 広告クリエイティブ |
 | `docs/marketing/2026-03-10-cafe-cursor-instagram-ads-analytics.md` | 広告KPIテンプレート |
-| `docs/photography-redesign-handoff.md` | LPデザイン変更の全体像 |
-| `docs/photography-i18n-handoff.md` | i18n実装の詳細 |
+| `docs/photography/photography-redesign-handoff.md` | LPデザイン変更の全体像 |
+| `docs/photography/photography-i18n-handoff.md` | i18n実装の詳細 |
 
 ---
 

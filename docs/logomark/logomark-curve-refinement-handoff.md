@@ -570,7 +570,7 @@ r₁ = 5.83   (= 40/φ⁴)
 
 | ファイル | 内容 |
 |---------|------|
-| `docs/logomark-redesign-handoff.md` | 初期ハンドオフ（ロゴタイプ完了時点） |
-| `docs/logomark-research-synthesis.md` | 6人の専門家リサーチ統合 |
+| `docs/logomark/logomark-redesign-handoff.md` | 初期ハンドオフ（ロゴタイプ完了時点） |
+| `docs/logomark/logomark-research-synthesis.md` | 6人の専門家リサーチ統合 |
 | `docs/brand-identity-mini-guide.md` | ブランドガイド |
 | `memory/logotype-pipeline.md` | ロゴタイプパイプライン詳細 |

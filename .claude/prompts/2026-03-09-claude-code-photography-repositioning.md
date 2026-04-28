@@ -64,8 +64,8 @@
 - `.ai/GLOBAL.md`
 - `.ai/parallel-work.md`
 - `.claude/tasks/ACTIVE-PARALLEL-TASK.md`
-- `docs/photography-redesign-handoff.md`
-- `docs/photography-i18n-handoff.md`
+- `docs/photography/photography-redesign-handoff.md`
+- `docs/photography/photography-i18n-handoff.md`
 
 必要に応じて以下も参照してください。
 

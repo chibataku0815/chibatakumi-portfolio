@@ -4,7 +4,7 @@
 - Writer: previous chat (Wave 1–3 implementer)
 - Target chat: release-focused chat to take v1.1 from "merged on local main" to "live on App Store"
 - Treat this document as **the primary source of truth**. Read it end to end before any action.
-- Supersedes: none (v1.0 release doc is historical: `docs/filmtone-ios-public-release-handoff-2026-04-20-0215-jst.md`)
+- Supersedes: none (v1.0 release doc is historical: `docs/filmtone/ios/filmtone-ios-public-release-handoff-2026-04-20-0215-jst.md`)
 
 ---
 
@@ -55,9 +55,9 @@
 
 ## 2. v1.1 で着地した内容 (T1–T6)
 
-Parent plan: `docs/filmtone-ios-v1.1-parity-plan-2026-04-24-jst.md`
-Gap analysis: `docs/filmtone-ios-parity-gap-vs-desktop-v1.0.3-2026-04-24-jst.md`
-Task index: `docs/filmtone-ios-v1.1-tasks/README.md` (T1–T10; v1.1 bundle は T1–T6 のみ)
+Parent plan: `docs/filmtone/ios/filmtone-ios-v1.1-parity-plan-2026-04-24-jst.md`
+Gap analysis: `docs/filmtone/ios/filmtone-ios-parity-gap-vs-desktop-v1.0.3-2026-04-24-jst.md`
+Task index: `docs/filmtone/ios-v1.1-tasks/README.md` (T1–T10; v1.1 bundle は T1–T6 のみ)
 
 主旨: **Desktop v1.0.3 で増えた "silent な処理" を iOS でも可視化**する。HDR / optics / source metadata / sidecar の透明性。画作り parity (Cross Filter native, depth coupling) は意図的に v1.2 へ分離。
 
@@ -343,7 +343,7 @@ v1.1 main merge でも同じ conflict を踏んだが、上記で resolve 済。
 
 ### 6.6 App Store Connect API 認証
 
-v1.0 handoff (§3.3 of `docs/filmtone-ios-public-release-handoff-2026-04-20-0215-jst.md`) で整備済。`ASC_KEY_ID` / `ASC_ISSUER_ID` / (`ASC_KEY_PATH` or `ASC_KEY_CONTENT`) が必須。user の shell に persist されているはず。
+v1.0 handoff (§3.3 of `docs/filmtone/ios/filmtone-ios-public-release-handoff-2026-04-20-0215-jst.md`) で整備済。`ASC_KEY_ID` / `ASC_ISSUER_ID` / (`ASC_KEY_PATH` or `ASC_KEY_CONTENT`) が必須。user の shell に persist されているはず。
 
 ---
 
@@ -399,10 +399,10 @@ v1.0 handoff (§3.3 of `docs/filmtone-ios-public-release-handoff-2026-04-20-0215
 - `scripts/verify-ios.sh` — worktree 固定解除 + `generate:filmtone-ios-swift --check` as first step
 
 ### 関連 docs (read-only refs)
-- `docs/filmtone-ios-v1.1-parity-plan-2026-04-24-jst.md` (parent plan)
-- `docs/filmtone-ios-v1.1-tasks/*.md` (T1–T10 task specs)
-- `docs/filmtone-ios-parity-gap-vs-desktop-v1.0.3-2026-04-24-jst.md` (gap analysis)
-- `docs/filmtone-ios-public-release-handoff-2026-04-20-0215-jst.md` (v1.0 release rail)
+- `docs/filmtone/ios/filmtone-ios-v1.1-parity-plan-2026-04-24-jst.md` (parent plan)
+- `docs/filmtone/ios-v1.1-tasks/*.md` (T1–T10 task specs)
+- `docs/filmtone/ios/filmtone-ios-parity-gap-vs-desktop-v1.0.3-2026-04-24-jst.md` (gap analysis)
+- `docs/filmtone/ios/filmtone-ios-public-release-handoff-2026-04-20-0215-jst.md` (v1.0 release rail)
 - `/Volumes/SamsungPortableSSDX5001/documents/life/.claude/plans/sorted-juggling-garden.md` (本 v1.1 実装計画 rev 3)
 
 ### Life memory references

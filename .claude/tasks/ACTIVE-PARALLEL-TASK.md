@@ -2,6 +2,89 @@
 
 ## 現在アクティブなタスク
 
+## Hero Wordmark Tier 2 Tuning — Per-pair Kerning + Procedural Background (2026-04-27)
+- **Agent:** Claude Opus 4.7 (orchestrator-director 単独統括 + 4 parallel subagents via Agent Teams)
+- **Started:** 2026-04-27T18:30:00+0900 (JST)
+- **Completed:** 2026-04-27T18:58:00+0900 (JST)
+- **Status:** 完了 — **ユーザ判定: 「ほぼ変化がない」 (失敗判定)**。次チャットへハンドオフ済 → `docs/renewal-2026/2026-04-27-hero-wordmark-tier2-result-handoff.md`
+- **Branch:** `feat/renewal-2026-phase2-motion-dot`
+- **Plan:** `/Users/chibatakumi/.claude/plans/2026-04-27-hero-wordmark-tier2-kerning-bg.md`
+- **Files (新規):**
+  - `apps/web/src/app/[locale]/(portfolio)/experiments/wordmark/Background.tsx` — ScreenQuad shaderMaterial で 4 preset (flat/vignette/grain/editorial)
+- **Files (編集):**
+  - `apps/web/src/features/hero/lib/wordmark-geometry.ts` — `kerningOverrides` param + per-pair lookup (Phase 0 + Stream 1)
+  - `apps/web/src/app/[locale]/(portfolio)/experiments/wordmark/candidates.ts` — BackgroundType + BACKGROUND_PRESETS + per-font kerningOverrides + per-font background 割当 (Phase 0 + Stream 3)
+  - `apps/web/src/app/[locale]/(portfolio)/experiments/wordmark/Scene.tsx` — SceneProps 拡張 (kerningOverrides + backgroundType) + Background 呼び出し置換
+  - `apps/web/src/app/[locale]/(portfolio)/experiments/wordmark/client.tsx` — backgroundType useState + `?bg=` URL param + 5 行目 UI ボタン (flat/vignette/grain/editorial)
+  - `apps/web/e2e/wordmark-geometry-test.spec.ts` — Tier 2 12-PNG capture matrix (final/flatbg/wire × 4 fonts)
+- **Streams:**
+  - **Phase 0 (orchestrator)**: 5 ファイルに型 plumbing と Background.tsx stub を配置。BACKGROUND_PRESETS は全 0 placeholder で動作互換、Stream 3 が値を埋める設計。
+  - **Stream 1 (sonnet)**: `getPathDataWithTracking` に `prevChar` 追跡と `kerningOverrides?.[pair]` lookup を追加。authored kerning へのフォールバックを保持。
+  - **Stream 2 (sonnet)**: ScreenQuad + shaderMaterial で procedural background を実装。3-tap decorrelated hash で grain 高品質化、二乗 smoothstep + cool-blue shadow tint で cinematic vignette、800px+1400px 2-scale grain で 1pixel 未満粒子の film stock 感、`> 0.001` early skip で flat preset の GPU 負荷ゼロ化。
+  - **Stream 3 (sonnet)**: Tier 1 captures を Read で評価して per-font kerningOverrides を確定 (Inter `{TA: -40}`、Hanken `{TA: -50, AK: -20}`、Jost `{MI: 15}`、Bebas `{}`)。BACKGROUND_PRESETS 提案値採用。per-font bg: Jost→flat / Inter→vignette / Hanken→editorial / Bebas→vignette。
+  - **Stream 4 (haiku)**: 12 PNG capture matrix (4 fonts × {final/flatbg/wire})。
+- **Notes:**
+  - **重要な視覚的知見**: vignette は乗算 darkening のため **pure black (mono palette `#000`) では効果が見えない**。Inter/Bebas の vignette bg は実質 flat と同等の見え方になる。Hanken (warm palette `#0a0807`) の editorial bg は 3 効果全て視覚的に確認 (PNG ファイルサイズ 485KB ≫ 50KB 平均で grain entropy が確認できる)。Saint Laurent / display-logo 系は pure black で意図的に stark なので、視覚効果なしも brand alignment としては OK。後段で iterate するならば mono palette を `#080808` に上げる、もしくは shader にブライトニング lift を追加する選択肢あり。
+  - **kerning effect**: Tier 1 baseline (`output/playwright/2026-04-27-wordmark-{font}-solid.png`) と Tier 2 final で TA/AK/MI ペアの収まりが比較可能。wireframe (`...-tier2-wire.png`) で geometry 健全性 (重なり/開きすぎなし) も確認済。
+  - 4 ストリーム file-disjoint。Stream 4 の lint warning (`DISPLAY_MODES unused`) のみ orchestrator が trim。
+  - 検証: tsc clean / lint clean (該当ファイル) / 4 candidates × 各 bg URL 全て HTTP 200 / Playwright 1 passed (12 PNG)
+  - 未 push、未 commit。Visual review 後の commit 判断はユーザーに委譲。
+
+## Hero Wordmark Tier 1 Tuning (2026-04-27)
+- **Agent:** Claude Opus 4.7 (orchestrator-director 単独統括 + 4 parallel subagents via Agent Teams)
+- **Started:** 2026-04-27T17:50:00+0900 (JST)
+- **Completed:** 2026-04-27T17:58:00+0900 (JST)
+- **Status:** 完了 (visual review 待ち)
+- **Branch:** `feat/renewal-2026-phase2-motion-dot`
+- **Plan:** `/Users/chibatakumi/.claude/plans/docs-renewal-2026-2026-04-27-hero-wordma-synthetic-candle.md`
+- **Source handoff:** `docs/renewal-2026/2026-04-27-hero-wordmark-tuning-handoff.md`
+- **Files (新規):**
+  - `apps/web/src/app/[locale]/(portfolio)/experiments/wordmark/candidates.ts` — Candidate 型 + CANDIDATES 配列 + PaletteKey/Palette/PALETTES (Phase 0 + Stream C)
+  - `apps/web/src/app/[locale]/(portfolio)/experiments/wordmark/Scene.tsx` — Three.js Scene + DisplayMode 型 + SceneProps + FrameBox/FittedOrthographicCamera (Phase 0 + Stream A)
+- **Files (編集):**
+  - `apps/web/src/app/[locale]/(portfolio)/experiments/wordmark/client.tsx` — 抽出後の slim controller + display mode/frame/palette useState + URL params + 4-row UI (Phase 0 + Stream B)
+  - `apps/web/e2e/wordmark-geometry-test.spec.ts` — 4 fonts × {solid, wireframe} の 8 capture (Stream D)
+- **Streams:**
+  - **Phase 0 (orchestrator)**: client.tsx 308 行を candidates.ts (data) + Scene.tsx (render) + client.tsx (controller) の 3 ファイルに分離。SceneProps 契約を確定 (DisplayMode / Palette / frameVisible) して 4 ストリームが file-disjoint で並列可能な状態に。
+  - **Stream A (sonnet — Scene.tsx 所有)**: `void displayMode;` スタブを `showSolid = displayMode !== "wireframe"` / `showWireframe = displayMode !== "solid"` に置換。primary/secondary mesh と edge レイヤーを条件描画。
+  - **Stream B (sonnet — client.tsx 所有)**: 3 useState + URL params (`?mode` / `?frame` / `?palette`) + 4 行積層 UI (font / palette / mode / frame)。font 切替 UI は完全保存。caption に `mode · frame · palette` 状態行追加。
+  - **Stream C (sonnet — candidates.ts 所有)**: gemini CLI で Saint Laurent / HBA / Bebas / Supreme の typography spec を調査。各フォントに 1 ブランド固定 (Jost→Supreme/raw、Inter→SLP/mono、Hanken→HBA italic/warm、Bebas→Display-logo/mono)、tracking 値を brand-spec exact に再校正、brandReference を「à la X / Y」hybrid から特定ブランド citation に書換。
+  - **Stream D (haiku — Playwright spec 所有)**: 4 fonts × {solid, wireframe} の 8 capture (`?frame=off`) に拡張。
+- **Notes:**
+  - **重要なリサーチ知見** (Stream C): Saint Laurent の primary wordmark は実は tight (0–0.025em)。+0.18em は SLP の "PARIS" サブライン規範で、システム全体のシグネチャ。Inter にこの値を当てたのは hero scale で視覚的差異化を狙う意図的選択。
+  - 4 ストリームは file-disjoint で衝突なし。Phase 0 の SceneProps 契約により Stream A/B が並列可能に。
+  - 検証: tsc clean / lint clean / 4 候補 × 各 URL 組み合わせ HTTP 200 / Playwright spec 1 passed
+  - WebGPU エラー / DevTools バッジは handoff §⚠7 の dev-environment artifact、本コードのバグではない
+  - 未 push、未 commit。Visual review 後の commit 判断はユーザーに委譲。
+
+## Wave 4 — Theme strip + /journal editorial + light substrate flip (2026-04-27)
+- **Agent:** Claude Opus 4.7 (single conductor + 2 parallel subagents)
+- **Started:** 2026-04-27T14:20:00+0900 (JST)
+- **Completed:** 2026-04-27T15:10:00+0900 (JST)
+- **Status:** 完了
+- **Branch:** `feat/renewal-2026-phase2-motion-dot`
+- **Commits:**
+  - `290a51f1` `refactor(theme): drop data-theme dual-mode, consolidate to :root` — Wave 4-1。3 layouts + Nav + globals.css + design-system plugin。data-theme="dark|light" を撤去し :root 一本化。**ただし dark 方向に振ったのは誤り** (下記)。
+  - `922ad257` `feat(renewal): /journal editorial spread — typography-first, sidebar masthead` — Wave 4-2。journal/page.tsx を全面書き換え。EditorialSection と装飾パネルを排除、1fr+280px sidebar masthead grid、bespoke editorial composition。Wave 3 の `e05aa2de` を supersede。
+  - `2ca243fd` `fix(theme): flip Wave 4-1 to light substrate — abolish dark-bg concept` — Wave 4-3。motion-dot canvas が `bgColor [0.82,0.82,0.82,1.0]` を hardcode しているため Wave 4-1 の dark consolidation は方向逆だった。Radix `slate` / `amber` light を :root に追加 import、`slate-dark` / `amber-dark` は `.dark` scope (Filmtone) 用に残す。:root の手書き `--slate-*` mirror 削除、shadow/glow/noise を light bg 向け tune。Filmtone satellite は `bg-[var(--bg-primary)]` → `bg-[var(--slate-1)]` で dark identity 維持。Photography は `body:has(.photography-page)` の dark gradient で独自に dark。/experiments shell は `.dark` 撤去。/journal page の hardcoded white 2 箇所を dark literal に。
+  - `05d603ab` `feat(theme): readability scrim — backdrop blur + faint dark tint behind copy` — focus/reading セクションに CSS `::before` で blur + 薄い dark tint。
+  - `67599652` `revert(theme): drop the readability scrim — visible section boundary` — 上記 scrim は section 境界が hard edge として visible に出てしまい「装飾パネル禁止」方針に反したため即時 revert。
+  - `2674cb9a` `fix(theme): tighten readability dim — focus 0.55→0.42, reading 0.35→0.20` — shader-side `--motion-dot-readability-*` の値を light substrate 向けに引き締め。CSS layer は触らない。
+- **Files:**
+  - `apps/web/src/app/globals.css` (中心)
+  - `packages/design-system/src/tailwind/plugin.ts` (`THEME.dark` → `THEME.light`)
+  - `apps/web/src/app/[locale]/(satellite)/layout.tsx`
+  - `apps/web/src/app/[locale]/(portfolio)/layout.tsx`
+  - `apps/web/src/app/[locale]/(portfolio)/experiments/layout.tsx`
+  - `apps/web/src/shared/components/Nav.tsx`
+  - `apps/web/src/app/[locale]/(portfolio)/journal/page.tsx`
+- **Notes:**
+  - Wave 4-1 / 4-2 は 2 subagent 並列 spawn (Agent Teams)。Wave 4-3 以降は単独 conductor で対応。
+  - **重要な学び**: motion-dot canvas が light substrate を hardcode しており、これが site theme direction の制約。ナレッジを `.claude/knowledge/patterns/motion-dot-light-substrate-constraint.md` に格納。
+  - **重要な学び**: 視認性向上に CSS scrim (`::before` panel) を使うと境界が必ず出る。`data-readability` shader pipeline の uniform を tune するのが正解。ナレッジを `.claude/knowledge/patterns/data-readability-shader-pipeline.md` に格納。
+  - dev server (`bun run --cwd apps/web dev`) は session 終了時点で稼働中。lint baseline (43 problems unrelated)、tsc baseline (TS2352 in `params-codec.test.ts:87` 既知)。
+  - 未 push、Visual review 後の判断はユーザーに委譲。
+
 ## Liquid Glass Nav Boundary Fix Phase A (2026-04-27)
 - **Agent:** Codex CLI / Agent Teams
 - **Started:** 2026-04-27T01:28:51+0900 (JST)
@@ -166,8 +249,8 @@
   - `apps/web/messages/en.json` (編集)
   - `apps/web/src/features/photography/sections/TestimonialSection.tsx` (編集)
   - `apps/web/src/app/[locale]/photography/page.tsx` (編集)
-  - `docs/photography-i18n-handoff.md` (編集)
-  - `docs/photography-redesign-handoff.md` (編集)
+  - `docs/photography/photography-i18n-handoff.md` (編集)
+  - `docs/photography/photography-redesign-handoff.md` (編集)
   - `docs/marketing/2026-03-10-photography-lp-conversion-handoff.md` (編集)
   - `docs/marketing/2026-03-10-cafe-cursor-instagram-ads-creative.md` (編集)
   - `docs/guides/2026-03-09-photography-lp-handoff.md` (編集)

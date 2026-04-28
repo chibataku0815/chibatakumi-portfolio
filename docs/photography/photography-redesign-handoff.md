@@ -6,13 +6,13 @@
 >
 > **作成日:** 2026-03-09
 > **ステータス:** 実装済み、`npm run build` 成功
-> **関連文書:** `docs/photography-i18n-handoff.md`
+> **関連文書:** `docs/photography/photography-i18n-handoff.md`
 
 ---
 
 ## 1. この文書の位置づけ
 
-- `docs/photography-i18n-handoff.md`
+- `docs/photography/photography-i18n-handoff.md`
   - i18n 導入の全体背景、routing、locale 設計、翻訳構造、初期の Photography LP 構成をまとめた文書
 - **この文書**
   - その i18n 実装後に行った **デザイン再設計の判断・差分・現在の状態** をまとめた文書
@@ -72,7 +72,7 @@
 - `.claude/tasks/ACTIVE-PARALLEL-TASK.md`
 - `.claude/skills/EXCELLENCE-FRAMEWORK.md`
 - `.claude/tasks/awwwards-upgrade/README.md`
-- `docs/photography-i18n-handoff.md`
+- `docs/photography/photography-i18n-handoff.md`
 
 主な判断基準:
 
@@ -527,8 +527,8 @@ build 時に残る警告:
 Photography LP は i18n 実装後に 2026-03-09 に全面ブラッシュアップ済みです。
 
 参照文書:
-- docs/photography-i18n-handoff.md
-- docs/photography-redesign-handoff.md
+- docs/photography/photography-i18n-handoff.md
+- docs/photography/photography-redesign-handoff.md
 
 実装済み:
 - Hero を非対称の editorial 構図へ刷新

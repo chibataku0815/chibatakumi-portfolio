@@ -663,13 +663,16 @@ handoff doc が以下を満たさない場合は **invalid**（Stream 完了 dec
 │   ├── 3.md
 │   ├── 4.md
 │   └── 5.md
-├── stream-1-motion-core-handoff.md               # chat handoff (起点)
-├── stream-1-completion-handoff.md                 # chat handoff (完了)
-├── stream-2-motion-dot-handoff.md
-├── stream-2-completion-handoff.md
-├── stream-4-completion-handoff.md
-├── stream-4b-grid-flow-completion-handoff.md
-└── stream-4d-gallery-mode-handoff.md             # 4-D Gallery mode (新規追加分、内容未確認)
+└── archive/wave1-2/                               # Wave 1/2 完了済 chat handoff
+    ├── stream-1-motion-core-handoff.md            # chat handoff (起点)
+    ├── stream-1-completion-handoff.md             # chat handoff (完了)
+    ├── stream-2-motion-dot-handoff.md
+    ├── stream-2-completion-handoff.md
+    ├── stream-4-completion-handoff.md
+    ├── stream-4b-grid-flow-completion-handoff.md
+    ├── stream-4d-gallery-mode-handoff.md          # 4-D Gallery mode (新規追加分、内容未確認)
+    ├── stream-wave1-completion-handoff.md
+    └── stream-wave2-completion-handoff.md
 ```
 
 ### 11.2 Portfolio repo（変更対象）
@@ -848,8 +851,8 @@ Stream 4 の de-scoped 9 deliverable を復元実施。
 - 親計画 §0 / §4 / §6 / §7.4 / §8.5 / §15
 - 本書 (master-handoff)
 - stream-status/4.md
-- stream-4-completion-handoff.md（前段）
-- stream-4b-grid-flow-completion-handoff.md（前段）
+- archive/wave1-2/stream-4-completion-handoff.md（前段）
+- archive/wave1-2/stream-4b-grid-flow-completion-handoff.md（前段）
 
 優先度（依存順）:
 1. D4.7 root layout に persistent <MotionCanvas> 移動 (Stream 5 D5.4 の前提)

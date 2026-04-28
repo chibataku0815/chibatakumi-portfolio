@@ -5,7 +5,7 @@ status: in-progress
 authors: Takumi Chiba (with Claude)
 references:
   - docs/renewal-2026/MASTER-HANDOFF-2026-04-25.md
-  - docs/renewal-2026/stream-wave2-completion-handoff.md
+  - docs/renewal-2026/archive/wave1-2/stream-wave2-completion-handoff.md
   - apps/web/src/app/[locale]/layout.tsx (current root shell)
   - apps/web/src/app/[locale]/filmtone/layout.tsx (current data-theme=dark wrapper)
   - apps/web/next.config.ts (redirects)

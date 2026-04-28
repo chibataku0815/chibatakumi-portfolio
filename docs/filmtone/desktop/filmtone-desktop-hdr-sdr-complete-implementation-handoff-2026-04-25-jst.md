@@ -61,7 +61,7 @@ Files clearly touched for this HDR notice / tone-map discussion:
 - `apps/desktop-film-lab-batch/src/renderer/HdrPolicyNotice.test.tsx`
 - `apps/desktop-film-lab-batch/messages/ja.json`
 - `apps/desktop-film-lab-batch/messages/en.json`
-- `docs/filmtone-desktop-v1.0.3-qa-handoff-2026-04-24-jst.md`
+- `docs/filmtone/desktop/filmtone-desktop-v1.0.3-qa-handoff-2026-04-24-jst.md`
 
 Likely unrelated pre-existing / parallel work:
 
@@ -391,7 +391,7 @@ Changes:
 
 File:
 
-- `docs/filmtone-desktop-v1.0.3-qa-handoff-2026-04-24-jst.md`
+- `docs/filmtone/desktop/filmtone-desktop-v1.0.3-qa-handoff-2026-04-24-jst.md`
 
 Changes:
 

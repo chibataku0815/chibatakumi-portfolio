@@ -665,5 +665,5 @@ Sidecar:
 - 「ffmpeg だけが原因」と断定しない。
 - 「WebCodecs を切れば解決」としない。速度が大きく悪化しています。
 
-まずは docs/filmtone-desktop-export-parity-investigation-handoff-2026-04-25-jst.md を読んで、現在の working tree の変更を把握してください。ユーザー変更を消さないでください。git reset --hard や checkout で戻さないでください。
+まずは docs/filmtone/desktop/filmtone-desktop-export-parity-investigation-handoff-2026-04-25-jst.md を読んで、現在の working tree の変更を把握してください。ユーザー変更を消さないでください。git reset --hard や checkout で戻さないでください。
 ```

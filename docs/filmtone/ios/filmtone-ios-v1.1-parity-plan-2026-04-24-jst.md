@@ -2,8 +2,8 @@
 
 - Date: 2026-04-24 JST
 - Scope owner: iOS native Phase0 / Filmtone export pipeline
-- Source gap analysis: `docs/filmtone-ios-parity-gap-vs-desktop-v1.0.3-2026-04-24-jst.md`
-- Task docs: `docs/filmtone-ios-v1.1-tasks/README.md`
+- Source gap analysis: `docs/filmtone/ios/filmtone-ios-parity-gap-vs-desktop-v1.0.3-2026-04-24-jst.md`
+- Task docs: `docs/filmtone/ios-v1.1-tasks/README.md`
 
 ## 1. Goal
 
@@ -101,17 +101,17 @@ Exit criteria:
 
 ## 5. Task Index
 
-- Index: `docs/filmtone-ios-v1.1-tasks/README.md`
-- T1: `docs/filmtone-ios-v1.1-tasks/01-hdr-source-visibility-policy.md`
-- T2: `docs/filmtone-ios-v1.1-tasks/02-export-sidecar-json.md`
-- T3: `docs/filmtone-ios-v1.1-tasks/03-camera-optics-renderer-wiring.md`
-- T4: `docs/filmtone-ios-v1.1-tasks/04-source-video-metadata-fps-rotation.md`
-- T5: `docs/filmtone-ios-v1.1-tasks/05-camera-optics-ui-label.md`
-- T6: `docs/filmtone-ios-v1.1-tasks/06-contract-regeneration-guardrails.md`
-- T7: `docs/filmtone-ios-v1.1-tasks/07-cross-filter-native-parity.md`
-- T8: `docs/filmtone-ios-v1.1-tasks/08-depth-coupling-native-pipeline.md`
-- T9: `docs/filmtone-ios-v1.1-tasks/09-progressive-preview-quality-badge.md`
-- T10: `docs/filmtone-ios-v1.1-tasks/10-export-format-files-workflow.md`
+- Index: `docs/filmtone/ios-v1.1-tasks/README.md`
+- T1: `docs/filmtone/ios-v1.1-tasks/01-hdr-source-visibility-policy.md`
+- T2: `docs/filmtone/ios-v1.1-tasks/02-export-sidecar-json.md`
+- T3: `docs/filmtone/ios-v1.1-tasks/03-camera-optics-renderer-wiring.md`
+- T4: `docs/filmtone/ios-v1.1-tasks/04-source-video-metadata-fps-rotation.md`
+- T5: `docs/filmtone/ios-v1.1-tasks/05-camera-optics-ui-label.md`
+- T6: `docs/filmtone/ios-v1.1-tasks/06-contract-regeneration-guardrails.md`
+- T7: `docs/filmtone/ios-v1.1-tasks/07-cross-filter-native-parity.md`
+- T8: `docs/filmtone/ios-v1.1-tasks/08-depth-coupling-native-pipeline.md`
+- T9: `docs/filmtone/ios-v1.1-tasks/09-progressive-preview-quality-badge.md`
+- T10: `docs/filmtone/ios-v1.1-tasks/10-export-format-files-workflow.md`
 
 ## 6. Release Gate Checklist
 

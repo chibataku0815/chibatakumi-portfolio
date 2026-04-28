@@ -596,7 +596,7 @@ The user performs all commits and pushes. Do not commit on their behalf. After v
 - `apps/capacitor-film-lab-ios/ios/App/App.xcodeproj/project.pbxproj` (the legacy `CODE_SIGN_IDENTITY` removal)
 - `apps/capacitor-film-lab-ios/fastlane/Fastfile`
 - `apps/capacitor-film-lab-ios/RELEASE.md`
-- `docs/filmtone-ios-public-release-handoff-2026-04-20-0215-jst.md` (this handoff)
+- `docs/filmtone/ios/filmtone-ios-public-release-handoff-2026-04-20-0215-jst.md` (this handoff)
 - any metadata deltas the user wants retained
 
 Do not include build artifacts (`apps/capacitor-film-lab-ios/build/**`), `node_modules`, or `dist/` in the commit.
@@ -623,7 +623,7 @@ Do not include build artifacts (`apps/capacitor-film-lab-ios/build/**`), `node_m
 
 Start here before taking any action:
 
-- `docs/filmtone-ios-public-release-handoff-2026-04-20-0215-jst.md` (this doc)
+- `docs/filmtone/ios/filmtone-ios-public-release-handoff-2026-04-20-0215-jst.md` (this doc)
 - `apps/capacitor-film-lab-ios/fastlane/Fastfile`
 - `apps/capacitor-film-lab-ios/fastlane/Appfile`
 - `apps/capacitor-film-lab-ios/fastlane/metadata/**/*.txt`

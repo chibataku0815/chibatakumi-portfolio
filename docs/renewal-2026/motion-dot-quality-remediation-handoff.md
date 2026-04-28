@@ -12,7 +12,7 @@
 | 作成日 | 2026-04-26 JST |
 | 起点 user feedback | 「motion-dotですが美しいシーンとシーンの繋がりが再現できていないのとシーン自体のクオリティも元のプロジェクトに比べて落ちている気がします」+ 1 round 修正後「まだクオリティが追いついてないので別チャットに引き継ぎましょう」 |
 | 引き継ぎ branch | `feat/renewal-2026-phase2-motion-dot` (uncommitted、Wave 1 + D2.8 partial 全変更 working tree 滞留) |
-| Wave 1 親 handoff | `docs/renewal-2026/stream-wave1-completion-handoff.md` |
+| Wave 1 親 handoff | `docs/renewal-2026/archive/wave1-2/stream-wave1-completion-handoff.md` |
 | 親計画 (SSoT) | `/Volumes/SamsungPortableSSDX5001/documents/life/.claude/plans/portfolio-renewal-2026-04.md` |
 | stream-status SSoT | `docs/renewal-2026/stream-status/2.md` D2.8 [~] partial |
 | 比較対象 (canonical) | `/Volumes/SamsungPortableSSDX5001/documents/life/output/motion-dot-new-webgpu/` (元プロジェクト、quality reference) |
@@ -153,7 +153,7 @@ side-by-side で以下 file を end-to-end diff することを推奨:
 | 現 home AmbientHomeHero | `apps/web/src/features/hero/components/AmbientHomeHero.tsx` |
 | 現 /experiments/dot client | `apps/web/src/app/[locale]/experiments/dot/client.tsx` |
 | TRANSITION_ANCHOR_POLICIES | `packages/motion-dot/src/transition/kinetic-handoff.ts` (Title Case keys) |
-| Wave 1 完了 handoff | `docs/renewal-2026/stream-wave1-completion-handoff.md` |
+| Wave 1 完了 handoff | `docs/renewal-2026/archive/wave1-2/stream-wave1-completion-handoff.md` |
 | Stream 2 SSoT | `docs/renewal-2026/stream-status/2.md` D2.8 [~] partial |
 
 ---

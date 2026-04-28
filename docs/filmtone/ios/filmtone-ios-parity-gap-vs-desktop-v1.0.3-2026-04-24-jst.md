@@ -4,7 +4,7 @@
 - Desktop 基準: `desktop-v1.0.2..HEAD`（30 commits 候補 = v1.0.3、確認時点 `03389d26`）
 - iOS 基準: `apps/capacitor-film-lab-ios` 現行 HEAD（v1.0 Waiting for Review 後の main 変更を含む）
 - 用途: iOS v1.1 スコープ決定、v1.0 公開前の「しない」リスト確定、UI 側の透明性改善優先度判定
-- 関連計画: `docs/filmtone-ios-v1.1-parity-plan-2026-04-24-jst.md`
+- 関連計画: `docs/filmtone/ios/filmtone-ios-v1.1-parity-plan-2026-04-24-jst.md`
 
 ## 0. 結論サマリ
 
