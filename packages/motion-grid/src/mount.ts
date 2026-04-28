@@ -1,8 +1,9 @@
 // motion-grid mount entry — Renewal 2026 (Package 4 — Motion Works).
 //
 // Full-featured port of life/output/motion-grid-guided-webgpu/src/main.ts.
-// Provides audio, HUD, keyboard, ControlCluster, InputOverlay, continuity
-// mode, word morph, and hero-token input — 1:1 behavioral parity with the
+// Provides audio, HUD (Apple Liquid Glass pill / dock / actions+input
+// popovers — parallel to motion-dot/main.ts), keyboard, continuity mode,
+// word morph, and hero-token input — 1:1 behavioral parity with the
 // original standalone Vite app.
 //
 // API contract:
@@ -44,11 +45,18 @@ import {
   sanitizeHeroTokenInput,
 } from "./scene/typography/hero-token";
 import {
-  createControlCluster,
-  createHud,
-  createInputOverlay,
-  updateHud,
-  updateInputOverlay,
+  createGridActionsPopover,
+  createGridControlDock,
+  createGridInputPopover,
+  createGridStatusPill,
+  setGridActionsPopoverVisibility,
+  setGridInputPopoverVisibility,
+  setGridOptionsVisibility,
+  updateGridActionsPopover,
+  updateGridControlDock,
+  updateGridInputPopover,
+  updateGridStatusPill,
+  type GridOptionsHandles,
 } from "./ui/hud";
 import {
   createFixedStepLoop,
@@ -271,80 +279,23 @@ export async function mountMotionGridApp(
       },
     });
 
-    // HUD and InputOverlay attached to hostOverlay, not document.body
-    const hud = createHud(hostOverlay);
-    const inputOverlay = createInputOverlay(hostOverlay);
-    const touchInputBar = document.createElement("div");
-    touchInputBar.dataset.liquidGlassControl = "control.grid.textInput";
-    touchInputBar.dataset.liquidGlassRadius = "16";
-    touchInputBar.dataset.liquidGlassIntensity = "0.68";
-    touchInputBar.dataset.liquidGlassBrightness = "0.76";
-    Object.assign(touchInputBar.style, {
-      position: "fixed",
-      top: "148px",
-      left: "24px",
-      display: "none",
-      gridTemplateColumns: "minmax(0, 1fr) auto auto",
-      gap: "8px",
-      width: "min(420px, calc(100vw - 48px))",
-      padding: "10px",
-      borderRadius: "16px",
-      background: "transparent",
-      pointerEvents: "auto",
-      userSelect: "none",
-      boxSizing: "border-box",
-    } satisfies Partial<CSSStyleDeclaration>);
-
-    const touchInput = document.createElement("input");
-    touchInput.type = "text";
-    touchInput.inputMode = "text";
-    touchInput.autocomplete = "off";
-    touchInput.autocapitalize = "characters";
-    touchInput.spellcheck = false;
-    touchInput.maxLength = MAX_HERO_TOKEN_CHARS;
-    touchInput.setAttribute("aria-label", "Hero token text");
-    Object.assign(touchInput.style, {
-      minHeight: "44px",
-      minWidth: "0",
-      width: "100%",
-      border: "1px solid rgba(26,26,26,0.16)",
-      borderRadius: "12px",
-      background: "rgba(255,255,255,0.18)",
-      color: "rgba(26,26,26,0.92)",
-      font: "600 16px/1 var(--font-geist-sans), system-ui, sans-serif",
-      letterSpacing: "0.04em",
-      padding: "0 12px",
-      outline: "none",
-      textTransform: "uppercase",
-    } satisfies Partial<CSSStyleDeclaration>);
-
-    const touchApplyButton = document.createElement("button");
-    touchApplyButton.type = "button";
-    touchApplyButton.textContent = "Apply";
-    const touchCancelButton = document.createElement("button");
-    touchCancelButton.type = "button";
-    touchCancelButton.textContent = "Cancel";
-    for (const button of [touchApplyButton, touchCancelButton]) {
-      Object.assign(button.style, {
-        minHeight: "44px",
-        minWidth: "44px",
-        border: "0",
-        borderRadius: "12px",
-        background: "rgba(26,26,26,0.84)",
-        color: "rgba(255,255,255,0.96)",
-        font: "600 12px/1 var(--font-geist-sans), system-ui, sans-serif",
-        padding: "0 12px",
-        cursor: "pointer",
-        touchAction: "manipulation",
-      } satisfies Partial<CSSStyleDeclaration>);
-    }
-    touchCancelButton.style.background = "rgba(26,26,26,0.42)";
-    touchInputBar.append(touchInput, touchApplyButton, touchCancelButton);
-    hostOverlay.appendChild(touchInputBar);
+    // Apple Liquid Glass chrome (parallel to motion-dot/main.ts).
+    // pill / dock / popovers anchor bottom-right; popovers stack above dock.
+    const statusPill = createGridStatusPill(hostOverlay);
+    const dock = createGridControlDock(hostOverlay);
+    const actionsPopover = createGridActionsPopover(hostOverlay);
+    const inputPopover = createGridInputPopover(hostOverlay);
+    const handles: GridOptionsHandles = { statusPill, dock, actionsPopover, inputPopover };
 
     let filmEnabled = true;
     let overlaysVisible = true;
     let inputModeActive = false;
+    let actionsPopoverOpen = false;
+    // Cached visibility flags so syncOverlay only mutates the popover roots
+    // when state actually transitions (avoids re-running auto-focus every
+    // frame).
+    let lastActionsPopoverVisible = false;
+    let lastInputPopoverVisible = false;
     let textAlphaActual = 1;
     let textAlphaTarget = 1;
     const TEXT_ALPHA_TAU = 0.06;
@@ -485,7 +436,8 @@ export async function mountMotionGridApp(
       if (activeWordHandoffTarget && !scene.isWordHandoffActive()) {
         activeWordHandoffTarget = null;
       }
-      updateHud(hud, {
+
+      updateGridStatusPill(statusPill, {
         sceneName: snapshot.sceneName,
         heroToken: snapshot.heroToken,
         patternName: currentPatternId(),
@@ -502,36 +454,50 @@ export async function mountMotionGridApp(
         cycleDuration: snapshot.cycleDuration,
         onsetActivity: audioBus.onsets.globalOnset,
       });
-      updateInputOverlay(inputOverlay, {
-        active: inputModeActive && overlaysVisible,
+
+      updateGridControlDock(dock, {
+        postEnabled: filmEnabled,
+        audioEnabled: audioController.enabled,
+        actionsPopoverOpen,
+      });
+
+      const z = snapshot.presentationZoomScale;
+      updateGridActionsPopover(actionsPopover, {
+        loopEnabled: snapshot.loopEnabled,
+        continuityEnabled: continuityModeEnabled,
+        inputModeActive,
+        hudVisible: overlaysVisible,
+        canZoomIn: z < 3.0 - 1e-3,
+        canZoomOut: z > 1.0 + 1e-3,
+        canResetZoom: Math.abs(z - 1.0) >= 1e-3,
+      });
+
+      updateGridInputPopover(inputPopover, {
         draftToken: draftHeroToken,
         isValid: draftValidation.ok && draftMorphValidation.ok,
         invalidHint: resolveInputHint(draftValidation, draftMorphValidation),
       });
-      const touchInputVisible = inputModeActive && overlaysVisible;
-      touchInputBar.style.display = touchInputVisible ? "grid" : "none";
-      if (touchInput.value !== draftHeroToken) {
-        touchInput.value = draftHeroToken;
+
+      // Visibility: H key toggles whole HUD (pill + dock); when hidden,
+      // popovers also close. When visible, popover roots toggle per state.
+      if (!overlaysVisible) {
+        setGridOptionsVisibility(handles, false);
+        if (lastActionsPopoverVisible) lastActionsPopoverVisible = false;
+        if (lastInputPopoverVisible) lastInputPopoverVisible = false;
+      } else {
+        statusPill.style.display = "inline-flex";
+        dock.root.style.display = "inline-flex";
+        const actionsVisible = actionsPopoverOpen && !inputModeActive;
+        if (actionsVisible !== lastActionsPopoverVisible) {
+          setGridActionsPopoverVisibility(actionsPopover, actionsVisible);
+          lastActionsPopoverVisible = actionsVisible;
+        }
+        const inputVisible = inputModeActive;
+        if (inputVisible !== lastInputPopoverVisible) {
+          setGridInputPopoverVisibility(inputPopover, inputVisible);
+          lastInputPopoverVisible = inputVisible;
+        }
       }
-      touchApplyButton.disabled = !(draftValidation.ok && draftMorphValidation.ok);
-      touchApplyButton.style.opacity = touchApplyButton.disabled ? "0.46" : "1";
-      const z = snapshot.presentationZoomScale;
-      const cellSize = Math.max(snapshot.grid.cellSize, 1);
-      const marginCells = 1;
-      const rightOffset = snapshot.grid.originX + cellSize * marginCells;
-      const bottomOffset = snapshot.grid.originY + cellSize * marginCells;
-      cluster.setMetrics(cellSize, rightOffset, bottomOffset);
-      cluster.updateChip("T", { active: continuityModeEnabled });
-      cluster.updateChip("L", { active: snapshot.loopEnabled });
-      cluster.updateChip("Z", { enabled: z < 3.0 - 1e-3 });
-      cluster.updateChip("⇧Z", { enabled: z > 1.0 + 1e-3 });
-      cluster.updateChip("0", { enabled: Math.abs(z - 1.0) >= 1e-3 });
-      cluster.updateChip("A", { active: audioController.enabled });
-      cluster.updateChip("F", { active: filmEnabled });
-      cluster.updateChip("I", { active: inputModeActive });
-      cluster.updateChip("H", { active: overlaysVisible });
-      cluster.setVisible(overlaysVisible);
-      hud.style.display = overlaysVisible ? "" : "none";
     }
 
     const enterInputMode = (): void => {
@@ -539,11 +505,21 @@ export async function mountMotionGridApp(
         return;
       }
       inputModeActive = true;
+      actionsPopoverOpen = false; // popovers are mutually exclusive
       textAlphaTarget = 0;
       setDraftHeroToken("");
-      queueMicrotask(() => {
-        touchInput.focus({ preventScroll: true });
-      });
+    };
+
+    const toggleActionsPopover = (): void => {
+      if (!overlaysVisible) return;
+      const next = !actionsPopoverOpen;
+      actionsPopoverOpen = next;
+      if (next && inputModeActive) {
+        // Close input mode when opening actions
+        inputModeActive = false;
+        textAlphaTarget = 1;
+        syncDraftToCommittedToken();
+      }
     };
 
     const cancelInputMode = (): void => {
@@ -616,74 +592,89 @@ export async function mountMotionGridApp(
       }
     };
 
-    touchInput.addEventListener("input", () => {
-      setDraftHeroToken(touchInput.value);
+    // ── Input popover field — paste / virtual-keyboard sync. Hardware
+    //    keys are intercepted by bindKeyboardShortcuts (preventDefault'd) so
+    //    this listener only fires for paste events and mobile soft-keyboards
+    //    that bypass keydown.
+    inputPopover.input.addEventListener("input", () => {
+      setDraftHeroToken(inputPopover.input.value);
       syncOverlay();
     });
-    touchInput.addEventListener("keydown", (event) => {
-      if (event.key === "Enter") {
-        event.preventDefault();
-        confirmInputMode();
-        syncOverlay();
-      }
-      if (event.key === "Escape") {
-        event.preventDefault();
-        cancelInputMode();
-        syncOverlay();
-      }
-    });
-    touchApplyButton.addEventListener("click", () => {
+    inputPopover.applyButton.addEventListener("click", () => {
       confirmInputMode();
       syncOverlay();
     });
-    touchCancelButton.addEventListener("click", () => {
+    inputPopover.cancelButton.addEventListener("click", () => {
       cancelInputMode();
       syncOverlay();
     });
 
-    // ControlCluster attached to hostOverlay (first arg = container)
-    const cluster = createControlCluster(hostOverlay, [
-      [
-        {
-          key: "←→",
-          label: "Pattern",
-          onClick: (event) => {
-            requestPatternCycle(event.shiftKey ? -1 : 1);
-            syncOverlay();
-          },
-        },
-        { key: "R", label: "Reset", onClick: () => { resetScene(); syncOverlay(); } },
-        { key: "T", label: "Continuity", cellsWide: 4, onClick: () => { toggleContinuity(); syncOverlay(); } },
-        { key: "L", label: "Loop", onClick: () => { toggleLoop(); syncOverlay(); } },
-      ],
-      [
-        { key: "Z", label: "Zoom In", onClick: () => { scene.zoomIn(); syncOverlay(); } },
-        { key: "⇧Z", label: "Zoom Out", onClick: () => { scene.zoomOut(); syncOverlay(); } },
-        { key: "0", label: "Default", onClick: () => { scene.resetZoomToDefault(); syncOverlay(); } },
-        { key: "F", label: "Film", onClick: () => { toggleFilm(); syncOverlay(); } },
-      ],
-      [
-        {
-          key: "A",
-          label: "Audio",
-          onClick: () => { void toggleAudio().then(() => syncOverlay()); },
-        },
-        { key: "M", label: "Music", onClick: () => { audioController.openFilePicker(); syncOverlay(); } },
-        {
-          key: "I",
-          label: "Input",
-          onClick: () => {
-            if (inputModeActive) {
-              cancelInputMode();
-            } else {
-              enterInputMode();
-            }
-            syncOverlay();
-          },
-        },
-        { key: "H", label: "HUD", onClick: () => { toggleHud(); syncOverlay(); } },
-      ],
-    ]);
+    // ── Dock buttons (primary actions) ─────────────────────────────────
+    dock.patternButton.addEventListener("click", (event) => {
+      requestPatternCycle(event.shiftKey ? -1 : 1);
+      syncOverlay();
+    });
+    dock.filmButton.addEventListener("click", () => {
+      toggleFilm();
+      syncOverlay();
+    });
+    dock.audioButton.addEventListener("click", () => {
+      void toggleAudio().then(() => syncOverlay());
+    });
+    dock.moreButton.addEventListener("click", () => {
+      toggleActionsPopover();
+      syncOverlay();
+    });
+
+    // ── Actions popover (secondary actions) ────────────────────────────
+    actionsPopover.prevButton.addEventListener("click", () => {
+      requestPatternCycle(-1);
+      syncOverlay();
+    });
+    actionsPopover.nextButton.addEventListener("click", () => {
+      requestPatternCycle(1);
+      syncOverlay();
+    });
+    actionsPopover.resetButton.addEventListener("click", () => {
+      resetScene();
+      syncOverlay();
+    });
+    actionsPopover.zoomDefaultButton.addEventListener("click", () => {
+      scene.resetZoomToDefault();
+      syncOverlay();
+    });
+    actionsPopover.loopButton.addEventListener("click", () => {
+      toggleLoop();
+      syncOverlay();
+    });
+    actionsPopover.continuityButton.addEventListener("click", () => {
+      toggleContinuity();
+      syncOverlay();
+    });
+    actionsPopover.zoomInButton.addEventListener("click", () => {
+      scene.zoomIn();
+      syncOverlay();
+    });
+    actionsPopover.zoomOutButton.addEventListener("click", () => {
+      scene.zoomOut();
+      syncOverlay();
+    });
+    actionsPopover.musicButton.addEventListener("click", () => {
+      audioController.openFilePicker();
+      syncOverlay();
+    });
+    actionsPopover.inputButton.addEventListener("click", () => {
+      if (inputModeActive) {
+        cancelInputMode();
+      } else {
+        enterInputMode();
+      }
+      syncOverlay();
+    });
+    actionsPopover.hudButton.addEventListener("click", () => {
+      toggleHud();
+      syncOverlay();
+    });
 
     const disposeKeyboard = bindKeyboardShortcuts({
       cyclePattern: requestPatternCycle,
@@ -827,10 +818,10 @@ export async function mountMotionGridApp(
         loop.stop();
         disposeKeyboard();
         // Remove overlay elements from hostOverlay
-        hud.remove();
-        inputOverlay.remove();
-        touchInputBar.remove();
-        cluster.element.remove();
+        statusPill.remove();
+        dock.root.remove();
+        actionsPopover.root.remove();
+        inputPopover.root.remove();
         // Destroy AudioController
         audioController.destroy();
         // Destroy compose pipeline

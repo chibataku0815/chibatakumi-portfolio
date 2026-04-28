@@ -69,11 +69,23 @@ import {
   HERO_PLACEMENT,
 } from "./text/glyph-registry";
 import {
-  createFlowlineHud,
-  setFlowlineHudKeymapVisible,
-  updateFlowlineHud,
-  updateFlowlineHudAudio,
+  createFlowAudioPopover,
+  createFlowControlDock,
+  createFlowHelpPopover,
+  createFlowScenePopover,
+  createFlowStatusPill,
+  setFlowAudioPopoverVisibility,
+  setFlowHelpPopoverVisibility,
+  setFlowOptionsVisibility,
+  setFlowScenePopoverVisibility,
+  updateFlowAudioPopover,
+  updateFlowControlDock,
+  updateFlowScenePopover,
+  updateFlowStatusPill,
+  type FlowOptionsHandles,
+  type FlowSceneItem,
 } from "./ui/hud";
+import type { AudioMeterReading } from "webgpu-motion-ui";
 
 const OFFSCREEN_FORMAT: GPUTextureFormat = "rgba16float";
 
@@ -236,7 +248,20 @@ export async function mountMotionFlowApp(
     let lastCycleIdx = 0;
     let autoCycleEnabled = true;
     let filmEnabled = true;
-    let keymapVisible = false;
+    let overlaysVisible = true;
+
+    // Mutually-exclusive popover state — only one popover open at a time.
+    type OpenPopover = "scene" | "audio" | "help" | null;
+    let openPopover: OpenPopover = null;
+    let lastOpenPopover: OpenPopover = null;
+
+    // Latest audio reading captured in the loop and re-used by syncOverlay
+    // when invoked from click handlers (so meter / track label stay fresh).
+    let lastReading: AudioMeterReading = {
+      bands: { bass: 0, mid: 0, treble: 0, energy: 0 },
+      onsets: { bassOnset: 0, midOnset: 0, trebleOnset: 0, globalOnset: 0 },
+      intensity: 0,
+    };
 
     const audioController: AudioController = createAudioController({
       audioBus,
@@ -294,24 +319,24 @@ export async function mountMotionFlowApp(
     };
     startOverlay.addEventListener("click", startClickHandler);
 
-    const hud = createFlowlineHud({
-      parent: hostOverlay,
-      scenes: SCENES.map((scene, idx) => ({
-        id: String(idx),
-        label: scene.name,
-        hotkey: String(idx + 1),
-      })),
-      onPickScene: (id) => {
-        const idx = Number(id);
-        if (Number.isNaN(idx) || idx < 0 || idx >= SCENES.length) return;
-        autoCycleEnabled = false;
-        sceneController.switchTo(SCENES[idx]);
-      },
-      onAuto: () => {
-        autoCycleEnabled = true;
-      },
-      keymapEntries: FLOWLINE_KEYMAP_ENTRIES,
-    });
+    // ── Apple Liquid Glass chrome (parallel to motion-dot/main.ts) ────────
+    const sceneItems: readonly FlowSceneItem[] = SCENES.map((scene, idx) => ({
+      id: String(idx),
+      label: scene.name,
+      hotkey: String(idx + 1),
+    }));
+    const statusPill = createFlowStatusPill(hostOverlay);
+    const dock = createFlowControlDock(hostOverlay);
+    const scenePopover = createFlowScenePopover(sceneItems, hostOverlay);
+    const audioPopover = createFlowAudioPopover(hostOverlay);
+    const helpPopover = createFlowHelpPopover(FLOWLINE_KEYMAP_ENTRIES, hostOverlay);
+    const handles: FlowOptionsHandles = {
+      statusPill,
+      dock,
+      scenePopover,
+      audioPopover,
+      helpPopover,
+    };
 
     const pinScene = (idx: number): void => {
       if (idx < 0 || idx >= SCENES.length) return;
@@ -335,17 +360,59 @@ export async function mountMotionFlowApp(
       filmEnabled = !filmEnabled;
     };
 
-    const toggleKeymap = (): void => {
-      keymapVisible = !keymapVisible;
-      setFlowlineHudKeymapVisible(hud, keymapVisible);
+    const togglePopover = (target: "scene" | "audio" | "help"): void => {
+      if (!overlaysVisible) return;
+      openPopover = openPopover === target ? null : target;
     };
 
-    hud.touchStrip.reseedButton.addEventListener("click", reseed);
-    hud.touchStrip.filmButton.addEventListener("click", toggleFilm);
-    hud.touchStrip.audioButton.addEventListener("click", () => {
-      void toggleAudio();
+    // Keyboard `?` keeps targeting the help popover for parity.
+    const toggleKeymap = (): void => {
+      togglePopover("help");
+      syncOverlay();
+    };
+
+    // ── Dock buttons (primary actions) ─────────────────────────────────
+    dock.sceneButton.addEventListener("click", () => {
+      togglePopover("scene");
+      syncOverlay();
     });
-    hud.touchStrip.helpButton.addEventListener("click", toggleKeymap);
+    dock.reseedButton.addEventListener("click", () => {
+      reseed();
+      syncOverlay();
+    });
+    dock.filmButton.addEventListener("click", () => {
+      toggleFilm();
+      syncOverlay();
+    });
+    dock.audioButton.addEventListener("click", () => {
+      togglePopover("audio");
+      syncOverlay();
+    });
+    dock.helpButton.addEventListener("click", () => {
+      togglePopover("help");
+      syncOverlay();
+    });
+
+    // ── Scene popover ────────────────────────────────────────────────
+    scenePopover.autoButton.addEventListener("click", () => {
+      resumeAuto();
+      openPopover = null;
+      syncOverlay();
+    });
+    for (const [id, btn] of scenePopover.sceneButtons.entries()) {
+      btn.addEventListener("click", () => {
+        const idx = Number(id);
+        if (Number.isNaN(idx)) return;
+        pinScene(idx);
+        openPopover = null;
+        syncOverlay();
+      });
+    }
+
+    // ── Audio popover ────────────────────────────────────────────────
+    audioPopover.connectButton.addEventListener("click", () => {
+      void toggleAudio().then(() => syncOverlay());
+    });
 
     const disposeKeyboard = bindFlowlineKeyboard({
       pinScene,
@@ -355,6 +422,60 @@ export async function mountMotionFlowApp(
       toggleFilm,
       toggleKeymap,
     });
+
+    function syncOverlay(): void {
+      const sceneIndex = SCENES.findIndex(
+        (s) => s.name === sceneController.target.name,
+      );
+      const safeIndex = sceneIndex >= 0 ? sceneIndex : 0;
+
+      updateFlowStatusPill(statusPill, {
+        sceneName: sceneController.target.name,
+        sceneIndex: safeIndex,
+        sceneCount: SCENES.length,
+        autoEnabled: autoCycleEnabled,
+        filmEnabled,
+        audioEnabled: audioController.enabled,
+        audioSourceLabel: audioController.sourceLabel,
+        onsetActivity: lastReading.onsets.globalOnset,
+      });
+
+      updateFlowControlDock(dock, {
+        scenePopoverOpen: openPopover === "scene",
+        filmEnabled,
+        audioEnabled: audioController.enabled,
+        audioPopoverOpen: openPopover === "audio",
+        helpPopoverOpen: openPopover === "help",
+      });
+
+      updateFlowScenePopover(scenePopover, {
+        autoEnabled: autoCycleEnabled,
+        activeId: String(safeIndex),
+      });
+
+      updateFlowAudioPopover(
+        audioPopover,
+        {
+          enabled: audioController.enabled,
+          sourceLabel: audioController.sourceLabel,
+        },
+        lastReading,
+      );
+
+      if (!overlaysVisible) {
+        setFlowOptionsVisibility(handles, false);
+        lastOpenPopover = null;
+      } else {
+        statusPill.style.display = "inline-flex";
+        dock.root.style.display = "inline-flex";
+        if (openPopover !== lastOpenPopover) {
+          setFlowScenePopoverVisibility(scenePopover, openPopover === "scene");
+          setFlowAudioPopoverVisibility(audioPopover, openPopover === "audio");
+          setFlowHelpPopoverVisibility(helpPopover, openPopover === "help");
+          lastOpenPopover = openPopover;
+        }
+      }
+    }
 
     const loop = createFixedStepLoop({
       fps: 45,
@@ -496,22 +617,10 @@ export async function mountMotionFlowApp(
 
         device.queue.submit([encoder.finish()]);
 
-        const activeSceneId = String(
-          SCENES.findIndex((s) => s.name === sceneController.target.name),
-        );
-        updateFlowlineHud(
-          hud,
-          {
-            sceneName: sceneController.target.name,
-            autoEnabled: autoCycleEnabled,
-            filmEnabled,
-            audioEnabled: audioController.enabled,
-            audioSourceLabel: audioController.sourceLabel,
-            onsetActivity: onsets.globalOnset,
-          },
-          activeSceneId,
-        );
-        updateFlowlineHudAudio(hud, { bands, onsets, intensity });
+        // Snapshot the current audio reading; click handlers reuse it via
+        // `lastReading` so meter / pill stay fresh between frames.
+        lastReading = { bands, onsets, intensity };
+        syncOverlay();
       },
     });
     loop.start();
@@ -531,11 +640,11 @@ export async function mountMotionFlowApp(
         disposeKeyboard();
         startOverlay.removeEventListener("click", startClickHandler);
         startOverlay.remove();
-        hud.overlay.element.remove();
-        hud.selector.element.remove();
-        hud.meter.element.remove();
-        hud.keymap.element.remove();
-        hud.touchStrip.element.remove();
+        statusPill.remove();
+        dock.root.remove();
+        scenePopover.root.remove();
+        audioPopover.root.remove();
+        helpPopover.root.remove();
         if (audioController.enabled) {
           void audioController.toggle();
         }
