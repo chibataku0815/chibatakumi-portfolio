@@ -93,10 +93,15 @@ export default function ExperimentsFlowClient() {
         className="fixed inset-0 z-0 h-screen w-screen"
         aria-hidden="true"
       />
-      {/* hostOverlay for HUD/keyboard/cluster injected by motion-flow mount */}
+      {/* hostOverlay for HUD/keyboard/cluster injected by motion-flow mount.
+          z-index must sit ABOVE LiquidGlassFrontChrome (--z-nav-front-glass:
+          1200) so the HUD chips remain interactive and chip text isn't
+          covered by the front-glass canvas. Mirrors --z-motion-hud-content
+          (1210) used by MotionStageProvider for motion-dot HUDs. */}
       <div
         ref={overlayRef}
-        className="fixed inset-0 z-10 pointer-events-none [&>*]:pointer-events-auto"
+        className="fixed inset-0 pointer-events-none [&>*]:pointer-events-auto"
+        style={{ zIndex: "var(--z-motion-hud-content, 1210)" }}
         aria-hidden="true"
       />
       <header className="fixed top-6 left-6 z-20 font-sans font-medium text-[10px] uppercase tracking-[0.18em] text-[var(--text-base-60)] mix-blend-difference">
