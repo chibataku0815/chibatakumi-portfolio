@@ -47,6 +47,15 @@ export interface WordmarkConfig {
   secondaryPaths: string[];
 }
 
+export interface DescriptorLockupConfig {
+  src: string;
+  lightSrc: string;
+  viewBox: string;
+  width: number;
+  height: number;
+  ariaLabel: string;
+}
+
 // === Work Items ===
 
 export interface WorkItem {
@@ -106,6 +115,7 @@ export interface SiteConfig {
 export interface BrandingConfig {
   navBrand: string;
   wordmark: WordmarkConfig;
+  descriptorLockup: DescriptorLockupConfig;
   logo: LogoConfig;
 }
 
@@ -375,6 +385,14 @@ export const portfolioData: PortfolioData = {
   // ---------------------------------------------------------------------------
   branding: {
     navBrand: "Chiba Takumi",
+    descriptorLockup: {
+      src: "/brand/logo-descriptor-lockup.svg",
+      lightSrc: "/brand/logo-descriptor-lockup-light.svg",
+      viewBox: "0 -501.96 9416 1501.96",
+      width: 9416,
+      height: 1501.96,
+      ariaLabel: "Fullstack Engineer / Creative Director / Chiba Takumi",
+    },
     wordmark: {
       full: "CHIBA TAKUMI",
       ariaLabel: "Chiba Takumi home",

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { portfolioData } from "@/shared/data/portfolio";
 import { useHeroFrameMetrics } from "@/shared/hooks/useHeroFrameMetrics";
@@ -345,6 +346,7 @@ export function HomeHero() {
 
   const proofTitle = activeDomain.title ?? activeDomain.proof;
   const proofBody = activeDomain.description ?? site.description;
+  const descriptorLockup = branding.descriptorLockup;
 
   return (
     <section
@@ -395,7 +397,7 @@ export function HomeHero() {
             {hero.eyebrow}
           </p>
 
-          <div className="frame-surface relative mt-5 inline-flex max-w-[min(100%,54rem)] flex-col pt-6">
+          <div className="frame-surface relative mt-5 inline-flex w-[min(100%,54rem)] flex-col pt-6">
             <div
               ref={titleCapRef}
               className="frame-line-secondary absolute right-0 top-0 h-px w-[42%]"
@@ -408,24 +410,21 @@ export function HomeHero() {
                   "drop-shadow(0 2px 28px rgba(0,0,0,0.45)) drop-shadow(0 0 80px rgba(0,0,0,0.25))",
               }}
             >
-              <svg
-                viewBox={branding.wordmark.viewBox}
-                fill="none"
-                aria-label={branding.wordmark.ariaLabel}
-                role="img"
-                className="h-auto w-full max-w-[54rem]"
-              >
-                <g fill="var(--text-base)">
-                  {branding.wordmark.primaryPaths.map((d, i) => (
-                    <path key={`hp-${i}`} d={d} />
-                  ))}
-                </g>
-                <g fill="color-mix(in srgb, var(--text-base) 78%, var(--accent-amber1))">
-                  {branding.wordmark.secondaryPaths.map((d, i) => (
-                    <path key={`hs-${i}`} d={d} />
-                  ))}
-                </g>
-              </svg>
+              <span className="sr-only">{descriptorLockup.ariaLabel}</span>
+              <Image
+                src={descriptorLockup.lightSrc}
+                alt=""
+                aria-hidden="true"
+                width={descriptorLockup.width}
+                height={Math.round(descriptorLockup.height)}
+                priority
+                unoptimized
+                sizes="(max-width: 768px) calc(100vw - 2.5rem), 54rem"
+                className="block h-auto w-full max-w-[54rem]"
+                style={{
+                  aspectRatio: `${descriptorLockup.width} / ${descriptorLockup.height}`,
+                }}
+              />
             </h1>
           </div>
 
