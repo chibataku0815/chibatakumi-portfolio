@@ -76,6 +76,15 @@ export type FlowlineHud = {
   readonly selector: SceneSelector;
   readonly meter: AudioMeter;
   readonly keymap: KeymapHud;
+  readonly touchStrip: FlowlineTouchStrip;
+};
+
+export type FlowlineTouchStrip = {
+  readonly element: HTMLDivElement;
+  readonly reseedButton: HTMLButtonElement;
+  readonly filmButton: HTMLButtonElement;
+  readonly audioButton: HTMLButtonElement;
+  readonly helpButton: HTMLButtonElement;
 };
 
 export type CreateFlowlineHudOptions = {
@@ -93,6 +102,39 @@ const METER_FIELDS: readonly AudioMeterFieldKey[] = [
   "trebleOnset",
   "intensity",
 ];
+
+function createTouchButton(label: string, ariaLabel: string): HTMLButtonElement {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.textContent = label;
+  button.setAttribute("aria-label", ariaLabel);
+  Object.assign(button.style, {
+    minHeight: "44px",
+    minWidth: "44px",
+    border: "0",
+    borderRadius: "14px",
+    background: "transparent",
+    color: INK_ON_GLASS_MUTED,
+    textShadow: TEXT_SHADOW,
+    fontFamily: FONT_STACK,
+    fontSize: "12px",
+    fontWeight: "700",
+    letterSpacing: "0.04em",
+    padding: "0 12px",
+    cursor: "pointer",
+    touchAction: "manipulation",
+  } satisfies Partial<CSSStyleDeclaration>);
+  return button;
+}
+
+function setTouchButtonActive(button: HTMLButtonElement, active: boolean): void {
+  button.setAttribute("aria-pressed", active ? "true" : "false");
+  Object.assign(button.style, {
+    background: active ? BG_ACTIVE_OVERLAY : "transparent",
+    color: active ? INK_ON_GLASS_ACTIVE : INK_ON_GLASS_MUTED,
+    textShadow: active ? "none" : TEXT_SHADOW,
+  } satisfies Partial<CSSStyleDeclaration>);
+}
 
 export function createFlowlineHud(options: CreateFlowlineHudOptions): FlowlineHud {
   const overlay = createHudOverlay({
@@ -190,7 +232,54 @@ export function createFlowlineHud(options: CreateFlowlineHudOptions): FlowlineHu
     brightness: 0.74,
   });
 
-  return { overlay, selector, meter, keymap };
+  const touchStrip = document.createElement("div");
+  Object.assign(touchStrip.style, {
+    position: "fixed",
+    right: "var(--motion-control-right, 24px)",
+    bottom: "calc(var(--safe-bottom, 0px) + 24px)",
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "4px",
+    maxWidth: "calc(100vw - 32px)",
+    overflowX: "auto",
+    padding: "8px",
+    borderRadius: "20px",
+    background: "transparent",
+    pointerEvents: "auto",
+    userSelect: "none",
+  } satisfies Partial<CSSStyleDeclaration>);
+  touchStrip.setAttribute("role", "toolbar");
+  touchStrip.setAttribute("aria-label", "Flow touch controls");
+  markLiquidGlassControl(touchStrip, "control.flow.touch", {
+    radius: 20,
+    intensity: 0.78,
+    brightness: 0.74,
+  });
+
+  const reseedButton = createTouchButton("R", "Reseed trails");
+  const filmButton = createTouchButton("Film", "Toggle film post");
+  const audioButton = createTouchButton("Audio", "Toggle audio");
+  const helpButton = createTouchButton("Help", "Toggle keyboard help");
+  touchStrip.append(reseedButton, filmButton, audioButton, helpButton);
+  if (options.parent) {
+    options.parent.append(touchStrip);
+  } else {
+    document.body.appendChild(touchStrip);
+  }
+
+  return {
+    overlay,
+    selector,
+    meter,
+    keymap,
+    touchStrip: {
+      element: touchStrip,
+      reseedButton,
+      filmButton,
+      audioButton,
+      helpButton,
+    },
+  };
 }
 
 // Re-styles SceneSelector buttons to white-on-glass after each vendor update.
@@ -243,6 +332,8 @@ export function updateFlowlineHud(
   });
   // Re-apply our glass overrides — vendor updateSceneSelector clobbered them.
   styleSceneSelectorButtons(hud.selector.element, activeSceneId, state.autoEnabled);
+  setTouchButtonActive(hud.touchStrip.filmButton, state.filmEnabled);
+  setTouchButtonActive(hud.touchStrip.audioButton, state.audioEnabled);
 }
 
 export function updateFlowlineHudAudio(
@@ -254,4 +345,5 @@ export function updateFlowlineHudAudio(
 
 export function setFlowlineHudKeymapVisible(hud: FlowlineHud, visible: boolean): void {
   updateKeymapHud(hud.keymap, { visible });
+  setTouchButtonActive(hud.touchStrip.helpButton, visible);
 }

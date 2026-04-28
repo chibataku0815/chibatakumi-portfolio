@@ -249,6 +249,8 @@ export function createControlCluster(
       flexDirection: "column",
       alignItems: "flex-end",
       gap: "6px",
+      maxWidth: "calc(100vw - 32px)",
+      overflowX: "auto",
       pointerEvents: "auto",
       userSelect: "none",
       transition: "opacity 160ms ease-out",
@@ -337,6 +339,9 @@ export function createControlCluster(
     },
     setMetrics(cellSize, rightPx, bottomPx) {
       const cs = Math.max(Math.round(cellSize), 1);
+      const coarsePointer =
+        typeof window !== "undefined"
+        && window.matchMedia("(pointer: coarse)").matches;
       if (cs !== lastCellSize) {
         const keyPx = cs >= 24 ? 11 : 10;
         const labelPx = cs >= 24 ? 10 : 9;
@@ -345,6 +350,8 @@ export function createControlCluster(
           const chipW = record.cellsWide * cs;
           record.button.style.width = `${chipW}px`;
           record.button.style.height = `${cs}px`;
+          record.button.style.minWidth = coarsePointer ? "44px" : "0";
+          record.button.style.minHeight = coarsePointer ? "44px" : "0";
           record.keyEl.style.width = `${cs}px`;
           record.keyEl.style.height = `${cs}px`;
           record.keyEl.style.fontSize = `${keyPx}px`;
@@ -356,11 +363,11 @@ export function createControlCluster(
       const r = Math.round(rightPx);
       const b = Math.round(bottomPx);
       if (r !== lastRight) {
-        element.style.right = `${r}px`;
+        element.style.right = `calc(${r}px + var(--safe-right, 0px))`;
         lastRight = r;
       }
       if (b !== lastBottom) {
-        element.style.bottom = `${b}px`;
+        element.style.bottom = `calc(${b}px + var(--safe-bottom, 0px))`;
         lastBottom = b;
       }
     },
@@ -371,6 +378,7 @@ function createChip(def: ControlChipDef): ChipRecord {
   const cellsWide = def.cellsWide ?? 3;
   const button = document.createElement("button");
   button.type = "button";
+  button.setAttribute("aria-label", `${def.label} (${def.key})`);
   Object.assign(button.style, {
     position: "relative",
     display: "flex",
@@ -389,6 +397,7 @@ function createChip(def: ControlChipDef): ChipRecord {
     outline: "none",
     textAlign: "left",
     overflow: "hidden",
+    touchAction: "manipulation",
   } satisfies Partial<CSSStyleDeclaration>);
 
   const keyEl = document.createElement("span");

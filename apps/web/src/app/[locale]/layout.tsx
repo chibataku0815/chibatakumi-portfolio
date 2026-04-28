@@ -6,11 +6,19 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { setRequestLocale, getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { Suspense } from "react";
+import { VisualViewportVars } from "@/features/viewport/VisualViewportVars";
 import { fontVariables } from "../fonts";
 import "../globals.css";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#D2D2D2",
+};
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -141,6 +149,7 @@ export default async function LocaleLayout({
             </Script>
           </>
         ) : null}
+        <VisualViewportVars />
         <NextIntlClientProvider messages={messages}>
           <Suspense fallback={null}>
             <AnalyticsPageTracker />

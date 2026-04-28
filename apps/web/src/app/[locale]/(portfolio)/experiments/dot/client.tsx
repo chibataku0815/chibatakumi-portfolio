@@ -6,7 +6,7 @@
 // through motion-dot's own HUD overlay + keyboard cluster.
 export default function ExperimentsDotClient() {
   return (
-    <main className="relative min-h-screen w-full">
+    <main className="relative min-h-[var(--vvh,100dvh)] w-full">
       <header className="fixed top-6 left-6 z-10 font-sans font-medium text-[10px] uppercase tracking-[0.18em] text-[var(--text-base-60)] mix-blend-difference">
         experiments / dot
       </header>

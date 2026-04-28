@@ -57,8 +57,9 @@ export function LiquidGlassFrontChrome(): React.ReactElement {
     const registration: FrontCanvasRegistration = {
       getCurrentTarget: () => {
         const dpr = Math.min(window.devicePixelRatio || 1, DPR_CAP);
-        const cssWidth = Math.max(1, window.innerWidth);
-        const cssHeight = Math.max(1, window.innerHeight);
+        const viewport = window.visualViewport;
+        const cssWidth = Math.max(1, viewport?.width ?? window.innerWidth);
+        const cssHeight = Math.max(1, viewport?.height ?? window.innerHeight);
         const targetWidth = Math.max(1, Math.round(cssWidth * dpr));
         const targetHeight = Math.max(1, Math.round(cssHeight * dpr));
         if (canvas.width !== targetWidth || canvas.height !== targetHeight) {
@@ -95,7 +96,7 @@ export function LiquidGlassFrontChrome(): React.ReactElement {
     <canvas
       ref={canvasRef}
       aria-hidden="true"
-      className="pointer-events-none fixed inset-0 h-screen w-screen"
+      className="pointer-events-none fixed left-0 top-[var(--vv-offset-top,0px)] h-[var(--vvh,100dvh)] w-screen"
       style={{ zIndex: "var(--z-nav-front-glass, 1200)" }}
     />
   );

@@ -1,48 +1,22 @@
-import type { TransitionPhase } from "../transition/kinetic-handoff";
 import { bindKeymap } from "webgpu-motion-dom";
 import { shouldIgnoreShortcutTarget } from "webgpu-motion-input";
 
 export interface KeyboardDeps {
-  getSceneIndex(): number;
-  getSceneCount(): number;
-  setSceneIndex(nextIdx: number): void;
-  disableGallery(): boolean;
+  setSingleMode(): void;
+  advanceScene(delta: number): void;
   toggleOptionsVisibility(): void;
   toggleAudioPanel(): void;
-  isTransitionActive(): boolean;
-  getTransitionPhase(): TransitionPhase;
-  startTransition(sourceIdx: number): void;
-  stopTransition(): void;
+  triggerTransition(): void;
   resetCurrentScene(): void;
   toggleFilm(): void;
-  cycleGallery(): void;
-  cycleGalleryReverse(): void;
-  isGalleryEnabled(): boolean;
-  shiftGalleryBase(delta: number): void;
+  cycleGallery(delta: 1 | -1): void;
   toggleAudio(): Promise<void>;
   openAudioPicker(): void;
   changeTypographyText(): void;
-  syncOverlay(): void;
 }
 
 export function bindKeyboardShortcuts(deps: KeyboardDeps): () => void {
   let lastTPress = 0;
-
-  function advanceScene(delta: number): void {
-    if (deps.isTransitionActive()) {
-      return;
-    }
-
-    if (deps.isGalleryEnabled()) {
-      deps.shiftGalleryBase(delta);
-    } else {
-      deps.setSceneIndex(
-        (deps.getSceneIndex() + delta + deps.getSceneCount()) % deps.getSceneCount(),
-      );
-    }
-
-    deps.syncOverlay();
-  }
 
   return bindKeymap([
     {
@@ -51,9 +25,7 @@ export function bindKeyboardShortcuts(deps: KeyboardDeps): () => void {
         if (shouldIgnoreShortcutTarget(event)) {
           return;
         }
-        if (deps.disableGallery()) {
-          deps.syncOverlay();
-        }
+        deps.setSingleMode();
       },
     },
     {
@@ -62,7 +34,7 @@ export function bindKeyboardShortcuts(deps: KeyboardDeps): () => void {
         if (shouldIgnoreShortcutTarget(event)) {
           return;
         }
-        advanceScene(1);
+        deps.advanceScene(1);
       },
     },
     {
@@ -71,7 +43,7 @@ export function bindKeyboardShortcuts(deps: KeyboardDeps): () => void {
         if (shouldIgnoreShortcutTarget(event)) {
           return;
         }
-        advanceScene(1);
+        deps.advanceScene(1);
       },
     },
     {
@@ -80,7 +52,7 @@ export function bindKeyboardShortcuts(deps: KeyboardDeps): () => void {
         if (shouldIgnoreShortcutTarget(event)) {
           return;
         }
-        advanceScene(-1);
+        deps.advanceScene(-1);
       },
     },
     {
@@ -89,7 +61,7 @@ export function bindKeyboardShortcuts(deps: KeyboardDeps): () => void {
         if (shouldIgnoreShortcutTarget(event)) {
           return;
         }
-        advanceScene(-1);
+        deps.advanceScene(-1);
       },
     },
     {
@@ -98,10 +70,6 @@ export function bindKeyboardShortcuts(deps: KeyboardDeps): () => void {
         if (shouldIgnoreShortcutTarget(event)) {
           return;
         }
-        if (deps.isTransitionActive()) {
-          return;
-        }
-
         deps.resetCurrentScene();
       },
     },
@@ -112,7 +80,6 @@ export function bindKeyboardShortcuts(deps: KeyboardDeps): () => void {
           return;
         }
         deps.toggleFilm();
-        deps.syncOverlay();
       },
     },
     {
@@ -122,11 +89,10 @@ export function bindKeyboardShortcuts(deps: KeyboardDeps): () => void {
           return;
         }
         if (event.shiftKey) {
-          deps.cycleGalleryReverse();
+          deps.cycleGallery(-1);
         } else {
-          deps.cycleGallery();
+          deps.cycleGallery(1);
         }
-        deps.syncOverlay();
       },
     },
     {
@@ -136,7 +102,6 @@ export function bindKeyboardShortcuts(deps: KeyboardDeps): () => void {
           return;
         }
         await deps.toggleAudio();
-        deps.syncOverlay();
       },
     },
     {
@@ -146,7 +111,6 @@ export function bindKeyboardShortcuts(deps: KeyboardDeps): () => void {
           return;
         }
         deps.toggleOptionsVisibility();
-        deps.syncOverlay();
       },
     },
     {
@@ -161,12 +125,7 @@ export function bindKeyboardShortcuts(deps: KeyboardDeps): () => void {
         }
 
         lastTPress = now;
-        if (!deps.isTransitionActive()) {
-          deps.startTransition(deps.getSceneIndex());
-        } else if (deps.getTransitionPhase() !== "handoff_pending") {
-          deps.stopTransition();
-        }
-        deps.syncOverlay();
+        deps.triggerTransition();
       },
     },
     {
@@ -176,7 +135,6 @@ export function bindKeyboardShortcuts(deps: KeyboardDeps): () => void {
           return;
         }
         deps.toggleAudioPanel();
-        deps.syncOverlay();
       },
     },
     {

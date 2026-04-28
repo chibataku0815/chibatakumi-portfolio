@@ -68,7 +68,7 @@ export default async function ExperimentsIndexPage({
   const t = await getTranslations({ locale, namespace: "experiments" });
 
   return (
-    <main className="relative min-h-screen w-full">
+    <main className="relative min-h-[var(--vvh,100dvh)] w-full">
       <ExperimentsSceneCycle />
 
       <section className="relative px-6 pt-32 pb-12 sm:pt-40 sm:pb-16" data-readability="focus">

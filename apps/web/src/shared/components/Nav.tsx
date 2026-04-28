@@ -79,7 +79,7 @@ export function Nav() {
           radius={24}
           intensity={1.0}
           brightness={0.7}
-          className="fixed left-8 top-6 h-12 w-12"
+          className="fixed left-[max(18px,var(--safe-left))] top-[calc(var(--safe-top)+16px)] h-12 w-12 sm:left-8 sm:top-6"
         />
         {!isMenuOpen && (
           <LiquidGlassSurface
@@ -88,7 +88,7 @@ export function Nav() {
             radius={24}
             intensity={1.0}
             brightness={0.7}
-            className="fixed right-8 top-6 h-12 w-12"
+            className="fixed right-[max(18px,var(--safe-right))] top-[calc(var(--safe-top)+16px)] h-12 w-12 sm:right-8 sm:top-6"
           />
         )}
       </div>
@@ -103,7 +103,7 @@ export function Nav() {
           href="/"
           data-transition="true"
           aria-label={navBrand}
-          className={`fixed left-8 top-6 grid h-12 w-12 cursor-pointer place-items-center rounded-full bg-transparent text-[rgba(248,250,255,0.92)] outline-none focus-visible:ring-2 focus-visible:ring-white/80 ${
+          className={`fixed left-[max(18px,var(--safe-left))] top-[calc(var(--safe-top)+16px)] grid h-12 w-12 cursor-pointer place-items-center rounded-full bg-transparent text-[rgba(248,250,255,0.92)] outline-none focus-visible:ring-2 focus-visible:ring-white/80 sm:left-8 sm:top-6 ${
             isMenuOpen ? "pointer-events-none" : "pointer-events-auto"
           }`}
         >
@@ -117,7 +117,7 @@ export function Nav() {
             aria-expanded={false}
             aria-controls="global-menu-sheet"
             aria-label="Open global menu"
-            className="pointer-events-auto fixed right-8 top-6 inline-flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-transparent text-[rgba(248,250,255,0.92)] outline-none focus-visible:ring-2 focus-visible:ring-white/80"
+            className="pointer-events-auto fixed right-[max(18px,var(--safe-right))] top-[calc(var(--safe-top)+16px)] inline-flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-transparent text-[rgba(248,250,255,0.92)] outline-none focus-visible:ring-2 focus-visible:ring-white/80 sm:right-8 sm:top-6"
             onClick={() => setIsMenuOpen(true)}
           >
             <span aria-hidden="true" className="relative inline-block h-3 w-4">
@@ -161,8 +161,16 @@ export function Nav() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="global-menu-title"
-            className="fixed bottom-8 right-8 top-8 flex w-[min(360px,calc(100vw-4rem))] flex-col px-7 py-7 text-[rgba(248,250,255,0.92)] sm:px-8"
-            style={{ zIndex: "var(--z-nav-panel-content, 1300)" }}
+            className="fixed flex flex-col overflow-y-auto overscroll-contain px-7 py-7 text-[rgba(248,250,255,0.92)] sm:px-8"
+            style={{
+              zIndex: "var(--z-nav-panel-content, 1300)",
+              top: "calc(var(--safe-top) + 16px)",
+              right: "max(16px, var(--safe-right))",
+              bottom: "calc(var(--safe-bottom) + 16px)",
+              width: "min(360px, calc(100vw - 32px))",
+              maxHeight:
+                "calc(var(--vvh, 100dvh) - var(--safe-top) - var(--safe-bottom) - 32px)",
+            }}
           >
             <div className="flex items-center justify-between gap-5 pb-5">
               <Link
@@ -186,7 +194,7 @@ export function Nav() {
               </button>
             </div>
 
-            <div className="flex flex-1 flex-col justify-between gap-10 pt-6">
+            <div className="flex min-h-0 flex-1 flex-col justify-between gap-10 pt-6">
               <div>
                 <p
                   id="global-menu-title"

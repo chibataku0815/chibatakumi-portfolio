@@ -313,28 +313,47 @@ export async function mountMotionFlowApp(
       keymapEntries: FLOWLINE_KEYMAP_ENTRIES,
     });
 
+    const pinScene = (idx: number): void => {
+      if (idx < 0 || idx >= SCENES.length) return;
+      autoCycleEnabled = false;
+      sceneController.switchTo(SCENES[idx]);
+    };
+
+    const resumeAuto = (): void => {
+      autoCycleEnabled = true;
+    };
+
+    const reseed = (): void => {
+      sceneController.participant.reset();
+    };
+
+    const toggleAudio = async (): Promise<void> => {
+      await audioController.toggle();
+    };
+
+    const toggleFilm = (): void => {
+      filmEnabled = !filmEnabled;
+    };
+
+    const toggleKeymap = (): void => {
+      keymapVisible = !keymapVisible;
+      setFlowlineHudKeymapVisible(hud, keymapVisible);
+    };
+
+    hud.touchStrip.reseedButton.addEventListener("click", reseed);
+    hud.touchStrip.filmButton.addEventListener("click", toggleFilm);
+    hud.touchStrip.audioButton.addEventListener("click", () => {
+      void toggleAudio();
+    });
+    hud.touchStrip.helpButton.addEventListener("click", toggleKeymap);
+
     const disposeKeyboard = bindFlowlineKeyboard({
-      pinScene: (idx) => {
-        if (idx < 0 || idx >= SCENES.length) return;
-        autoCycleEnabled = false;
-        sceneController.switchTo(SCENES[idx]);
-      },
-      resumeAuto: () => {
-        autoCycleEnabled = true;
-      },
-      reseed: () => {
-        sceneController.participant.reset();
-      },
-      toggleAudio: async () => {
-        await audioController.toggle();
-      },
-      toggleFilm: () => {
-        filmEnabled = !filmEnabled;
-      },
-      toggleKeymap: () => {
-        keymapVisible = !keymapVisible;
-        setFlowlineHudKeymapVisible(hud, keymapVisible);
-      },
+      pinScene,
+      resumeAuto,
+      reseed,
+      toggleAudio,
+      toggleFilm,
+      toggleKeymap,
     });
 
     const loop = createFixedStepLoop({
@@ -516,6 +535,7 @@ export async function mountMotionFlowApp(
         hud.selector.element.remove();
         hud.meter.element.remove();
         hud.keymap.element.remove();
+        hud.touchStrip.element.remove();
         if (audioController.enabled) {
           void audioController.toggle();
         }

@@ -20,8 +20,13 @@ export interface StatusPillState {
 export interface DockState {
   readonly postEnabled: boolean;
   readonly audioPopoverOpen: boolean;
-  readonly hotkeysOpen: boolean;
+  readonly actionPanelOpen: boolean;
   readonly audioActive: boolean;
+}
+
+export interface TouchActionsState {
+  readonly galleryEnabled: boolean;
+  readonly transitionActive: boolean;
 }
 
 export interface AudioSettingsPopoverState {
@@ -52,10 +57,21 @@ export interface AudioSettingsPopover {
   readonly detailText: HTMLDivElement;
 }
 
+export interface TouchActionsPopover {
+  readonly root: HTMLDivElement;
+  readonly prevButton: HTMLButtonElement;
+  readonly nextButton: HTMLButtonElement;
+  readonly resetButton: HTMLButtonElement;
+  readonly transitionButton: HTMLButtonElement;
+  readonly galleryButton: HTMLButtonElement;
+  readonly textButton: HTMLButtonElement;
+  readonly fileButton: HTMLButtonElement;
+}
+
 export interface OptionsHandles {
   readonly statusPill: HTMLElement;
   readonly dock: ControlDockHandle;
-  readonly hotkeysPopover: HTMLElement;
+  readonly actionsPopover: HTMLElement;
 }
 
 const FONT_STACK =
@@ -69,20 +85,18 @@ const DOCK_BOTTOM_PX = PILL_BOTTOM_PX + PILL_HEIGHT_ESTIMATE_PX + STACK_GAP_PX;
 const DOCK_RIGHT_PX = 22;
 const DOCK_HEIGHT_ESTIMATE_PX = 56;
 const POPOVER_GAP_PX = 12;
-const POPOVER_BOTTOM = `${DOCK_BOTTOM_PX + DOCK_HEIGHT_ESTIMATE_PX + POPOVER_GAP_PX}px`;
+const POPOVER_BOTTOM =
+  `calc(var(--motion-control-bottom, ${DOCK_BOTTOM_PX}px) + ${DOCK_HEIGHT_ESTIMATE_PX + POPOVER_GAP_PX}px)`;
 
-const HOTKEYS: ReadonlyArray<{ key: string; label: string }> = [
-  { key: "← →", label: "Scene" },
-  { key: "0", label: "Single" },
-  { key: "H", label: "Options" },
-  { key: "R", label: "Reset" },
-  { key: "F", label: "Film" },
-  { key: "T", label: "Transit" },
-  { key: "A", label: "Audio" },
-  { key: "D", label: "Gallery" },
-  { key: "I", label: "Panel" },
-  { key: "M", label: "File" },
-];
+const ACTION_BUTTONS = {
+  prev: { label: "Prev", key: "←" },
+  next: { label: "Next", key: "→" },
+  reset: { label: "Reset", key: "R" },
+  transition: { label: "Transit", key: "T" },
+  gallery: { label: "Gallery", key: "D" },
+  text: { label: "Text", key: "W" },
+  file: { label: "File", key: "M" },
+} as const;
 
 interface ControlSurfaceOptions {
   readonly radius?: number;
@@ -142,7 +156,7 @@ export function createStatusPill(parent?: ParentNode): HTMLDivElement {
     // "[Transition] River Flow → Magnet" stay within the right gutter.
     position: "fixed",
     bottom: `var(--motion-hud-bottom, ${PILL_BOTTOM_PX}px)`,
-    right: `${DOCK_RIGHT_PX}px`,
+    right: `var(--motion-control-right, ${DOCK_RIGHT_PX}px)`,
     top: "auto",
     left: "auto",
     padding: "8px 14px",
@@ -300,8 +314,8 @@ export function createControlDock(parent?: ParentNode): ControlDockHandle {
   const root = document.createElement("div");
   applyStyles(root, {
     position: "fixed",
-    bottom: `${DOCK_BOTTOM_PX}px`,
-    right: `${DOCK_RIGHT_PX}px`,
+    bottom: `var(--motion-control-bottom, ${DOCK_BOTTOM_PX}px)`,
+    right: `var(--motion-control-right, ${DOCK_RIGHT_PX}px)`,
     display: "inline-flex",
     alignItems: "center",
     gap: "2px",
@@ -324,7 +338,7 @@ export function createControlDock(parent?: ParentNode): ControlDockHandle {
   const audioButton = createDockButton("Audio", AUDIO_ICON_SVG);
   audioButton.setAttribute("aria-label", "Audio settings (I)");
   const moreButton = createDockButton("More", MORE_ICON_SVG);
-  moreButton.setAttribute("aria-label", "Hotkey reference (H)");
+  moreButton.setAttribute("aria-label", "Motion actions (H)");
 
   root.appendChild(filmButton);
   root.appendChild(audioButton);
@@ -337,79 +351,151 @@ export function createControlDock(parent?: ParentNode): ControlDockHandle {
 export function updateControlDock(dock: ControlDockHandle, state: DockState): void {
   setDockButtonActive(dock.filmButton, state.postEnabled);
   setDockButtonActive(dock.audioButton, state.audioPopoverOpen || state.audioActive);
-  setDockButtonActive(dock.moreButton, state.hotkeysOpen);
+  setDockButtonActive(dock.moreButton, state.actionPanelOpen);
 }
 
 // ───────────────────────────────────────────────────────────
-// Hotkey Legend Popover
+// Touch Actions Popover
 // ───────────────────────────────────────────────────────────
 
-export function createHotkeyLegendPopover(parent?: ParentNode): HTMLDivElement {
+function createActionButton(
+  action: { readonly label: string; readonly key: string },
+  ariaLabel: string,
+): HTMLButtonElement {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.setAttribute("aria-label", ariaLabel);
+  applyStyles(button, {
+    minHeight: "44px",
+    minWidth: "44px",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: "10px",
+    padding: "10px 12px",
+    border: "1px solid rgba(255,255,255,0.14)",
+    borderRadius: "14px",
+    background: "rgba(255,255,255,0.05)",
+    color: "rgba(255,255,255,0.90)",
+    font: `600 12px/1 ${FONT_STACK}`,
+    letterSpacing: "0.02em",
+    cursor: "pointer",
+    pointerEvents: "auto",
+    userSelect: "none",
+    transition: "background 140ms ease, color 140ms ease, border-color 140ms ease",
+  });
+
+  const label = document.createElement("span");
+  label.textContent = action.label;
+  label.style.whiteSpace = "nowrap";
+
+  const key = document.createElement("kbd");
+  key.textContent = action.key;
+  applyStyles(key, {
+    minWidth: "24px",
+    padding: "4px 7px",
+    borderRadius: "8px",
+    background: "rgba(255,255,255,0.10)",
+    color: "rgba(255,255,255,0.74)",
+    font: `600 11px/1 ui-monospace, "SF Mono", Menlo, monospace`,
+    textAlign: "center",
+  });
+
+  button.append(label, key);
+  return button;
+}
+
+function setActionButtonActive(button: HTMLButtonElement, active: boolean): void {
+  button.setAttribute("aria-pressed", active ? "true" : "false");
+  if (active) {
+    applyStyles(button, {
+      background: "rgba(255,255,255,0.16)",
+      borderColor: "rgba(255,255,255,0.36)",
+      color: "rgba(255,255,255,0.98)",
+    });
+  } else {
+    applyStyles(button, {
+      background: "rgba(255,255,255,0.05)",
+      borderColor: "rgba(255,255,255,0.14)",
+      color: "rgba(255,255,255,0.90)",
+    });
+  }
+}
+
+export function createTouchActionsPopover(parent?: ParentNode): TouchActionsPopover {
   const root = document.createElement("div");
   applyStyles(root, {
     position: "fixed",
     bottom: POPOVER_BOTTOM,
-    right: `${DOCK_RIGHT_PX}px`,
+    right: `var(--motion-control-right, ${DOCK_RIGHT_PX}px)`,
     display: "none",
-    gridTemplateColumns: "auto auto",
-    columnGap: "20px",
-    rowGap: "9px",
-    padding: "16px 18px",
+    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+    gap: "8px",
+    width: "min(330px, calc(100vw - 32px))",
+    maxHeight: "calc(var(--vvh, 100dvh) - var(--safe-top) - var(--safe-bottom) - 160px)",
+    overflowY: "auto",
+    padding: "14px",
     borderRadius: "20px",
     background: "transparent",
-    pointerEvents: "none",
+    pointerEvents: "auto",
     userSelect: "none",
     color: "rgba(255,255,255,0.90)",
     font: `500 12px/1 ${FONT_STACK}`,
   });
-  root.setAttribute("role", "list");
-  root.setAttribute("aria-label", "Keyboard shortcuts");
-  markLiquidGlassControl(root, "control.hotkeys", {
+  root.setAttribute("role", "group");
+  root.setAttribute("aria-label", "Motion touch actions");
+  markLiquidGlassControl(root, "control.actions", {
     radius: 20,
     intensity: 0.80,
     brightness: 0.74,
   });
 
-  for (const { key, label } of HOTKEYS) {
-    const row = document.createElement("div");
-    applyStyles(row, {
-      display: "contents",
-    });
+  const prevButton = createActionButton(ACTION_BUTTONS.prev, "Previous scene");
+  const nextButton = createActionButton(ACTION_BUTTONS.next, "Next scene");
+  const resetButton = createActionButton(ACTION_BUTTONS.reset, "Reset current scene");
+  const transitionButton = createActionButton(
+    ACTION_BUTTONS.transition,
+    "Start or stop transition",
+  );
+  const galleryButton = createActionButton(
+    ACTION_BUTTONS.gallery,
+    "Toggle gallery mode",
+  );
+  const textButton = createActionButton(ACTION_BUTTONS.text, "Change typography text");
+  const fileButton = createActionButton(ACTION_BUTTONS.file, "Open audio file picker");
 
-    const kbd = document.createElement("kbd");
-    kbd.textContent = key;
-    applyStyles(kbd, {
-      display: "inline-flex",
-      justifyContent: "center",
-      alignItems: "center",
-      minWidth: "26px",
-      padding: "3px 7px",
-      borderRadius: "6px",
-      background: "rgba(255,255,255,0.08)",
-      border: "1px solid rgba(255,255,255,0.14)",
-      color: "rgba(255,255,255,0.94)",
-      font: `500 11px/1.1 ui-monospace, "SF Mono", Menlo, monospace`,
-      letterSpacing: "0.04em",
-      whiteSpace: "nowrap",
-    });
+  root.append(
+    prevButton,
+    nextButton,
+    resetButton,
+    transitionButton,
+    galleryButton,
+    textButton,
+    fileButton,
+  );
 
-    const labelEl = document.createElement("span");
-    labelEl.textContent = label;
-    applyStyles(labelEl, {
-      alignSelf: "center",
-      color: "rgba(255,255,255,0.84)",
-      letterSpacing: "0.03em",
-    });
-
-    row.appendChild(kbd);
-    row.appendChild(labelEl);
-    root.appendChild(row);
-  }
-
-  return appendTo(parent, root);
+  appendTo(parent, root);
+  return {
+    root,
+    prevButton,
+    nextButton,
+    resetButton,
+    transitionButton,
+    galleryButton,
+    textButton,
+    fileButton,
+  };
 }
 
-export function setHotkeyPopoverVisibility(popover: HTMLElement, visible: boolean): void {
+export function updateTouchActionsPopover(
+  popover: TouchActionsPopover,
+  state: TouchActionsState,
+): void {
+  setActionButtonActive(popover.galleryButton, state.galleryEnabled);
+  setActionButtonActive(popover.transitionButton, state.transitionActive);
+}
+
+export function setTouchActionsPopoverVisibility(popover: HTMLElement, visible: boolean): void {
   popover.style.display = visible ? "grid" : "none";
 }
 
@@ -453,7 +539,7 @@ export function createAudioSettingsPopover(parent?: ParentNode): AudioSettingsPo
   applyStyles(root, {
     position: "fixed",
     bottom: POPOVER_BOTTOM,
-    right: `${DOCK_RIGHT_PX}px`,
+    right: `var(--motion-control-right, ${DOCK_RIGHT_PX}px)`,
     width: "min(320px, calc(100vw - 32px))",
     padding: "16px 18px",
     borderRadius: "24px",
@@ -749,6 +835,6 @@ export function setOptionsVisibility(
   handles.statusPill.style.display = visible ? "inline-flex" : "none";
   handles.dock.root.style.display = visible ? "inline-flex" : "none";
   if (!visible) {
-    handles.hotkeysPopover.style.display = "none";
+    handles.actionsPopover.style.display = "none";
   }
 }

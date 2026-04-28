@@ -84,7 +84,7 @@ describe("params-codec（life#93 surface / 共有 URL）", () => {
     const legacy = { ...PRESETS.cinematic } as Record<string, unknown>;
     delete legacy.grainSize;
     delete legacy.diffusion;
-    const encoded = encodeParams(legacy as (typeof PRESETS)["reset"]);
+    const encoded = encodeParams(legacy as unknown as (typeof PRESETS)["reset"]);
     const decoded = decodeParams(encoded);
     expect(decoded).not.toBeNull();
     if (!decoded) return;

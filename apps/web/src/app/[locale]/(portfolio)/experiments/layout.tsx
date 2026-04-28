@@ -40,7 +40,7 @@ export default function ExperimentsLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative min-h-screen w-full">
+    <div className="relative min-h-[var(--vvh,100dvh)] w-full">
       {children}
       <MotionUnsupportedBanner />
     </div>

@@ -274,6 +274,73 @@ export async function mountMotionGridApp(
     // HUD and InputOverlay attached to hostOverlay, not document.body
     const hud = createHud(hostOverlay);
     const inputOverlay = createInputOverlay(hostOverlay);
+    const touchInputBar = document.createElement("div");
+    touchInputBar.dataset.liquidGlassControl = "control.grid.textInput";
+    touchInputBar.dataset.liquidGlassRadius = "16";
+    touchInputBar.dataset.liquidGlassIntensity = "0.68";
+    touchInputBar.dataset.liquidGlassBrightness = "0.76";
+    Object.assign(touchInputBar.style, {
+      position: "fixed",
+      top: "148px",
+      left: "24px",
+      display: "none",
+      gridTemplateColumns: "minmax(0, 1fr) auto auto",
+      gap: "8px",
+      width: "min(420px, calc(100vw - 48px))",
+      padding: "10px",
+      borderRadius: "16px",
+      background: "transparent",
+      pointerEvents: "auto",
+      userSelect: "none",
+      boxSizing: "border-box",
+    } satisfies Partial<CSSStyleDeclaration>);
+
+    const touchInput = document.createElement("input");
+    touchInput.type = "text";
+    touchInput.inputMode = "text";
+    touchInput.autocomplete = "off";
+    touchInput.autocapitalize = "characters";
+    touchInput.spellcheck = false;
+    touchInput.maxLength = MAX_HERO_TOKEN_CHARS;
+    touchInput.setAttribute("aria-label", "Hero token text");
+    Object.assign(touchInput.style, {
+      minHeight: "44px",
+      minWidth: "0",
+      width: "100%",
+      border: "1px solid rgba(26,26,26,0.16)",
+      borderRadius: "12px",
+      background: "rgba(255,255,255,0.18)",
+      color: "rgba(26,26,26,0.92)",
+      font: "600 16px/1 var(--font-geist-sans), system-ui, sans-serif",
+      letterSpacing: "0.04em",
+      padding: "0 12px",
+      outline: "none",
+      textTransform: "uppercase",
+    } satisfies Partial<CSSStyleDeclaration>);
+
+    const touchApplyButton = document.createElement("button");
+    touchApplyButton.type = "button";
+    touchApplyButton.textContent = "Apply";
+    const touchCancelButton = document.createElement("button");
+    touchCancelButton.type = "button";
+    touchCancelButton.textContent = "Cancel";
+    for (const button of [touchApplyButton, touchCancelButton]) {
+      Object.assign(button.style, {
+        minHeight: "44px",
+        minWidth: "44px",
+        border: "0",
+        borderRadius: "12px",
+        background: "rgba(26,26,26,0.84)",
+        color: "rgba(255,255,255,0.96)",
+        font: "600 12px/1 var(--font-geist-sans), system-ui, sans-serif",
+        padding: "0 12px",
+        cursor: "pointer",
+        touchAction: "manipulation",
+      } satisfies Partial<CSSStyleDeclaration>);
+    }
+    touchCancelButton.style.background = "rgba(26,26,26,0.42)";
+    touchInputBar.append(touchInput, touchApplyButton, touchCancelButton);
+    hostOverlay.appendChild(touchInputBar);
 
     let filmEnabled = true;
     let overlaysVisible = true;
@@ -441,6 +508,13 @@ export async function mountMotionGridApp(
         isValid: draftValidation.ok && draftMorphValidation.ok,
         invalidHint: resolveInputHint(draftValidation, draftMorphValidation),
       });
+      const touchInputVisible = inputModeActive && overlaysVisible;
+      touchInputBar.style.display = touchInputVisible ? "grid" : "none";
+      if (touchInput.value !== draftHeroToken) {
+        touchInput.value = draftHeroToken;
+      }
+      touchApplyButton.disabled = !(draftValidation.ok && draftMorphValidation.ok);
+      touchApplyButton.style.opacity = touchApplyButton.disabled ? "0.46" : "1";
       const z = snapshot.presentationZoomScale;
       const cellSize = Math.max(snapshot.grid.cellSize, 1);
       const marginCells = 1;
@@ -467,6 +541,9 @@ export async function mountMotionGridApp(
       inputModeActive = true;
       textAlphaTarget = 0;
       setDraftHeroToken("");
+      queueMicrotask(() => {
+        touchInput.focus({ preventScroll: true });
+      });
     };
 
     const cancelInputMode = (): void => {
@@ -538,6 +615,31 @@ export async function mountMotionGridApp(
         filmEnabled = true;
       }
     };
+
+    touchInput.addEventListener("input", () => {
+      setDraftHeroToken(touchInput.value);
+      syncOverlay();
+    });
+    touchInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        confirmInputMode();
+        syncOverlay();
+      }
+      if (event.key === "Escape") {
+        event.preventDefault();
+        cancelInputMode();
+        syncOverlay();
+      }
+    });
+    touchApplyButton.addEventListener("click", () => {
+      confirmInputMode();
+      syncOverlay();
+    });
+    touchCancelButton.addEventListener("click", () => {
+      cancelInputMode();
+      syncOverlay();
+    });
 
     // ControlCluster attached to hostOverlay (first arg = container)
     const cluster = createControlCluster(hostOverlay, [
@@ -727,6 +829,7 @@ export async function mountMotionGridApp(
         // Remove overlay elements from hostOverlay
         hud.remove();
         inputOverlay.remove();
+        touchInputBar.remove();
         cluster.element.remove();
         // Destroy AudioController
         audioController.destroy();

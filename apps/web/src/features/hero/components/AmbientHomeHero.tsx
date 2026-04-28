@@ -37,7 +37,7 @@ export function AmbientHomeHero(): React.ReactElement {
     <section
       id="home-hero"
       data-readability="immersive"
-      className="relative isolate flex min-h-[100svh] w-full flex-col items-start justify-end overflow-hidden px-6 pb-44 pt-32 sm:px-10 sm:pb-36 lg:px-16 lg:pb-40"
+      className="relative isolate flex min-h-[var(--vvh,100dvh)] w-full flex-col items-start justify-end overflow-hidden px-6 pb-[calc(var(--mobile-bottom-reserve)+24px)] pt-32 sm:px-10 sm:pb-36 lg:px-16 lg:pb-40"
     >
       <div className="w-full max-w-[min(86rem,calc(100vw-3rem))] sm:max-w-[min(86rem,calc(100vw-5rem))] lg:max-w-[min(86rem,calc(100vw-8rem))]">
         <h1 className="leading-none">

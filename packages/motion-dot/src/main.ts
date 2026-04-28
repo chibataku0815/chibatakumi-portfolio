@@ -31,13 +31,14 @@ import { createGalleryMode, type GalleryMode, type PanelRenderer } from "./scene
 import {
   createStatusPill,
   createControlDock,
-  createHotkeyLegendPopover,
+  createTouchActionsPopover,
   createAudioSettingsPopover,
   setOptionsVisibility,
-  setHotkeyPopoverVisibility,
+  setTouchActionsPopoverVisibility,
   setAudioSettingsPopoverVisibility,
   updateStatusPill,
   updateControlDock,
+  updateTouchActionsPopover,
   updateAudioSettingsPopover,
 } from "./ui/hud";
 import { bindKeyboardShortcuts } from "./input/keyboard";
@@ -416,15 +417,15 @@ export async function mountMotionDotApp(opts: MountOptions): Promise<MountHandle
 
     const statusPill = createStatusPill(hostOverlay);
     const dock = createControlDock(hostOverlay);
-    const hotkeysPopover = createHotkeyLegendPopover(hostOverlay);
+    const actionsPopover = createTouchActionsPopover(hostOverlay);
     const audioSettingsPopover = createAudioSettingsPopover(hostOverlay);
     let optionsVisible = true;
     let audioPanelOpen = false;
-    let hotkeysOpen = false;
+    let actionPanelOpen = false;
 
     function syncOptionsVisibility(): void {
-      setOptionsVisibility({ statusPill, dock, hotkeysPopover }, optionsVisible);
-      setHotkeyPopoverVisibility(hotkeysPopover, optionsVisible && hotkeysOpen);
+      setOptionsVisibility({ statusPill, dock, actionsPopover: actionsPopover.root }, optionsVisible);
+      setTouchActionsPopoverVisibility(actionsPopover.root, optionsVisible && actionPanelOpen);
       setAudioSettingsPopoverVisibility(audioSettingsPopover, optionsVisible && audioPanelOpen);
     }
 
@@ -444,8 +445,12 @@ export async function mountMotionDotApp(opts: MountOptions): Promise<MountHandle
       updateControlDock(dock, {
         postEnabled,
         audioPopoverOpen: audioPanelOpen,
-        hotkeysOpen,
+        actionPanelOpen,
         audioActive: audioController.enabled,
+      });
+      updateTouchActionsPopover(actionsPopover, {
+        galleryEnabled,
+        transitionActive: kineticHandoff.isActive(),
       });
       updateAudioSettingsPopover(audioSettingsPopover, {
         enabled: audioController.enabled,
@@ -480,21 +485,130 @@ export async function mountMotionDotApp(opts: MountOptions): Promise<MountHandle
       },
     });
 
-    dock.filmButton.addEventListener("click", () => {
+    function disableGallery(): boolean {
+      if (!galleryEnabled) {
+        return false;
+      }
+      galleryEnabled = false;
+      return true;
+    }
+
+    function setSingleMode(): void {
+      disableGallery();
+      syncOverlay();
+    }
+
+    function advanceScene(delta: number): void {
+      if (kineticHandoff.isActive()) {
+        return;
+      }
+
+      if (galleryEnabled && galleryMode) {
+        galleryMode.shiftBase(delta);
+      } else {
+        idx = (idx + delta + entries.length) % entries.length;
+      }
+
+      syncOverlay();
+    }
+
+    function resetCurrentScene(): void {
+      if (kineticHandoff.isActive()) {
+        return;
+      }
+      resetEntry(entries[idx]);
+      syncOverlay();
+    }
+
+    function toggleOptionsVisibility(): void {
+      optionsVisible = !optionsVisible;
+      syncOverlay();
+    }
+
+    function toggleAudioPanel(): void {
+      audioPanelOpen = !audioPanelOpen;
+      if (audioPanelOpen) actionPanelOpen = false;
+      syncOverlay();
+    }
+
+    function toggleActionPanel(): void {
+      actionPanelOpen = !actionPanelOpen;
+      if (actionPanelOpen) audioPanelOpen = false;
+      syncOverlay();
+    }
+
+    function triggerTransition(): void {
+      if (!kineticHandoff.isActive()) {
+        kineticHandoff.start(idx);
+      } else if (kineticHandoff.phase !== "handoff_pending") {
+        kineticHandoff.stop();
+      }
+      syncOverlay();
+    }
+
+    function toggleFilm(): void {
       postEnabled = !postEnabled;
       syncOverlay();
-    });
+    }
 
-    dock.audioButton.addEventListener("click", () => {
-      audioPanelOpen = !audioPanelOpen;
-      if (audioPanelOpen) hotkeysOpen = false;
+    function cycleGallery(delta: 1 | -1): void {
+      if (!galleryEnabled) {
+        galleryEnabled = true;
+        const g = getGalleryMode(size.width, size.height);
+        if (delta > 0) {
+          g.resetLayout();
+        } else {
+          g.resetLayoutToLast();
+        }
+      } else if (galleryMode) {
+        const hasNext = delta > 0
+          ? galleryMode.nextLayout()
+          : galleryMode.prevLayout();
+        if (!hasNext) {
+          disableGallery();
+        }
+      }
       syncOverlay();
-    });
-    dock.moreButton.addEventListener("click", () => {
-      hotkeysOpen = !hotkeysOpen;
-      if (hotkeysOpen) audioPanelOpen = false;
+    }
+
+    async function toggleAudio(): Promise<void> {
+      await audioController.toggle();
+      if (audioController.enabled) {
+        postEnabled = true;
+      }
       syncOverlay();
+    }
+
+    function openAudioPicker(): void {
+      audioController.openFilePicker();
+      syncOverlay();
+    }
+
+    function changeTypographyText(): void {
+      const newText = prompt("Enter text for Living Typography:");
+      if (newText && newText.trim()) {
+        textAttractor.setText(newText.trim());
+      }
+      syncOverlay();
+    }
+
+    dock.filmButton.addEventListener("click", toggleFilm);
+    dock.audioButton.addEventListener("click", toggleAudioPanel);
+    dock.moreButton.addEventListener("click", toggleActionPanel);
+    actionsPopover.prevButton.addEventListener("click", () => advanceScene(-1));
+    actionsPopover.nextButton.addEventListener("click", () => advanceScene(1));
+    actionsPopover.resetButton.addEventListener("click", resetCurrentScene);
+    actionsPopover.transitionButton.addEventListener("click", triggerTransition);
+    actionsPopover.galleryButton.addEventListener("click", () => {
+      if (galleryEnabled) {
+        setSingleMode();
+      } else {
+        cycleGallery(1);
+      }
     });
+    actionsPopover.textButton.addEventListener("click", changeTypographyText);
+    actionsPopover.fileButton.addEventListener("click", openAudioPicker);
+
     audioSettingsPopover.sourceButtons.default_track.addEventListener("click", () => {
       void audioController.selectSource("default_track");
     });
@@ -508,12 +622,7 @@ export async function mountMotionDotApp(opts: MountOptions): Promise<MountHandle
       void audioController.refreshInputDevices();
     });
     audioSettingsPopover.actionButton.addEventListener("click", () => {
-      void (async () => {
-        await audioController.toggle();
-        if (audioController.enabled) {
-          postEnabled = true;
-        }
-      })();
+      void toggleAudio();
     });
     audioSettingsPopover.deviceSelect.addEventListener("change", () => {
       if (audioSettingsPopover.deviceSelect.value) {
@@ -521,77 +630,18 @@ export async function mountMotionDotApp(opts: MountOptions): Promise<MountHandle
       }
     });
 
-    function disableGallery(): boolean {
-      if (!galleryEnabled) {
-        return false;
-      }
-      galleryEnabled = false;
-      return true;
-    }
-
     const keyboardTeardown = bindKeyboardShortcuts({
-      getSceneIndex: () => idx,
-      getSceneCount: () => entries.length,
-      setSceneIndex: (nextIdx) => {
-        idx = nextIdx;
-      },
-      disableGallery,
-      toggleOptionsVisibility: () => {
-        optionsVisible = !optionsVisible;
-      },
-      toggleAudioPanel: () => {
-        audioPanelOpen = !audioPanelOpen;
-      },
-      isTransitionActive: () => kineticHandoff.isActive(),
-      getTransitionPhase: () => kineticHandoff.phase,
-      startTransition: (sourceIdx) => kineticHandoff.start(sourceIdx),
-      stopTransition: () => kineticHandoff.stop(),
-      resetCurrentScene: () => resetEntry(entries[idx]),
-      toggleFilm: () => {
-        postEnabled = !postEnabled;
-      },
-      cycleGallery: () => {
-        if (!galleryEnabled) {
-          galleryEnabled = true;
-          const g = getGalleryMode(size.width, size.height);
-          g.resetLayout();
-        } else if (galleryMode) {
-          if (!galleryMode.nextLayout()) {
-            disableGallery();
-          }
-        }
-      },
-      cycleGalleryReverse: () => {
-        if (!galleryEnabled) {
-          galleryEnabled = true;
-          const g = getGalleryMode(size.width, size.height);
-          g.resetLayoutToLast();
-        } else if (galleryMode) {
-          if (!galleryMode.prevLayout()) {
-            disableGallery();
-          }
-        }
-      },
-      isGalleryEnabled: () => galleryEnabled,
-      shiftGalleryBase: (delta: number) => {
-        if (galleryEnabled && galleryMode) {
-          galleryMode.shiftBase(delta);
-        }
-      },
-      toggleAudio: async () => {
-        await audioController.toggle();
-        if (audioController.enabled) {
-          postEnabled = true;
-        }
-      },
-      openAudioPicker: () => audioController.openFilePicker(),
-      changeTypographyText: () => {
-        const newText = prompt("Enter text for Living Typography:");
-        if (newText && newText.trim()) {
-          textAttractor.setText(newText.trim());
-        }
-      },
-      syncOverlay,
+      setSingleMode,
+      advanceScene,
+      toggleOptionsVisibility,
+      toggleAudioPanel,
+      triggerTransition,
+      resetCurrentScene,
+      toggleFilm,
+      cycleGallery,
+      toggleAudio,
+      openAudioPicker,
+      changeTypographyText,
     });
 
     syncOverlay();
@@ -821,7 +871,7 @@ export async function mountMotionDotApp(opts: MountOptions): Promise<MountHandle
           activeComposePass = null;
         }
         defaultBlit.destroy?.();
-        for (const el of [statusPill, dock.root, hotkeysPopover, audioSettingsPopover.root]) {
+        for (const el of [statusPill, dock.root, actionsPopover.root, audioSettingsPopover.root]) {
           el.remove();
         }
       },
