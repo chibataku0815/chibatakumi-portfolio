@@ -217,9 +217,9 @@ const GALLERY_SCENE_DAMPING: Readonly<Record<number, Readonly<{
 } as const;
 
 const DESKTOP_MOTION_FPS = 45;
-const MOBILE_MOTION_FPS = 30;
+const MOBILE_MOTION_FPS = 45;
 const DESKTOP_DPR_CAP = 1.5;
-const MOBILE_DPR_CAP = 1.0;
+const MOBILE_DPR_CAP = 1.25;
 
 function shouldUseMobileMotionBudget(): boolean {
   if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
