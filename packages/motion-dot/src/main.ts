@@ -216,7 +216,7 @@ const GALLERY_SCENE_DAMPING: Readonly<Record<number, Readonly<{
   },
 } as const;
 
-const MOTION_FPS = 45;
+const MOTION_FPS = 60;
 const DPR_CAP = 1.5;
 
 function shapeIntensity(rawIntensity: number): number {
