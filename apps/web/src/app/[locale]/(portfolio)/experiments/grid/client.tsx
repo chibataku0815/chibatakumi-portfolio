@@ -87,26 +87,31 @@ export default function ExperimentsGridClient() {
   }, [setActiveStage]);
 
   return (
-    <main className="relative min-h-screen w-full">
-      <canvas
-        ref={canvasRef}
-        className="fixed inset-0 z-0 h-screen w-screen"
-        aria-hidden="true"
-      />
-      {/* hostOverlay for HUD/keyboard/cluster injected by motion-grid mount.
-          z-index must sit ABOVE LiquidGlassFrontChrome (--z-nav-front-glass:
-          1200) so the HUD chips remain interactive and the chip text isn't
-          covered by the front-glass canvas. Mirrors --z-motion-hud-content
-          (1210) used by MotionStageProvider for motion-dot HUDs. */}
+    <>
+      {/* hostOverlay must live OUTSIDE <main>. globals.css applies
+          `main, section { position: relative; z-index: 1 }` globally, which
+          turns every <main> into a stacking context capped at z=1 — children
+          inside cannot escape that even with their own z-index, so a HUD
+          element at z=1210 inside main lands BENEATH the front-glass canvas
+          (z=1200) at body level. Hoisting overlayRef to a body-level sibling
+          lets z=1210 actually beat the front-glass canvas. The route canvas
+          stays inside main because it's intentionally below the front glass.
+       */}
       <div
         ref={overlayRef}
         className="fixed inset-0 pointer-events-none [&>*]:pointer-events-auto"
         style={{ zIndex: "var(--z-motion-hud-content, 1210)" }}
         aria-hidden="true"
       />
-      <header className="fixed top-6 left-6 z-20 font-sans font-medium text-[10px] uppercase tracking-[0.18em] text-[var(--text-base-60)] mix-blend-difference">
-        experiments / grid
-      </header>
+      <main className="relative min-h-screen w-full">
+        <canvas
+          ref={canvasRef}
+          className="fixed inset-0 z-0 h-screen w-screen"
+          aria-hidden="true"
+        />
+        <header className="fixed top-6 left-6 z-20 font-sans font-medium text-[10px] uppercase tracking-[0.18em] text-[var(--text-base-60)] mix-blend-difference">
+          experiments / grid
+        </header>
       {status.kind !== "ready" && status.kind !== "pending" ? (
         <div
           role="alert"
@@ -121,6 +126,7 @@ export default function ExperimentsGridClient() {
           </p>
         </div>
       ) : null}
-    </main>
+      </main>
+    </>
   );
 }

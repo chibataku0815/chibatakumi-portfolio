@@ -94,15 +94,15 @@ const TOKEN = {
 const overlayTextCache = new WeakMap<HTMLDivElement, string>();
 
 export function createHud(container: HTMLElement): HTMLDivElement {
-  // Status pill — top-left, glass surface. `top: 60px` clears the z-20
-  // "experiments / grid" header at top: 24px, left: 24px.
+  // Status pill — top-left, glass surface. `top: 96px` clears the Nav rail
+  // (brand pill at top:24, 48×48 → bottom 72, plus 24px breathing room).
   const root = createOverlayText({
     parent: container,
     style: {
       position: "fixed",
-      top: "60px",
-      left: "16px",
-      padding: "8px 14px",
+      top: "96px",
+      left: "24px",
+      padding: "10px 18px",
       borderRadius: "14px",
       background: "transparent",
       fontFamily: TOKEN.fontStack,
@@ -126,17 +126,17 @@ export function createHud(container: HTMLElement): HTMLDivElement {
 }
 
 export function createInputOverlay(container: HTMLElement): HTMLDivElement {
-  // Input overlay — sits below the status pill (60 + ~32 height + 16 gap ≈
-  // 108). Same glass parameters as status; revealed via display flip.
+  // Input overlay — sits below the status pill (96 + ~40 height + 12 gap ≈
+  // 148). Same glass parameters as status; revealed via display flip.
   const root = createOverlayText({
     parent: container,
     style: {
       position: "fixed",
-      top: "108px",
-      left: "16px",
-      minWidth: "min(320px, calc(100vw - 32px))",
-      maxWidth: "min(420px, calc(100vw - 32px))",
-      padding: "10px 14px",
+      top: "148px",
+      left: "24px",
+      minWidth: "min(320px, calc(100vw - 48px))",
+      maxWidth: "min(420px, calc(100vw - 48px))",
+      padding: "12px 18px",
       borderRadius: "14px",
       background: "transparent",
       fontFamily: TOKEN.fontStack,
@@ -237,15 +237,15 @@ export function createControlCluster(
     parent: container,
     style: {
       position: "fixed",
-      right: "16px",
-      bottom: "16px",
-      padding: "8px 10px",
+      right: "24px",
+      bottom: "24px",
+      padding: "10px 14px",
       borderRadius: "18px",
       background: "transparent",
       display: "flex",
       flexDirection: "column",
       alignItems: "flex-end",
-      gap: "4px",
+      gap: "6px",
       pointerEvents: "auto",
       userSelect: "none",
       transition: "opacity 160ms ease-out",

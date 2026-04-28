@@ -97,11 +97,11 @@ const METER_FIELDS: readonly AudioMeterFieldKey[] = [
 export function createFlowlineHud(options: CreateFlowlineHudOptions): FlowlineHud {
   const overlay = createHudOverlay({
     parent: options.parent,
-    // Bump down past the z-20 "experiments / flow" header at top: 24px.
-    position: { top: "60px", left: "16px" },
+    // Push below the Nav rail (brand at top:24, 48×48 → bottom 72) with 24px gap.
+    position: { top: "96px", left: "24px" },
   });
   Object.assign(overlay.element.style, {
-    padding: "8px 14px",
+    padding: "10px 18px",
     borderRadius: "14px",
     fontFamily: FONT_STACK,
     fontWeight: "500",
@@ -122,10 +122,17 @@ export function createFlowlineHud(options: CreateFlowlineHudOptions): FlowlineHu
     onAuto: options.onAuto,
   });
   Object.assign(selector.element.style, {
-    padding: "6px",
+    padding: "8px 10px",
+    gap: "4px",
     borderRadius: "18px",
     background: "transparent",
   } satisfies Partial<CSSStyleDeclaration>);
+  // Vendor places SceneSelector at top:16/right:16. The Nav menu pill is at
+  // top:24, right:32, 48×48 (bottom 72). Push the selector down past it
+  // (top:96 = 72 + 24 gap) so the long button row never collides with the
+  // hamburger.
+  selector.element.style.top = "96px";
+  selector.element.style.right = "24px";
   markLiquidGlassControl(selector.element, "control.flow.scenes", {
     radius: 18,
     intensity: 0.75,
@@ -137,11 +144,10 @@ export function createFlowlineHud(options: CreateFlowlineHudOptions): FlowlineHu
   const meter = createAudioMeter({
     parent: options.parent,
     fields: METER_FIELDS,
-    // Slot below the selector at y=16+selector_height(~32)+pad(~12)+gap(8)≈68
-    position: { top: "108px", right: "16px" },
+    position: { top: "0px", right: "24px" },
   });
   Object.assign(meter.element.style, {
-    padding: "10px 12px",
+    padding: "12px 16px",
     borderRadius: "16px",
     background: "transparent",
     border: "none",
@@ -149,6 +155,8 @@ export function createFlowlineHud(options: CreateFlowlineHudOptions): FlowlineHu
     textShadow: TEXT_SHADOW,
     fontFamily: FONT_STACK,
   } satisfies Partial<CSSStyleDeclaration>);
+  // Selector is at top:96 with ~46px content; meter slots beneath with 16px gap.
+  meter.element.style.top = "160px";
   markLiquidGlassControl(meter.element, "control.flow.audio", {
     radius: 16,
     intensity: 0.70,
@@ -161,7 +169,7 @@ export function createFlowlineHud(options: CreateFlowlineHudOptions): FlowlineHu
     title: "Keys (? toggle)",
   });
   Object.assign(keymap.element.style, {
-    padding: "12px 14px",
+    padding: "14px 18px",
     borderRadius: "20px",
     background: "transparent",
     border: "none",
@@ -169,6 +177,9 @@ export function createFlowlineHud(options: CreateFlowlineHudOptions): FlowlineHu
     textShadow: TEXT_SHADOW,
     fontFamily: FONT_STACK,
   } satisfies Partial<CSSStyleDeclaration>);
+  // Vendor anchors keymap at right:16/bottom:16; lift to 24/24 for parity.
+  keymap.element.style.right = "24px";
+  keymap.element.style.bottom = "24px";
   markLiquidGlassControl(keymap.element, "control.flow.keymap", {
     radius: 20,
     intensity: 0.80,
@@ -196,6 +207,7 @@ function styleSceneSelectorButtons(
       : !autoEnabled && id === activeId;
     Object.assign(btn.style, {
       fontFamily: FONT_STACK,
+      padding: "8px 14px",
       borderRadius: "12px",
       boxShadow: "none",
       border: "none",
