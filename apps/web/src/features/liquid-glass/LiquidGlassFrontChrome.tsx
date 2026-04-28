@@ -32,7 +32,19 @@ import {
   type FrontCanvasRegistration,
 } from "./LiquidGlassProvider";
 
-const DPR_CAP = 2;
+const DESKTOP_DPR_CAP = 2;
+const MOBILE_DPR_CAP = 1.25;
+
+function getDprCap(): number {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+    return DESKTOP_DPR_CAP;
+  }
+
+  return window.matchMedia("(max-width: 720px)").matches
+    || window.matchMedia("(pointer: coarse)").matches
+    ? MOBILE_DPR_CAP
+    : DESKTOP_DPR_CAP;
+}
 
 export function LiquidGlassFrontChrome(): React.ReactElement {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -56,7 +68,7 @@ export function LiquidGlassFrontChrome(): React.ReactElement {
 
     const registration: FrontCanvasRegistration = {
       getCurrentTarget: () => {
-        const dpr = Math.min(window.devicePixelRatio || 1, DPR_CAP);
+        const dpr = Math.min(window.devicePixelRatio || 1, getDprCap());
         const viewport = window.visualViewport;
         const cssWidth = Math.max(1, viewport?.width ?? window.innerWidth);
         const cssHeight = Math.max(1, viewport?.height ?? window.innerHeight);

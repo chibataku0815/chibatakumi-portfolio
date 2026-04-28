@@ -6,7 +6,14 @@ export interface GpuContext {
   dpr: number;
 }
 
-export async function initGpu(canvas: HTMLCanvasElement): Promise<GpuContext> {
+export interface GpuOptions {
+  readonly maxDpr?: number;
+}
+
+export async function initGpu(
+  canvas: HTMLCanvasElement,
+  options: GpuOptions = {},
+): Promise<GpuContext> {
   if (!navigator.gpu) {
     throw new Error("WebGPU not supported");
   }
@@ -44,7 +51,8 @@ export async function initGpu(canvas: HTMLCanvasElement): Promise<GpuContext> {
   }
 
   const format = navigator.gpu.getPreferredCanvasFormat();
-  const dpr = Math.min(window.devicePixelRatio, 1.5);
+  const maxDpr = options.maxDpr ?? 1.5;
+  const dpr = Math.min(window.devicePixelRatio || 1, maxDpr);
 
   context.configure({
     device,

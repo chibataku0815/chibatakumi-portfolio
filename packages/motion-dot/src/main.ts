@@ -216,6 +216,22 @@ const GALLERY_SCENE_DAMPING: Readonly<Record<number, Readonly<{
   },
 } as const;
 
+const DESKTOP_MOTION_FPS = 45;
+const MOBILE_MOTION_FPS = 30;
+const DESKTOP_DPR_CAP = 1.5;
+const MOBILE_DPR_CAP = 1.0;
+
+function shouldUseMobileMotionBudget(): boolean {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+    return false;
+  }
+
+  return (
+    window.matchMedia("(max-width: 720px)").matches
+    || window.matchMedia("(pointer: coarse)").matches
+  );
+}
+
 function shapeIntensity(rawIntensity: number): number {
   const normalized = clamp01((rawIntensity - INTENSITY_TUNING.gate) / INTENSITY_TUNING.range);
   return clamp01((normalized - 0.5) * INTENSITY_TUNING.contrast + 0.5);
@@ -302,9 +318,12 @@ function applyGallerySceneDamping(
 export async function mountMotionDotApp(opts: MountOptions): Promise<MountHandle> {
   const { canvas } = opts;
   const hostOverlay = opts.hostOverlay ?? document.body;
+  const mobileMotionBudget = shouldUseMobileMotionBudget();
 
   try {
-    const gpu = await initGpu(canvas);
+    const gpu = await initGpu(canvas, {
+      maxDpr: mobileMotionBudget ? MOBILE_DPR_CAP : DESKTOP_DPR_CAP,
+    });
     const { device, context, format } = gpu;
     const offscreenTargets = createOffscreenTargetPool(device);
     const offscreenFormat: GPUTextureFormat = "rgba16float";
@@ -648,7 +667,7 @@ export async function mountMotionDotApp(opts: MountOptions): Promise<MountHandle
 
     // ── Animation loop ───────────────────────────────────────
     const loop = createFixedStepLoop({
-      fps: 45,
+      fps: mobileMotionBudget ? MOBILE_MOTION_FPS : DESKTOP_MOTION_FPS,
       frame: ({ dt, time }) => {
         // Fire onBeforeFrame subscribers (consumers update uniforms / DOM
         // rects / surface lists here before any GPU encoding starts).

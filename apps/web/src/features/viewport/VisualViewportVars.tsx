@@ -9,23 +9,32 @@ const ROOT_VARS = [
   "--vv-offset-left",
 ] as const;
 
+function roundViewportPx(value: number): number {
+  return Math.round(value);
+}
+
 export function VisualViewportVars(): null {
   useEffect(() => {
     const root = document.documentElement;
     let raf = 0;
+    const lastValues = new Map<(typeof ROOT_VARS)[number], string>();
 
     const write = () => {
       raf = 0;
       const viewport = window.visualViewport;
-      const height = viewport?.height ?? window.innerHeight;
-      const width = viewport?.width ?? window.innerWidth;
-      const offsetTop = viewport?.offsetTop ?? 0;
-      const offsetLeft = viewport?.offsetLeft ?? 0;
+      const nextValues: Record<(typeof ROOT_VARS)[number], string> = {
+        "--vvh": `${roundViewportPx(viewport?.height ?? window.innerHeight)}px`,
+        "--vvw": `${roundViewportPx(viewport?.width ?? window.innerWidth)}px`,
+        "--vv-offset-top": `${roundViewportPx(viewport?.offsetTop ?? 0)}px`,
+        "--vv-offset-left": `${roundViewportPx(viewport?.offsetLeft ?? 0)}px`,
+      };
 
-      root.style.setProperty("--vvh", `${height}px`);
-      root.style.setProperty("--vvw", `${width}px`);
-      root.style.setProperty("--vv-offset-top", `${offsetTop}px`);
-      root.style.setProperty("--vv-offset-left", `${offsetLeft}px`);
+      for (const name of ROOT_VARS) {
+        const nextValue = nextValues[name];
+        if (lastValues.get(name) === nextValue) continue;
+        root.style.setProperty(name, nextValue);
+        lastValues.set(name, nextValue);
+      }
     };
 
     const schedule = () => {
