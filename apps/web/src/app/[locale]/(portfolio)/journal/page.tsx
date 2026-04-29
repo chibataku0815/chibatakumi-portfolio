@@ -1,5 +1,11 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { JournalIndexCard } from "@/features/journal/JournalIndexCard";
+import { JournalIndexGroup } from "@/features/journal/JournalIndexGroup";
+import {
+  publishedJournalEntries,
+  publishedMotionStudyEntries,
+} from "@/shared/data/journal";
 import { portfolioData } from "@/shared/data/portfolio";
 
 const BASE_URL = portfolioData.site.siteUrl;
@@ -49,6 +55,16 @@ export default async function JournalPage({
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "journal" });
 
+  const flagship = publishedJournalEntries.find(
+    (entry) => entry.kind === "case-study",
+  );
+  const engineering = publishedJournalEntries.filter(
+    (entry) => entry.kind === "engineering-note",
+  );
+  const studies = publishedJournalEntries.filter(
+    (entry) => entry.kind === "study",
+  );
+
   return (
     <main className="relative min-h-screen text-[var(--text-base)]">
       <article>
@@ -73,20 +89,109 @@ export default async function JournalPage({
           </div>
         </header>
 
-        {/* BODY: editorial spread (1fr + sidebar), reading dim */}
+        {/* INTRO + INDEX: editorial spread (1fr + sidebar), reading dim */}
         <section
           data-readability="reading"
           className="px-6 pb-32 sm:px-12 lg:px-20"
         >
           <div className="mx-auto grid max-w-6xl gap-y-16 lg:grid-cols-[minmax(0,1fr)_280px] lg:gap-x-20">
-            {/* LEFT: intro */}
+            {/* LEFT: intro + entry groups */}
             <div>
               <p className="max-w-[42rem] text-[1rem] leading-[1.85] text-[var(--text-base-80)]">
                 {t("intro")}
               </p>
+
+              {flagship ? (
+                <JournalIndexGroup
+                  label={t("indexLabels.flagship")}
+                  count={1}
+                >
+                  <JournalIndexCard
+                    href={flagship.href}
+                    eyebrow={t(`entries.${flagship.slug}.eyebrow`)}
+                    title={t(`entries.${flagship.slug}.title`)}
+                    summary={t(`entries.${flagship.slug}.summary`)}
+                    tags={flagship.tags}
+                    variant="flagship"
+                  />
+                </JournalIndexGroup>
+              ) : null}
+
+              {engineering.length ? (
+                <JournalIndexGroup
+                  label={t("indexLabels.engineeringNotes")}
+                  count={engineering.length}
+                >
+                  <ul>
+                    {engineering.map((entry) => (
+                      <li key={entry.slug}>
+                        <JournalIndexCard
+                          href={entry.href}
+                          eyebrow={t(`entries.${entry.slug}.eyebrow`)}
+                          title={t(`entries.${entry.slug}.title`)}
+                          summary={t(`entries.${entry.slug}.summary`)}
+                          tags={entry.tags}
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                </JournalIndexGroup>
+              ) : null}
+
+              {studies.length ? (
+                <JournalIndexGroup
+                  label={t("indexLabels.studies")}
+                  count={studies.length}
+                >
+                  <ul>
+                    {studies.map((entry) => (
+                      <li key={entry.slug}>
+                        <JournalIndexCard
+                          href={entry.href}
+                          eyebrow={t(`entries.${entry.slug}.eyebrow`)}
+                          title={t(`entries.${entry.slug}.title`)}
+                          summary={t(`entries.${entry.slug}.summary`)}
+                          tags={entry.tags}
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                </JournalIndexGroup>
+              ) : null}
+
+              {publishedMotionStudyEntries.length ? (
+                <JournalIndexGroup
+                  label={t("indexLabels.motionStudies")}
+                  count={publishedMotionStudyEntries.length}
+                  link={{
+                    href: "/journal/motion-studies",
+                    label: t("indexLabels.viewAll"),
+                  }}
+                >
+                  <ul>
+                    {publishedMotionStudyEntries.map((entry) => (
+                      <li key={entry.slug}>
+                        <JournalIndexCard
+                          href={entry.href}
+                          eyebrow={t(
+                            `motionStudies.entries.${entry.slug}.eyebrow`,
+                          )}
+                          title={t(
+                            `motionStudies.entries.${entry.slug}.title`,
+                          )}
+                          summary={t(
+                            `motionStudies.entries.${entry.slug}.summary`,
+                          )}
+                          tags={entry.tags}
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                </JournalIndexGroup>
+              ) : null}
             </div>
 
-            {/* RIGHT: masthead meta */}
+            {/* RIGHT: masthead meta (sticky on lg+) */}
             <aside className="space-y-12 lg:sticky lg:top-32 lg:self-start">
               <div>
                 <p className="font-sans font-medium text-[10px] uppercase tracking-[0.18em] text-[var(--text-base-50)]">
@@ -100,6 +205,15 @@ export default async function JournalPage({
                   <div className="flex justify-between gap-4">
                     <dt>Updated</dt>
                     <dd className="text-[var(--text-base)]">2026.04</dd>
+                  </div>
+                  <div className="flex justify-between gap-4">
+                    <dt>Entries</dt>
+                    <dd className="text-[var(--text-base)] tabular-nums">
+                      {String(
+                        publishedJournalEntries.length +
+                          publishedMotionStudyEntries.length,
+                      ).padStart(2, "0")}
+                    </dd>
                   </div>
                 </dl>
               </div>
