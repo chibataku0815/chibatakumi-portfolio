@@ -1,3 +1,28 @@
+/**
+ * Journal registry — curation policy.
+ *
+ * Selection rationale, audience, and what is intentionally excluded live in
+ * `docs/journal/curation-rationale.md`. Wave 2+ candidates and reserved slugs
+ * live in `docs/journal/wave-2-backlog.md`. Japanese prose style lives in
+ * `docs/journal/ja-writing-style.md`. Read those before editing entries.
+ *
+ * Kind:
+ *   case-study       — large decision records; logic must be reproducible.
+ *   engineering-note — reusable plumbing; portable to other implementations.
+ *   study            — in-progress R&D, with explicit unfinished-ness.
+ *   motion-study     — single motion primitive per article.
+ *
+ * EvidenceLevel:
+ *   production   — currently shipping in the site; readers can view-source it.
+ *   rnd          — exists in source tree but not finished.
+ *   experimental — not in tree (idea proto, sample). Not published in waves.
+ *
+ * Status:
+ *   published — appears in sitemap and index.
+ *   draft     — in registry but excluded from publishedJournalEntries.
+ *   hold      — wave 2+ slug reservation. Same exclusion behavior as draft.
+ */
+
 export type JournalKind =
   | "case-study"
   | "engineering-note"
@@ -84,7 +109,7 @@ export const motionStudyEntries: readonly JournalEntry[] = [
     publishedAt: "2026-04-29",
     priority: 3,
     tags: ["Boil Field", "Displacement", "Reveal"],
-    status: "published",
+    status: "draft",
     evidenceLevel: "rnd",
   },
   {
@@ -94,7 +119,7 @@ export const motionStudyEntries: readonly JournalEntry[] = [
     publishedAt: "2026-04-29",
     priority: 4,
     tags: ["Echo", "Decay", "Residue"],
-    status: "published",
+    status: "draft",
     evidenceLevel: "rnd",
   },
 ];

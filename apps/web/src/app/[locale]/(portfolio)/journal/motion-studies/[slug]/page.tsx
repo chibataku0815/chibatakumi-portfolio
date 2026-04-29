@@ -6,14 +6,14 @@ import { JournalArticleBody } from "@/features/journal/JournalArticleBody";
 import { JournalArticleHeader } from "@/features/journal/JournalArticleHeader";
 import {
   getMotionStudyBySlug,
-  motionStudyEntries,
+  publishedMotionStudyEntries,
 } from "@/shared/data/journal";
 import { portfolioData } from "@/shared/data/portfolio";
 
 const BASE_URL = portfolioData.site.siteUrl;
 
 export async function generateStaticParams() {
-  return motionStudyEntries.map(({ slug }) => ({ slug }));
+  return publishedMotionStudyEntries.map(({ slug }) => ({ slug }));
 }
 
 export async function generateMetadata({
@@ -23,7 +23,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale, slug } = await params;
   const entry = getMotionStudyBySlug(slug);
-  if (!entry) return {};
+  if (!entry || entry.status !== "published") return {};
 
   const t = await getTranslations({ locale, namespace: "journal" });
   const isJa = locale === "ja";
@@ -68,7 +68,7 @@ export default async function MotionStudyPage({
   setRequestLocale(locale);
 
   const entry = getMotionStudyBySlug(slug);
-  if (!entry) notFound();
+  if (!entry || entry.status !== "published") notFound();
 
   const t = await getTranslations({ locale, namespace: "journal" });
 
