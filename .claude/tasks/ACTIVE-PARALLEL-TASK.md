@@ -2,6 +2,27 @@
 
 ## 現在アクティブなタスク
 
+## Filmtone iOS v1.2 Release Prep (2026-04-29)
+- **Agent:** Codex CLI
+- **Started:** 2026-04-29T18:34:00+0900 (JST)
+- **Completed:** 2026-04-29T19:04:00+0900 (JST)
+- **Status:** 完了
+- **Files:**
+  - `apps/capacitor-film-lab-ios/ios/App/App.xcodeproj/project.pbxproj` (編集)
+  - `apps/capacitor-film-lab-ios/fastlane/Fastfile` (編集)
+  - `apps/capacitor-film-lab-ios/fastlane/README.md` (自動更新)
+  - `apps/capacitor-film-lab-ios/fastlane/metadata/ja/release_notes.txt` (編集)
+  - `apps/capacitor-film-lab-ios/fastlane/metadata/en-US/release_notes.txt` (編集)
+  - `apps/capacitor-film-lab-ios/ios/App/FilmtoneSnapshotsUITests/FilmtoneSnapshotsUITests.swift` (編集)
+  - `.claude/tasks/ACTIVE-PARALLEL-TASK.md` (編集)
+- **Notes:**
+  - Local Xcode version state was aligned to `MARKETING_VERSION=1.2` / `CURRENT_PROJECT_VERSION=1` for the host app and export activity extension.
+  - Fresh signed IPA was archived at `apps/capacitor-film-lab-ios/build/fastlane/Filmtone.ipa`; package version verified as app and extension `1.2 (1)`.
+  - App Store Connect `1.2` metadata, review information, and binary upload completed. Initial review submission failed because `whatsNew` was missing; Fastfile now passes App Store release notes explicitly and has a `submit_review` lane that skips screenshots and binary.
+  - User confirmed the existing v1.1 screenshot set is correct. Local screenshot changes from the generated rail were restored, and the final submission did not upload screenshots.
+  - Submitted existing build `1.2 (1)` for App Review with automatic release enabled. Public App Store lookup remains `1.1` until Apple review approval.
+  - Verification: `bun run build`, `bun run verify:swift-contract`, `bun run --cwd packages/film-lab-core test`, simulator Debug workspace build, screenshot UI test rail, archive export, precheck, `git diff --check`, and `scripts/check-filmtone-ios-truth.sh` passed.
+
 ## Filmtone iOS Cache Storage Management (2026-04-29)
 - **Agent:** Codex CLI
 - **Started:** 2026-04-29T17:41:27+0900 (JST)

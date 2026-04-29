@@ -6,6 +6,7 @@
 
 /** Desktop 配布・不具合の窓口（Web の Film Lab カード・ダウンロード案内と同期すること） */
 export const filmLabDesktopSupportEmail = "chiba@fores-tone.co.jp";
+export const filmLabDesktopPublicVersion = "1.0.3";
 export const filmLabDesktopMinimumMacos = "11.0";
 export const filmLabDesktopArchitecture = "Apple Silicon (arm64)";
 export const filmLabDesktopDownloadRoute = "/filmtone/download";

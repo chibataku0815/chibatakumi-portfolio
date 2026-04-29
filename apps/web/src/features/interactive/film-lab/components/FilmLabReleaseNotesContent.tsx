@@ -1,9 +1,10 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { releases } from "../release-data";
-import type { ChangeType } from "../release-data";
+import { releaseRails } from "../release-data";
+import type { ChangeType, ReleasePlatform } from "../release-data";
 
 const changeTypeConfig: Record<ChangeType, { labelKey: string; dotClass: string }> = {
   added: { labelKey: "typeAdded", dotClass: "bg-emerald-400" },
@@ -17,8 +18,10 @@ const changeTypeConfig: Record<ChangeType, { labelKey: string; dotClass: string 
  * @param {string} version - 版番号
  * @returns {string} anchor id
  */
-function filmLabReleaseNoteAnchorId(version: string): string {
-  return `release-${version.replace(/\./g, "-")}`;
+const releasePlatforms: ReleasePlatform[] = ["desktop", "ios"];
+
+function filmLabReleaseNoteAnchorId(platform: ReleasePlatform, version: string): string {
+  return `release-${platform}-${version.replace(/\./g, "-")}`;
 }
 
 /**
@@ -27,11 +30,17 @@ function filmLabReleaseNoteAnchorId(version: string): string {
  */
 export function FilmLabReleaseNotesContent() {
   const t = useTranslations("film-lab.releaseNotes");
-  const tocEntries = releases.map((release) => ({
-    id: filmLabReleaseNoteAnchorId(release.version),
-    version: release.version,
-    title: t(`entries.${release.titleKey}`),
-  }));
+  const [activePlatform, setActivePlatform] = useState<ReleasePlatform>("desktop");
+  const releases = releaseRails[activePlatform];
+  const tocEntries = useMemo(
+    () =>
+      releases.map((release) => ({
+        id: filmLabReleaseNoteAnchorId(release.platform, release.version),
+        version: release.version,
+        title: t(`entries.${release.titleKey}`),
+      })),
+    [releases, t],
+  );
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-5xl px-4 py-16 sm:px-6">
@@ -43,6 +52,35 @@ export function FilmLabReleaseNotesContent() {
       </h1>
       <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/70">
         {t("heroBody")}
+      </p>
+
+      <div
+        className="mt-8 inline-flex max-w-full flex-wrap gap-2 rounded-2xl border border-white/10 bg-white/[0.035] p-1"
+        role="tablist"
+        aria-label={t("platformTabsLabel")}
+      >
+        {releasePlatforms.map((platform) => {
+          const selected = activePlatform === platform;
+          return (
+            <button
+              key={platform}
+              type="button"
+              role="tab"
+              aria-selected={selected}
+              className={`rounded-xl px-4 py-2 text-sm transition-colors ${
+                selected
+                  ? "bg-white text-neutral-950"
+                  : "text-white/65 hover:bg-white/[0.07] hover:text-white"
+              }`}
+              onClick={() => setActivePlatform(platform)}
+            >
+              {t(`platforms.${platform}`)}
+            </button>
+          );
+        })}
+      </div>
+      <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/60">
+        {t(`platformIntro.${activePlatform}`)}
       </p>
 
       <div className="mt-12 flex flex-col gap-8 lg:grid lg:grid-cols-[17rem_minmax(0,1fr)] lg:items-start lg:gap-10">
@@ -77,8 +115,8 @@ export function FilmLabReleaseNotesContent() {
         <section className="space-y-8 lg:min-w-0">
           {releases.map((release, index) => (
             <article
-              id={filmLabReleaseNoteAnchorId(release.version)}
-              key={release.version}
+              id={filmLabReleaseNoteAnchorId(release.platform, release.version)}
+              key={`${release.platform}-${release.version}`}
               className={`scroll-mt-28 rounded-2xl border p-5 sm:p-6 ${
                 index === 0
                   ? "border-white/16 bg-white/[0.055]"

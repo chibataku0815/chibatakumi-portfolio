@@ -7,6 +7,10 @@ import {
   filmLabVerifySupporterCookieValue,
 } from "@/features/interactive/film-lab/film-lab-donation-cookie-signing";
 import { filmLabReadDonationEnvOnServer } from "@/features/interactive/film-lab/film-lab-donation-env-server";
+import {
+  filmLabIosAppStoreUrl,
+  filmLabIosMinimumVersion,
+} from "@/features/interactive/film-lab/ios-release-info";
 import { decodeSharedParamP } from "@/features/interactive/film-lab/params-codec";
 import type { Params } from "@/features/interactive/film-lab/types";
 
@@ -149,6 +153,23 @@ async function buildFilmtoneJsonLd(locale: string) {
         inLanguage: isJa ? "ja" : "en",
         image: `${BASE_URL}/filmtone/og-image.jpg`,
         isRelatedTo: { "@id": `${pageUrl}#desktop` },
+      },
+      {
+        "@type": "SoftwareApplication",
+        "@id": `${pageUrl}#ios`,
+        name: t("iosName"),
+        description: t("iosDescription"),
+        applicationCategory: "MultimediaApplication",
+        operatingSystem: `iOS ${filmLabIosMinimumVersion}+`,
+        url: filmLabIosAppStoreUrl,
+        downloadUrl: filmLabIosAppStoreUrl,
+        image: `${BASE_URL}/filmtone/og-image.jpg`,
+        author: {
+          "@type": "Person",
+          name: "Takumi Chiba",
+          url: BASE_URL,
+        },
+        isRelatedTo: [{ "@id": `${pageUrl}#desktop` }, { "@id": `${pageUrl}#webDemo` }],
       },
     ],
   };

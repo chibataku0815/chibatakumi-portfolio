@@ -8,6 +8,10 @@ export const filmLabCanonicalBaseUrl = "https://www.chibatakumi.studio";
 export const filmLabIosSupportEmail = "chiba@fores-tone.co.jp";
 export const filmLabIosOperatorName = "Takumi Chiba";
 
+export const filmLabIosAppStoreUrl = "https://apps.apple.com/app/filmtone/id6762564806";
+export const filmLabIosPublicVersion = "1.1";
+export const filmLabIosPublicReleaseDate = "2026-04-21";
+export const filmLabIosPublicCurrentVersionReleaseDate = "2026-04-26";
 export const filmLabIosMinimumVersion = "17.0";
 export const filmLabIosSupportedDeviceFamily = "iPhone";
 

@@ -1,4 +1,5 @@
 export type ChangeType = "added" | "fixed" | "changed";
+export type ReleasePlatform = "desktop" | "ios";
 
 export interface ReleaseChange {
   type: ChangeType;
@@ -6,6 +7,7 @@ export interface ReleaseChange {
 }
 
 export interface ReleaseEntry {
+  platform: ReleasePlatform;
   version: string;
   date: string;
   titleKey: string;
@@ -16,8 +18,56 @@ export interface ReleaseEntry {
  * Filmtone Desktop release history.
  * Newest first. Each `key` maps to an i18n key under `film-lab.releaseNotes.entries.*`.
  */
-export const releases: ReleaseEntry[] = [
+export const desktopReleases: ReleaseEntry[] = [
   {
+    platform: "desktop",
+    version: "1.0.3",
+    date: "2026-04-24",
+    titleKey: "v103Title",
+    changes: [
+      { type: "changed", key: "v103HdrHandling" },
+      { type: "added", key: "v103BundledVideoTools" },
+      { type: "changed", key: "v103PreviewExportTrust" },
+      { type: "changed", key: "v103DefaultLook" },
+    ],
+  },
+  {
+    platform: "desktop",
+    version: "1.0.2",
+    date: "2026-04-23",
+    titleKey: "v102Title",
+    changes: [
+      { type: "fixed", key: "v102FfmpegPipeRecovery" },
+      { type: "fixed", key: "v102ExportSessionIsolation" },
+      { type: "changed", key: "v102PreviewExportTrust" },
+    ],
+  },
+  {
+    platform: "desktop",
+    version: "1.0.1",
+    date: "2026-04-22",
+    titleKey: "v101Title",
+    changes: [
+      { type: "changed", key: "v101HighlightPreview" },
+      { type: "changed", key: "v101CrossFilterPreview" },
+      { type: "added", key: "v101ExportSidecar" },
+      { type: "changed", key: "v101WriteOutSurface" },
+    ],
+  },
+  {
+    platform: "desktop",
+    version: "1.0.0",
+    date: "2026-04-21",
+    titleKey: "v100Title",
+    changes: [
+      { type: "added", key: "v100WebgpuPreview" },
+      { type: "added", key: "v100CrossFilterPreviewControls" },
+      { type: "added", key: "v100SignedNotarizedDmg" },
+      { type: "changed", key: "v100DesktopFirstReleaseScope" },
+    ],
+  },
+  {
+    platform: "desktop",
     version: "0.6.2",
     date: "2026-04-09",
     titleKey: "v062Title",
@@ -28,6 +78,7 @@ export const releases: ReleaseEntry[] = [
     ],
   },
   {
+    platform: "desktop",
     version: "0.6.1",
     date: "2026-04-08",
     titleKey: "v061Title",
@@ -39,6 +90,7 @@ export const releases: ReleaseEntry[] = [
     ],
   },
   {
+    platform: "desktop",
     version: "0.6.0",
     date: "2026-04-07",
     titleKey: "v060Title",
@@ -50,6 +102,7 @@ export const releases: ReleaseEntry[] = [
     ],
   },
   {
+    platform: "desktop",
     version: "0.5.1",
     date: "2026-04-06",
     titleKey: "v051Title",
@@ -61,6 +114,7 @@ export const releases: ReleaseEntry[] = [
     ],
   },
   {
+    platform: "desktop",
     version: "0.5.0",
     date: "2026-04-06",
     titleKey: "v050Title",
@@ -73,6 +127,7 @@ export const releases: ReleaseEntry[] = [
     ],
   },
   {
+    platform: "desktop",
     version: "0.4.5",
     date: "2026-04-05",
     titleKey: "v045Title",
@@ -82,6 +137,7 @@ export const releases: ReleaseEntry[] = [
     ],
   },
   {
+    platform: "desktop",
     version: "0.4.4",
     date: "2026-04-05",
     titleKey: "v044Title",
@@ -91,6 +147,7 @@ export const releases: ReleaseEntry[] = [
     ],
   },
   {
+    platform: "desktop",
     version: "0.4.3",
     date: "2026-04-04",
     titleKey: "v043Title",
@@ -101,6 +158,7 @@ export const releases: ReleaseEntry[] = [
     ],
   },
   {
+    platform: "desktop",
     version: "0.4.2",
     date: "2026-04-03",
     titleKey: "v042Title",
@@ -111,6 +169,7 @@ export const releases: ReleaseEntry[] = [
     ],
   },
   {
+    platform: "desktop",
     version: "0.4.1",
     date: "2026-04-03",
     titleKey: "v041Title",
@@ -120,6 +179,7 @@ export const releases: ReleaseEntry[] = [
     ],
   },
   {
+    platform: "desktop",
     version: "0.4.0",
     date: "2026-04-03",
     titleKey: "v040Title",
@@ -132,6 +192,7 @@ export const releases: ReleaseEntry[] = [
     ],
   },
   {
+    platform: "desktop",
     version: "0.3.1",
     date: "2026-04-02",
     titleKey: "v031Title",
@@ -143,6 +204,7 @@ export const releases: ReleaseEntry[] = [
     ],
   },
   {
+    platform: "desktop",
     version: "0.3.0",
     date: "2026-04-01",
     titleKey: "v030Title",
@@ -156,6 +218,7 @@ export const releases: ReleaseEntry[] = [
     ],
   },
   {
+    platform: "desktop",
     version: "0.2.0",
     date: "2026-03-31",
     titleKey: "v020Title",
@@ -169,6 +232,7 @@ export const releases: ReleaseEntry[] = [
     ],
   },
   {
+    platform: "desktop",
     version: "0.1.3",
     date: "2026-03-31",
     titleKey: "v013Title",
@@ -177,6 +241,7 @@ export const releases: ReleaseEntry[] = [
     ],
   },
   {
+    platform: "desktop",
     version: "0.1.2",
     date: "2026-03-29",
     titleKey: "v012Title",
@@ -185,6 +250,7 @@ export const releases: ReleaseEntry[] = [
     ],
   },
   {
+    platform: "desktop",
     version: "0.1.1",
     date: "2026-03-29",
     titleKey: "v011Title",
@@ -193,6 +259,7 @@ export const releases: ReleaseEntry[] = [
     ],
   },
   {
+    platform: "desktop",
     version: "0.1.0",
     date: "2026-03-28",
     titleKey: "v010Title",
@@ -204,3 +271,41 @@ export const releases: ReleaseEntry[] = [
     ],
   },
 ];
+
+/**
+ * Filmtone iOS public App Store release history.
+ * Candidate builds such as local MARKETING_VERSION 1.2 stay in fastlane metadata until public.
+ */
+export const iosReleases: ReleaseEntry[] = [
+  {
+    platform: "ios",
+    version: "1.1",
+    date: "2026-04-26",
+    titleKey: "iosV11Title",
+    changes: [
+      { type: "added", key: "iosV11HdrNotice" },
+      { type: "added", key: "iosV11OpticsMetadata" },
+      { type: "added", key: "iosV11SidecarJson" },
+      { type: "changed", key: "iosV11ProresAppleLog" },
+    ],
+  },
+  {
+    platform: "ios",
+    version: "1.0",
+    date: "2026-04-21",
+    titleKey: "iosV10Title",
+    changes: [
+      { type: "added", key: "iosV10Presets" },
+      { type: "added", key: "iosV10QuickControls" },
+      { type: "added", key: "iosV10DualLut" },
+      { type: "added", key: "iosV10ExportShare" },
+    ],
+  },
+];
+
+export const releases: ReleaseEntry[] = desktopReleases;
+
+export const releaseRails: Record<ReleasePlatform, ReleaseEntry[]> = {
+  desktop: desktopReleases,
+  ios: iosReleases,
+};
