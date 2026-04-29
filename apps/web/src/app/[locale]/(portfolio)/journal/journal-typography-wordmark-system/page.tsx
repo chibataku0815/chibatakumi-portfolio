@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { coerceJournalBlocks } from "@/features/journal/article-blocks";
 import { JournalArticleBody } from "@/features/journal/JournalArticleBody";
@@ -59,7 +60,7 @@ export default async function JournalTypographyWordmarkSystemPage({
   const t = await getTranslations({ locale, namespace: "journal" });
 
   const entry = getJournalEntryBySlug(SLUG);
-  if (!entry) return null;
+  if (!entry || entry.status !== "published") notFound();
 
   const blocks = coerceJournalBlocks(t.raw(`articles.${SLUG}.sections`));
 
