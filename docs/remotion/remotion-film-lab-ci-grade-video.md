@@ -1,7 +1,7 @@
 # Film Lab — 動画 CI の扱い・ヘッドレス Linux（参考）
 
 > **更新**: 2026-03-29  
-> **GitHub Actions `film-lab-ci`**: **撤去済み**（push/PR が長時間ブロックされるのを避けるため）。Remotion の短尺レンダー・静止画は **手元** または **life** リポの `scripts/verify-film-lab-remotion.sh` で確認する。  
+> **GitHub Actions `film-lab-ci`**: **撤去済み**（push/PR が長時間ブロックされるのを避けるため）。Remotion の確認用レンダー・静止画は **手元** または **life** リポの `scripts/verify-film-lab-remotion.sh` で確認する。
 > **`render:grade:img0513` を CI に入れる話**は従来どおり、`public/videos/*.MOV` がリポに無いと必ず失敗するため **デフォルトの自動 CI には向かない**。
 
 ## Linux ヘッドレスで `render:grade` 等を叩くとき（参考）

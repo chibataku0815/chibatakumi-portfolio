@@ -4,7 +4,7 @@
 
 ## 実施内容
 
-- `FilmLookSpike` コンポジションで CLI `--props` から JSON を渡し、タイトル文字列が焼き込まれる短尺 MP4 を生成。
+- `FilmLookSpike` コンポジションで CLI `--props` から JSON を渡し、タイトル文字列が焼き込まれる確認用 MP4 を生成。
 - レンダー時は **`--gl=angle`** を使用（デフォルト SwiftShader では Three 系が失敗しうるため）。
 
 ## 成果物パス（ローカル・gitignore）

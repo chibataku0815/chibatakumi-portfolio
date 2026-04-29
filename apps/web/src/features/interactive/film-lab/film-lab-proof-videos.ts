@@ -1,7 +1,7 @@
 /**
  * @file Film Lab LP の仮 proof 動画設定です。
  * @description LP の proof セクションで使う短い mp4 clip の場所をまとめます。
- *   元の長い graded export から切り出した短尺版を `public/film-lab/proof/` に置き、
+ *   元の長い graded export から切り出した確認用の版を `public/film-lab/proof/` に置き、
  *   LP 側はそこだけを参照します。
  * @limitations いまは仮の clip 名です。公開前に asset 名や正式ソースを整理する前提です。
  */

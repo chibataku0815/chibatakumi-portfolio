@@ -13,7 +13,7 @@ Filmtone のルック定義（`film-lab-core`）を Remotion で書き出すサ�
 # ルートから
 cd apps/remotion-film-lab
 bun run dev          # Studio
-bun run render:spike # Phase 0 — props 上書きの短尺 MP4 → out/spike.mp4
+bun run render:spike # Phase 0 — props 上書きの確認用 MP4 → out/spike.mp4
 bun run render:grade # Phase 2+ — 解析グレード + 任意 .cube LUT + cover AR → out/grade.mp4
 bun run render:grade:img0513 # サンプル: `public/videos/IMG_0513.MOV`（手元コピー必須）→ out/grade-img0513.mp4
 # G2 / Route C: 代表フレーム PNG（MP4 再エンコードなし。ブラウザキャプチャと並べやすい）
