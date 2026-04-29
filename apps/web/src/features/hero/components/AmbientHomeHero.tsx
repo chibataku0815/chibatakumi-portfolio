@@ -39,7 +39,7 @@ export function AmbientHomeHero(): React.ReactElement {
       data-readability="immersive"
       className="relative isolate flex min-h-[var(--vvh,100dvh)] w-full flex-col items-start justify-end overflow-hidden px-6 pb-[calc(var(--mobile-bottom-reserve)+24px)] pt-32 sm:px-10 sm:pb-36 lg:px-16 lg:pb-40"
     >
-      <div className="w-full max-w-[min(86rem,calc(100vw-3rem))] sm:max-w-[min(86rem,calc(100vw-5rem))] lg:max-w-[min(86rem,calc(100vw-8rem))]">
+      <div className="w-full max-w-[min(32rem,calc(100vw-3rem))] sm:max-w-[36rem] lg:max-w-[44rem]">
         <h1 className="leading-none">
           <span className="sr-only">{descriptorLockup.ariaLabel}</span>
           <Image
@@ -50,8 +50,8 @@ export function AmbientHomeHero(): React.ReactElement {
             height={Math.round(descriptorLockup.height)}
             priority
             unoptimized
-            sizes="(max-width: 640px) calc(100vw - 3rem), (max-width: 1024px) calc(100vw - 5rem), min(86rem, calc(100vw - 8rem))"
-            className="block h-auto w-full max-w-[86rem]"
+            sizes="(max-width: 640px) min(32rem, calc(100vw - 3rem)), (max-width: 1024px) 36rem, 44rem"
+            className="block h-auto w-full"
             style={{
               aspectRatio: `${descriptorLockup.width} / ${descriptorLockup.height}`,
               filter:
