@@ -1415,6 +1415,12 @@ export function FilmLabFullPage({
           {tLp("roadmapLink")}
         </Link>
         <Link
+          href="/filmtone/features"
+          className="film-lab-lp-body text-xs text-[var(--text-base-60)] transition-colors hover:text-[var(--text-base)]"
+        >
+          {tLp("featuresLink")}
+        </Link>
+        <Link
           href="/filmtone/release-notes"
           className="film-lab-lp-body text-xs text-[var(--text-base-60)] transition-colors hover:text-[var(--text-base)]"
         >
