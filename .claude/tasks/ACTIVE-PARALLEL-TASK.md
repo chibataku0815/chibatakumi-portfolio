@@ -2,6 +2,30 @@
 
 ## 現在アクティブなタスク
 
+## Filmtone iOS Cache Storage Management (2026-04-29)
+- **Agent:** Codex CLI
+- **Started:** 2026-04-29T17:41:27+0900 (JST)
+- **Completed:** 2026-04-29T17:50:58+0900 (JST)
+- **Status:** 完了
+- **Changed Files:**
+  - `apps/capacitor-film-lab-ios/ios/App/App/CacheStore.swift` (編集)
+  - `apps/capacitor-film-lab-ios/ios/App/App/MezzanineService.swift` (編集)
+  - `apps/capacitor-film-lab-ios/ios/App/App/AssetPickerService.swift` (編集)
+  - `apps/capacitor-film-lab-ios/ios/App/App/FilmtoneMediaRuntime.swift` (編集)
+  - `apps/capacitor-film-lab-ios/ios/App/App/FilmtoneEditorFacade.swift` (編集)
+  - `apps/capacitor-film-lab-ios/ios/App/App/FilmtoneEditorStore.swift` (編集)
+  - `apps/capacitor-film-lab-ios/ios/App/App/FilmtoneRootView.swift` (編集)
+  - `apps/capacitor-film-lab-ios/ios/App/App/FilmtoneExportPanel.swift` (編集)
+  - `apps/capacitor-film-lab-ios/ios/App/App/AppDelegate.swift` (編集)
+  - `apps/capacitor-film-lab-ios/scripts/swift/test-cache-store.swift` (新規)
+  - `apps/capacitor-film-lab-ios/scripts/verify-phase0-contract.sh` (編集)
+  - `.claude/tasks/ACTIVE-PARALLEL-TASK.md` (編集)
+- **Notes:**
+  - `CacheStore` を inventory/prune/protected URL/safe removal 付きの管理キャッシュへ拡張し、LRU 基準を `contentModificationDate` に統一。stale `.partial` は削除し、in-flight/protected URL は保持する契約にした。
+  - source/import/export/background の各入口で軽量 reclaim を走らせ、source は active だけ、export は未保存/未共有の最新だけ、preview/mezzanine/luts は固定上限で残す方針に寄せた。
+  - Photos 保存・Share 完了後に local export/sidecar を削除し、`FilmtoneEditorStore` の local availability で Save/Share と未保存 prompt を破綻なく無効化する。
+  - Verification: `apps/capacitor-film-lab-ios/scripts/verify-phase0-contract.sh`、CacheStore standalone test、`xcodebuild -workspace ios/App/App.xcworkspace -scheme App -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build`、`git diff --check` passed。project 単体 build は Pods/Capacitor 解決不可のため失敗し、workspace build で確認。
+
 ## Portfolio Mobile UI Outer-Shell Reduction (2026-04-28)
 - **Agent:** Codex CLI
 - **Started:** 2026-04-28T20:08:20+0900 (JST)
