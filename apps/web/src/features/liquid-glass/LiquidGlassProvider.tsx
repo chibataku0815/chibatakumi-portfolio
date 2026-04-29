@@ -115,10 +115,18 @@ export function LiquidGlassProvider({
   const registerSurface = useCallback(
     (element: HTMLElement, options: LiquidGlassSurfaceOptions) => {
       surfacesRef.current.set(options.id, { element, options });
+      // eslint-disable-next-line no-console
+      console.info(
+        `[LiquidGlass] register id=${options.id} kind=${options.kind ?? "rail"} radius=${options.radius ?? 24} total=${surfacesRef.current.size}`,
+      );
       return () => {
         const current = surfacesRef.current.get(options.id);
         if (current?.element === element) {
           surfacesRef.current.delete(options.id);
+          // eslint-disable-next-line no-console
+          console.info(
+            `[LiquidGlass] unregister id=${options.id} total=${surfacesRef.current.size}`,
+          );
         }
       };
     },
@@ -257,11 +265,24 @@ export function LiquidGlassProvider({
       frontTarget: () => frontCanvasRef.current?.getCurrentTarget() ?? null,
     });
 
+    let frameCounter = 0;
     const unsubscribeBeforeFrame = activeStage.onBeforeFrame(() => {
       cachedFrame = buildFrameState();
+      frameCounter++;
+      if (frameCounter <= 3 || frameCounter === 30 || frameCounter % 180 === 0) {
+        const ids = cachedFrame.surfaces
+          .map((s) => `${s.kindId}:${Math.round(s.rect.width)}×${Math.round(s.rect.height)}@${Math.round(s.rect.left)},${Math.round(s.rect.top)}`)
+          .join(" | ");
+        // eslint-disable-next-line no-console
+        console.info(
+          `[LiquidGlass] frame=${frameCounter} surfaces=${cachedFrame.surfaces.length} frontTarget=${frontCanvasRef.current?.getCurrentTarget() != null} | ${ids}`,
+        );
+      }
     });
 
     activeStage.setComposePass(pass);
+    // eslint-disable-next-line no-console
+    console.info(`[LiquidGlass] compose pass installed | format=${format} | surfacesRegistered=${surfacesRef.current.size}`);
 
     return () => {
       unsubscribeBeforeFrame();
