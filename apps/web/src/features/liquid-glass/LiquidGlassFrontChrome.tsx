@@ -57,8 +57,22 @@ export function LiquidGlassFrontChrome(): React.ReactElement {
     const registration: FrontCanvasRegistration = {
       getCurrentTarget: () => {
         const dpr = Math.min(window.devicePixelRatio || 1, DPR_CAP);
+        // Size the backbuffer to match the canvas's CSS box. The CSS box is
+        // `w-screen h-[var(--vvh,100dvh)]` (= 100vw / visualViewport height),
+        // so width includes the scrollbar lane on pages that scroll while
+        // height tracks visualViewport. Sizing the backbuffer to
+        // `visualViewport.width` here would produce a smaller buffer than
+        // the CSS box on scrolled pages; the browser would then stretch the
+        // buffer to fit the wider CSS box, shifting every surface drawn at
+        // `getBoundingClientRect()` coords (which are relative to the layout
+        // viewport, NOT visualViewport) by the scrollbar width on the right
+        // side. Use innerWidth for the width axis, visualViewport.height for
+        // the height axis (so URL-bar collapse on iOS Safari still tracks).
         const viewport = window.visualViewport;
-        const cssWidth = Math.max(1, viewport?.width ?? window.innerWidth);
+        const cssWidth = Math.max(
+          1,
+          canvas.clientWidth || window.innerWidth,
+        );
         const cssHeight = Math.max(1, viewport?.height ?? window.innerHeight);
         const targetWidth = Math.max(1, Math.round(cssWidth * dpr));
         const targetHeight = Math.max(1, Math.round(cssHeight * dpr));
