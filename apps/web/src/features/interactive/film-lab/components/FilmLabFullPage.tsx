@@ -1,6 +1,6 @@
 /**
- * @file /film-lab 専用のフルレイアウト（Desktop-first LP + 下段 Web デモ）。
- * @description ヒーローで release strip と motion proof を先に見せ、続けて Web / Desktop split → motion proof → trust → same-world stills → browser demo → release details / FAQ へ流す。任意寄付・プレゼンモードは環境変数で有効化する。
+ * @file /filmtone 専用のフルレイアウト（Web / Desktop / iPhone LP + 下段 Web デモ）。
+ * @description ヒーローで公開中の3面と motion proof を先に見せ、続けて Web / Desktop / iPhone split → motion proof → trust → same-world stills → browser demo → release details / FAQ へ流す。任意寄付・プレゼンモードは環境変数で有効化する。
  * @limitations Phase 2 は Checkout 検証 Cookie（任意 env）。未設定時は Phase 1.5 の localStorage と同じ見え方。
  */
 "use client";
@@ -33,8 +33,16 @@ import {
   filmLabDesktopArchitecture,
   filmLabDesktopDownloadRoute,
   filmLabDesktopMinimumMacos,
+  filmLabDesktopPublicVersion,
   filmLabDesktopSupportEmail,
 } from "../desktop-release-info";
+import {
+  filmLabIosAppStoreUrl,
+  filmLabIosMinimumVersion,
+  filmLabIosPublicVersion,
+  filmLabIosSupportedDeviceFamily,
+  filmLabIosSupportEmail,
+} from "../ios-release-info";
 import {
   filmLabBuildProofVideoAspectRatio,
   filmLabBuildProofVideoUrl,
@@ -79,6 +87,52 @@ const FilmLabCanvas = dynamic(
   () => import("./FilmLabCanvas").then((m) => ({ default: m.FilmLabCanvas })),
   { ssr: false },
 );
+
+function FilmtoneCtaIcon() {
+  return (
+    <img
+      src="/brand/filmtone-app-icon.png"
+      alt=""
+      className="h-6 w-6 rounded-[0.42rem]"
+      aria-hidden
+    />
+  );
+}
+
+function AppStoreBadge({
+  locale,
+  className = "",
+}: {
+  locale: string;
+  className?: string;
+}) {
+  const badgeSrc =
+    locale === "ja"
+      ? "/brand/download-on-the-app-store-ja.svg"
+      : "/brand/download-on-the-app-store-en.svg";
+
+  return (
+    <img
+      src={badgeSrc}
+      alt=""
+      className={`h-10 w-auto ${className}`}
+      aria-hidden
+    />
+  );
+}
+
+function PlayCtaIcon() {
+  return (
+    <svg
+      className="h-4 w-4"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden
+    >
+      <path d="M8 5.5v13l10-6.5-10-6.5Z" />
+    </svg>
+  );
+}
 
 const ControlPanel = dynamic(
   () => import("./ControlPanel").then((m) => ({ default: m.ControlPanel })),
@@ -190,8 +244,9 @@ function FilmLabDesktopReleaseNotice({
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <Link
           href={filmLabDesktopDownloadRoute}
-          className="inline-flex items-center justify-center rounded-full border border-white/14 bg-white/8 px-4 py-2 text-sm text-white transition-colors hover:bg-white/14"
+          className="inline-flex items-center justify-center gap-2 rounded-full border border-white/14 bg-white/8 px-4 py-2 text-sm text-white transition-colors hover:bg-white/14"
         >
+          <FilmtoneCtaIcon />
           {t("downloadCta")}
         </Link>
         <a
@@ -199,6 +254,63 @@ function FilmLabDesktopReleaseNotice({
           className="text-sm text-white/70 underline decoration-white/20 underline-offset-4 transition-colors hover:text-white"
         >
           {t("supportCtaPrefix")} {filmLabDesktopSupportEmail}
+        </a>
+      </div>
+    </section>
+  );
+}
+
+function FilmLabIosReleaseNotice() {
+  const t = useTranslations("film-lab.iosRelease");
+  const locale = useLocale();
+
+  return (
+    <section className="rounded-2xl border border-white/10 bg-white/[0.035] p-4 sm:p-5">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-white/45">
+        {t("eyebrow")}
+      </p>
+      <h2 className="mt-2 text-lg font-semibold text-white">
+        {t("title", { version: filmLabIosPublicVersion })}
+      </h2>
+      <p className="mt-2 max-w-3xl text-sm leading-relaxed text-white/70">
+        {t("body")}
+      </p>
+
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <div className="rounded-xl border border-white/8 bg-black/20 px-3 py-3 text-sm leading-relaxed text-white/85">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/40">
+            {t("essentials.environmentLabel")}
+          </p>
+          <p className="mt-1 text-pretty">
+            {t("essentials.environmentBody", {
+              deviceFamily: filmLabIosSupportedDeviceFamily,
+              minIos: filmLabIosMinimumVersion,
+            })}
+          </p>
+        </div>
+        <div className="rounded-xl border border-white/8 bg-black/20 px-3 py-3 text-sm leading-relaxed text-white/85">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/40">
+            {t("essentials.distributionLabel")}
+          </p>
+          <p className="mt-1 text-pretty">{t("essentials.distributionBody")}</p>
+        </div>
+      </div>
+
+      <div className="mt-4 flex flex-wrap items-center gap-3">
+        <a
+          href={filmLabIosAppStoreUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center justify-center transition-opacity hover:opacity-90"
+          aria-label={t("appStoreCta")}
+        >
+          <AppStoreBadge locale={locale} />
+        </a>
+        <a
+          href={`mailto:${filmLabIosSupportEmail}`}
+          className="text-sm text-white/70 underline decoration-white/20 underline-offset-4 transition-colors hover:text-white"
+        >
+          {t("supportCtaPrefix")} {filmLabIosSupportEmail}
         </a>
       </div>
     </section>
@@ -697,17 +809,36 @@ export function FilmLabFullPage({
           aria-hidden
         />
         <div className="relative z-10 px-5 py-14 sm:px-10 sm:py-20 lg:px-12 lg:py-24">
-          <div className="grid gap-10 lg:grid-cols-[minmax(0,1.02fr)_minmax(360px,0.92fr)] lg:items-end lg:gap-12">
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,1.3fr)_minmax(340px,0.85fr)] lg:items-end lg:gap-12">
             <div>
               <div
-                className="film-lab-liquid-glass relative z-10 inline-flex max-w-full flex-wrap items-center gap-2 rounded-full py-1.5 pl-1.5 pr-4"
-                aria-label={tLp("premiumHeroBadgeLine")}
+                className="film-lab-liquid-glass relative z-10 inline-flex max-w-full flex-wrap items-center gap-x-1.5 gap-y-1 rounded-full py-1.5 pl-1.5 pr-3 sm:gap-2 sm:pr-4"
+                aria-label={tLp("heroPublicRailAria", {
+                  desktopVersion: filmLabDesktopPublicVersion,
+                  iosVersion: filmLabIosPublicVersion,
+                })}
               >
                 <span className="rounded-full bg-white px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-wide text-neutral-950">
                   {tLp("premiumHeroBadgeNew")}
                 </span>
-                <span className="text-xs text-white/85 sm:text-sm">
-                  {tLp("premiumHeroBadgeLine")}
+                <span className="text-[11px] text-white/85 sm:text-sm">
+                  {tLp("premiumHeroBadgeDesktop", {
+                    version: filmLabDesktopPublicVersion,
+                  })}
+                </span>
+                <span className="text-[11px] text-white/55 sm:text-xs" aria-hidden>
+                  /
+                </span>
+                <span className="text-[11px] text-white/85 sm:text-sm">
+                  {tLp("premiumHeroBadgeIos", {
+                    version: filmLabIosPublicVersion,
+                  })}
+                </span>
+                <span className="text-[11px] text-white/55 sm:text-xs" aria-hidden>
+                  /
+                </span>
+                <span className="text-[11px] text-white/85 sm:text-sm">
+                  {tLp("premiumHeroBadgeWeb")}
                 </span>
               </div>
               <p className="mt-8 text-[10px] font-semibold uppercase tracking-[0.24em] text-white/40">
@@ -715,32 +846,66 @@ export function FilmLabFullPage({
               </p>
               <h1
                 id="film-lab-hero-title"
-                className="film-lab-lp-heading-xl mt-3 max-w-4xl text-4xl text-white md:text-6xl lg:text-[4.25rem]"
+                className="film-lab-lp-heading-xl mt-3 max-w-4xl whitespace-pre-line text-4xl text-white md:text-5xl lg:text-[3.5rem] xl:text-[3.75rem]"
               >
                 {tLp("heroTitle")}
               </h1>
-              <p className="mt-6 max-w-2xl text-base leading-relaxed text-white/65 sm:text-lg">
+              <p className="film-lab-lp-body mt-4 max-w-2xl text-base font-medium text-white/75 sm:text-lg">
+                {tLp("heroSubtitle")}
+              </p>
+              <p className="mt-5 max-w-2xl text-base leading-relaxed text-white/65 sm:text-lg">
                 {tLp("heroBody")}
               </p>
-              <div className="relative z-10 mt-8 flex flex-wrap items-center gap-3">
-                <Link
-                  href={filmLabDesktopDownloadRoute}
-                  className="film-lab-liquid-glass-strong relative z-10 inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-medium text-white transition-opacity hover:opacity-95"
-                >
-                  {tLp("heroPrimaryCta")}
-                </Link>
+              <div className="relative z-10 mt-10 flex max-w-xl flex-col gap-5">
+                {/* App Store zone — mobile order-1 / desktop order-3 */}
+                <div className="order-1 flex flex-col items-start gap-2 sm:order-3">
+                  <a
+                    href={filmLabIosAppStoreUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center justify-start transition-opacity hover:opacity-90"
+                    aria-label={tLp("heroIosCta")}
+                  >
+                    <AppStoreBadge locale={locale} className="h-12" />
+                  </a>
+                  <p className="text-xs text-white/45">
+                    {tLp("heroIosCtaSubLine", {
+                      minIos: filmLabIosMinimumVersion,
+                    })}
+                  </p>
+                </div>
+
+                {/* Visual zone separator — always between the two zones */}
+                <div
+                  className="order-2 h-px w-full max-w-[200px] bg-white/10 sm:order-2"
+                  aria-hidden
+                />
+
+                {/* macOS zone — mobile order-3 / desktop order-1 */}
+                <div className="order-3 flex flex-col items-start gap-2 sm:order-1">
+                  <Link
+                    href={filmLabDesktopDownloadRoute}
+                    className="film-lab-liquid-glass-strong inline-flex min-h-12 w-fit items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-medium text-white transition-opacity hover:opacity-95"
+                  >
+                    <FilmtoneCtaIcon />
+                    {tLp("heroPrimaryCta")}
+                  </Link>
+                  <p className="text-xs text-white/45">
+                    {tLp("heroPrimaryCtaSubLine", {
+                      minMacos: filmLabDesktopMinimumMacos,
+                    })}
+                  </p>
+                </div>
+
+                {/* Subordinate Web demo link */}
                 <a
                   href="#film-lab-demo"
-                  className="film-lab-liquid-glass relative z-10 inline-flex items-center justify-center rounded-full px-5 py-2.5 text-sm font-medium text-white/90 transition-opacity hover:opacity-90"
+                  className="order-4 mt-2 inline-flex w-fit items-center gap-2 text-sm font-medium text-white/70 underline decoration-white/20 underline-offset-4 transition-colors hover:text-white sm:order-4"
                 >
+                  <PlayCtaIcon />
                   {tLp("premiumCtaTryDemo")}
                 </a>
               </div>
-              <p className="mt-4 text-xs text-white/45">
-                {tLp("heroSecondaryLine", {
-                  minMacos: filmLabDesktopMinimumMacos,
-                })}
-              </p>
               <p className="mt-5 max-w-2xl text-xs font-medium leading-relaxed text-white/50 sm:text-sm">
                 {tLp("proofTeaserLine")}
               </p>
@@ -755,7 +920,7 @@ export function FilmLabFullPage({
         </div>
       </section>
 
-      {/* Web / Desktop split */}
+      {/* Web / Desktop / iPhone split */}
       <section
         id="film-lab-surface-split"
         className="mt-16 scroll-mt-28 sm:mt-24"
@@ -770,11 +935,12 @@ export function FilmLabFullPage({
         >
           {tLp("surfaceSplitTitle")}
         </h2>
-        <div className="mt-10 grid gap-4 md:grid-cols-2">
+        <div className="mt-10 grid gap-4 md:grid-cols-3">
           {(
             [
               ["surfaceSplitWebTitle", "surfaceSplitWebBody"],
               ["surfaceSplitDesktopTitle", "surfaceSplitDesktopBody"],
+              ["surfaceSplitIosTitle", "surfaceSplitIosBody"],
             ] as const
           ).map(([titleKey, bodyKey]) => (
             <div
@@ -792,150 +958,60 @@ export function FilmLabFullPage({
         </div>
       </section>
 
-      {/* Motion proof */}
+      {/* Compare proof — promoted to a standalone section. */}
       <section
-        className="mt-20 sm:mt-28"
-        aria-labelledby="film-lab-capabilities-title"
+        id="film-lab-compare"
+        className="mt-20 scroll-mt-28 sm:mt-28"
+        aria-labelledby="film-lab-compare-title"
       >
-        <p className="film-lab-lp-section-badge mb-3">
-          {tLp("premiumCapabilitiesEyebrow")}
+        <h2
+          id="film-lab-compare-title"
+          className="film-lab-lp-heading-xl max-w-3xl text-3xl text-white md:text-5xl"
+        >
+          {tLp("premiumCompareTitle")}
+        </h2>
+        <p className="film-lab-lp-body mt-4 max-w-3xl text-sm leading-relaxed text-white/65 md:text-base">
+          {tLp("premiumCompareBody")}
         </p>
-        <h2
-          id="film-lab-capabilities-title"
-          className="film-lab-lp-heading-xl max-w-4xl text-3xl text-white md:text-5xl lg:text-6xl"
-        >
-          {tLp("premiumCapabilitiesTitle")}
-        </h2>
-
-        <div className="mt-14 grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
-          <div className="film-lab-liquid-glass relative z-10 order-2 overflow-hidden rounded-2xl lg:order-1">
-            <FilmLabProofVideoCard
-              aspectRatio={filmLabBuildProofVideoAspectRatio("gradedLookB")}
-              src={filmLabBuildProofVideoUrl("gradedLookB")}
-              title={tLp("premiumFeature2Title")}
-            />
-            <p className="film-lab-lp-body px-4 py-3 text-center text-xs text-white/45">
-              {tLp("premiumMediaProofNote")}
-            </p>
-          </div>
-          <div className="order-1 lg:order-2">
-            <h3 className="film-lab-lp-heading-xl text-2xl text-white md:text-3xl">
-              {tLp("premiumFeature2Title")}
-            </h3>
-            <p className="mt-4 text-sm leading-relaxed text-white/60 md:text-base">
-              {tLp("premiumFeature2Body")}
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* 4 カードグリッド */}
-      <section className="mt-24 sm:mt-32" aria-labelledby="film-lab-grid-title">
-        <p className="film-lab-lp-section-badge">{tLp("premiumGridEyebrow")}</p>
-        <h2
-          id="film-lab-grid-title"
-          className="film-lab-lp-heading-xl mt-3 max-w-3xl text-3xl text-white md:text-5xl"
-        >
-          {tLp("premiumGridTitle")}
-        </h2>
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-10 grid gap-4 lg:grid-cols-3">
           {(
             [
-              ["premiumCard1Title", "premiumCard1Body", "#b87a3a"],
-              ["premiumCard2Title", "premiumCard2Body", "#c9a08e"],
-              ["premiumCard3Title", "premiumCard3Body", "#7a98aa"],
-              ["premiumCard4Title", "premiumCard4Body", "#888"],
+              [
+                "compareNightStreet",
+                "premiumCompareCard1Title",
+                "premiumCompareCard1Body",
+              ],
+              [
+                "compareDaylightWalk",
+                "premiumCompareCard2Title",
+                "premiumCompareCard2Body",
+              ],
+              [
+                "compareDarkInterior",
+                "premiumCompareCard3Title",
+                "premiumCompareCard3Body",
+              ],
             ] as const
-          ).map(([titleKey, bodyKey, accent]) => (
+          ).map(([proofId, titleKey, bodyKey]) => (
             <div
-              key={titleKey}
-              className="film-lab-liquid-glass relative z-10 flex flex-col rounded-2xl p-6"
+              key={proofId}
+              className="film-lab-liquid-glass relative z-10 overflow-hidden rounded-2xl"
             >
-              <div
-                className="mb-3 h-1 w-8 rounded-full"
-                style={{ background: accent }}
-                aria-hidden
+              <FilmLabProofVideoCard
+                aspectRatio={filmLabBuildProofVideoAspectRatio(proofId)}
+                src={filmLabBuildProofVideoUrl(proofId)}
+                title={tLp(titleKey)}
               />
-              <h3 className="film-lab-lp-heading-xl text-lg text-white">
-                {tLp(titleKey)}
-              </h3>
-              <p className="film-lab-lp-body mt-3 flex-1 text-sm leading-relaxed text-white/60">
-                {tLp(bodyKey)}
-              </p>
+              <div className="px-4 py-4 sm:px-5 sm:py-5">
+                <h3 className="film-lab-lp-heading-xl text-lg text-white">
+                  {tLp(titleKey)}
+                </h3>
+                <p className="film-lab-lp-body mt-3 text-sm leading-relaxed text-white/60">
+                  {tLp(bodyKey)}
+                </p>
+              </div>
             </div>
           ))}
-        </div>
-
-        <div className="mt-12">
-          <h3 className="film-lab-lp-heading-xl max-w-3xl text-2xl text-white md:text-3xl">
-            {tLp("premiumCompareTitle")}
-          </h3>
-          <p className="film-lab-lp-body mt-3 max-w-3xl text-sm leading-relaxed text-white/60 md:text-base">
-            {tLp("premiumCompareBody")}
-          </p>
-          <div className="mt-8 grid gap-4 lg:grid-cols-3">
-            {(
-              [
-                [
-                  "compareNightStreet",
-                  "premiumCompareCard1Title",
-                  "premiumCompareCard1Body",
-                ],
-                [
-                  "compareDaylightWalk",
-                  "premiumCompareCard2Title",
-                  "premiumCompareCard2Body",
-                ],
-                [
-                  "compareDarkInterior",
-                  "premiumCompareCard3Title",
-                  "premiumCompareCard3Body",
-                ],
-              ] as const
-            ).map(([proofId, titleKey, bodyKey]) => (
-              <div
-                key={proofId}
-                className="film-lab-liquid-glass relative z-10 overflow-hidden rounded-2xl"
-              >
-                <FilmLabProofVideoCard
-                  aspectRatio={filmLabBuildProofVideoAspectRatio(proofId)}
-                  src={filmLabBuildProofVideoUrl(proofId)}
-                  title={tLp(titleKey)}
-                />
-                <div className="px-4 py-4 sm:px-5 sm:py-5">
-                  <h4 className="film-lab-lp-heading-xl text-lg text-white">
-                    {tLp(titleKey)}
-                  </h4>
-                  <p className="film-lab-lp-body mt-3 text-sm leading-relaxed text-white/60">
-                    {tLp(bodyKey)}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section
-        id="film-lab-workflow-proof"
-        className="mt-12 scroll-mt-28 sm:mt-16"
-        aria-labelledby="film-lab-workflow-title"
-      >
-        <div className="film-lab-liquid-glass relative z-10 rounded-2xl p-6 sm:p-8">
-          <h2
-            id="film-lab-workflow-title"
-            className="film-lab-lp-heading-xl text-xl text-white md:text-2xl"
-          >
-            {tLp("workflowTitle")}
-          </h2>
-          <p className="film-lab-lp-body mt-3 text-sm text-white/60">
-            {tLp("workflowLead")}
-          </p>
-          <ul className="film-lab-lp-body mt-4 list-disc space-y-2 pl-5 text-sm text-white/65">
-            <li>{tLp("workflowBullet1")}</li>
-            <li>{tLp("workflowBullet2")}</li>
-            <li>{tLp("workflowBullet3")}</li>
-          </ul>
         </div>
       </section>
 
@@ -1295,7 +1371,10 @@ export function FilmLabFullPage({
         >
           {tLp("trustHeading")}
         </h2>
-        <FilmLabDesktopReleaseNotice suppressTopMargin />
+        <div className="mt-4 grid gap-4 lg:grid-cols-2">
+          <FilmLabDesktopReleaseNotice suppressTopMargin />
+          <FilmLabIosReleaseNotice />
+        </div>
       </section>
 
       <section
@@ -1313,10 +1392,7 @@ export function FilmLabFullPage({
           {(
             [
               ["faqQfree", "faqAfree"],
-              ["faqQformats", "faqAformats"],
               ["faqQwhichVersion", "faqAwhichVersion"],
-              ["faqQpresets", "faqApresets"],
-              ["faqQvideo", "faqAvideo"],
               ["faqQwindows", "faqAwindows"],
             ] as const
           ).map(([qKey, aKey]) => (
@@ -1345,10 +1421,10 @@ export function FilmLabFullPage({
           {tLp("releaseNotesLink")}
         </Link>
         <Link
-          href="/interactive"
-          className="film-lab-lp-body text-xs text-[var(--text-base-60)] transition-colors hover:text-[var(--text-base)]"
+          href="/"
+          className="film-lab-lp-body text-xs text-[var(--text-base-60)] transition-colors hover:text-[var(--text-base)] sm:ml-auto"
         >
-          {t("back")}
+          {tLp("copyrightLink")}
         </Link>
       </nav>
 
