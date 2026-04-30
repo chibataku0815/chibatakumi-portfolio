@@ -1,6 +1,6 @@
 @import "tailwindcss";
 /* Web で workspace の film-lab-ui をビルド対象に含める（未指定だと Tailwind クラスが生成されずトグル等が崩れる） */
-@source "../../../../packages/film-lab-ui/src";
+@source "../../../../vendor/filmtone/packages/film-lab-ui/src";
 @source "../../../../packages/design-system/src";
 @source "../**/*.{js,ts,jsx,tsx,mdx}";
 

@@ -3,7 +3,7 @@
 /**
  * @file Web 版 ControlPanel — FilmLabControlPanelCore の薄いラッパー。
  *
- * Core（packages/film-lab-ui）が reducer・スライダー・Compare・キーボードショートカット等
+ * Core（film-lab-ui）が reducer・スライダー・Compare・キーボードショートカット等
  * すべてのコア UI を提供し、Web 固有のセクション（BrowserStorage / SmartLook / Share）は
  * Core の render-prop slots に差し込む。
  *

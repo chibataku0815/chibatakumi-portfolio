@@ -6,7 +6,9 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 const nextConfig: NextConfig = {
   transpilePackages: [
     "film-lab-core",
+    "film-lab-renderer",
     "film-lab-smart-look",
+    "film-lab-ui",
     "@chibatakumi/motion-core",
     "@chibatakumi/motion-dot",
     "@chibatakumi/motion-grid",

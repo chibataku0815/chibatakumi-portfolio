@@ -2,7 +2,7 @@
 
 > **対象**: `apps/web/src/features/interactive/film-lab/`  
 > **製品表示名**: Filmtone。URL・パッケージ名は従来どおり `film-lab` 系スラッグ。  
-> **パラメータの単一ソース**: `packages/film-lab-core`（`Params`・`PARAM_KEYS`）。Web は `types.ts` から re-export。  
+> **パラメータの単一ソース**: `film-lab-core`（`Params`・`PARAM_KEYS`）。Web は `types.ts` から re-export。
 > **関連 Issue（life・クローズ済み）**: [chibataku0815/life#28](https://github.com/chibataku0815/life/issues/28) — 本ファイルで仕様面の一次情報を置く。
 
 ---
@@ -15,7 +15,7 @@
 - **描画の心臓**: `FilmLabCanvas` + `Viewport` + マルチパスシェーダ。
 - **UI**: `ControlPanel`・`PresetBar`・`LUTPanel`・Quick メタスライダー等。i18n は `next-intl` の `film-lab` 名前空間。
 
-**Desktop（Electron）** は別アプリ `apps/desktop-film-lab-batch`。シェーダ文字列・`film-lab-core` は共有しうるが、本ファイルの主対象は **Web**。
+**Desktop（Electron）** は standalone Filmtone repo の別アプリ。シェーダ文字列・`film-lab-core` は共有しうるが、本ファイルの主対象は **Web**。
 
 ---
 
@@ -87,7 +87,7 @@ apps/web API routes (寄付・Smart Look BFF 等。本ディレクトリ外と�
 
 ## 7. Out of scope（本ファイルでは深掘りしない）
 
-- **Desktop Electron** のウィンドウ・動画書き出しパイプライン（`apps/desktop-film-lab-batch`）。
+- **Desktop Electron** のウィンドウ・動画書き出しパイプライン（standalone Filmtone repo）。
 - **寄付・Smart Look** の法務文面・本番シークレット。
 - **life リポ**の Issue / handoff（運用の正本は life 側 `docs/guides/film-lab-documentation-index.md`）。
 

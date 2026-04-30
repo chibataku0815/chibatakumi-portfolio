@@ -1,1 +1,0 @@
-v1.3 では、起動直後から Filmtone のトーンを選べるようにしました。Look には Filmtone Signature を含む 5 種類の組み込みフィルムルックを追加し、各 Look は強さ 0–100% で調整できます。インポートした .cube LUT はライブラリで再利用でき、現在のグレードを Look として保存して、別の素材に同じトーンを当てられます。Camera Profile では Apple Log / Apple Log 2 の自動検出に加えて、Panasonic V-Log と Sony S-Log3 を選択できるようになりました。
