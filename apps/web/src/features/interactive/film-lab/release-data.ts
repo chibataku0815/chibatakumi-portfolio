@@ -274,9 +274,21 @@ export const desktopReleases: ReleaseEntry[] = [
 
 /**
  * Filmtone iOS public App Store release history.
- * Candidate builds such as local MARKETING_VERSION 1.2 stay in fastlane metadata until public.
+ * Candidate builds such as local MARKETING_VERSION 1.3 stay in fastlane metadata until public.
  */
 export const iosReleases: ReleaseEntry[] = [
+  {
+    platform: "ios",
+    version: "1.2",
+    date: "2026-04-29",
+    titleKey: "iosV12Title",
+    changes: [
+      { type: "changed", key: "iosV12DualLutControls" },
+      { type: "fixed", key: "iosV12PreviewExportColor" },
+      { type: "changed", key: "iosV12HdrP3Handling" },
+      { type: "fixed", key: "iosV12CacheProtection" },
+    ],
+  },
   {
     platform: "ios",
     version: "1.1",

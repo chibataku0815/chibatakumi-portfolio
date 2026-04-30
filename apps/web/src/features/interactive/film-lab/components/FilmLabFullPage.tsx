@@ -958,6 +958,80 @@ export function FilmLabFullPage({
         </div>
       </section>
 
+      <section
+        id="film-lab-surface-decision"
+        className="mt-14 scroll-mt-28 sm:mt-20"
+        aria-labelledby="film-lab-surface-decision-title"
+      >
+        <p className="film-lab-lp-section-badge mb-3">
+          {tLp("surfaceMatrixEyebrow")}
+        </p>
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-end">
+          <h2
+            id="film-lab-surface-decision-title"
+            className="film-lab-lp-heading-xl max-w-3xl text-2xl text-white md:text-4xl"
+          >
+            {tLp("surfaceMatrixTitle")}
+          </h2>
+          <p className="film-lab-lp-body max-w-3xl text-sm leading-relaxed text-white/65 md:text-base">
+            {tLp("surfaceMatrixBody")}
+          </p>
+        </div>
+        <div className="mt-8 grid gap-4 lg:grid-cols-3">
+          {(
+            [
+              [
+                "surfaceMatrixWebTitle",
+                "surfaceMatrixWebBest",
+                "surfaceMatrixWebOutput",
+                "surfaceMatrixWebLimit",
+              ],
+              [
+                "surfaceMatrixIosTitle",
+                "surfaceMatrixIosBest",
+                "surfaceMatrixIosOutput",
+                "surfaceMatrixIosLimit",
+              ],
+              [
+                "surfaceMatrixMacTitle",
+                "surfaceMatrixMacBest",
+                "surfaceMatrixMacOutput",
+                "surfaceMatrixMacLimit",
+              ],
+            ] as const
+          ).map(([titleKey, bestKey, outputKey, limitKey]) => (
+            <article
+              key={titleKey}
+              className="film-lab-liquid-glass relative z-10 rounded-2xl p-5 sm:p-6"
+            >
+              <h3 className="film-lab-lp-heading-xl text-xl text-white">
+                {tLp(titleKey)}
+              </h3>
+              <dl className="film-lab-lp-body mt-5 space-y-4 text-sm leading-relaxed">
+                <div>
+                  <dt className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/40">
+                    {tLp("surfaceMatrixBestForLabel")}
+                  </dt>
+                  <dd className="mt-1 text-white/70">{tLp(bestKey)}</dd>
+                </div>
+                <div>
+                  <dt className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/40">
+                    {tLp("surfaceMatrixOutputLabel")}
+                  </dt>
+                  <dd className="mt-1 text-white/70">{tLp(outputKey)}</dd>
+                </div>
+                <div>
+                  <dt className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/40">
+                    {tLp("surfaceMatrixLimitLabel")}
+                  </dt>
+                  <dd className="mt-1 text-white/60">{tLp(limitKey)}</dd>
+                </div>
+              </dl>
+            </article>
+          ))}
+        </div>
+      </section>
+
       {/* Compare proof — promoted to a standalone section. */}
       <section
         id="film-lab-compare"
