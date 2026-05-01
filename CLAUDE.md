@@ -4,6 +4,21 @@
 
 ---
 
+## Filmtone は submodule（必読）
+
+Filmtone Desktop / iOS / 共有 packages（`film-lab-core` / `film-lab-renderer` / `film-lab-ui` / `film-lab-smart-look`）は **`vendor/filmtone` submodule 経由で消費** している（2026-05-01 detach、commit `84766134`）。実装は standalone リポ `/Volumes/SamsungPortableSSDX5001/documents/forestone/filmtone`（GitHub: `chibataku0815/filmtone`）。
+
+**この repo では filmtone コードを直接編集しない** — bump のみ:
+
+```bash
+git submodule update --remote vendor/filmtone
+git add vendor/filmtone && git commit -m "chore(filmtone): bump submodule"
+```
+
+実装変更は standalone リポで行い、commit/push 後にここで submodule bump する。`apps/web` は public landing / support / privacy / release-notes / journal の **公開窓** のみが正味スコープ。詳細は life `docs/guides/2026-05-01-filmtone-standalone-product-repo-migration-handoff.md`。
+
+---
+
 ## 参照ドキュメント
 
 | ファイル | 内容 |
