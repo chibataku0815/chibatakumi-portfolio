@@ -694,8 +694,8 @@
     },
     "desktopRelease": {
       "eyebrow": "Desktop",
-      "title": "Filmtone Desktop v1.0.3（macOS）",
-      "body": "動画を macOS で確認しながら仕上げ、必要に応じてカバー画像やサムネイルにも同じ色の方向を使えます。ダウンロードは公証済みの DMG（Apple Silicon 向け）です。",
+      "title": "Filmtone Desktop v1.0.4（macOS）",
+      "body": "カメラ別の Log Conversion プロファイル、sidecar から戻せるソースプロファイル、現在の仕上げカタログで、動画を macOS 上で確認しながら仕上げられます。ダウンロードは公証済みの DMG（Apple Silicon 向け）です。",
       "essentials": {
         "environmentLabel": "動作環境",
         "environmentBody": "macOS {minMacos} 以降。{arch} のみ。Intel Mac は非対応です。",
@@ -1119,6 +1119,11 @@
       "typeFixed": "修正",
       "typeChanged": "変更",
       "entries": {
+        "v104Title": "Filmtone Desktop v1.0.4 — Log Conversion プロファイルと仕上げの足並みを更新",
+        "v104LogConversionProfiles": "Desktop の Log Conversion に、Rec.709、Apple Log、Apple Log 2、DJI D-Log、DJI D-Log M、Canon C-Log、Canon Log 3 / Cinema Gamut、Panasonic V-Log、Sony S-Log3 の内蔵 Camera Profile を追加しました。Custom .cube の読み込みも引き続き使えます。",
+        "v104SourceProfileSidecars": "書き出し sidecar に内蔵ソースプロファイルの情報を残せるようになりました。セッションを開き直すと、元の絶対 .cube パスに依存せず、カタログから対応する変換 LUT を再生成できます。",
+        "v104FinishingCatalog": "共有の仕上げカタログを現在の内容に合わせました。新しい Creative LUT データ、Stone / Urban の調整、Lens Filter プロファイル、モーション、グロー、ハレーション、ディフュージョン、光学系シェーダーの更新を Desktop に反映しています。",
+        "v104Terminology": "Desktop 向けのコピーを現在の Filmtone 用語に合わせました。エフェクト名、HDR メッセージ、製品共通の表現を整理しています。",
         "v103Title": "Filmtone Desktop v1.0.3 — 書き出し品質とHDR素材対応",
         "v103HdrHandling": "HDR PQ / HLG / 広色域素材の検出を、読み込み・書き出しの両方で分かりやすくしました。必要なときだけ明るさや色のリスクを説明します。",
         "v103BundledVideoTools": "通常の書き出しに必要な動画ツールをDesktopに同梱し、HDR-to-SDR準備で開発者向け環境に依存しにくくしました。",

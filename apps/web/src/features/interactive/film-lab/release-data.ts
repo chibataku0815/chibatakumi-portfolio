@@ -21,6 +21,18 @@ export interface ReleaseEntry {
 export const desktopReleases: ReleaseEntry[] = [
   {
     platform: "desktop",
+    version: "1.0.4",
+    date: "2026-05-02",
+    titleKey: "v104Title",
+    changes: [
+      { type: "added", key: "v104LogConversionProfiles" },
+      { type: "changed", key: "v104SourceProfileSidecars" },
+      { type: "changed", key: "v104FinishingCatalog" },
+      { type: "changed", key: "v104Terminology" },
+    ],
+  },
+  {
+    platform: "desktop",
     version: "1.0.3",
     date: "2026-04-24",
     titleKey: "v103Title",

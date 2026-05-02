@@ -692,8 +692,8 @@
     },
     "desktopRelease": {
       "eyebrow": "Desktop",
-      "title": "Filmtone Desktop v1.0.3 (macOS)",
-      "body": "Finish video on macOS, then use the same color direction for covers or thumbnails when needed. The download is a notarized DMG for Apple Silicon.",
+      "title": "Filmtone Desktop v1.0.4 (macOS)",
+      "body": "Finish video on macOS with built-in camera Log Conversion profiles, sidecar-safe source-profile recall, and the current finishing catalog. The download is a notarized DMG for Apple Silicon.",
       "essentials": {
         "environmentLabel": "Requirements",
         "environmentBody": "macOS {minMacos} or later. {arch} only — not for Intel Macs.",
@@ -1117,6 +1117,11 @@
       "typeFixed": "Fixed",
       "typeChanged": "Changed",
       "entries": {
+        "v104Title": "Filmtone Desktop v1.0.4 — Log Conversion profiles and finishing parity",
+        "v104LogConversionProfiles": "Desktop Log Conversion now includes built-in Camera Profile choices for Rec.709, Apple Log, Apple Log 2, DJI D-Log, DJI D-Log M, Canon C-Log, Canon Log 3 / Cinema Gamut, Panasonic V-Log, and Sony S-Log3, while keeping custom .cube imports available.",
+        "v104SourceProfileSidecars": "Export sidecars can preserve built-in source-profile identity, so reopening a session can regenerate the matching conversion LUT from the catalog instead of depending on the original absolute .cube path.",
+        "v104FinishingCatalog": "Desktop carries the current shared finishing catalog, including newer Creative LUT data, Stone and Urban refinements, Lens Filter profiles, and renderer-side motion, glow, halation, diffusion, and optical shader updates.",
+        "v104Terminology": "Desktop-facing copy now follows the current Filmtone terminology pass for effect names, HDR messages, and shared product language.",
         "v103Title": "Filmtone Desktop v1.0.3 — export quality and HDR source handling",
         "v103HdrHandling": "HDR PQ, HLG, and wide-gamut source detection is clearer during import and export, with user-facing messages that explain practical brightness or color risk without developer jargon.",
         "v103BundledVideoTools": "Desktop now bundles the video toolchain needed for normal exports, reducing dependency on separate developer or Homebrew setup for HDR-to-SDR preparation paths.",
