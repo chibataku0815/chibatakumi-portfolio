@@ -58,13 +58,47 @@ Do **not** run `next dev` from a random parent folder without passing the app ro
 |--------|---------|
 | `bun run build:web` | Production build of `apps/web` |
 | `bun run start:web` | Start production server (after build) |
+| `bun run verify:vercel-settings` | Vercel の monorepo 設定確認（`VERCEL_TOKEN` 必須） |
 | `bun run build:core` | Build `packages/film-lab-core` |
 
 Details: `apps/web/README.md`.
 
-## Vercel（Root Directory = `apps/web`）
+## Vercel（prebuilt deploy via GitHub Actions）
 
-ダッシュボードの **Root Directory** を `apps/web` にしているのは、**モノレポの公式に沿った正しい設定**です。リポジトリの Git ルートはそのまま（ルートに `bun.lock` や他アプリがある）ので、「どこがアプリの入口か」を Vercel に教えるのが Root Directory の役目です。
+ダッシュボードの **Root Directory** を `apps/web` にしているのは、**モノレポの公式に沿った正しい設定**です。ただし、この app は root workspace packages と `vendor/filmtone` private submodule に依存しています。
+
+Vercel Git build は private submodule を取得できないため、`apps/web/vercel.json` で Git auto-deploy を無効化し、`.github/workflows/vercel-production-deploy.yml` から `vercel build` -> `vercel deploy --prebuilt --prod` で本番デプロイします。
+
+Vercel 側では **Include source files outside of the Root Directory in the Build Step** も有効にする必要があります。この設定が無効、または `vendor/filmtone` submodule checkout が失敗すると、Vercel の `bun install` は `workspace:*` を解決できず次のように失敗します。
+
+```text
+error: Workspace dependency "@chibatakumi/design-system" not found
+Searched in "./*"
+```
+
+設定確認:
+
+```bash
+VERCEL_TOKEN=... VERCEL_PROJECT_ID=... VERCEL_ORG_ID=... bun run verify:vercel-settings
+```
+
+API で直す場合:
+
+```bash
+curl -X PATCH "https://api.vercel.com/v9/projects/$VERCEL_PROJECT_ID?teamId=$VERCEL_ORG_ID" \
+  -H "Authorization: Bearer $VERCEL_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"rootDirectory":"apps/web","sourceFilesOutsideRootDirectory":true}'
+```
+
+GitHub Actions secrets:
+
+| Secret | Purpose |
+|--------|---------|
+| `FILMTONE_SUBMODULE_SSH_KEY` | `vendor/filmtone` を checkout できる read-only deploy key の private key |
+| `VERCEL_TOKEN` | Vercel CLI deploy token |
+| `VERCEL_ORG_ID` | Vercel team/org id |
+| `VERCEL_PROJECT_ID` | `chibatakumi-portfolio-web` project id |
 
 | 作業 | 実行するディレクトリ | 理由 |
 |------|----------------------|------|

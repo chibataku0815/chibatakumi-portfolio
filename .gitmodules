@@ -1,3 +1,3 @@
 [submodule "vendor/filmtone"]
 	path = vendor/filmtone
-	url = https://github.com/chibataku0815/filmtone.git
+	url = git@github.com:chibataku0815/filmtone.git
