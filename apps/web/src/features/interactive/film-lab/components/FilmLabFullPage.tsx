@@ -16,7 +16,7 @@ import {
 } from "react";
 import { flushSync } from "react-dom";
 import {
-  FILMTONE_DEFAULT_BASE_PRESET,
+  FILMTONE_DEFAULT_BASE_LOOK,
   createFilmtoneDefaultParams,
 } from "film-lab-core";
 import { FilmLabWebglPanelBackdrop, VideoTransportControls } from "film-lab-ui";
@@ -1117,7 +1117,7 @@ export function FilmLabFullPage({
               >
                 <FilmLabCanvas
                   ref={filmLabCanvasRef}
-                  preset={FILMTONE_DEFAULT_BASE_PRESET}
+                  preset={FILMTONE_DEFAULT_BASE_LOOK}
                   chromeLayout="stacked"
                   stackedToolbarVisible={false}
                   defaultSampleAssetUrl={FILM_LAB_WEB_CANONICAL_SAMPLE_ASSET_URL}

@@ -9,7 +9,7 @@ import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import {
-  FILMTONE_DEFAULT_BASE_PRESET,
+  FILMTONE_DEFAULT_BASE_LOOK,
   createFilmtoneDefaultParams,
 } from "film-lab-core";
 import { Link } from "@/i18n/navigation";
@@ -47,7 +47,7 @@ export function FilmLabShowcase() {
       <div className="mx-auto max-w-5xl">
         {/* Canvas */}
         <FilmLabCanvas
-          preset={FILMTONE_DEFAULT_BASE_PRESET}
+          preset={FILMTONE_DEFAULT_BASE_LOOK}
           initialGradeParams={initialGradeParams}
           onViewportReady={setViewport}
         />

@@ -28,7 +28,7 @@ import {
   type FilmLabCoreRenderContext,
   type FilmLabDonationUiBinding,
 } from "film-lab-ui";
-import { findMatchingPreset, type PresetName } from "film-lab-core";
+import { findMatchingBaseLook, type BaseLookName } from "film-lab-core";
 import type { Viewport } from "../core/Viewport";
 import {
   filmLabShareUiEnabled,
@@ -263,7 +263,7 @@ function WebSessionAutoRestore({
         savedHalationIntensity: session.savedHalationIntensity,
         activeBaseLook:
           slot.baseLook ??
-          (findMatchingPreset(slot.params) as PresetName) ??
+          (findMatchingBaseLook(slot.params) as BaseLookName) ??
           "reset",
       });
     });

@@ -6,7 +6,7 @@
  * 制限: プライベートモードや容量制限で書き込みが失敗しうる（呼び出し側で try/catch）。
  */
 
-import { PRESETS, type PresetName } from "./preset-data";
+import { BASE_LOOKS, type BaseLookName } from "./preset-data";
 import { coerceParams } from "./params-codec";
 import type { GradeSlotState, PresentState } from "./components/film-lab-reducer";
 
@@ -25,11 +25,11 @@ export interface FilmLabStoredSessionV1 {
 }
 
 /**
- * オブジェクトが PRESETS のキーかどうか
+ * オブジェクトが BASE_LOOKS のキーかどうか
  * @param value - 検査する値
  */
-function isPresetName(value: unknown): value is PresetName {
-  return typeof value === "string" && value in PRESETS;
+function isBaseLookName(value: unknown): value is BaseLookName {
+  return typeof value === "string" && value in BASE_LOOKS;
 }
 
 /**
@@ -44,7 +44,7 @@ function parseGradeSlot(raw: unknown): GradeSlotState | null {
   // Look Unification: 新 `baseLook` を優先、旧 localStorage の `basePreset` も読む
   const rawBaseLook = o.baseLook ?? o.basePreset;
   const baseLook = rawBaseLook === null || rawBaseLook === undefined ? null : rawBaseLook;
-  if (baseLook !== null && !isPresetName(baseLook)) return null;
+  if (baseLook !== null && !isBaseLookName(baseLook)) return null;
   const intensity = o.intensity;
   if (typeof intensity !== "number" || !Number.isFinite(intensity)) return null;
   const clampedIntensity = Math.max(0, Math.min(1, intensity));

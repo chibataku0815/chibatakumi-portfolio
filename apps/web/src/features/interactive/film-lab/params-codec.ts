@@ -1,4 +1,4 @@
-import { PRESETS } from "./preset-data";
+import { BASE_LOOKS } from "./preset-data";
 import { PARAM_KEYS, type Params } from "./types";
 
 function encodeBase64(value: string): string {
@@ -28,7 +28,7 @@ export function coerceParams(value: unknown): Params | null {
   if (!value || typeof value !== "object") return null;
 
   const candidate = value as Record<string, unknown>;
-  const params: Params = { ...PRESETS.reset };
+  const params: Params = { ...BASE_LOOKS.reset };
   let found = false;
 
   for (const key of PARAM_KEYS) {

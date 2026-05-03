@@ -9,7 +9,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { findMatchingPreset, type PresetName } from "film-lab-core";
+import { findMatchingBaseLook, type BaseLookName } from "film-lab-core";
 import {
   isFilmLabDonationDebugEnabled,
   filmLabDonationDebugLog,
@@ -35,11 +35,11 @@ interface FilmLabBrowserStorageSectionProps {
   dispatch: React.Dispatch<Action>;
   savedBloomStrength: number;
   savedHalationIntensity: number;
-  /** 復元後にプリセット表示・Bloom 記憶を揃える */
+  /** 復元後に Base Look 表示・Bloom 記憶を揃える */
   onAfterRestore: (payload: {
     savedBloomStrength: number;
     savedHalationIntensity: number;
-    activePreset: PresetName;
+    activePreset: BaseLookName;
   }) => void;
   /** 「このブラウザに保存」が成功した直後（任意寄付モーダル用） */
   onSaveSuccess?: () => void;
@@ -48,12 +48,12 @@ interface FilmLabBrowserStorageSectionProps {
 type FeedbackKind = "idle" | "saved" | "loaded" | "cleared" | "error";
 
 /**
- * 復元した盤面からプリセットバー用ラベルを推定する
+ * 復元した盤面から Base Look バー用ラベルを推定する
  * @param present - A/B スロットを含む盤面
  */
-function presetHintFromPresent(present: PresentState): PresetName {
+function presetHintFromPresent(present: PresentState): BaseLookName {
   const slot = present.activeSlot === "A" ? present.slotA : present.slotB;
-  return slot.baseLook ?? findMatchingPreset(slot.params) ?? "reset";
+  return slot.baseLook ?? findMatchingBaseLook(slot.params) ?? "reset";
 }
 
 export function FilmLabBrowserStorageSection({

@@ -12,7 +12,7 @@
 
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import { findMatchingPreset, type PresetName } from "film-lab-core";
+import { findMatchingBaseLook, type BaseLookName } from "film-lab-core";
 import { ImageResponse } from "next/og";
 import { decodeSharedParamP } from "@/features/interactive/film-lab/params-codec";
 import type { Params } from "@/features/interactive/film-lab/types";
@@ -80,10 +80,10 @@ async function loadNotoSansJpWoff(weightKey: keyof typeof NOTO_FILES): Promise<A
 }
 
 /**
- * OGP 上でプリセット名を短く読みやすくする（messages と完全一致は不要）。
- * @param name - プリセット ID
+ * OGP 上で Base Look 名を短く読みやすくする（messages と完全一致は不要）。
+ * @param name - Base Look ID
  */
-function formatPresetLabel(name: PresetName): string {
+function formatPresetLabel(name: BaseLookName): string {
   switch (name) {
     case "gold200":
       return "Gold 200";
@@ -118,10 +118,10 @@ async function buildOgImageResponse(
   heroImageUrl: string,
 ): Promise<ImageResponse> {
   const isJa = locale === "ja";
-  const matched = decoded ? findMatchingPreset(decoded) : null;
+  const matched = decoded ? findMatchingBaseLook(decoded) : null;
   const headline = decoded
     ? matched
-      ? `Preset · ${formatPresetLabel(matched)}`
+      ? `Look · ${formatPresetLabel(matched)}`
       : "Custom grade"
     : null;
   const sub = decoded
