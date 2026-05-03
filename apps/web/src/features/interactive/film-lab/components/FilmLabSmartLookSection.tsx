@@ -9,7 +9,7 @@
 import { useCallback, useRef, useState, type RefObject } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import type { FilmLabCanvasRef } from "./FilmLabCanvas";
-import type { PresetName } from "../preset-data";
+import type { BaseLookName } from "../preset-data";
 import type { Params } from "../types";
 import type { Action, GradeSlotState } from "./film-lab-reducer";
 import {
@@ -35,7 +35,7 @@ export type FilmLabSmartLookSectionProps = {
   /** @description Stripe 検証済み Cookie がサーバーで true のときのみ true */
   serverVerifiedSupporter: boolean;
   filmLabCanvasRef: RefObject<FilmLabCanvasRef | null>;
-  activePreset: PresetName;
+  activePreset: BaseLookName;
   activeSlotState: GradeSlotState;
   dispatch: (a: Action) => void;
   /**
