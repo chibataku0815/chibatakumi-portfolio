@@ -4,7 +4,7 @@
  * @file Web 版 ControlPanel — FilmLabControlPanelCore の薄いラッパー。
  *
  * Core（film-lab-ui）が reducer・スライダー・Compare・キーボードショートカット等
- * すべてのコア UI を提供し、Web 固有のセクション（BrowserStorage / SmartLook / Share）は
+ * すべてのコア UI を提供し、Web 固有のセクション（BrowserStorage / Share）は
  * Core の render-prop slots に差し込む。
  *
  * Desktop の ControlPanel との構造的パリティを保ち、重複 UI（Open/Save/Histogram ツールバー等）
@@ -30,16 +30,12 @@ import {
 } from "film-lab-ui";
 import { findMatchingPreset, type PresetName } from "film-lab-core";
 import type { Viewport } from "../core/Viewport";
-import {
-  filmLabShareUiEnabled,
-  filmLabSmartLookUiEnabled,
-} from "../feature-flags";
+import { filmLabShareUiEnabled } from "../feature-flags";
 import { loadFilmLabStoredSession } from "../film-lab-browser-storage";
 import type { Params } from "../types";
 import { FilmLabBrowserStorageSection } from "./FilmLabBrowserStorageSection";
 import { FilmLabShareSection } from "./FilmLabShareSection";
 import type { FilmLabCanvasRef } from "./FilmLabCanvas";
-import { FilmLabSmartLookSection } from "./FilmLabSmartLookSection";
 
 export type { FilmLabCoreRef, FilmLabDonationUiBinding };
 
@@ -59,7 +55,6 @@ interface ControlPanelProps {
   onBrowserSaveSuccess?: () => void;
   serverVerifiedSupporter?: boolean;
   filmLabCanvasRef?: RefObject<FilmLabCanvasRef | null>;
-  smartLookApiBaseUrl?: string;
   autoRestoreStoredSession?: boolean;
   tryFirstLayout?: boolean;
   /** @description ユーザー動画プレビュー中は Space を再生トグルへ回す（life#75） */
@@ -79,7 +74,6 @@ export const ControlPanel = forwardRef<FilmLabCoreRef, ControlPanelProps>(functi
   onBrowserSaveSuccess,
   serverVerifiedSupporter = false,
   filmLabCanvasRef,
-  smartLookApiBaseUrl,
   autoRestoreStoredSession = true,
   tryFirstLayout = false,
   canvasHasUserVideo = false,
@@ -102,51 +96,16 @@ export const ControlPanel = forwardRef<FilmLabCoreRef, ControlPanelProps>(functi
     setAuxPanelsOpen(true);
   }, [tryFirstLayout]);
 
-  /* Smart Look の可視判定 */
-  const smartLookPathOk =
-    (pathname.includes("/filmtone") || pathname.includes("/film-lab")) && !pathname.includes("/support");
-  const smartLookHasDesktopBff =
-    typeof smartLookApiBaseUrl === "string" &&
-    smartLookApiBaseUrl.trim().length > 0;
-  const smartLookSlotAllowed =
-    filmLabSmartLookUiEnabled &&
-    filmLabCanvasRef != null &&
-    (smartLookPathOk || smartLookHasDesktopBff);
-  const smartLookProminent = smartLookHasDesktopBff;
-
   /* ── render-prop: Looks 直後 ─────────────────────────────── */
   const renderAfterLooks = useCallback(
     (ctx: FilmLabCoreRenderContext) => (
-      <>
-        {/* Auto-restore: renderAfterLooks は常に描画されるため確実に発火 */}
-        <WebSessionAutoRestore
-          ctx={ctx}
-          initialSharedParams={initialSharedParams}
-          autoRestore={autoRestoreStoredSession}
-        />
-        {smartLookSlotAllowed && smartLookProminent ? (
-          <div className="mb-4 min-w-0 border-b border-white/[0.06] pb-4">
-            <FilmLabSmartLookSection
-              serverVerifiedSupporter={serverVerifiedSupporter}
-              filmLabCanvasRef={filmLabCanvasRef!}
-              activePreset={ctx.activeBaseLook}
-              activeSlotState={ctx.activeSlotState}
-              dispatch={ctx.dispatch}
-              smartLookApiBaseUrl={smartLookApiBaseUrl}
-            />
-          </div>
-        ) : null}
-      </>
+      <WebSessionAutoRestore
+        ctx={ctx}
+        initialSharedParams={initialSharedParams}
+        autoRestore={autoRestoreStoredSession}
+      />
     ),
-    [
-      initialSharedParams,
-      autoRestoreStoredSession,
-      smartLookSlotAllowed,
-      smartLookProminent,
-      serverVerifiedSupporter,
-      filmLabCanvasRef,
-      smartLookApiBaseUrl,
-    ],
+    [initialSharedParams, autoRestoreStoredSession],
   );
 
   /* ── render-prop: LUT 直後 ─────────────────────────────────── */
@@ -165,16 +124,6 @@ export const ControlPanel = forwardRef<FilmLabCoreRef, ControlPanelProps>(functi
           }}
           onSaveSuccess={onBrowserSaveSuccess}
         />
-        {smartLookSlotAllowed && !smartLookProminent ? (
-          <FilmLabSmartLookSection
-            serverVerifiedSupporter={serverVerifiedSupporter}
-            filmLabCanvasRef={filmLabCanvasRef!}
-            activePreset={ctx.activeBaseLook}
-            activeSlotState={ctx.activeSlotState}
-            dispatch={ctx.dispatch}
-            smartLookApiBaseUrl={smartLookApiBaseUrl}
-          />
-        ) : null}
         {filmLabShareUiEnabled ? (
           <FilmLabShareSection
             pathname={pathname}
@@ -183,15 +132,7 @@ export const ControlPanel = forwardRef<FilmLabCoreRef, ControlPanelProps>(functi
         ) : null}
       </>
     ),
-    [
-      onBrowserSaveSuccess,
-      smartLookSlotAllowed,
-      smartLookProminent,
-      serverVerifiedSupporter,
-      filmLabCanvasRef,
-      smartLookApiBaseUrl,
-      pathname,
-    ],
+    [onBrowserSaveSuccess, pathname],
   );
 
   /* ── LP Expand Button ──────────────────────────────────────── */
