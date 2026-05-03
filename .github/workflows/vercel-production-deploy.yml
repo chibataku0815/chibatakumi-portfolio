@@ -21,11 +21,22 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository and private submodules
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          submodules: recursive
-          ssh-key: ${{ secrets.FILMTONE_SUBMODULE_SSH_KEY }}
+          submodules: false
+
+      - name: Checkout private Filmtone submodule
+        env:
+          FILMTONE_SUBMODULE_SSH_KEY: ${{ secrets.FILMTONE_SUBMODULE_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$FILMTONE_SUBMODULE_SSH_KEY" > ~/.ssh/filmtone_submodule
+          chmod 600 ~/.ssh/filmtone_submodule
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          git config submodule.vendor/filmtone.url git@github.com:chibataku0815/filmtone.git
+          GIT_SSH_COMMAND='ssh -i ~/.ssh/filmtone_submodule -o IdentitiesOnly=yes' git submodule update --init --recursive vendor/filmtone
 
       - name: Set up Bun
         uses: oven-sh/setup-bun@v2
