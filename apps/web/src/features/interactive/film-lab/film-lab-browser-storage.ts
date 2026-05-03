@@ -41,14 +41,16 @@ function parseGradeSlot(raw: unknown): GradeSlotState | null {
   const o = raw as Record<string, unknown>;
   const params = coerceParams(o.params);
   if (!params) return null;
-  const basePreset = o.basePreset === null || o.basePreset === undefined ? null : o.basePreset;
-  if (basePreset !== null && !isPresetName(basePreset)) return null;
+  // Look Unification: 新 `baseLook` を優先、旧 localStorage の `basePreset` も読む
+  const rawBaseLook = o.baseLook ?? o.basePreset;
+  const baseLook = rawBaseLook === null || rawBaseLook === undefined ? null : rawBaseLook;
+  if (baseLook !== null && !isPresetName(baseLook)) return null;
   const intensity = o.intensity;
   if (typeof intensity !== "number" || !Number.isFinite(intensity)) return null;
   const clampedIntensity = Math.max(0, Math.min(1, intensity));
   return {
     params,
-    basePreset,
+    baseLook,
     intensity: clampedIntensity,
   };
 }

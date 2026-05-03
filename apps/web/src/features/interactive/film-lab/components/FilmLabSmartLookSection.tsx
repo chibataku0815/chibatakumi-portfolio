@@ -154,7 +154,7 @@ export function FilmLabSmartLookSection({
           consentVersion: SMART_LOOK_CONSENT_VERSION,
           consentAcknowledged: true as const,
           currentGrade: activeSlotState.params,
-          basePreset: activeSlotState.basePreset,
+          basePreset: activeSlotState.baseLook,
           intensity: activeSlotState.intensity,
           referenceImageBase64: referenceJpegBase64,
           referenceMimeType: "image/jpeg" as const,
@@ -232,15 +232,15 @@ export function FilmLabSmartLookSection({
 
       const mergeBase = computeSmartLookPresetBaseline({
         targetPresetId: activePreset,
-        slotBasePreset: activeSlotState.basePreset,
+        slotBasePreset: activeSlotState.baseLook,
         slotIntensity: activeSlotState.intensity,
       });
       const merged = applySmartLookDelta(mergeBase, delta);
-      const alignedToTargetPreset = activeSlotState.basePreset === activePreset;
+      const alignedToTargetPreset = activeSlotState.baseLook === activePreset;
       dispatch({
         type: "APPLY_PARAMS",
         params: merged,
-        basePreset: activePreset,
+        baseLook: activePreset,
         intensity: alignedToTargetPreset ? activeSlotState.intensity : 1,
       });
 
@@ -268,7 +268,7 @@ export function FilmLabSmartLookSection({
     }
   }, [
     activePreset,
-    activeSlotState.basePreset,
+    activeSlotState.baseLook,
     activeSlotState.intensity,
     activeSlotState.params,
     consentChecked,
