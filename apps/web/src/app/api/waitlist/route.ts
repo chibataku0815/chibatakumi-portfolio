@@ -1,8 +1,7 @@
 /**
  * @file POST /api/waitlist — Filmtone Signature Pack waitlist signup.
  * @description Stores email in Vercel KV. Deduplicated by lowercase email.
- *   Wave 2 D5.2: 旧 `/api/film-lab/waitlist` の本体ロジックを移管。alias は `/api/film-lab/waitlist/route.ts`
- *   に re-export shim を残し、既存リンク・キャッシュ済みフェッチを silently 維持する。
+ *   Wave 2 D5.2 で旧 `/api/film-lab/waitlist` から本体ロジックを移管。alias shim は撤去済み。
  * @limitations Requires KV_REST_API_URL and KV_REST_API_TOKEN envs. No PII in response.
  */
 
