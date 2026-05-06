@@ -114,11 +114,11 @@ export const ControlPanel = forwardRef<FilmLabCoreRef, ControlPanelProps>(functi
     (smartLookPathOk || smartLookHasDesktopBff);
   const smartLookProminent = smartLookHasDesktopBff;
 
-  /* ── render-prop: Looks 直後 ─────────────────────────────── */
-  const renderAfterLooks = useCallback(
+  /* ── render-prop: Presets 直後 ───────────────────────────── */
+  const renderAfterPresets = useCallback(
     (ctx: FilmLabCoreRenderContext) => (
       <>
-        {/* Auto-restore: renderAfterLooks は常に描画されるため確実に発火 */}
+        {/* Auto-restore: renderAfterPresets は常に描画されるため確実に発火 */}
         <WebSessionAutoRestore
           ctx={ctx}
           initialSharedParams={initialSharedParams}
@@ -129,7 +129,7 @@ export const ControlPanel = forwardRef<FilmLabCoreRef, ControlPanelProps>(functi
             <FilmLabSmartLookSection
               serverVerifiedSupporter={serverVerifiedSupporter}
               filmLabCanvasRef={filmLabCanvasRef!}
-              activePreset={ctx.activeBaseLook}
+              activePreset={ctx.activePreset}
               activeSlotState={ctx.activeSlotState}
               dispatch={ctx.dispatch}
               smartLookApiBaseUrl={smartLookApiBaseUrl}
@@ -161,7 +161,7 @@ export const ControlPanel = forwardRef<FilmLabCoreRef, ControlPanelProps>(functi
           onAfterRestore={(payload) => {
             ctx.setSavedBloomStrength(payload.savedBloomStrength);
             ctx.setSavedHalationIntensity(payload.savedHalationIntensity);
-            ctx.setActiveBaseLook(payload.activePreset);
+            ctx.setActivePreset(payload.activePreset);
           }}
           onSaveSuccess={onBrowserSaveSuccess}
         />
@@ -169,7 +169,7 @@ export const ControlPanel = forwardRef<FilmLabCoreRef, ControlPanelProps>(functi
           <FilmLabSmartLookSection
             serverVerifiedSupporter={serverVerifiedSupporter}
             filmLabCanvasRef={filmLabCanvasRef!}
-            activePreset={ctx.activeBaseLook}
+            activePreset={ctx.activePreset}
             activeSlotState={ctx.activeSlotState}
             dispatch={ctx.dispatch}
             smartLookApiBaseUrl={smartLookApiBaseUrl}
@@ -227,7 +227,7 @@ export const ControlPanel = forwardRef<FilmLabCoreRef, ControlPanelProps>(functi
         donationUi,
         hideAuxPanels: tryFirstLayout && !auxPanelsOpen,
         lpExpandButton,
-        renderAfterLooks,
+        renderAfterPresets,
         renderAfterLut,
       }}
     />
@@ -261,8 +261,8 @@ function WebSessionAutoRestore({
         present: session.present,
         savedBloomStrength: session.savedBloomStrength,
         savedHalationIntensity: session.savedHalationIntensity,
-        activeBaseLook:
-          slot.baseLook ??
+        activePreset:
+          slot.basePreset ??
           (findMatchingPreset(slot.params) as PresetName) ??
           "reset",
       });

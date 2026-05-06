@@ -53,7 +53,7 @@ type FeedbackKind = "idle" | "saved" | "loaded" | "cleared" | "error";
  */
 function presetHintFromPresent(present: PresentState): PresetName {
   const slot = present.activeSlot === "A" ? present.slotA : present.slotB;
-  return slot.baseLook ?? findMatchingPreset(slot.params) ?? "reset";
+  return slot.basePreset ?? findMatchingPreset(slot.params) ?? "reset";
 }
 
 export function FilmLabBrowserStorageSection({
