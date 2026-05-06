@@ -39,8 +39,6 @@ const FLAT_TOP_WIDTH = 90; // A apex flat width
 const CROSSBAR_SHORTEN = 6; // A crossbar shortening per side
 const H_OPTICAL_OFFSET = 8; // H crossbar raise from math center
 const T_EXTEND = 4; // T crossbar extension per side
-const K_GAP = 26; // K junction gap
-const TERMINAL_ANGLE = 30; // degrees for terminal cuts
 const TERMINAL_CUT_DEPTH = 18; // how deep the 30° cut goes
 
 // ─── Helpers ────────────────────────────────────────────────────────────────

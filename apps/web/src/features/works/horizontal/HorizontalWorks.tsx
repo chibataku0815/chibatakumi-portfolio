@@ -112,6 +112,7 @@ export function HorizontalWorks() {
   const [completedSections, setCompletedSections] = useState<Set<number>>(
     new Set()
   );
+  const [isNavReady, setIsNavReady] = useState(false);
 
   const resetPanelVisualState = useCallback((panelData: PanelData) => {
     setGhostOpacity(panelData.titleChars, TITLE_GHOST_OPACITY);
@@ -188,6 +189,8 @@ export function HorizontalWorks() {
   }, [resetPanelVisualState]);
 
   const cleanupAnimations = useCallback(() => {
+    setIsNavReady(false);
+
     if (scrollTriggerRef.current) {
       scrollTriggerRef.current.kill();
       scrollTriggerRef.current = null;
@@ -448,6 +451,7 @@ export function HorizontalWorks() {
         }
       },
     });
+    setIsNavReady(true);
   }, [
     buildPanelData,
     cleanupAnimations,
@@ -490,8 +494,6 @@ export function HorizontalWorks() {
       ctx.revert();
     };
   }, [cleanupAnimations, initAnimations]);
-
-  const isNavReady = Boolean(scrollTriggerRef.current);
 
   return (
     <div

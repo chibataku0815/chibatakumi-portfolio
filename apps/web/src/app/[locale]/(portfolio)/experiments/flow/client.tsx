@@ -39,7 +39,11 @@ export default function ExperimentsFlowClient() {
     if (!canvas || !overlay) return;
 
     if (typeof navigator === "undefined" || !("gpu" in navigator)) {
-      setStatus({ kind: "unsupported" });
+      queueMicrotask(() => {
+        if (!cancelled) {
+          setStatus({ kind: "unsupported" });
+        }
+      });
       return;
     }
 

@@ -63,7 +63,7 @@
 
 import { useRef, useMemo, useCallback } from "react";
 import * as THREE from "three";
-import { useFrame, useThree } from "@react-three/fiber";
+import { useFrame } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
 import gsap from "gsap";
 import { distortionVertex, distortionFragment } from "../shader/distortion";

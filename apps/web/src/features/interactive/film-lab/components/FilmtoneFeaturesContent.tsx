@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import {
@@ -254,10 +255,13 @@ export function FilmtoneFeaturesContent() {
               className="inline-flex items-center justify-start transition-opacity hover:opacity-90"
               aria-label={t("ctaIosLabel")}
             >
-              <img
+              <Image
                 src={appStoreBadgeSrc}
                 alt={t("ctaIosLabel")}
+                width={144}
+                height={48}
                 className="h-12"
+                unoptimized
               />
             </a>
             <p className="text-xs text-white/45">

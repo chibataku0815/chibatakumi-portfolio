@@ -1,11 +1,11 @@
 "use client";
 
 import {
+  useCallback,
   useEffect,
   useId,
   useRef,
   useState,
-  type MutableRefObject,
 } from "react";
 import { useReducedMotion } from "motion/react";
 import { signalStrokeRelayFixtures } from "./fixtures";
@@ -16,7 +16,6 @@ import {
 } from "./signal-stroke-relay.evaluator";
 import { signalStrokeRelayConfig } from "./signal-stroke-relay.config";
 import {
-  ensureSignalStrokeRelayStudio,
   getSignalStrokeRelayAuthoringDefaults,
   hideSignalStrokeRelayStudio,
   showSignalStrokeRelayStudio,
@@ -32,7 +31,8 @@ import {
   type SvgMetricMap,
 } from "./svg-metrics";
 
-type PathRefMap = MutableRefObject<Record<string, SVGPathElement | null>>;
+type PathId = "lead" | "icon" | "underline";
+type PathElements = Record<PathId, SVGPathElement | null>;
 
 type SignalStrokeRelaySurfaceProps = {
   autoPlay?: boolean;
@@ -40,10 +40,15 @@ type SignalStrokeRelaySurfaceProps = {
   frameOverride?: number | null;
 };
 
-function createPathRefSetter(pathRefs: PathRefMap, pathId: string) {
-  return (node: SVGPathElement | null) => {
-    pathRefs.current[pathId] = node;
-  };
+function setPathElement(
+  current: PathElements,
+  pathId: PathId,
+  node: SVGPathElement | null,
+): PathElements {
+  if (current[pathId] === node) {
+    return current;
+  }
+  return { ...current, [pathId]: node };
 }
 
 export function SignalStrokeRelaySurface({
@@ -55,11 +60,20 @@ export function SignalStrokeRelaySurface({
   const prefersReducedMotion = useReducedMotion();
   const shouldReduceMotion = Boolean(prefersReducedMotion);
   const clipId = useId();
-  const pathRefs = useRef<Record<string, SVGPathElement | null>>({
+  const [pathElements, setPathElements] = useState<PathElements>({
     lead: null,
     icon: null,
     underline: null,
   });
+  const setLeadPathElement = useCallback((node: SVGPathElement | null) => {
+    setPathElements((current) => setPathElement(current, "lead", node));
+  }, []);
+  const setIconPathElement = useCallback((node: SVGPathElement | null) => {
+    setPathElements((current) => setPathElement(current, "icon", node));
+  }, []);
+  const setUnderlinePathElement = useCallback((node: SVGPathElement | null) => {
+    setPathElements((current) => setPathElement(current, "underline", node));
+  }, []);
   const titleRef = useRef<SVGTextElement | null>(null);
   const syncLockRef = useRef(false);
   const authoringRef = useRef(getSignalStrokeRelayAuthoringDefaults());
@@ -79,11 +93,13 @@ export function SignalStrokeRelaySurface({
     signalStrokeRelayFixtures.titleWidth,
   );
 
-  authoringRef.current = authoring;
+  useEffect(() => {
+    authoringRef.current = authoring;
+  }, [authoring]);
 
   useEffect(() => {
     const updateMeasurements = () => {
-      setMetrics(measureSvgPaths(pathRefs.current));
+      setMetrics(measureSvgPaths(pathElements));
 
       if (titleRef.current) {
         const bounds = titleRef.current.getBBox();
@@ -94,7 +110,7 @@ export function SignalStrokeRelaySurface({
     updateMeasurements();
     const rafId = requestAnimationFrame(updateMeasurements);
     return () => cancelAnimationFrame(rafId);
-  }, [authoring.title.trackingEm]);
+  }, [authoring.title.trackingEm, pathElements]);
 
   useEffect(() => {
     let mounted = true;
@@ -144,10 +160,19 @@ export function SignalStrokeRelaySurface({
       return;
     }
 
+    let cancelled = false;
     playbackBaseFrameRef.current = frameOverride;
     playbackStartTimeRef.current = null;
-    setFrame(frameOverride);
-    setIsPaused(true);
+    queueMicrotask(() => {
+      if (cancelled) {
+        return;
+      }
+      setFrame(frameOverride);
+      setIsPaused(true);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [frameOverride]);
 
   useEffect(() => {
@@ -155,11 +180,20 @@ export function SignalStrokeRelaySurface({
       return;
     }
 
+    let cancelled = false;
     const payoffFrame = getSignalStrokeRelayPayoffFrame(authoring);
     playbackBaseFrameRef.current = payoffFrame;
     playbackStartTimeRef.current = null;
-    setFrame(payoffFrame);
-    setIsPaused(true);
+    queueMicrotask(() => {
+      if (cancelled) {
+        return;
+      }
+      setFrame(payoffFrame);
+      setIsPaused(true);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [authoring, shouldReduceMotion]);
 
   useEffect(() => {
@@ -215,12 +249,10 @@ export function SignalStrokeRelaySurface({
   const underlineStyles = trimStrokeStyles(metrics.underline, frameState.underlineTrim);
 
   const leadHeadPoint =
-    pointAtPath(pathRefs.current.lead, metrics.lead, frameState.leadHeadT) ??
+    pointAtPath(pathElements.lead, metrics.lead, frameState.leadHeadT) ??
     signalStrokeRelayFixtures.anchors["lead-exit"];
   const batonPoint = resolveMatchCutAnchorPoint(frameState.baton);
   const iconCenter = signalStrokeRelayFixtures.anchors["icon-center"];
-  const pathRefSetter = (pathId: "lead" | "icon" | "underline") =>
-    createPathRefSetter(pathRefs, pathId);
 
   const handleTogglePlayback = () => {
     if (captureMode || frameOverride !== null || shouldReduceMotion) {
@@ -405,7 +437,7 @@ export function SignalStrokeRelaySurface({
 
           <g opacity={frameState.sceneOpacity}>
             <path
-              ref={pathRefSetter("lead")}
+              ref={setLeadPathElement}
               d={signalStrokeRelayFixtures.paths.lead}
               fill="none"
               stroke={`url(#${clipId}-signal-accent)`}
@@ -429,7 +461,7 @@ export function SignalStrokeRelaySurface({
             />
 
             <path
-              ref={pathRefSetter("icon")}
+              ref={setIconPathElement}
               d={signalStrokeRelayFixtures.paths.icon}
               fill="none"
               stroke={signalStrokeRelayConfig.palette.anchor}
@@ -488,7 +520,7 @@ export function SignalStrokeRelaySurface({
             </g>
 
             <path
-              ref={pathRefSetter("underline")}
+              ref={setUnderlinePathElement}
               d={signalStrokeRelayFixtures.paths.underline}
               fill="none"
               stroke={signalStrokeRelayConfig.palette.underline}

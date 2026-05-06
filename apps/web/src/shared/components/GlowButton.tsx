@@ -33,10 +33,17 @@ export function GlowButton({
   const buttonRef = useRef<HTMLAnchorElement>(null);
   const boundingRef = useRef<DOMRect | null>(null);
   const [isHovered, setIsHovered] = useState(false);
-  const [canHover, setCanHover] = useState(false);
+  const [canHover, setCanHover] = useState(() =>
+    typeof window === "undefined" ? false : window.matchMedia("(pointer: fine)").matches
+  );
 
   useEffect(() => {
-    setCanHover(window.matchMedia("(pointer: fine)").matches);
+    const pointerFineQuery = window.matchMedia("(pointer: fine)");
+    const updateCanHover = () => setCanHover(pointerFineQuery.matches);
+    pointerFineQuery.addEventListener("change", updateCanHover);
+    return () => {
+      pointerFineQuery.removeEventListener("change", updateCanHover);
+    };
   }, []);
 
   // Magnetic hover effect

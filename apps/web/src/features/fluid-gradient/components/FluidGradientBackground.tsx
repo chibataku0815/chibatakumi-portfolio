@@ -55,8 +55,8 @@ export function FluidGradientBackground({ className, config: overrides, fadeIn =
       format: THREE.RGBAFormat,
       type: THREE.FloatType,
     };
-    let fluidTarget1 = new THREE.WebGLRenderTarget(width, height, targetOptions);
-    let fluidTarget2 = new THREE.WebGLRenderTarget(width, height, targetOptions);
+    const fluidTarget1 = new THREE.WebGLRenderTarget(width, height, targetOptions);
+    const fluidTarget2 = new THREE.WebGLRenderTarget(width, height, targetOptions);
     let currentTarget = fluidTarget1;
     let previousTarget = fluidTarget2;
 
@@ -203,7 +203,7 @@ export function FluidGradientBackground({ className, config: overrides, fadeIn =
       }
       displayMaterialRef.current = null;
     };
-  }, []);
+  }, [overrides]);
 
   // FadeIn effect for transition
   useEffect(() => {

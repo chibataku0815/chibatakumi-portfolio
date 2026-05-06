@@ -10,7 +10,6 @@ import { useCallback, useRef, useState, type RefObject } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import type { FilmLabCanvasRef } from "./FilmLabCanvas";
 import type { PresetName } from "../preset-data";
-import type { Params } from "../types";
 import type { Action, GradeSlotState } from "./film-lab-reducer";
 import {
   FILM_LAB_SMART_LOOK_ERROR_CODES,

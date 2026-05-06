@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { AnimatedHeading } from "@/shared/components";
 import {
   FluidGradientBackground,
@@ -94,9 +95,16 @@ export function SkillSection({ skill, index, setRef, onHoverStart, onHoverEnd }:
   const pattern = getLayoutPattern(index);
 
   // モバイル判定（pointer: coarse では無効化）
-  const [canHover, setCanHover] = useState(true);
+  const [canHover, setCanHover] = useState(() =>
+    typeof window === "undefined" ? false : window.matchMedia("(pointer: fine)").matches
+  );
   useEffect(() => {
-    setCanHover(window.matchMedia("(pointer: fine)").matches);
+    const pointerFineQuery = window.matchMedia("(pointer: fine)");
+    const updateCanHover = () => setCanHover(pointerFineQuery.matches);
+    pointerFineQuery.addEventListener("change", updateCanHover);
+    return () => {
+      pointerFineQuery.removeEventListener("change", updateCanHover);
+    };
   }, []);
 
   const handleMouseEnter = useCallback(() => {
@@ -217,9 +225,11 @@ function PatternA({ skill }: { skill: WorkItem }) {
       {/* Right: Image */}
       {skill.media?.type === "image" && (
         <div className="skill-image relative aspect-[4/5] overflow-hidden rounded-[var(--radius-panel)] border border-[var(--stroke-subtle)] shadow-[var(--shadow-elev-2)]">
-          <img
+          <Image
             src={skill.media.src}
             alt={skill.media.alt ?? skill.title}
+            fill
+            sizes="(min-width: 768px) 40vw, 100vw"
             className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
           />
           <div className="absolute bottom-4 left-4 rounded bg-black/70 px-3 py-1 text-xs font-mono uppercase tracking-wider text-white/80">
@@ -238,9 +248,11 @@ function PatternB({ skill }: { skill: WorkItem }) {
       {/* Left: Image */}
       {skill.media?.type === "image" && (
         <div className="skill-image relative aspect-[4/5] overflow-hidden rounded-[var(--radius-panel)] border border-[var(--stroke-subtle)] shadow-[var(--shadow-elev-2)]">
-          <img
+          <Image
             src={skill.media.src}
             alt={skill.media.alt ?? skill.title}
+            fill
+            sizes="(min-width: 768px) 40vw, 100vw"
             className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
           />
           <div className="absolute bottom-4 right-4 rounded bg-black/70 px-3 py-1 text-xs font-mono uppercase tracking-wider text-white/80">
@@ -316,9 +328,11 @@ function PatternC({ skill }: { skill: WorkItem }) {
         {/* Left: Image */}
         {skill.media?.type === "image" && (
           <div className="skill-image relative aspect-square overflow-hidden rounded-[var(--radius-panel)] border border-[var(--stroke-subtle)] shadow-[var(--shadow-elev-2)]">
-            <img
+            <Image
               src={skill.media.src}
               alt={skill.media.alt ?? skill.title}
+              fill
+              sizes="(min-width: 768px) 40vw, 100vw"
               className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
             />
           </div>

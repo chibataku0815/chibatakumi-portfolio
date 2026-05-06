@@ -18,7 +18,6 @@ const SCRIPTS_DIR = import.meta.dir;
 const CACHE_DIR = join(SCRIPTS_DIR, ".cache");
 const WEB_DIR = join(SCRIPTS_DIR, "..");
 const PUBLIC_DIR = join(WEB_DIR, "public", "brand");
-const DATA_DIR = join(WEB_DIR, "src", "shared", "data");
 
 interface GlyphData {
   char: string;
@@ -100,23 +99,6 @@ function assembleGroup(
   };
 }
 
-/** Transform from font coords (y-up) to SVG coords (y-down) */
-function fontToSVG(d: string, capHeight: number, overshoot: number): string {
-  // In font coords: baseline at y=0, cap at y=-710, below baseline is y>0
-  // For SVG: we want cap at top (y=overshoot), baseline at bottom
-  // Transform: svgY = -(fontY) + overshoot
-  // But we can achieve this with a transform on the path
-
-  // Parse and transform all Y coordinates
-  // Actually, let's use a group transform in the final SVG
-  // For the path data in portfolio.ts, we need transformed coordinates
-
-  // Simple approach: regex replace Y coordinates
-  // But this is error-prone. Better to work with commands.
-
-  return d; // We'll handle transform at SVG assembly level
-}
-
 // ─── Main ───────────────────────────────────────────────────────────────────
 
 function main() {
@@ -178,27 +160,8 @@ function main() {
 
   const yTransform = 710 + overshoot; // Add this to all font Y coords
 
-  function transformPath(d: string): string {
-    // Transform each command's Y coordinates
-    // Parse the SVG path and adjust Y values
-    return d; // We'll use group-level transform instead
-  }
-
   // For portfolio.ts, we store paths with a group transform
   // For clean SVG files, we'll apply the transform directly to coordinates
-
-  function transformCommands(cmds: PathCommand[]): PathCommand[] {
-    return cmds.map((cmd) => {
-      const out: PathCommand = { type: cmd.type };
-      if (cmd.x !== undefined) out.x = cmd.x;
-      if (cmd.y !== undefined) out.y = cmd.y + yTransform;
-      if (cmd.x1 !== undefined) out.x1 = cmd.x1;
-      if (cmd.y1 !== undefined) out.y1 = cmd.y1 + yTransform;
-      if (cmd.x2 !== undefined) out.x2 = cmd.x2;
-      if (cmd.y2 !== undefined) out.y2 = cmd.y2 + yTransform;
-      return out;
-    });
-  }
 
   // Re-assemble with SVG Y coordinates
   const svgPrimary = assembleGroupSVG(
@@ -334,8 +297,6 @@ function generateLockupSVG(data: {
   const symbolX = (totalWidth - symbolSize) / 2;
   const wordmarkX = (totalWidth - data.width) / 2;
   const wordmarkY = symbolSize + gap;
-
-  const [, , vbW, vbH] = data.viewBox.split(" ").map(Number);
 
   const primaryPathEls = data.primaryPaths
     .map((d) => `      <path d="${d}"/>`)

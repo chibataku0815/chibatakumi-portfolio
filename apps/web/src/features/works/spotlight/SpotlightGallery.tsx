@@ -229,6 +229,7 @@ export function SpotlightGallery() {
     };
 
     window.addEventListener("resize", handleResize);
+    const section = sectionRef.current;
 
     return () => {
       ctx.revert();
@@ -237,7 +238,7 @@ export function SpotlightGallery() {
         scrollTriggerRef.current.kill();
       }
       ScrollTrigger.getAll().forEach((st) => {
-        if (st.vars.trigger === sectionRef.current) {
+        if (st.vars.trigger === section) {
           st.kill();
         }
       });

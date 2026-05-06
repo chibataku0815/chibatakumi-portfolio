@@ -10,6 +10,13 @@ import {
 import { ReactNode, useCallback, useState } from "react";
 
 const BASE_BG = "#0b0b0b";
+const PROFILE_FLUID_CONFIG = {
+  ...fluidConfigMonochrome,
+  brushStrength: 0.25,
+  distortionAmount: 0.12,
+  colorIntensity: 0.35,
+  softness: 0.85,
+};
 
 function getCanHover() {
   return typeof window === "undefined"
@@ -115,13 +122,7 @@ export function ProfileBackground({ accentColor }: ProfileBackgroundProps) {
     <div className="pointer-events-none fixed inset-0 -z-[5]">
       <FluidGradientBackground
         className="h-full w-full"
-        config={{
-          ...fluidConfigMonochrome,
-          brushStrength: 0.25,
-          distortionAmount: 0.12,
-          colorIntensity: 0.35,
-          softness: 0.85,
-        }}
+        config={PROFILE_FLUID_CONFIG}
         fadeIn={true}
         accentColor={accentColor}
       />

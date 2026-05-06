@@ -115,7 +115,6 @@ export function LiquidGlassProvider({
   const registerSurface = useCallback(
     (element: HTMLElement, options: LiquidGlassSurfaceOptions) => {
       surfacesRef.current.set(options.id, { element, options });
-      // eslint-disable-next-line no-console
       console.info(
         `[LiquidGlass] register id=${options.id} kind=${options.kind ?? "rail"} radius=${options.radius ?? 24} total=${surfacesRef.current.size}`,
       );
@@ -123,7 +122,6 @@ export function LiquidGlassProvider({
         const current = surfacesRef.current.get(options.id);
         if (current?.element === element) {
           surfacesRef.current.delete(options.id);
-          // eslint-disable-next-line no-console
           console.info(
             `[LiquidGlass] unregister id=${options.id} total=${surfacesRef.current.size}`,
           );
@@ -273,7 +271,6 @@ export function LiquidGlassProvider({
         const ids = cachedFrame.surfaces
           .map((s) => `${s.kindId}:${Math.round(s.rect.width)}×${Math.round(s.rect.height)}@${Math.round(s.rect.left)},${Math.round(s.rect.top)}`)
           .join(" | ");
-        // eslint-disable-next-line no-console
         console.info(
           `[LiquidGlass] frame=${frameCounter} surfaces=${cachedFrame.surfaces.length} frontTarget=${frontCanvasRef.current?.getCurrentTarget() != null} | ${ids}`,
         );
@@ -281,7 +278,6 @@ export function LiquidGlassProvider({
     });
 
     activeStage.setComposePass(pass);
-    // eslint-disable-next-line no-console
     console.info(`[LiquidGlass] compose pass installed | format=${format} | surfacesRegistered=${surfacesRef.current.size}`);
 
     return () => {

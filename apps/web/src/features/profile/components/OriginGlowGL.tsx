@@ -39,9 +39,10 @@ function GlowMesh({ progress }: GlowMeshProps) {
 
   // Cleanup
   useEffect(() => {
+    const material = materialRef.current;
     return () => {
-      if (materialRef.current) {
-        materialRef.current.dispose();
+      if (material) {
+        material.dispose();
       }
     };
   }, []);

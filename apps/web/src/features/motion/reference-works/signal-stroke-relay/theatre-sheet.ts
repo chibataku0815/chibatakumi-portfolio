@@ -23,7 +23,8 @@ type SignalStrokeRelayTheatreStore = {
 };
 
 let theatreStore: SignalStrokeRelayTheatreStore | null = null;
-let studioPromise: Promise<any | null> | null = null;
+type SignalStrokeRelayStudio = Awaited<typeof import("@theatre/studio")>["default"];
+let studioPromise: Promise<SignalStrokeRelayStudio | null> | null = null;
 
 const signalStrokeRelayProjectState = {
   sheetsById: {},

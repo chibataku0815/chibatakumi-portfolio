@@ -11,11 +11,15 @@
 // SoundToggle UI. This provider does NOT mount itself anywhere — Wave 2 owns
 // that decision.
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import {
-  GlobalAudioController,
-  type AudioStateListener,
-} from "./GlobalAudioController";
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useSyncExternalStore,
+  type ReactNode,
+} from "react";
+import { GlobalAudioController } from "./GlobalAudioController";
 import type { AudioBus, AudioController, AudioSourceKind } from "./types";
 
 export interface AudioBusContextValue {
@@ -29,27 +33,63 @@ export interface AudioBusContextValue {
 
 const AudioBusContext = createContext<AudioBusContextValue | null>(null);
 
+type AudioSnapshot = {
+  readonly global: GlobalAudioController | null;
+  readonly mute: boolean;
+  readonly version: number;
+};
+
+const SERVER_AUDIO_SNAPSHOT: AudioSnapshot = {
+  global: null,
+  mute: false,
+  version: 0,
+};
+
+let audioSnapshot = SERVER_AUDIO_SNAPSHOT;
+
+function updateAudioSnapshot(global: GlobalAudioController): void {
+  audioSnapshot = {
+    global,
+    mute: global.isMuted(),
+    version: audioSnapshot.version + 1,
+  };
+}
+
+function subscribeAudioSnapshot(listener: () => void): () => void {
+  const global = GlobalAudioController.getInstance();
+  let active = true;
+  const emit = () => {
+    if (!active) return;
+    updateAudioSnapshot(global);
+    listener();
+  };
+  const unsubscribe = global.subscribe(emit);
+  queueMicrotask(emit);
+
+  return () => {
+    active = false;
+    unsubscribe();
+  };
+}
+
+function getAudioSnapshot(): AudioSnapshot {
+  return audioSnapshot;
+}
+
+function getServerAudioSnapshot(): AudioSnapshot {
+  return SERVER_AUDIO_SNAPSHOT;
+}
+
 export interface AudioBusProviderProps {
   readonly children: ReactNode;
 }
 
 export function AudioBusProvider({ children }: AudioBusProviderProps) {
-  // Defer instantiation until client mount so the singleton's localStorage
-  // read in its constructor never runs during SSR.
-  const [global, setGlobal] = useState<GlobalAudioController | null>(null);
-  const [mute, setMuteState] = useState(false);
-
-  useEffect(() => {
-    const inst = GlobalAudioController.getInstance();
-    setGlobal(inst);
-    setMuteState(inst.isMuted());
-
-    const listener: AudioStateListener = () => {
-      setMuteState(inst.isMuted());
-    };
-    const unsubscribe = inst.subscribe(listener);
-    return unsubscribe;
-  }, []);
+  const { global, mute } = useSyncExternalStore(
+    subscribeAudioSnapshot,
+    getAudioSnapshot,
+    getServerAudioSnapshot,
+  );
 
   const setMute = useCallback(
     (value: boolean) => {

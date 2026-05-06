@@ -38,11 +38,6 @@ export type SignalStrokeRelayFrameState = {
   };
 };
 
-type AnchorPoint = {
-  x: number;
-  y: number;
-};
-
 const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
 
 function lerp(start: number, end: number, t: number) {

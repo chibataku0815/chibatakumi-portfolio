@@ -42,8 +42,12 @@ export function FilmtoneSupportThanksClient({ checkoutSessionId }: FilmtoneSuppo
       return;
     }
     let cancelled = false;
-    setVerifyState("pending");
-    setVerifyDiag(null);
+    queueMicrotask(() => {
+      if (!cancelled) {
+        setVerifyState("pending");
+        setVerifyDiag(null);
+      }
+    });
     void (async () => {
       try {
         const res = await fetch("/api/film-lab/donation/verify", {

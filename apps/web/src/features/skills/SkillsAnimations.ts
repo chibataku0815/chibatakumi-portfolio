@@ -84,10 +84,7 @@ export function setInitialState(el: HTMLElement): void {
 /**
  * セクションのエントリーアニメーションを設定
  */
-export function setupSectionEntry(
-  el: HTMLElement,
-  index: number
-): gsap.core.Timeline {
+export function setupSectionEntry(el: HTMLElement): gsap.core.Timeline {
   const config = ANIMATION_CONFIG.entry;
 
   const ghost = el.querySelector<HTMLElement>(".ghost");
@@ -171,7 +168,7 @@ export function setupSectionEntry(
 
     description.innerHTML = text
       .split("")
-      .map((char, i) =>
+      .map((char) =>
         char === " "
           ? " "
           : `<span class="char" style="opacity:0;filter:blur(${config.description.charBlur}px);display:inline-block">${char}</span>`

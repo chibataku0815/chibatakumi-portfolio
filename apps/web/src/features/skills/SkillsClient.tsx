@@ -94,11 +94,11 @@ export default function SkillsClient({ skills }: SkillsClientProps) {
       if (cancelled) return;
 
       ctxRef.current = gsap.context(() => {
-        for (const [index, el] of sectionRefs.current.entries()) {
+        for (const el of sectionRefs.current) {
           if (!el) continue;
 
           // Entry animation
-          setupSectionEntry(el, index);
+          setupSectionEntry(el);
 
           // Parallax
           const trigger = setupParallax(el);

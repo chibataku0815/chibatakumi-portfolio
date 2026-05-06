@@ -22,6 +22,7 @@ import {
 import { FilmLabWebglPanelBackdrop, VideoTransportControls } from "film-lab-ui";
 import type { FilmLabCanvasRef } from "./FilmLabCanvas";
 import type { FilmLabCoreRef } from "./ControlPanel";
+import Image from "next/image";
 import dynamic from "next/dynamic";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
@@ -90,9 +91,11 @@ const FilmLabCanvas = dynamic(
 
 function FilmtoneCtaIcon() {
   return (
-    <img
+    <Image
       src="/brand/filmtone-app-icon.png"
       alt=""
+      width={24}
+      height={24}
       className="h-6 w-6 rounded-[0.42rem]"
       aria-hidden
     />
@@ -112,11 +115,14 @@ function AppStoreBadge({
       : "/brand/download-on-the-app-store-en.svg";
 
   return (
-    <img
+    <Image
       src={badgeSrc}
       alt=""
+      width={120}
+      height={40}
       className={`h-10 w-auto ${className}`}
       aria-hidden
+      unoptimized
     />
   );
 }
@@ -585,7 +591,7 @@ export function FilmLabFullPage({
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    /* eslint-disable react-hooks/set-state-in-effect -- URL / localStorage はクライアント専用のためマウント後に同期 */
+
     const params = new URLSearchParams(window.location.search);
     const thanksRaw = params.get("donationThanks");
     if (thanksRaw === "1" || thanksRaw === "true") {
@@ -626,7 +632,6 @@ export function FilmLabFullPage({
       setShowPresentHint(true);
     }
     setPresentHydrated(true);
-    /* eslint-enable react-hooks/set-state-in-effect */
   }, [locale]);
 
   useEffect(() => {
@@ -635,9 +640,7 @@ export function FilmLabFullPage({
   }, [presentMode, presentHydrated]);
 
   useEffect(() => {
-    /* eslint-disable react-hooks/set-state-in-effect -- プレゼン ON 時に LUT 待ちを即リセット */
     if (presentMode) setLutWaitInteraction(false);
-    /* eslint-enable react-hooks/set-state-in-effect */
   }, [presentMode]);
 
   const onLutLoadSuccess = useCallback(() => {

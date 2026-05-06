@@ -120,6 +120,7 @@ export default async function LocaleLayout({
               `}
             </Script>
             <noscript>
+              {/* eslint-disable-next-line @next/next/no-img-element -- Meta Pixel noscript beacon must bypass Next image optimization. */}
               <img
                 alt=""
                 height="1"

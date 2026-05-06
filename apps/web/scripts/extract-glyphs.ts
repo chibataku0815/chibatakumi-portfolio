@@ -37,7 +37,7 @@ interface ExtractedGlyphs {
 function extractGlyph(font: opentype.Font, char: string): GlyphData {
   const glyph = font.charToGlyph(char);
   const path = glyph.getPath(0, 0, FONT_SIZE);
-  const commands: PathCommand[] = path.commands.map((cmd: any) => {
+  const commands: PathCommand[] = path.commands.map((cmd) => {
     const out: PathCommand = { type: cmd.type };
     if (cmd.x !== undefined) out.x = cmd.x;
     if (cmd.y !== undefined) out.y = cmd.y;
@@ -50,6 +50,9 @@ function extractGlyph(font: opentype.Font, char: string): GlyphData {
 
   const bb = glyph.getBoundingBox();
   const scale = FONT_SIZE / font.unitsPerEm;
+  const pathWithSvg = path as typeof path & {
+    toSVG?: (decimalPlaces?: number) => string;
+  };
 
   return {
     char,
@@ -61,7 +64,8 @@ function extractGlyph(font: opentype.Font, char: string): GlyphData {
       maxX: Math.round(bb.x2 * scale),
       maxY: Math.round(bb.y2 * scale),
     },
-    svgPath: path.toSVG ? (path as any).toSVG(2) : "",
+    svgPath:
+      typeof pathWithSvg.toSVG === "function" ? pathWithSvg.toSVG(2) : "",
   };
 }
 
@@ -75,7 +79,7 @@ async function main() {
   console.log("Loading Geist-Medium.otf...");
   const mediumFont = opentype.loadSync(mediumPath);
   console.log("Loading Geist-Light.otf...");
-  const lightFont = opentype.loadSync(lightPath);
+  opentype.loadSync(lightPath);
 
   console.log(
     `Font metrics — UPM: ${mediumFont.unitsPerEm}, ascender: ${mediumFont.ascender}, descender: ${mediumFont.descender}`

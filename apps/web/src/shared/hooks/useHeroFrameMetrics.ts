@@ -9,6 +9,13 @@ interface UseHeroFrameMetricsOptions {
   enabled?: boolean;
 }
 
+const EMPTY_MASK_SET: HeroMaskSet = {
+  maskRects: [],
+  anchorRect: null,
+  interactionEnabled: false,
+  coarsePointer: false,
+};
+
 function toViewportRect(element: HTMLElement): HeroMaskRect {
   const rect = element.getBoundingClientRect();
   return {
@@ -24,21 +31,10 @@ export function useHeroFrameMetrics({
   maskRefs,
   enabled = true,
 }: UseHeroFrameMetricsOptions): HeroMaskSet {
-  const [maskSet, setMaskSet] = useState<HeroMaskSet>({
-    maskRects: [],
-    anchorRect: null,
-    interactionEnabled: false,
-    coarsePointer: false,
-  });
+  const [maskSet, setMaskSet] = useState<HeroMaskSet>(EMPTY_MASK_SET);
 
   useEffect(() => {
     if (!enabled) {
-      setMaskSet({
-        maskRects: [],
-        anchorRect: null,
-        interactionEnabled: false,
-        coarsePointer: false,
-      });
       return;
     }
 
@@ -100,7 +96,7 @@ export function useHeroFrameMetrics({
     };
   }, [anchorRef, enabled, maskRefs]);
 
-  return maskSet;
+  return enabled ? maskSet : EMPTY_MASK_SET;
 }
 
 export default useHeroFrameMetrics;
