@@ -1,26 +1,28 @@
 /**
  * @file Film Lab Desktop の公開導線で使う固定情報。
  * @description Web の案内カードと固定ダウンロード URL ルートで、同じ公開条件を参照できるようにします。
- * @limitations 実際の配布ファイル URL はデプロイ環境変数で渡します。未設定のときは案内ページだけを表示します。
+ * @limitations デプロイ環境変数がある場合はそちらを優先し、未設定なら現行公開 DMG の固定 URL を使います。
  */
 
 /** Desktop 配布・不具合の窓口（Web の Film Lab カード・ダウンロード案内と同期すること） */
 export const filmLabDesktopSupportEmail = "chiba@fores-tone.co.jp";
-export const filmLabDesktopPublicVersion = "1.0.4";
-export const filmLabDesktopMinimumMacos = "11.0";
-export const filmLabDesktopArchitecture = "Apple Silicon (arm64)";
+export const filmLabDesktopPublicVersion = "1.6";
+export const filmLabDesktopMinimumMacos = "26.0";
+export const filmLabDesktopArchitecture = "Universal (arm64 + x86_64)";
 export const filmLabDesktopDownloadRoute = "/filmtone/download";
+export const filmLabDesktopDownloadUrl =
+  "https://ehi6m41cp33jiopb.public.blob.vercel-storage.com/filmtone/desktop/Filmtone-1.6.dmg";
 
 /**
- * 公開 DMG の固定リンク先を環境変数から読みます。
+ * 公開 DMG の固定リンク先を読みます。
  *
- * @returns {string} 配布ファイル URL。未設定なら空文字。
+ * @returns {string} 配布ファイル URL。環境変数があれば優先し、なければ現行公開 DMG を返します。
  */
 export function filmLabReadDesktopDownloadUrl() {
   return (
     process.env.FILM_LAB_DESKTOP_DOWNLOAD_URL?.trim() ||
     process.env.NEXT_PUBLIC_FILM_LAB_DESKTOP_DOWNLOAD_URL?.trim() ||
-    ""
+    filmLabDesktopDownloadUrl
   );
 }
 

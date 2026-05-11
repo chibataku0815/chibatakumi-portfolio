@@ -2,6 +2,28 @@
 
 ## 現在アクティブなタスク
 
+## Filmtone Public Surface Sync (2026-05-12)
+- **Agent:** Codex CLI
+- **Started:** 2026-05-12T02:20:00+0900 (JST)
+- **Completed:** 2026-05-12T02:29:00+0900 (JST)
+- **Status:** 完了
+- **Branch:** `feature/filmtone-public-surface-sync`
+- **Files:**
+  - `apps/web/src/app/[locale]/(satellite)/filmtone/page.tsx` (編集)
+  - `apps/web/src/app/[locale]/(satellite)/filmtone/download/page.tsx` (編集)
+  - `apps/web/src/app/[locale]/(satellite)/filmtone/support/page.tsx` (編集)
+  - `apps/web/src/features/interactive/film-lab/ios-release-info.ts` (編集)
+  - `apps/web/src/features/interactive/film-lab/desktop-release-info.ts` (編集)
+  - `apps/web/src/features/interactive/film-lab/desktop-release-info.test.ts` (編集)
+  - `apps/web/src/features/interactive/film-lab/release-data.ts` (編集)
+  - `apps/web/messages/ja.json` (編集)
+  - `apps/web/messages/en.json` (編集)
+  - `.claude/tasks/ACTIVE-PARALLEL-TASK.md` (編集)
+- **Notes:**
+  - Filmtone public surface now uses iOS `1.8` / iOS `26.0`, Desktop `1.6` / macOS `26.0`, and the public `Filmtone-1.6.dmg` Blob URL when no env override is set.
+  - `/filmtone/download` renders the download-start surface directly with the public DMG instead of exposing the old "preparing" fallback.
+  - Verification: truth scripts, `bun test apps/web/src/features/interactive/film-lab/desktop-release-info.test.ts`, `bun run build:web`, local `next start` curl checks, public DMG HEAD, and `git diff --check` passed.
+
 ## Filmtone iOS v1.2 Release Prep (2026-04-29)
 - **Agent:** Codex CLI
 - **Started:** 2026-04-29T18:34:00+0900 (JST)

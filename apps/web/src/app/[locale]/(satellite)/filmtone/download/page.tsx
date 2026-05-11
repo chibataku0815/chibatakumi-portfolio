@@ -1,23 +1,31 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { FilmLabDownloadComplete } from "@/features/interactive/film-lab/components/FilmLabDownloadComplete";
 import {
   filmLabDesktopArchitecture,
   filmLabDesktopMinimumMacos,
   filmLabDesktopSupportEmail,
   filmLabReadDesktopDownloadUrl,
+  filmLabResolveDesktopDownloadArtifactName,
 } from "@/features/interactive/film-lab/desktop-release-info";
+import {
+  FILM_LAB_SUPPORTER_COOKIE_NAME,
+  filmLabVerifySupporterCookieValue,
+} from "@/features/interactive/film-lab/film-lab-donation-cookie-signing";
+import { filmLabReadDonationEnvOnServer } from "@/features/interactive/film-lab/film-lab-donation-env-server";
 
 /**
  * @file Filmtone Desktop の固定ダウンロード URL ページ。
- * @description 公開アセット URL が設定されているときはダウンロード完了ページへリダイレクトし（DMG は完了ページ側で自動トリガー）、
- *   未設定のときは案内ページを返します。
+ * @description 公開アセット URL が解決できるときはダウンロード開始 UI を表示し（DMG は client 側で自動トリガー）、
+ *   解決できないときは案内ページを返します。
  *   Wave 2 D5.1 で `/film-lab/download` から carry。Package 5 で `/works/filmtone/download` → `/filmtone/download` へ canonical 移動。redirect 先と back link は `/filmtone/...`。
  * @limitations 実アセット自体のホスティングは別途必要です。このページは固定導線だけを提供します。
  */
 
 const BASE_URL = "https://www.chibatakumi.studio";
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
@@ -99,7 +107,30 @@ export default async function FilmtoneDesktopDownloadPage({
 
   const downloadUrl = filmLabReadDesktopDownloadUrl();
   if (downloadUrl.length > 0) {
-    redirect("/filmtone/download/complete");
+    const artifactName = filmLabResolveDesktopDownloadArtifactName(downloadUrl);
+    const donationRuntime = filmLabReadDonationEnvOnServer();
+    const stripeTiers = donationRuntime?.stripeTiers ?? [];
+    const bmcUrl = donationRuntime?.bmcUrl ?? "";
+
+    const cookieStore = await cookies();
+    const supporterRaw = cookieStore.get(FILM_LAB_SUPPORTER_COOKIE_NAME)?.value;
+    const signSecret = process.env.FILM_LAB_DONATION_SIGNING_SECRET?.trim() ?? "";
+    const serverVerifiedSupporter = Boolean(
+      supporterRaw &&
+        signSecret.length > 0 &&
+        filmLabVerifySupporterCookieValue(supporterRaw, signSecret) !== null,
+    );
+
+    return (
+      <FilmLabDownloadComplete
+        locale={locale}
+        downloadUrl={downloadUrl}
+        artifactName={artifactName}
+        stripeTiers={stripeTiers}
+        bmcUrl={bmcUrl}
+        serverVerifiedSupporter={serverVerifiedSupporter}
+      />
+    );
   }
 
   const t = await getTranslations({ locale, namespace: "film-lab.desktopRelease.downloadPage" });

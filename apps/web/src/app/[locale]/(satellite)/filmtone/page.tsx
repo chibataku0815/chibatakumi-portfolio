@@ -8,6 +8,10 @@ import {
 } from "@/features/interactive/film-lab/film-lab-donation-cookie-signing";
 import { filmLabReadDonationEnvOnServer } from "@/features/interactive/film-lab/film-lab-donation-env-server";
 import {
+  filmLabDesktopArchitecture,
+  filmLabDesktopMinimumMacos,
+} from "@/features/interactive/film-lab/desktop-release-info";
+import {
   filmLabIosAppStoreUrl,
   filmLabIosMinimumVersion,
 } from "@/features/interactive/film-lab/ios-release-info";
@@ -132,7 +136,10 @@ async function buildFilmtoneJsonLd(locale: string) {
         name: t("desktopName"),
         description: t("desktopDescription"),
         applicationCategory: "MultimediaApplication",
-        operatingSystem: t("desktopOperatingSystem"),
+        operatingSystem: t("desktopOperatingSystem", {
+          arch: filmLabDesktopArchitecture,
+          minMacos: filmLabDesktopMinimumMacos,
+        }),
         url: downloadUrl,
         image: `${BASE_URL}/filmtone/og-image.jpg`,
         author: {

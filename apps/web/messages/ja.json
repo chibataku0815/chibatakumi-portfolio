@@ -694,11 +694,11 @@
     },
     "desktopRelease": {
       "eyebrow": "Desktop",
-      "title": "Filmtone Desktop v1.0.4（macOS）",
-      "body": "カメラ別の Log Conversion プロファイル、sidecar から戻せるソースプロファイル、現在の仕上げカタログで、動画を macOS 上で確認しながら仕上げられます。ダウンロードは公証済みの DMG（Apple Silicon 向け）です。",
+      "title": "Filmtone Desktop v1.6（macOS）",
+      "body": "Native Desktop は、動画と写真を macOS 上で確認しながら仕上げられる Filmtone の現在の Desktop 版です。v1.6 では動画編集中の右レール操作性を修正し、表示まわりをすっきり整えました。ダウンロードは署名・公証済みの Universal DMG です。",
       "essentials": {
         "environmentLabel": "動作環境",
-        "environmentBody": "macOS {minMacos} 以降。{arch} のみ。Intel Mac は非対応です。",
+        "environmentBody": "macOS {minMacos} 以降。{arch}。",
         "distributionLabel": "配布・更新",
         "distributionBody": "署名・公証済み DMG。バックグラウンドでの自動インストールはありません。新しい版はダウンロードページから DMG を取得して差し替えてください。アプリが新しい版を知らせることがあります（接続が必要です）。"
       },
@@ -706,14 +706,14 @@
       "supportCtaPrefix": "お問い合わせ:",
       "downloadPage": {
         "eyebrow": "ダウンロード",
-        "title": "配布ファイルの準備中です",
-        "body": "環境変数に DMG の URL が入ると、このページから自動で飛びます。お急ぎの場合は Filmtone ページのお問い合わせからどうぞ。",
-        "pendingLead": "いまはリダイレクト先が未設定です（URL を接続すると解消します）。",
+        "title": "ダウンロードを開始できませんでした",
+        "body": "配布リンクを確認できない状態です。Filmtone ページへ戻るか、お問い合わせください。",
+        "pendingLead": "現時点では自動リダイレクトを開始できません。",
         "backCta": "Filmtone に戻る",
         "supportCtaPrefix": "お問い合わせ:",
         "specs": {
           "environmentLabel": "動作環境",
-          "environmentBody": "macOS {minMacos} 以降。{arch} のみ。",
+          "environmentBody": "macOS {minMacos} 以降。{arch}。",
           "distributionLabel": "配布・更新",
           "distributionBody": "署名・公証済み DMG。自動インストールはありません。DMG の差し替えで更新します。アプリが新しい版を知らせることがあります。"
         },
@@ -953,7 +953,7 @@
     "jsonLd": {
       "desktopName": "Filmtone Desktop",
       "desktopDescription": "動画のための macOS 仕上げツール。再生・比較・色づくり・書き出しまで進め、必要なときだけカバー画像やサムネイルにも同じ色の方向を使えます。",
-      "desktopOperatingSystem": "macOS 11.0 以降（Apple Silicon / arm64）",
+      "desktopOperatingSystem": "macOS {minMacos} 以降（{arch}）",
       "webDemoName": "Filmtone（ブラウザで試す）",
       "webDemoDescription": "自分の素材を開き、プリセットと調整の効き方を確認してから iPhone 版や Mac 版へ進めるブラウザデモです。",
       "webDemoOperatingSystem": "インタラクティブ表示に対応した一般的なブラウザ",
@@ -1119,6 +1119,21 @@
       "typeFixed": "修正",
       "typeChanged": "変更",
       "entries": {
+        "v16Title": "Filmtone Desktop v1.6 — 右レール操作性と表示まわりの修正",
+        "v16RightRailReach": "動画を開いているときも、右側の inspector rail がウィンドウ下端近くまで届くようになりました。scrub bar は rail の幅を避けて横に収まり、Export など下側の操作まで届きます。",
+        "v16RightRailHitDeadZone": "右レール下半分で hover、click、drag、scroll が効きにくくなる問題を修正しました。Apple Liquid Glass の見え方は保ちながら、操作面だけを安定させています。",
+        "v16OpeningBackdrop": "空の起動画面はブランド表示と案内文だけに整理しました。素材は toolbar の Open または Command-O から開きます。読み込み後の背景は、黒い面ではなく素材由来のぼかし背景で自然につながるようになりました。",
+        "v16IntensityRow": "Backlight Veil の Intensity slider は、1/8・1/4・1/2 の density chip を選んだときだけ表示されます。None のときに無効な slider が残らないようにしました。",
+        "v15Title": "Filmtone Desktop v1.5 — 縦動画編集、Backlight Veil、Look Strength を更新",
+        "v15PortraitVideoEditing": "縦動画でも映像を主役にしながら、右レールの inspector と2段 scrub bar で再生、marker、speed、書き出し操作に届きやすくしました。",
+        "v15BacklightVeilIntensity": "Backlight Veil に連続的な Intensity cursor を追加しました。still preview、video preview、still export、video export、scrub thumbnail、sidecar に同じ設定が通ります。",
+        "v15LookStrength": "Look Strength が Creative LUT の合成量を連続的に動かすようになり、Stone / Urban の効き方を slider で自然に調整できます。",
+        "v15HighlightReelFoundation": "Highlight marker から source-relative な 1 秒 clip segment を作る shared Swift core contract を整えました。Native Desktop、iPhone、DaVinci が同じ segment model を使います。",
+        "v14Title": "Filmtone Desktop v1.4 — Native Desktop への置き換え",
+        "v14NativeDesktopCutover": "Desktop の公開レールを Electron 版から macOS 26+ の Native Desktop に置き換えました。Bundle ID は維持しているため、既存の Desktop update rail から到達できます。",
+        "v14LiquidGlassControls": "toolbar、sidebar、inspector、picker、menu、scrub bar、editing panel を Apple Liquid Glass の control surface として再構成しました。preview content layer は色判断のため glass-free にしています。",
+        "v14StillVideoExport": "still と video の open、preview、export、sidecar 出力を native app で扱えるようにし、iPhone 版に近い Filmtone grade path で処理します。",
+        "v14LegacyElectronFrozen": "Desktop v1.0.4 は pre-macOS-26 向けの frozen legacy build として残し、今後の Desktop product work は Native Desktop が担当します。",
         "v104Title": "Filmtone Desktop v1.0.4 — Log Conversion プロファイルと仕上げの足並みを更新",
         "v104LogConversionProfiles": "Desktop の Log Conversion に、Rec.709、Apple Log、Apple Log 2、DJI D-Log、DJI D-Log M、Canon C-Log、Canon Log 3 / Cinema Gamut、Panasonic V-Log、Sony S-Log3 の内蔵 Camera Profile を追加しました。Custom .cube の読み込みも引き続き使えます。",
         "v104SourceProfileSidecars": "書き出し sidecar に内蔵ソースプロファイルの情報を残せるようになりました。セッションを開き直すと、元の絶対 .cube パスに依存せず、カタログから対応する変換 LUT を再生成できます。",
@@ -1221,6 +1236,11 @@
         "v010VideoExport": "動画にルックを焼き込んで書き出せます。",
         "v010FourPresets": "フィルム風プリセット 4 種を収録: Kodak Portra 400、Fuji Pro 400H、Kodak Ektar 100、Ilford HP5 Plus。",
         "v010BrowserDemo": "ブラウザから自分の写真でプリセットを試せます。ダウンロード前に仕上がりを確認できます。",
+        "iosV18Title": "Filmtone iPhone版 v1.8 — 撮影から編集へ進む流れを改善",
+        "iosV18ContinuousCapture": "撮影を続けながら複数のテイクを残し、一覧のプレビューで選んでから編集へ進めます。",
+        "iosV18CaptureMonitorMode": "手ぶれ補正と Look を同時に使う場面では、撮影中の表示を軽くしつつ、編集と書き出しの高品質な処理を保ちます。",
+        "iosV18CaptureLooks": "Stone / Urban / Noir と読み込んだ .cube LUT を撮影画面で選べるようにし、選択情報を編集と書き出しまで引き継ぎます。",
+        "iosV18CaptureStability": "縦横の向き、保存容量が少ない時の警告、撮影パッケージの安定性を調整しました。",
         "iosV12Title": "Filmtone iPhone版 v1.2 — LUTと書き出しの安定性を強化",
         "iosV12DualLutControls": "Source Profile と Film Look の2系統で .cube LUT を扱い、それぞれの適用量を0%から100%まで調整できます。",
         "iosV12PreviewExportColor": "プレビューと書き出しの色処理をそろえ、画面で確認した色に近い結果を得やすくしました。",
@@ -1289,7 +1309,7 @@
       "devices": {
         "eyebrow": "Devices",
         "title": "対応端末と読み込み経路",
-        "body": "現行の公開版は意図的に範囲を絞っています。iPhone 向け、iOS 17 以降、ユーザーが選んだ Photos / Files の素材が前提です。",
+        "body": "現行の公開版は意図的に範囲を絞っています。{deviceFamily} 向け、iOS {minIos} 以降、ユーザーが選んだ Photos / Files の素材が前提です。",
         "cards": {
           "deviceFamily": {
             "title": "対応端末",

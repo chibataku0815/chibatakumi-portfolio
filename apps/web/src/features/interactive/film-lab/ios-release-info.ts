@@ -9,10 +9,10 @@ export const filmLabIosSupportEmail = "chiba@fores-tone.co.jp";
 export const filmLabIosOperatorName = "Takumi Chiba";
 
 export const filmLabIosAppStoreUrl = "https://apps.apple.com/app/filmtone/id6762564806";
-export const filmLabIosPublicVersion = "1.2";
+export const filmLabIosPublicVersion = "1.8";
 export const filmLabIosPublicReleaseDate = "2026-04-21";
-export const filmLabIosPublicCurrentVersionReleaseDate = "2026-04-29";
-export const filmLabIosMinimumVersion = "17.0";
+export const filmLabIosPublicCurrentVersionReleaseDate = "2026-05-10";
+export const filmLabIosMinimumVersion = "26.0";
 export const filmLabIosSupportedDeviceFamily = "iPhone";
 
 export const filmLabIosSourceDurationCapSeconds = 300;

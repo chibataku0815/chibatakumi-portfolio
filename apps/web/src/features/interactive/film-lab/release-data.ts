@@ -21,6 +21,42 @@ export interface ReleaseEntry {
 export const desktopReleases: ReleaseEntry[] = [
   {
     platform: "desktop",
+    version: "1.6",
+    date: "2026-05-07",
+    titleKey: "v16Title",
+    changes: [
+      { type: "fixed", key: "v16RightRailReach" },
+      { type: "fixed", key: "v16RightRailHitDeadZone" },
+      { type: "changed", key: "v16OpeningBackdrop" },
+      { type: "changed", key: "v16IntensityRow" },
+    ],
+  },
+  {
+    platform: "desktop",
+    version: "1.5",
+    date: "2026-05-06",
+    titleKey: "v15Title",
+    changes: [
+      { type: "changed", key: "v15PortraitVideoEditing" },
+      { type: "added", key: "v15BacklightVeilIntensity" },
+      { type: "changed", key: "v15LookStrength" },
+      { type: "added", key: "v15HighlightReelFoundation" },
+    ],
+  },
+  {
+    platform: "desktop",
+    version: "1.4",
+    date: "2026-05-05",
+    titleKey: "v14Title",
+    changes: [
+      { type: "added", key: "v14NativeDesktopCutover" },
+      { type: "changed", key: "v14LiquidGlassControls" },
+      { type: "added", key: "v14StillVideoExport" },
+      { type: "changed", key: "v14LegacyElectronFrozen" },
+    ],
+  },
+  {
+    platform: "desktop",
     version: "1.0.4",
     date: "2026-05-02",
     titleKey: "v104Title",
@@ -289,6 +325,18 @@ export const desktopReleases: ReleaseEntry[] = [
  * Candidate builds such as local MARKETING_VERSION 1.3 stay in fastlane metadata until public.
  */
 export const iosReleases: ReleaseEntry[] = [
+  {
+    platform: "ios",
+    version: "1.8",
+    date: "2026-05-10",
+    titleKey: "iosV18Title",
+    changes: [
+      { type: "changed", key: "iosV18ContinuousCapture" },
+      { type: "changed", key: "iosV18CaptureMonitorMode" },
+      { type: "added", key: "iosV18CaptureLooks" },
+      { type: "fixed", key: "iosV18CaptureStability" },
+    ],
+  },
   {
     platform: "ios",
     version: "1.2",

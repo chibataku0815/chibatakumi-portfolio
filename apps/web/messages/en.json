@@ -692,11 +692,11 @@
     },
     "desktopRelease": {
       "eyebrow": "Desktop",
-      "title": "Filmtone Desktop v1.0.4 (macOS)",
-      "body": "Finish video on macOS with built-in camera Log Conversion profiles, sidecar-safe source-profile recall, and the current finishing catalog. The download is a notarized DMG for Apple Silicon.",
+      "title": "Filmtone Desktop v1.6 (macOS)",
+      "body": "Native Desktop is the current Filmtone Desktop app for finishing videos and photos on macOS. v1.6 fixes right-rail control reachability while editing video and keeps the opening and backdrop surfaces cleaner. The download is a signed, notarized Universal DMG.",
       "essentials": {
         "environmentLabel": "Requirements",
-        "environmentBody": "macOS {minMacos} or later. {arch} only — not for Intel Macs.",
+        "environmentBody": "macOS {minMacos} or later. {arch}.",
         "distributionLabel": "Download & updates",
         "distributionBody": "Signed, notarized DMG. The app does not auto-install updates in the background. Download a new DMG from the download page to update. The app may notify you when a newer build is available (requires a network connection)."
       },
@@ -704,14 +704,14 @@
       "supportCtaPrefix": "Contact:",
       "downloadPage": {
         "eyebrow": "Download",
-        "title": "Download not configured",
-        "body": "When the DMG URL is set in the environment, this page redirects automatically. Otherwise use the Filmtone page contact link.",
-        "pendingLead": "Redirect target is not set (connect FILM_LAB_DESKTOP_DOWNLOAD_URL to fix).",
+        "title": "Download unavailable",
+        "body": "The download link could not be resolved. Return to Filmtone or contact support.",
+        "pendingLead": "Automatic redirect could not start right now.",
         "backCta": "Back to Filmtone",
         "supportCtaPrefix": "Contact:",
         "specs": {
           "environmentLabel": "Requirements",
-          "environmentBody": "macOS {minMacos}+ · {arch} only.",
+          "environmentBody": "macOS {minMacos}+ · {arch}.",
           "distributionLabel": "Artifact & updates",
           "distributionBody": "Signed, notarized DMG. No automatic installation — update by replacing the app with a new DMG. The app may notify you when a newer build is available."
         },
@@ -951,7 +951,7 @@
     "jsonLd": {
       "desktopName": "Filmtone Desktop",
       "desktopDescription": "macOS finishing tool for video. Play, compare, shape the color, and export. Use the same color direction for covers or thumbnails when needed.",
-      "desktopOperatingSystem": "macOS 11.0 or later (Apple Silicon / arm64)",
+      "desktopOperatingSystem": "macOS {minMacos} or later ({arch})",
       "webDemoName": "Filmtone (try in browser)",
       "webDemoDescription": "Browser demo for opening your own media and checking how presets and controls affect it before moving to iPhone or Mac.",
       "webDemoOperatingSystem": "Common desktop browser with interactive graphics support",
@@ -1117,6 +1117,21 @@
       "typeFixed": "Fixed",
       "typeChanged": "Changed",
       "entries": {
+        "v16Title": "Filmtone Desktop v1.6 — right-rail reachability and surface cleanup",
+        "v16RightRailReach": "The right inspector rail now reaches close to the bottom of the window even while a video is loaded. The scrub bar reserves space for the rail instead of sitting underneath it, so lower controls such as Export remain reachable.",
+        "v16RightRailHitDeadZone": "Fixed the lower-half hit dead zone in the right rail. Hover, click, drag, and scroll now work from top to bottom while preserving the Apple Liquid Glass control styling.",
+        "v16OpeningBackdrop": "The empty opening state now shows the Filmtone mark and instruction copy without the central open CTA. Open media from the toolbar Open button or Command-O. Loaded media uses a media-derived blurred backdrop instead of a flat black matte.",
+        "v16IntensityRow": "Backlight Veil Intensity now appears only when a 1/8, 1/4, or 1/2 density chip is selected, so the None state no longer leaves a disabled-looking slider in the panel.",
+        "v15Title": "Filmtone Desktop v1.5 — portrait editing, Backlight Veil, and Look Strength",
+        "v15PortraitVideoEditing": "Portrait video keeps the clip as the primary surface while the right inspector rail and two-row scrub bar keep playback, markers, speed, and export controls reachable.",
+        "v15BacklightVeilIntensity": "Backlight Veil gained a continuous Intensity cursor threaded through still preview, video preview, still export, video export, scrub thumbnails, and sidecar output.",
+        "v15LookStrength": "Look Strength now drives Creative LUT alpha continuously, so Stone and Urban respond naturally across the slider range.",
+        "v15HighlightReelFoundation": "Highlight markers can now resolve to source-relative one-second clip segments through the shared Swift core contract used by Native Desktop, iPhone, and DaVinci.",
+        "v14Title": "Filmtone Desktop v1.4 — Native Desktop replacement cutover",
+        "v14NativeDesktopCutover": "The public Desktop rail moved from the Electron app to the macOS 26+ Native Desktop app while keeping the existing Bundle ID and update path.",
+        "v14LiquidGlassControls": "Toolbar, sidebar, inspector, picker, menus, scrub bar, and editing panels were rebuilt as Apple Liquid Glass control surfaces while keeping the preview content layer glass-free for color judgment.",
+        "v14StillVideoExport": "Still and video open, preview, export, and sidecar paths now run inside the native app using the Filmtone grade path aligned with the iPhone app.",
+        "v14LegacyElectronFrozen": "Desktop v1.0.4 remains available as the frozen legacy build for pre-macOS-26 users; new Desktop product work now belongs to Native Desktop.",
         "v104Title": "Filmtone Desktop v1.0.4 — Log Conversion profiles and finishing parity",
         "v104LogConversionProfiles": "Desktop Log Conversion now includes built-in Camera Profile choices for Rec.709, Apple Log, Apple Log 2, DJI D-Log, DJI D-Log M, Canon C-Log, Canon Log 3 / Cinema Gamut, Panasonic V-Log, and Sony S-Log3, while keeping custom .cube imports available.",
         "v104SourceProfileSidecars": "Export sidecars can preserve built-in source-profile identity, so reopening a session can regenerate the matching conversion LUT from the catalog instead of depending on the original absolute .cube path.",
@@ -1219,6 +1234,11 @@
         "v010VideoExport": "Export a video clip with your chosen grade baked in.",
         "v010FourPresets": "Four film stock looks to start: Kodak Portra 400, Fuji Pro 400H, Kodak Ektar 100, and Ilford HP5 Plus.",
         "v010BrowserDemo": "Try any preset on your own photos in the browser before downloading the Desktop app.",
+        "iosV18Title": "Filmtone for iPhone v1.8 — capture flow and take selection",
+        "iosV18ContinuousCapture": "Keep recording multiple takes, then choose the take to open in the editor from a focused preview.",
+        "iosV18CaptureMonitorMode": "When stabilization and a Look are active together, capture uses a lighter monitor view while editing and export keep the full-quality render path.",
+        "iosV18CaptureLooks": "Stone, Urban, Noir, and imported .cube creative LUTs can be selected from the capture screen, with the selected direction carried into editing and export.",
+        "iosV18CaptureStability": "Capture orientation, low-storage warnings, and capture package stability were tightened.",
         "iosV12Title": "Filmtone for iPhone v1.2 — stronger LUT and export stability",
         "iosV12DualLutControls": "Source Profile and Film Look now work as two separate .cube LUT paths, each with 0-100% intensity control.",
         "iosV12PreviewExportColor": "Preview and export color processing are better aligned, so exported media stays closer to what you checked on screen.",
@@ -1287,7 +1307,7 @@
       "devices": {
         "eyebrow": "Devices",
         "title": "Supported devices and import paths",
-        "body": "Current public-release support is intentionally narrow: one iPhone target, iOS 17+, and user-selected media from Photos or Files.",
+        "body": "Current public-release support is intentionally narrow: {deviceFamily}, iOS {minIos} or later, and user-selected media from Photos or Files.",
         "cards": {
           "deviceFamily": {
             "title": "Device family",

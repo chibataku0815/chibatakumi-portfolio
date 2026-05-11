@@ -190,7 +190,12 @@ export default async function FilmtoneSupportPage({
           {t("devices.eyebrow")}
         </p>
         <h2 className="mt-3 text-xl font-semibold text-white sm:text-2xl">{t("devices.title")}</h2>
-        <p className="mt-3 max-w-3xl text-sm leading-relaxed text-white/70">{t("devices.body")}</p>
+        <p className="mt-3 max-w-3xl text-sm leading-relaxed text-white/70">
+          {t("devices.body", {
+            deviceFamily: filmLabIosSupportedDeviceFamily,
+            minIos: filmLabIosMinimumVersion,
+          })}
+        </p>
 
         <div className="mt-6 grid gap-3 md:grid-cols-3">
           {deviceCardKeys.map((key) => (
