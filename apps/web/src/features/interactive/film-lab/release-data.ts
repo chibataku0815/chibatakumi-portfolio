@@ -21,6 +21,30 @@ export interface ReleaseEntry {
 export const desktopReleases: ReleaseEntry[] = [
   {
     platform: "desktop",
+    version: "1.8",
+    date: "2026-05-16",
+    titleKey: "v18Title",
+    changes: [
+      { type: "added", key: "v18SlowMode" },
+      { type: "changed", key: "v18FilmBreath" },
+      { type: "changed", key: "v18BlackFloorControls" },
+      { type: "added", key: "v18AutomationPath" },
+    ],
+  },
+  {
+    platform: "desktop",
+    version: "1.7",
+    date: "2026-05-15",
+    titleKey: "v17Title",
+    changes: [
+      { type: "fixed", key: "v17AudioExport" },
+      { type: "added", key: "v17TextureSoftness" },
+      { type: "changed", key: "v17SourceDetailCompensation" },
+      { type: "changed", key: "v17HighlightReelAudioLimit" },
+    ],
+  },
+  {
+    platform: "desktop",
     version: "1.6",
     date: "2026-05-07",
     titleKey: "v16Title",

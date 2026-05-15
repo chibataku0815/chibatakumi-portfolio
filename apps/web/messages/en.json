@@ -692,8 +692,8 @@
     },
     "desktopRelease": {
       "eyebrow": "Desktop",
-      "title": "Filmtone Desktop v1.6 (macOS)",
-      "body": "Native Desktop is the current Filmtone Desktop app for finishing videos and photos on macOS. v1.6 fixes right-rail control reachability while editing video and keeps the opening and backdrop surfaces cleaner. The download is a signed, notarized Universal DMG.",
+      "title": "Filmtone Desktop v1.8 (macOS)",
+      "body": "Native Desktop is the current Mac app for playback review and export. v1.8 adds 24fps Slow Mode, carries Film Breath and black-floor controls through the native color contract, and hardens the Codex-facing headless automation path. The download is a signed, notarized Universal DMG.",
       "essentials": {
         "environmentLabel": "Requirements",
         "environmentBody": "macOS {minMacos} or later. {arch}.",
@@ -1117,6 +1117,16 @@
       "typeFixed": "Fixed",
       "typeChanged": "Changed",
       "entries": {
+        "v18Title": "Filmtone Desktop v1.8 — 24fps Slow Mode and native export contracts",
+        "v18SlowMode": "Sources above 24fps can now export through 24fps Slow Mode. Filmtone writes a slower 24fps output and records timing metadata in the sidecar so the export choice remains recoverable.",
+        "v18FilmBreath": "Film Breath is now part of the shared native color contract. The default path remains neutral, while stronger settings can produce controlled temporal modulation in native export paths.",
+        "v18BlackFloorControls": "blackPoint and toeContrast now travel through the shared TypeScript and Swift contracts, giving the grade path an explicit low-end anchor without a sidecar schema bump.",
+        "v18AutomationPath": "The Codex-facing automation path now uses the native automation CLI and MCP server with bounded paths, preview-before-run batch plans, signed plan checks, and clearer unsupported-profile errors. It is workflow automation, not an in-app chat surface.",
+        "v17Title": "Filmtone Desktop v1.7 — audio-preserving export and Texture Softness",
+        "v17AudioExport": "Normal video export now reads the source audio track, writes AAC audio into the MP4, and validates the completed file before reporting success.",
+        "v17TextureSoftness": "Advanced Optics now includes Texture Softness, a control for easing hard digital fine detail separately from Lens Softness.",
+        "v17SourceDetailCompensation": "Preview and export paths can apply a conservative runtime-only detail bias when source metadata suggests heavily sharpened consumer footage. The bias is not saved into Looks.",
+        "v17HighlightReelAudioLimit": "Highlight-reel export remains source-audio disabled because those clips are rebuilt from selected timeline segments.",
         "v16Title": "Filmtone Desktop v1.6 — right-rail reachability and surface cleanup",
         "v16RightRailReach": "The right inspector rail now reaches close to the bottom of the window even while a video is loaded. The scrub bar reserves space for the rail instead of sitting underneath it, so lower controls such as Export remain reachable.",
         "v16RightRailHitDeadZone": "Fixed the lower-half hit dead zone in the right rail. Hover, click, drag, and scroll now work from top to bottom while preserving the Apple Liquid Glass control styling.",

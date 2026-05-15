@@ -694,8 +694,8 @@
     },
     "desktopRelease": {
       "eyebrow": "Desktop",
-      "title": "Filmtone Desktop v1.6（macOS）",
-      "body": "Native Desktop は、動画と写真を macOS 上で確認しながら仕上げられる Filmtone の現在の Desktop 版です。v1.6 では動画編集中の右レール操作性を修正し、表示まわりをすっきり整えました。ダウンロードは署名・公証済みの Universal DMG です。",
+      "title": "Filmtone Desktop v1.8（macOS）",
+      "body": "Native Desktop は、macOS 上で再生確認から書き出しまで進める現在の Desktop 版です。v1.8 では 24fps Slow Mode、Film Breath、黒の下限を調整する black-floor control を native export path に通し、Codex workflows 向けの headless automation path も整えました。ダウンロードは署名・公証済みの Universal DMG です。",
       "essentials": {
         "environmentLabel": "動作環境",
         "environmentBody": "macOS {minMacos} 以降。{arch}。",
@@ -1119,6 +1119,16 @@
       "typeFixed": "修正",
       "typeChanged": "変更",
       "entries": {
+        "v18Title": "Filmtone Desktop v1.8 — 24fps Slow Mode と native export path の更新",
+        "v18SlowMode": "24fps を超える素材では、書き出し時に 24fps Slow Mode を選べるようになりました。選択した timing metadata は sidecar に残るため、後から書き出し意図を確認できます。",
+        "v18FilmBreath": "Film Breath を shared native color contract に通しました。初期値はニュートラルのまま、強い設定では native export path で時間方向の揺らぎを扱えます。",
+        "v18BlackFloorControls": "blackPoint と toeContrast を TypeScript / Swift の共有契約に通し、低域の締まり方を明示的に扱えるようにしました。sidecar schema version は変えていません。",
+        "v18AutomationPath": "Codex 向けの headless automation path を native automation CLI / MCP server に寄せ、batch plan の事前確認、署名付き plan check、対応外 profile のエラー表示を整理しました。アプリ内チャット機能ではありません。",
+        "v17Title": "Filmtone Desktop v1.7 — 音声付き書き出しと Texture Softness",
+        "v17AudioExport": "通常の動画書き出しで source audio track を読み取り、AAC audio として MP4 に含めるようにしました。完了前に output file の検証も行います。",
+        "v17TextureSoftness": "Advanced Optics に Texture Softness を追加しました。Lens Softness とは別に、硬いデジタル細部や local acutance を抑えるための調整です。",
+        "v17SourceDetailCompensation": "source metadata から強い sharpening が推測できる場合に、preview / export path で控えめな detail bias を適用します。この bias は Look には保存しません。",
+        "v17HighlightReelAudioLimit": "Highlight-reel export は、選択した timeline segment から clip を組み直すため、このリリースでも source audio disabled のままです。",
         "v16Title": "Filmtone Desktop v1.6 — 右レール操作性と表示まわりの修正",
         "v16RightRailReach": "動画を開いているときも、右側の inspector rail がウィンドウ下端近くまで届くようになりました。scrub bar は rail の幅を避けて横に収まり、Export など下側の操作まで届きます。",
         "v16RightRailHitDeadZone": "右レール下半分で hover、click、drag、scroll が効きにくくなる問題を修正しました。Apple Liquid Glass の見え方は保ちながら、操作面だけを安定させています。",
