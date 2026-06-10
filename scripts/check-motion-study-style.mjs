@@ -55,9 +55,13 @@ const JA_BANNED_JARGON = [
   // that slipped past the original list built from lattice-breath's rewrite.
   "棄却", "梯子", "導出", "平坦", "定常", "極値",
   "保存量", "積保存", "和保存",
+  // 2026-06-11 additions (second sweep — user report covered ALL four published
+  // articles, not just #4; the per-incident list had let these through).
+  "創発", "署名", "決定論", "タンジェンシー", "減衰",
+  "帰結", "裁定", "転覆", "納品", "振幅",
 ];
-const JA_WARN_JARGON = ["腕", "位相", "写像", "同型", "ひと粒ぶん", "初期値", "余り"];
-const EN_BANNED_JARGON = ["family", "envelope", "onset"];
+const JA_WARN_JARGON = ["腕", "位相", "写像", "同型", "ひと粒ぶん", "初期値", "余り", "踊り場", "駆動"];
+const EN_BANNED_JARGON = ["family", "envelope", "onset", "deterministic", "emergent"];
 const JA_AUDIOTEST = [
   "という形", "という話", "ということです", "大事なのは",
   "位置づけ", "することができ", "と言えるで",
@@ -120,6 +124,10 @@ const checkSlug = (slug) => {
   const jaAll = jaBody + "\n" + (jaEntry?.title ?? "") + "\n" +
     (jaEntry?.summary ?? "") + "\n" + (jaEntry?.metaDescription ?? "") +
     "\n" + (jaEntry?.eyebrow ?? "");
+  // en got the same meta-scan extension on 2026-06-11 (second sweep found
+  // "emergent"/"deterministic" living in en metaDescriptions only).
+  const enAll = enBody + "\n" + (enEntry?.title ?? "") + "\n" +
+    (enEntry?.summary ?? "") + "\n" + (enEntry?.metaDescription ?? "");
 
   // eyebrow = drawer name from the original one-sheet (rollout doc 不変条件).
   const drawer = DRAWER_EYEBROW[slug];
@@ -145,7 +153,7 @@ const checkSlug = (slug) => {
   for (const j of JA_BANNED_JARGON) if (jaAll.includes(j)) errors.push(`ja 禁止語彙: 「${j}」 → 語彙写像表で置換`);
   for (const j of JA_WARN_JARGON) if (jaAll.includes(j)) warns.push(`ja 要注意語彙: 「${j}」 — 初出定義済みか確認`);
   for (const j of EN_BANNED_JARGON) {
-    if (new RegExp(`\\b${j}\\b`, "i").test(enBody)) errors.push(`en banned jargon: "${j}"`);
+    if (new RegExp(`\\b${j}\\b`, "i").test(enAll)) errors.push(`en banned jargon: "${j}"`);
   }
   if (/(^|[^a-zA-Z])f\d/.test(jaBody)) errors.push("ja f記法残存 (f10 等) → 「10 フレーム目」");
 
