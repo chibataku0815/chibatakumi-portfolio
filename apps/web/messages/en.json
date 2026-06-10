@@ -2400,11 +2400,11 @@
             {
               "type": "heading",
               "level": 2,
-              "text": "The phenomenon and its invariant"
+              "text": "The invariant comes first"
             },
             {
               "type": "paragraph",
-              "text": "The visible dot count grows from 6 to 19 and falls back to 6. The element set, though, stays constant from first frame to last — nothing is created or destroyed; only each element's visibility and placement change. Building a motion that reads as countable without breaking that invariant is the starting point."
+              "text": "While the count seems to grow, the element set stays constant — only each element's visibility and placement change. Building a motion that reads as countable without breaking that invariant is the starting point."
             },
             {
               "type": "heading",
@@ -2415,13 +2415,13 @@
               "type": "list",
               "items": [
                 "one time source — a normalized envelope beating bloom → hold → collapse → rest",
-                "radius and rotation share the same key times — rotation owns no key times of its own, only its handles",
-                "appearance and disappearance via per-family `scale` clips — onsets phase-shifted, character (overshoot or none) chosen per family"
+                "radius and rotation share the same key times — each channel owns only its handles",
+                "appearance and disappearance via per-family `scale` clips — onsets phase-shifted, character (overshoot or none) selected"
               ]
             },
             {
               "type": "paragraph",
-              "text": "Every family sits on the same hexagonal angle series — only the mid family stands a half step off, and the centre sits at its origin. What separates the families is onset phase, clip character, and a single explicitly keyed independent radial channel. The visible count is a dependent variable decided by how those onsets overlap — no key drives the count itself. The loop closes by landing the total rotation on the lattice's angular symmetry, so the final frame becomes congruent with the initial arrangement and the seam disappears."
+              "text": "Every family sits on the same hexagonal angle series — only the mid family stands a half step off, and the centre sits at the origin. What separates them: onset phase, clip character, and a single explicitly keyed independent radial channel. No key drives the count; the apparent count is decided by how the onsets overlap. The loop lands its total rotation on the lattice's angular symmetry, making the final frame congruent with the first."
             },
             {
               "type": "heading",
@@ -2430,7 +2430,7 @@
             },
             {
               "type": "paragraph",
-              "text": "The envelope holds at both ends, and opening and closing are not mirror images — each carries its own handles. Local character is reduced to a single one-dot overshoot (0→120%→100%), and it is deliberately not given to every family. Choosing where character rides and where the rise stays plain is itself the motion's signature."
+              "text": "The envelope holds at both ends, and opening and closing are not mirror images — each carries its own handles. Local character is reduced to a one-dot overshoot (0→120%→100%) and is not given to every family. Choosing where character rides and where the rise stays plain is the motion's signature."
             },
             {
               "type": "heading",
@@ -2439,12 +2439,12 @@
             },
             {
               "type": "paragraph",
-              "text": "The schedule is a pure function from frame to state and knows nothing about the renderer. Drawing closes outside it as a mapping from state to shapes — `SVG` and `WebGPU` consume the same schedule. During construction, every hypothesis that explained all dots with a single geometric rule was tested against rendered frames and rejected. Degrees of freedom that resist explanation stay as explicit keys rather than guesses — here, that is the mid family's radial slide. The numeric spec — key times, handles, radius ratios, onsets — ships verbatim in the schedule this page delivers; view-source doubles as the spec sheet. Observation ranks above abstraction."
+              "text": "The schedule is a pure function from frame to state and knows nothing about the renderer. Drawing closes outside it as a mapping from state to shapes — `SVG` and `WebGPU` consume the same schedule. During construction, every single-geometric-rule hypothesis was tested against rendered frames and rejected — degrees of freedom that resist explanation stay as explicit keys rather than guesses. Here, that is the mid family's radial slide. The numbers — key times, handles, radius ratios, onsets — ship verbatim in the schedule this page delivers; view-source doubles as the spec sheet."
             },
             {
               "type": "callout",
               "tone": "note",
-              "text": "The source is one cell of @PuttiMW's drawer series, decomposed and rebuilt in a motion-research repo, then re-authored as a framework-independent pure function. The palette swaps the reference red/pink for the same fixed light palette as the SNS clip. The demo above composites grain and chromatic aberration live in two `WebGPU` passes — a verbatim port of the math in the pipeline that finished the clip, down to a bit-identical grain random sequence. Where `WebGPU` is unavailable it falls back to plain `SVG` + `requestAnimationFrame`."
+              "text": "The source is one cell of @PuttiMW's drawer series — decomposed and rebuilt in a motion-research repo. The palette swaps the reference red/pink for the same fixed light palette as the SNS clip. The demo above composites grain and chromatic aberration live in two `WebGPU` passes — a verbatim port of the math that finished the clip, down to a bit-identical grain random sequence. Where `WebGPU` is unavailable it falls back to `SVG` + `requestAnimationFrame`."
             }
           ]
         },
