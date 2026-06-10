@@ -2408,7 +2408,7 @@
             },
             {
               "type": "paragraph",
-              "text": "All 19 dots exist from the first frame, and not a single one is ever created. Each dot raises its `scale` from 0 to 1 on its own cue — the center at f10, the edge at f13, the inner ring at f16. The cues are staggered a few frames per group — that stagger is the whole reason the count seems to grow."
+              "text": "All 19 dots exist from the first frame, and not a single one is ever created. Each dot raises its `scale` from 0 to 1 on its own cue — the center on frame 10, the edge on frame 13, the inner ring on frame 16. The cues are staggered a few frames per group — that stagger is the whole reason the count seems to grow."
             },
             {
               "type": "heading",
@@ -2418,22 +2418,22 @@
             {
               "type": "list",
               "items": [
-                "6 dots that never disappear — arms spaced 60° apart, the base of the lattice",
+                "6 dots that never disappear — standing on the hexagon's vertices, the base of the lattice",
                 "1 center, 6 inner-ring and 6 edge dots — 13 waiting for their cue",
-                "edge dots stand a half step (30°) off the arm angles"
+                "edge dots stand between the vertices (30° off their angles)"
               ]
             },
             {
               "type": "paragraph",
-              "text": "The motor is a single progress value travelling 0 → 1 → 0 across the 90 frames — opening on f0–30, holding on f30–44, closing on f44–73, resting after. Call it the breath. The breath drives the arm radius (28.8 → 75.6) and the rotation of the whole lattice."
+              "text": "The motor is a single 0-to-1 number that says how far the lattice has opened — it travels 0 → 1 → 0 across the 90 frames, opening on frames 0–30, holding on 30–44, closing on 44–73, resting after. Call it the breath. The breath drives the hexagon's radius (center to vertex, 28.8 → 75.6) and the rotation of the whole lattice."
             },
             {
               "type": "paragraph",
-              "text": "Rotation shares the breath's key times but keeps its own easing handles. One loop rotates the lattice by −180°. A hexagonal lattice returns to the same pose every 60°, so the −180° landing is indistinguishable from the initial layout — the last frame coincides with the first and the loop seam disappears."
+              "text": "Rotation moves on the same frame ranges as the breath (0–30 and 44–73) but keeps its own easing curves. One loop rotates the lattice by −180°. A hexagonal lattice returns to the same pose every 60°, so the −180° landing is indistinguishable from the initial layout — the last frame coincides with the first and the loop seam disappears."
             },
             {
               "type": "paragraph",
-              "text": "Only the six edge dots carry one more independent motion — they slide along their own radius rail (32.84 → 65.68) on their own key times (outward on f10–28, inward on f44–70). During reconstruction, every hypothesis that explained all dots with one geometric rule was rejected against measurement. Motion the breath cannot explain stays as explicit keys instead of guesses — this rail is the example."
+              "text": "Only the six edge dots carry one more independent motion — they slide along their own radius rail (32.84 → 65.68) on their own frame ranges (outward on 10–28, inward on 44–70). The reconstruction started from the assumption that every dot moves by one shared rule, but checking the numbers against the original video kept breaking it. Motion that resists explanation stays as explicit keys instead of guesses — this rail is the example."
             },
             {
               "type": "heading",
@@ -2442,7 +2442,7 @@
             },
             {
               "type": "paragraph",
-              "text": "The center and the inner ring appear with character: 8 frames overshooting to 120%, then 10 frames settling back to 100% — one dot's worth of overshoot. The edge rises straight in 12 frames. The breath, too, opens and closes on different handles rather than mirror images. Where character rides and where the rise stays plain — that choice is the motion's signature."
+              "text": "The center and the inner ring appear with character: 8 frames overshooting to 120%, then 10 frames settling back to 100% — that is the overshoot. The edge rises straight in 12 frames. The breath, too, opens and closes on different easing curves rather than mirror images. Where character rides and where the rise stays plain — that choice is the motion's signature."
             },
             {
               "type": "heading",
@@ -2451,12 +2451,12 @@
             },
             {
               "type": "paragraph",
-              "text": "The implementation is one pure function: pass a frame number, get back every dot's position and `scale`. The renderer's job is to map that state to shapes, so `SVG` and `WebGPU` consume the same schedule. The numbers — key times, handles, radii, appearance frames — ship verbatim in the schedule this page delivers; view-source doubles as the spec sheet."
+              "text": "The implementation is one pure function: pass a frame number, get back every dot's position and size. The renderer draws circles from those values, so `SVG` and `WebGPU` reuse the same function. The numbers — key frames, easing curves, radii, appearance frames — sit as plain constants in the JavaScript this page loads: the browser's view-source doubles as the spec sheet."
             },
             {
               "type": "callout",
               "tone": "note",
-              "text": "The source is one cell of @PuttiMW's drawer series — decomposed and rebuilt in a motion-research repo. The palette swaps the reference red/pink for the same fixed light palette as the SNS clip. The demo above composites grain and chromatic aberration live in two `WebGPU` passes — a verbatim port of the math that finished the clip, down to a bit-identical grain random sequence. Where `WebGPU` is unavailable it falls back to `SVG` + `requestAnimationFrame`."
+              "text": "The source is one cell of @PuttiMW's drawer series — decomposed and rebuilt in a motion-research repo. The palette swaps the reference red/pink for the same fixed light palette as the SNS clip. The demo above composites grain and chromatic aberration live in two `WebGPU` passes — the math is ported line by line from the pipeline that finished the clip, down to a bit-identical grain random sequence. Where `WebGPU` is unavailable it falls back to `SVG` + `requestAnimationFrame`."
             }
           ]
         },
