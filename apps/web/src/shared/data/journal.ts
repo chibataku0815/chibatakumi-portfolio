@@ -135,6 +135,20 @@ export const journalEntries: readonly JournalEntry[] = [
 ];
 
 export const motionStudyEntries: readonly JournalEntry[] = [
+  // Wave 2 seed — the first drawer-grammar motion study with a live, in-article
+  // demo (motion-grammar-lab cell #13 "lattice-breath"). status:"published" is
+  // LOCAL-PREVIEW ONLY here; committing/pushing this entry ships the article on
+  // the production site. Keep uncommitted until the user gates publication.
+  {
+    slug: "lattice-breath",
+    kind: "motion-study",
+    href: "/journal/motion-studies/lattice-breath",
+    publishedAt: "2026-06-10",
+    priority: 1,
+    tags: ["Lattice", "Emergence", "Easing", "SVG"],
+    status: "published",
+    evidenceLevel: "production",
+  },
   {
     slug: "signal-stroke-relay",
     kind: "motion-study",

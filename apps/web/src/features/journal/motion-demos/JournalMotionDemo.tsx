@@ -1,0 +1,39 @@
+"use client";
+
+// JournalMotionDemo — render boundary for `motion-demo` article blocks.
+//
+// Maps a demo id (carried by the block, authored in the i18n sections array)
+// to a live, framework-independent motion component. Each demo runs a pure
+// motion-grammar schedule on an rAF loop; the prose around it stays in the
+// shared i18n block model. Adding a new motion study = registering one more
+// id here and one more vendored verb under ./verbs.
+
+import { LatticeBreathDemo } from "./LatticeBreathDemo";
+
+const DEMO_REGISTRY: Record<string, () => React.ReactElement> = {
+  "lattice-breath": LatticeBreathDemo,
+};
+
+interface JournalMotionDemoProps {
+  readonly demo: string;
+  readonly caption?: string;
+}
+
+export function JournalMotionDemo({ demo, caption }: JournalMotionDemoProps) {
+  const Demo = DEMO_REGISTRY[demo];
+  if (!Demo) return null;
+
+  return (
+    <figure
+      className="my-4 flex flex-col items-center gap-5 rounded-md border border-[var(--text-base-20)] bg-[var(--bg-secondary)]/40 px-6 py-10"
+      style={{ color: "var(--text-base)" }}
+    >
+      <Demo />
+      {caption ? (
+        <figcaption className="font-sans text-[10px] uppercase tracking-[0.18em] text-[var(--text-base-60)]">
+          {caption}
+        </figcaption>
+      ) : null}
+    </figure>
+  );
+}

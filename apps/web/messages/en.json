@@ -1579,6 +1579,12 @@
       "indexSummary": "Independent of whether each one ships into the portfolio body, here is where motion vocabulary is isolated and written down — one technique per study, with the judgements, what was cut, and the technical constraints documented before the implementation.",
       "metaDescription": "Motion Studies index — Renewal 2026 motion vocabulary broken down into single-purpose R&D pieces.",
       "entries": {
+        "lattice-breath": {
+          "eyebrow": "Lattice / Emergence",
+          "title": "The dot count seems to grow 6→19→6, yet nothing is ever created or destroyed — emergent counting from a polar lattice's breath",
+          "summary": "A hexagonal lattice breathes and the visible dot count swells from 6 to 19, then falls back. Structurally, nothing is created or destroyed. One `master` timing co-drives radius and parent rotation on shared keys while staggered `scale` clips bring interior families in and out — the count is purely emergent from how those onsets overlap. A framework-independent rewrite of one motion grammar as a pure function.",
+          "metaDescription": "A motion study of emergent counting from a hexagonal lattice's breath. The visible dot count appears to grow 6→19→6 while nothing is structurally created or destroyed — a pure schedule rendered directly in `SVG` and `requestAnimationFrame`."
+        },
         "signal-stroke-relay": {
           "eyebrow": "Theatre / Cascade",
           "title": "The relay sensation cannot be built from separate animations — a Theatre.js timeline referenced by multiple layers with phase offsets",
@@ -2384,6 +2390,64 @@
         ]
       },
       "motion-studies": {
+        "lattice-breath": {
+          "sections": [
+            {
+              "type": "motion-demo",
+              "demo": "lattice-breath",
+              "caption": "counts 6→7→13→19, then back to 6 — 90 frames / 3s loop"
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "What it is"
+            },
+            {
+              "type": "paragraph",
+              "text": "A hexagonal lattice breathes. Six arm dots spread their radius outward while interior dots fill in. The visible count swells from 6 to 19 and falls back — yet structurally, nothing is ever created or destroyed."
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "The primitive"
+            },
+            {
+              "type": "list",
+              "items": [
+                "`master` — one timing runs bloom → hold → collapse → rest",
+                "`spiral` — radius spread and parent rotation share the same keys (rotation has none of its own)",
+                "growth — staggered `scale` clips bring interior families in and out; the count is emergent"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "Four families — arm, inner ring, edge (mid-angle) and centre — sit on the same angular series of a polar lattice. Only their entry and exit timing differs; the 6→7→13→19 count emerges from how those onsets overlap. The loop closes because −90° per half (−180° per loop) lands on a 60°-invariant angle family."
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "Easing"
+            },
+            {
+              "type": "paragraph",
+              "text": "The breath holds at both ends with an `easy-ease`. Opening and closing are not mirror images — each carries its own handles. Only as the interior families appear does a one-dot overshoot ride on top (0→120%→100%); the edge family has none and rises plainly 0→100%."
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "What was rejected"
+            },
+            {
+              "type": "paragraph",
+              "text": "Explaining the mid-angle dots as a scale-about-the-arm or a midpoint-lock was rejected against the rendered frames — no single geometric rule holds to the pixel on every frame. The edge radial slide is not emergent; it is an explicit, co-timed key channel."
+            },
+            {
+              "type": "callout",
+              "tone": "note",
+              "text": "This motion is a framework-independent rewrite of one grammar extracted in a motion-research repo from @PuttiMW's drawer series, re-authored as a pure function. The palette is swapped from the reference red/pink to the site's light-substrate ink. The demo above runs in plain `SVG` and `requestAnimationFrame` — not Remotion or `WebGPU`."
+            }
+          ]
+        },
         "signal-stroke-relay": {
           "sections": [
             {

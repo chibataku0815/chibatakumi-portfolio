@@ -38,6 +38,14 @@ export type JournalDividerBlock = {
   type: "divider";
 };
 
+// Live, in-article motion demo. `demo` is a registry id resolved client-side by
+// JournalMotionDemo; the schedule runs framework-independently on an rAF loop.
+export type JournalMotionDemoBlock = {
+  type: "motion-demo";
+  demo: string;
+  caption?: string;
+};
+
 export type JournalBlock =
   | JournalHeadingBlock
   | JournalParagraphBlock
@@ -45,7 +53,8 @@ export type JournalBlock =
   | JournalQuoteBlock
   | JournalCodeBlock
   | JournalCalloutBlock
-  | JournalDividerBlock;
+  | JournalDividerBlock
+  | JournalMotionDemoBlock;
 
 const VALID_TYPES: ReadonlySet<JournalBlock["type"]> = new Set([
   "heading",
@@ -55,6 +64,7 @@ const VALID_TYPES: ReadonlySet<JournalBlock["type"]> = new Set([
   "code",
   "callout",
   "divider",
+  "motion-demo",
 ]);
 
 export function isJournalBlock(value: unknown): value is JournalBlock {

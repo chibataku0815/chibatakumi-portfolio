@@ -1581,6 +1581,12 @@
       "indexSummary": "ポートフォリオの本体に乗るかどうかは別軸として、モーションの原語を単機能ずつ切り出し、書き残しておく場所。判断、捨てたもの、実装の制約を、実装そのものより先に固定する。",
       "metaDescription": "Motion Studies index — Renewal 2026 のモーション語彙を単機能ずつ分解した R&D アーカイブ。",
       "entries": {
+        "lattice-breath": {
+          "eyebrow": "Lattice / Emergence",
+          "title": "ドットが 6→19→6 と増減して見えるのに、何も生成も消滅もしていない — 極座標格子の呼吸が生む創発カウント",
+          "summary": "六角格子が呼吸すると、見かけのドット数は 6 から 19 まで増え、また戻る。だが構造的には、何ひとつ生成も消滅もしていない。1 本の `master` タイミングが半径と親回転を同一キーで共駆動し、スタガーした `scale` クリップが内部の family を出し入れする。カウントはその onset の重なりからの創発でしかない。モーション・グラマー研究リポの 1 セルを、フレームワーク非依存の純関数として書き直した記録。",
+          "metaDescription": "六角格子の呼吸が生む創発カウントの motion study。見かけのドット数は 6→19→6 と増減するが、構造的には何も生成も消滅もしていない。純関数の schedule を `SVG` と `requestAnimationFrame` で直接描画する。"
+        },
         "signal-stroke-relay": {
           "eyebrow": "Theatre / Cascade",
           "title": "同じ動きが場所を変えながら伝わる感覚は、別アニメーションの集合では作れない — Theatre.js のタイムラインを複数レイヤーが位相差で参照する設計",
@@ -2386,6 +2392,64 @@
         ]
       },
       "motion-studies": {
+        "lattice-breath": {
+          "sections": [
+            {
+              "type": "motion-demo",
+              "demo": "lattice-breath",
+              "caption": "6→7→13→19 と数えて、また 6 へ — 90 frames / 3s loop"
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "狙い"
+            },
+            {
+              "type": "paragraph",
+              "text": "六角格子が「呼吸」する。中心から伸びた 6 本の腕のドットが半径を広げ、その内側にドットが増えていく。見かけのドット数は 6 から 19 まで膨らみ、また戻る。だが構造的には、何ひとつ生成も消滅もしていない。"
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "原語の構造"
+            },
+            {
+              "type": "list",
+              "items": [
+                "`master` — bloom → hold → collapse → rest を刻む 1 本のタイミング",
+                "`spiral` — 半径 spread と親回転を同一キーで共駆動（回転は自前のキーを持たない）",
+                "増減 — スタガーした `scale` クリップで内部の family が出入りし、カウントが創発する"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "腕・内側リング・中間（edge）・中心の 4 family が、極座標格子の同じ角度系列に乗る。各 family は出入りのタイミングだけがずれており、6→7→13→19 のカウントはその onset の重なりから現れる。ループは半周 −90°、1 周 −180° の親回転が 60° 不変の角度系列へ着地して閉じる。"
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "緩急"
+            },
+            {
+              "type": "paragraph",
+              "text": "呼吸の緩急は、両端でためる `easy-ease`。開きと閉じは鏡像ではなく、別のハンドルを当てている。内部の family が現れる瞬間だけ、ひと粒分のオーバーシュート（0→120%→100%）が乗る。中間の edge family にはそれがなく、素直に 0→100% で立ち上がる。"
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "捨てたもの"
+            },
+            {
+              "type": "paragraph",
+              "text": "中間ドットの動きを「腕に対するスケール」や「中点ロック」で説明する案は、レンダー実測で棄却した。単一の幾何則では、どこかのフレームで数 px ずれる。edge の半径スライドは創発ではなく、co-timed なキーチャンネルとして明示的に打っている。"
+            },
+            {
+              "type": "callout",
+              "tone": "note",
+              "text": "このモーションは、モーション研究リポでプッティ（@PuttiMW）「モーションの引き出し」の 1 セルを分解・再構築した原語を、フレームワーク非依存の純関数として書き直したもの。色は参照の赤／ピンクではなく、サイトのライト・サブストレートの墨に置き換えてある。上のデモは Remotion でも `WebGPU` でもなく、`SVG` と `requestAnimationFrame` で直接動いている。"
+            }
+          ]
+        },
         "signal-stroke-relay": {
           "sections": [
             {

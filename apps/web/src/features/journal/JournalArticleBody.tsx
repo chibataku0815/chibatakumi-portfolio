@@ -4,9 +4,11 @@ import type {
   JournalCodeBlock,
   JournalHeadingBlock,
   JournalListBlock,
+  JournalMotionDemoBlock,
   JournalParagraphBlock,
   JournalQuoteBlock,
 } from "./article-blocks";
+import { JournalMotionDemo } from "./motion-demos/JournalMotionDemo";
 
 interface JournalArticleBodyProps {
   blocks: readonly JournalBlock[];
@@ -46,6 +48,8 @@ function BlockRenderer({ block }: { block: JournalBlock }) {
           className="my-4 border-0 border-t border-[var(--text-base-20)]"
         />
       );
+    case "motion-demo":
+      return <MotionDemo block={block} />;
     default: {
       const exhaustive: never = block;
       void exhaustive;
@@ -147,4 +151,8 @@ function Callout({ block }: { block: JournalCalloutBlock }) {
       </p>
     </aside>
   );
+}
+
+function MotionDemo({ block }: { block: JournalMotionDemoBlock }) {
+  return <JournalMotionDemo demo={block.demo} caption={block.caption} />;
 }
