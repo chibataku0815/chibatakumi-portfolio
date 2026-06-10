@@ -173,17 +173,6 @@ export const motionStudyEntries: readonly JournalEntry[] = [
     status: "published",
     evidenceLevel: "production",
   },
-  // Article #4 of the drawer rollout — same uncommitted-until-reviewed gate.
-  {
-    slug: "complement-tangent-pair",
-    kind: "motion-study",
-    href: "/journal/motion-studies/complement-tangent-pair",
-    publishedAt: "2026-06-10",
-    priority: 4,
-    tags: ["Conservation", "Complement", "Easing", "SVG"],
-    status: "published",
-    evidenceLevel: "production",
-  },
   {
     slug: "signal-stroke-relay",
     kind: "motion-study",
