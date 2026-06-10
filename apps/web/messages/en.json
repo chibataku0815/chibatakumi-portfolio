@@ -2400,46 +2400,58 @@
             {
               "type": "heading",
               "level": 2,
-              "text": "The invariant comes first"
+              "text": "Count the dots"
             },
             {
               "type": "paragraph",
-              "text": "While the count seems to grow, the element set stays constant — only each element's visibility and placement change. Building a motion that reads as countable without breaking that invariant is the starting point."
+              "text": "Watch the loop above and count. It starts at 6. As the lattice opens, one dot appears at the center — 7. Six more join along the outer edge — 13. An inner ring of six completes the bloom — 19. On the close the inner ring fades first, then the center and the edge together, back to 6."
+            },
+            {
+              "type": "paragraph",
+              "text": "All 19 dots exist from the first frame, and not a single one is ever created. Each dot raises its `scale` from 0 to 1 on its own cue — the center at f10, the edge at f13, the inner ring at f16. The cues are staggered a few frames per group — that stagger is the whole reason the count seems to grow."
             },
             {
               "type": "heading",
               "level": 2,
-              "text": "Construction logic"
+              "text": "Set up the lattice and the breath"
             },
             {
               "type": "list",
               "items": [
-                "one time source — a normalized envelope beating bloom → hold → collapse → rest",
-                "radius and rotation share the same key times — each channel owns only its handles",
-                "appearance and disappearance via per-family `scale` clips — onsets phase-shifted, character (overshoot or none) selected"
+                "6 dots that never disappear — arms spaced 60° apart, the base of the lattice",
+                "1 center, 6 inner-ring and 6 edge dots — 13 waiting for their cue",
+                "edge dots stand a half step (30°) off the arm angles"
               ]
             },
             {
               "type": "paragraph",
-              "text": "Every family sits on the same hexagonal angle series — only the mid family stands a half step off, and the centre sits at the origin. What separates them: onset phase, clip character, and a single explicitly keyed independent radial channel. No key drives the count; the apparent count is decided by how the onsets overlap. The loop lands its total rotation on the lattice's angular symmetry, making the final frame congruent with the first."
+              "text": "The motor is a single progress value travelling 0 → 1 → 0 across the 90 frames — opening on f0–30, holding on f30–44, closing on f44–73, resting after. Call it the breath. The breath drives the arm radius (28.8 → 75.6) and the rotation of the whole lattice."
+            },
+            {
+              "type": "paragraph",
+              "text": "Rotation shares the breath's key times but keeps its own easing handles. One loop rotates the lattice by −180°. A hexagonal lattice returns to the same pose every 60°, so the −180° landing is indistinguishable from the initial layout — the last frame coincides with the first and the loop seam disappears."
+            },
+            {
+              "type": "paragraph",
+              "text": "Only the six edge dots carry one more independent motion — they slide along their own radius rail (32.84 → 65.68) on their own key times (outward on f10–28, inward on f44–70). During reconstruction, every hypothesis that explained all dots with one geometric rule was rejected against measurement. Motion the breath cannot explain stays as explicit keys instead of guesses — this rail is the example."
             },
             {
               "type": "heading",
               "level": 2,
-              "text": "Easing design"
+              "text": "Overshoot, then settle"
             },
             {
               "type": "paragraph",
-              "text": "The envelope holds at both ends, and opening and closing are not mirror images — each carries its own handles. Local character is reduced to a one-dot overshoot (0→120%→100%) and is not given to every family. Choosing where character rides and where the rise stays plain is the motion's signature."
+              "text": "The center and the inner ring appear with character: 8 frames overshooting to 120%, then 10 frames settling back to 100% — one dot's worth of overshoot. The edge rises straight in 12 frames. The breath, too, opens and closes on different handles rather than mirror images. Where character rides and where the rise stays plain — that choice is the motion's signature."
             },
             {
               "type": "heading",
               "level": 2,
-              "text": "Design boundary"
+              "text": "One pure function is all you need"
             },
             {
               "type": "paragraph",
-              "text": "The schedule is a pure function from frame to state and knows nothing about the renderer. Drawing closes outside it as a mapping from state to shapes — `SVG` and `WebGPU` consume the same schedule. During construction, every single-geometric-rule hypothesis was tested against rendered frames and rejected — degrees of freedom that resist explanation stay as explicit keys rather than guesses. Here, that is the mid family's radial slide. The numbers — key times, handles, radius ratios, onsets — ship verbatim in the schedule this page delivers; view-source doubles as the spec sheet."
+              "text": "The implementation is one pure function: pass a frame number, get back every dot's position and `scale`. The renderer's job is to map that state to shapes, so `SVG` and `WebGPU` consume the same schedule. The numbers — key times, handles, radii, appearance frames — ship verbatim in the schedule this page delivers; view-source doubles as the spec sheet."
             },
             {
               "type": "callout",
