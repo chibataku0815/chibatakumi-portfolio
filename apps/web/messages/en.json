@@ -1582,7 +1582,7 @@
         "lattice-breath": {
           "eyebrow": "Lattice / Emergence",
           "title": "The dot count seems to grow 6→19→6, yet nothing is ever created or destroyed — emergent counting from a polar lattice's breath",
-          "summary": "A hexagonal lattice breathes and the visible dot count swells from 6 to 19, then falls back. Structurally, nothing is created or destroyed. One `master` timing co-drives radius and parent rotation on shared keys while staggered `scale` clips bring interior families in and out — the count is purely emergent from how those onsets overlap. A framework-independent rewrite of one motion grammar as a pure function.",
+          "summary": "A hexagonal lattice breathes and the visible dot count moves 6→19→6 — yet the element set never changes, and no channel drives the count itself. One normalized envelope co-drives radius and rotation on shared keys, while phase-shifted `scale` clips toggle per-family visibility; the count is a dependent variable emerging from how onsets overlap. Notes on organizing that construction logic as a framework-independent pure function.",
           "metaDescription": "A motion study of emergent counting from a hexagonal lattice's breath. The visible dot count appears to grow 6→19→6 while nothing is structurally created or destroyed — a pure schedule rendered live in `WebGPU`, finished with the same grain and chromatic-aberration math as the SNS clip."
         },
         "signal-stroke-relay": {
@@ -2400,51 +2400,51 @@
             {
               "type": "heading",
               "level": 2,
-              "text": "What it is"
+              "text": "The phenomenon and its invariant"
             },
             {
               "type": "paragraph",
-              "text": "A hexagonal lattice breathes. Six arm dots spread their radius outward while interior dots fill in. The visible count swells from 6 to 19 and falls back — yet structurally, nothing is ever created or destroyed."
+              "text": "The visible dot count grows from 6 to 19 and falls back to 6. The element set, though, stays constant from first frame to last — nothing is created or destroyed; only visibility states change. Building a motion that reads as countable without breaking that invariant is the starting point."
             },
             {
               "type": "heading",
               "level": 2,
-              "text": "The primitive"
+              "text": "Construction logic"
             },
             {
               "type": "list",
               "items": [
-                "`master` — one timing runs bloom → hold → collapse → rest",
-                "`spiral` — radius spread and parent rotation share the same keys (rotation has none of its own)",
-                "growth — staggered `scale` clips bring interior families in and out; the count is emergent"
+                "one time source — a normalized envelope beating bloom → hold → collapse → rest",
+                "radius and rotation co-driven on shared keys, no independent channels",
+                "appearance and disappearance only via per-family phase shifts of `scale` clips"
               ]
             },
             {
               "type": "paragraph",
-              "text": "Four families — arm, inner ring, edge (mid-angle) and centre — sit on the same angular series of a polar lattice. Only their entry and exit timing differs; the 6→7→13→19 count emerges from how those onsets overlap. The loop closes because −90° per half (−180° per loop) lands on a 60°-invariant angle family."
+              "text": "Every family sits on the same angular series; the only difference between them is onset phase. The visible count is a dependent variable decided by how those onsets overlap — no key drives the count itself. The loop closes by landing the total rotation on the lattice's angular symmetry, so the final frame becomes congruent with the initial arrangement and the seam disappears."
             },
             {
               "type": "heading",
               "level": 2,
-              "text": "Easing"
+              "text": "Easing design"
             },
             {
               "type": "paragraph",
-              "text": "The breath holds at both ends with an `easy-ease`. Opening and closing are not mirror images — each carries its own handles. Only as the interior families appear does a one-dot overshoot ride on top (0→120%→100%); the edge family has none and rises plainly 0→100%."
+              "text": "The envelope holds at both ends, and opening and closing are not mirror images — each carries its own handles. Local character is reduced to a single one-dot overshoot, and it is deliberately not given to every family. Choosing where character rides and where the rise stays plain is itself the motion's signature."
             },
             {
               "type": "heading",
               "level": 2,
-              "text": "What was rejected"
+              "text": "Design boundary"
             },
             {
               "type": "paragraph",
-              "text": "Explaining the mid-angle dots as a scale-about-the-arm or a midpoint-lock was rejected against the rendered frames — no single geometric rule holds to the pixel on every frame. The edge radial slide is not emergent; it is an explicit, co-timed key channel."
+              "text": "The schedule is a pure function from frame to state and knows nothing about the renderer. Drawing closes outside it as a mapping from state to shapes — `SVG` and `WebGPU` consume the same schedule. During construction, every hypothesis that explained all dots with a single geometric rule was tested against rendered frames and rejected. Degrees of freedom that resist explanation stay as explicit keys rather than guesses — observation ranks above abstraction."
             },
             {
               "type": "callout",
               "tone": "note",
-              "text": "This motion is a framework-independent rewrite of one grammar extracted in a motion-research repo from @PuttiMW's drawer series, re-authored as a pure function. The palette is swapped from the reference red/pink to the same fixed light palette as the SNS clip. The demo above composites grain and chromatic aberration live in two `WebGPU` passes — a verbatim port of the math in the pipeline that finished the clip, down to a bit-identical grain random sequence. Where `WebGPU` is unavailable it falls back to plain `SVG` + `requestAnimationFrame`."
+              "text": "The source is one cell of @PuttiMW's drawer series, decomposed and rebuilt in a motion-research repo, then re-authored as a framework-independent pure function. The palette swaps the reference red/pink for the same fixed light palette as the SNS clip. The demo above composites grain and chromatic aberration live in two `WebGPU` passes — a verbatim port of the math in the pipeline that finished the clip, down to a bit-identical grain random sequence. Where `WebGPU` is unavailable it falls back to plain `SVG` + `requestAnimationFrame`."
             }
           ]
         },
