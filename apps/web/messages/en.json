@@ -1585,6 +1585,18 @@
           "summary": "The dots seem to grow from 6 to 19 and fall back to 6 — yet not a single one is created. No key animates the count; it looks like more because each appearance is slightly offset in time. Layer time-shifted entrances onto a breathing lattice and the count change simply emerges. The whole trick is dissected as one framework-free pure function.",
           "metaDescription": "A motion study of emergent counting from a hexagonal lattice's breath. The visible dot count appears to grow 6→19→6 while nothing is structurally created or destroyed — a pure schedule rendered live in `WebGPU`, finished with the same grain and chromatic-aberration math as the SNS clip."
         },
+        "pulse-grid": {
+          "eyebrow": "Scramble / Determinism",
+          "title": "Dissecting an order that looks random",
+          "summary": "Nine dots pop in an order you can't predict — yet no random number is drawn anywhere. The motion is one keyframed clip, replayed by all nine duplicates 2 frames apart; the order comes from a single fixed table holding the numbers 0–8. The whole build — down to the spring-like undershoot that turns out to be an authored key — is dissected as one pure function.",
+          "metaDescription": "A motion study dissecting \"random\": the firing order of nine dots comes from one fixed table, zero rng — a single radius-keyframe clip time-shifted 2 frames × rank, fully deterministic. The pure schedule renders live in `WebGPU` with two-pass grain and chromatic aberration."
+        },
+        "tangency-coupled-drive": {
+          "eyebrow": "Tangency / Derivation",
+          "title": "Dissecting a rotation that seems to stop",
+          "summary": "While the center square makes a quarter turn, the side squares slide as if bolted to it, and near the diamond everything seems to pause. Yet only the rotation carries keyframes — three. The sides have zero; their position is computed every frame as the closest spot that stays clear of the spinning square. Even the pause is nobody stopping anything. One rotation and a one-line contact law, dissected as one pure function.",
+          "metaDescription": "A motion study dissecting linkage: three rotation keyframes drive everything, and the side squares are derived each frame from a tangency (contact) law — the apparent stop near the diamond is the flat top of a cosine, not a hold key. The pure schedule renders live in `WebGPU` with two-pass grain and chromatic aberration."
+        },
         "signal-stroke-relay": {
           "eyebrow": "Theatre / Cascade",
           "title": "The relay sensation cannot be built from separate animations — a Theatre.js timeline referenced by multiple layers with phase offsets",
@@ -2457,6 +2469,152 @@
               "type": "callout",
               "tone": "note",
               "text": "The source is one cell of @PuttiMW's drawer series — decomposed and rebuilt in a motion-research repo. The palette swaps the reference red/pink for the same fixed light palette as the SNS clip. The demo above composites grain and chromatic aberration live in two `WebGPU` passes — the math is ported line by line from the pipeline that finished the clip, down to a bit-identical grain random sequence. Where `WebGPU` is unavailable it falls back to `SVG` + `requestAnimationFrame`."
+            }
+          ]
+        },
+        "pulse-grid": {
+          "sections": [
+            {
+              "type": "motion-demo",
+              "demo": "pulse-grid",
+              "caption": "the order is the same every loop — 90 frames / 3s loop"
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "Try to call the next dot"
+            },
+            {
+              "type": "paragraph",
+              "text": "Watch the loop and try to call which dot pops next. Bottom-right goes first. Then the middle of the top row, then the middle of the bottom row — it reads as scattered, yet the order is exactly the same every loop. Bottom-left pops last, and the loop hands back to bottom-right."
+            },
+            {
+              "type": "paragraph",
+              "text": "What looks scattered is not a random number. The motion is a single clip, and nine duplicates replay that same clip 2 frames apart. Which duplicate starts when is decided by one fixed order table — nine grid cells holding the numbers 0–8: `[[5,1,6],[7,3,4],[8,2,0]]`. That one table is the entire \"random\"."
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "Build exactly one clip"
+            },
+            {
+              "type": "list",
+              "items": [
+                "pop from the rest radius 12.02 to 26.19 in 9 frames",
+                "drop too far, to 21.84, in 9 more — an authored undershoot",
+                "recover to 22.39 in 7, then hold for 25 frames",
+                "one final 18-frame ease back to the rest radius"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "The clip is just six radius keyframes and five easing curves, one per segment. A segment between equal values cannot move no matter what its curve says — that is how the 25-frame hold is made."
+            },
+            {
+              "type": "paragraph",
+              "text": "The duplicates carry no individuality. Nine dots sit fixed on a 3×3 grid about 59px apart, sharing amplitude and curve shape — aligned on their starts, the measured spread averages 0.07px. Only the start frame differs, and the shift measures exactly 2 frames × rank for every dot."
+            },
+            {
+              "type": "paragraph",
+              "text": "The decay lands exactly on the rest radius. The original video trails a faint tail that never quite returns to 12.02 — but the last duplicate's clip starts on frame 19 and ends on frame 87, nearly spending the 90-frame loop budget. Chasing the tail would break the seam. The exact landing is a constraint chosen in trade for a loop whose last frame coincides with its first."
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "Keys, not a spring"
+            },
+            {
+              "type": "paragraph",
+              "text": "Pop, overshoot, settle — it reads like a damped spring. But the best spring fit still misses by 0.252px, while the six-keyframe build misses by 0.034px — about a seventh of that. Even so, the verdict doesn't rest on fit quality. It sits at the exit of the hold."
+            },
+            {
+              "type": "paragraph",
+              "text": "The 25-frame hold drifts a dead-flat 0.04px. Right after it, the radius velocity steps from nearly 0 to −1.07px per frame in one jump, and the decay begins. A spring that keeps oscillating cannot produce that switch. The undershoot is not physics ringing out — it is a key someone placed."
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "One pure function is all you need"
+            },
+            {
+              "type": "paragraph",
+              "text": "The implementation is one pure function: pass a frame number, get back nine centres and radii. The order table is plain data handed to the function — no shuffle, no random seed; the same frame always returns the same pose. The keyframes, easing curves, grid coordinates and the table sit as plain constants in the JavaScript this page loads: the browser's view-source doubles as the spec sheet."
+            },
+            {
+              "type": "callout",
+              "tone": "note",
+              "text": "The source is one cell of @PuttiMW's drawer series — decomposed and rebuilt in a motion-research repo. The palette swaps the reference blue for the fixed light palette. The demo above composites grain and chromatic aberration live in two `WebGPU` passes — the math is ported line by line from the research repo's delivery pipeline and verified to match its CPU implementation. Where `WebGPU` is unavailable it falls back to `SVG` + `requestAnimationFrame`."
+            }
+          ]
+        },
+        "tangency-coupled-drive": {
+          "sections": [
+            {
+              "type": "motion-demo",
+              "demo": "tangency-coupled-drive",
+              "caption": "three rotation keyframes drive everything — 90 frames / 3s loop"
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "Who moves the side squares?"
+            },
+            {
+              "type": "paragraph",
+              "text": "While the center square makes its quarter turn, the side squares slide outward, seem to pause around the diamond, and come back. The three motions are perfectly bound together — so what is doing the binding?"
+            },
+            {
+              "type": "paragraph",
+              "text": "Only the center's rotation carries keyframes — three of them. The sides have none. Their position is computed every frame: the closest spot that stays just clear of the spinning square. The linkage is one rotation plus a one-line contact law."
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "Write one rotation and one line of law"
+            },
+            {
+              "type": "list",
+              "items": [
+                "3 rotation keys — 0° on frame 3, 45° on frame 46, 90° on frame 89",
+                "one easing curve per segment, two in total",
+                "zero keyframes on the side squares",
+                "push distance runs 0 → 11px → 0"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "A square with a 54px side is 54px wide while it stands upright. At the diamond (45°) its diagonal turns sideways and it widens to about 76px. Each frame, the sides are placed to keep a 0.1px gap from half that width — right pushed out, left pushed out, symmetric. No time offset."
+            },
+            {
+              "type": "paragraph",
+              "text": "The apparent stop near the diamond is not a key holding anything. Around 45° the width barely changes, so the push barely changes — a geometric plateau. Measured, the rotation passes 45° at +0.175° per frame, not zero. The rotation never stops."
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "How do you prove contact?"
+            },
+            {
+              "type": "paragraph",
+              "text": "From the push trajectory alone you can solve backwards: if the sides really are touching, what must the square's side length be? The answer comes out 53.83 — and the side measured independently from the video is 53.92–53.95. The remaining gap also stays constant, +0.103 ± 0.064px, across the whole travel. A size that matches and a gap that holds still — those two are contact's fingerprints."
+            },
+            {
+              "type": "paragraph",
+              "text": "Keying the sides independently with 13 parameters fits slightly better (0.043px vs 0.075px). It still loses. An independent track has no reason for its hidden \"square size\" to match the real one. The apparent 1.5-frame left–right offset also vanished under finer measurement, to below 0.36 frames — false evidence manufactured by a coarse measuring method."
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "One pure function is all you need"
+            },
+            {
+              "type": "paragraph",
+              "text": "The implementation is one pure function: pass a frame number, get back the center's angle and the sides' positions. The law is 90°-periodic, so a quarter turn yields one push — and feeding it a half turn really does yield two. The push count is not baked into a clip; it is a consequence of the rotation you feed in. Every number sits as a plain constant in the JavaScript this page loads: the browser's view-source doubles as the spec sheet."
+            },
+            {
+              "type": "callout",
+              "tone": "note",
+              "text": "The source is one cell of @PuttiMW's drawer series — decomposed and rebuilt in a motion-research repo. An earlier analysis had ruled \"not contact-driven\"; finer measurement overturned that ruling itself. The palette swaps the reference red for the fixed light palette. The demo above composites grain and chromatic aberration live in two `WebGPU` passes — the math is ported line by line from the delivery pipeline and verified to match its CPU implementation. Where `WebGPU` is unavailable it falls back to `SVG` + `requestAnimationFrame`."
             }
           ]
         },

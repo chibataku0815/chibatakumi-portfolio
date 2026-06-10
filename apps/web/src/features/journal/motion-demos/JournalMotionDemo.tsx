@@ -8,12 +8,19 @@
 // shared i18n block model. Adding a new motion study = registering one more
 // id here and one more vendored verb under ./verbs.
 
+import { ComplementTangentPairFinishDemo } from "./ComplementTangentPairFinishDemo";
 import { LatticeBreathFinishDemo } from "./LatticeBreathFinishDemo";
+import { PulseGridFinishDemo } from "./PulseGridFinishDemo";
+import { TangencyCoupledDriveFinishDemo } from "./TangencyCoupledDriveFinishDemo";
 
 const DEMO_REGISTRY: Record<string, () => React.ReactElement> = {
   // WebGPU finish (grain + CA, parity-proven WGSL port); falls back to the
   // plain SVG LatticeBreathDemo internally when WebGPU is unavailable.
   "lattice-breath": LatticeBreathFinishDemo,
+  // Same finish pipeline; article-own grain streams (no posted per-cell clip).
+  "pulse-grid": PulseGridFinishDemo,
+  "tangency-coupled-drive": TangencyCoupledDriveFinishDemo,
+  "complement-tangent-pair": ComplementTangentPairFinishDemo,
 };
 
 interface JournalMotionDemoProps {

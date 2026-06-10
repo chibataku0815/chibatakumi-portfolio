@@ -149,6 +149,41 @@ export const motionStudyEntries: readonly JournalEntry[] = [
     status: "published",
     evidenceLevel: "production",
   },
+  // Article #2 of the drawer rollout (docs/journal/motion-study-rollout.md).
+  // Same publication gate as above: keep uncommitted until the user reviews
+  // the local preview; one commit per article ships it via Actions deploy.
+  {
+    slug: "pulse-grid",
+    kind: "motion-study",
+    href: "/journal/motion-studies/pulse-grid",
+    publishedAt: "2026-06-10",
+    priority: 2,
+    tags: ["Scramble", "Determinism", "Easing", "SVG"],
+    status: "published",
+    evidenceLevel: "production",
+  },
+  // Article #3 of the drawer rollout — same uncommitted-until-reviewed gate.
+  {
+    slug: "tangency-coupled-drive",
+    kind: "motion-study",
+    href: "/journal/motion-studies/tangency-coupled-drive",
+    publishedAt: "2026-06-10",
+    priority: 3,
+    tags: ["Tangency", "Geometry", "Easing", "SVG"],
+    status: "published",
+    evidenceLevel: "production",
+  },
+  // Article #4 of the drawer rollout — same uncommitted-until-reviewed gate.
+  {
+    slug: "complement-tangent-pair",
+    kind: "motion-study",
+    href: "/journal/motion-studies/complement-tangent-pair",
+    publishedAt: "2026-06-10",
+    priority: 4,
+    tags: ["Conservation", "Complement", "Easing", "SVG"],
+    status: "published",
+    evidenceLevel: "production",
+  },
   {
     slug: "signal-stroke-relay",
     kind: "motion-study",

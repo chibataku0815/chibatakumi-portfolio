@@ -142,3 +142,4 @@
 - `docs/journal/curation-rationale.md` — 何を載せるかの基準
 - `docs/journal/ja-writing-style.md` — 日本語執筆スタイル
 - `apps/web/src/shared/data/journal.ts` — レジストリ
+- `docs/journal/motion-study-rollout.md` — **drawer 18 技法の motion-study 展開はこちらが正本**（このファイルは非 drawer 候補のみ扱う）
