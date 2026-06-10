@@ -218,6 +218,12 @@ export const motionStudyEntries: readonly JournalEntry[] = [
 const byPriority = (a: JournalEntry, b: JournalEntry) =>
   a.priority - b.priority;
 
+// Motion studies list newest-first: the garden grows over time, so readers
+// should meet the latest study at the top. Same-day articles fall back to
+// descending rollout priority (a higher number is a more recent article).
+const byNewestFirst = (a: JournalEntry, b: JournalEntry) =>
+  b.publishedAt.localeCompare(a.publishedAt) || b.priority - a.priority;
+
 export const publishedJournalEntries: readonly JournalEntry[] = [
   ...journalEntries,
 ]
@@ -228,7 +234,7 @@ export const publishedMotionStudyEntries: readonly JournalEntry[] = [
   ...motionStudyEntries,
 ]
   .filter((entry) => entry.status === "published")
-  .sort(byPriority);
+  .sort(byNewestFirst);
 
 export function getJournalEntryBySlug(
   slug: string,
