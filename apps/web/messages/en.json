@@ -1581,7 +1581,7 @@
       "entries": {
         "lattice-breath": {
           "eyebrow": "Lattice / Emergence",
-          "title": "The dot count seems to grow 6→19→6, yet nothing is ever created or destroyed — emergent counting from a polar lattice's breath",
+          "title": "Counting dots up and down without a single count key — one envelope, phase-shifted clips",
           "summary": "A hexagonal lattice breathes and the visible dot count moves 6→19→6 — yet the element set never changes, and no channel drives the count itself. One normalized envelope co-drives radius and rotation on shared keys, while phase-shifted `scale` clips toggle per-family visibility; the count is a dependent variable emerging from how onsets overlap. Notes on organizing that construction logic as a framework-independent pure function.",
           "metaDescription": "A motion study of emergent counting from a hexagonal lattice's breath. The visible dot count appears to grow 6→19→6 while nothing is structurally created or destroyed — a pure schedule rendered live in `WebGPU`, finished with the same grain and chromatic-aberration math as the SNS clip."
         },
@@ -2404,7 +2404,7 @@
             },
             {
               "type": "paragraph",
-              "text": "The visible dot count grows from 6 to 19 and falls back to 6. The element set, though, stays constant from first frame to last — nothing is created or destroyed; only visibility states change. Building a motion that reads as countable without breaking that invariant is the starting point."
+              "text": "The visible dot count grows from 6 to 19 and falls back to 6. The element set, though, stays constant from first frame to last — nothing is created or destroyed; only each element's visibility and placement change. Building a motion that reads as countable without breaking that invariant is the starting point."
             },
             {
               "type": "heading",
@@ -2415,13 +2415,13 @@
               "type": "list",
               "items": [
                 "one time source — a normalized envelope beating bloom → hold → collapse → rest",
-                "radius and rotation co-driven on shared keys, no independent channels",
-                "appearance and disappearance only via per-family phase shifts of `scale` clips"
+                "radius and rotation share the same key times — rotation owns no key times of its own, only its handles",
+                "appearance and disappearance via per-family `scale` clips — onsets phase-shifted, character (overshoot or none) chosen per family"
               ]
             },
             {
               "type": "paragraph",
-              "text": "Every family sits on the same angular series; the only difference between them is onset phase. The visible count is a dependent variable decided by how those onsets overlap — no key drives the count itself. The loop closes by landing the total rotation on the lattice's angular symmetry, so the final frame becomes congruent with the initial arrangement and the seam disappears."
+              "text": "Every family sits on the same hexagonal angle series — only the mid family stands a half step off, and the centre sits at its origin. What separates the families is onset phase, clip character, and a single explicitly keyed independent radial channel. The visible count is a dependent variable decided by how those onsets overlap — no key drives the count itself. The loop closes by landing the total rotation on the lattice's angular symmetry, so the final frame becomes congruent with the initial arrangement and the seam disappears."
             },
             {
               "type": "heading",
@@ -2430,7 +2430,7 @@
             },
             {
               "type": "paragraph",
-              "text": "The envelope holds at both ends, and opening and closing are not mirror images — each carries its own handles. Local character is reduced to a single one-dot overshoot, and it is deliberately not given to every family. Choosing where character rides and where the rise stays plain is itself the motion's signature."
+              "text": "The envelope holds at both ends, and opening and closing are not mirror images — each carries its own handles. Local character is reduced to a single one-dot overshoot (0→120%→100%), and it is deliberately not given to every family. Choosing where character rides and where the rise stays plain is itself the motion's signature."
             },
             {
               "type": "heading",
@@ -2439,7 +2439,7 @@
             },
             {
               "type": "paragraph",
-              "text": "The schedule is a pure function from frame to state and knows nothing about the renderer. Drawing closes outside it as a mapping from state to shapes — `SVG` and `WebGPU` consume the same schedule. During construction, every hypothesis that explained all dots with a single geometric rule was tested against rendered frames and rejected. Degrees of freedom that resist explanation stay as explicit keys rather than guesses — observation ranks above abstraction."
+              "text": "The schedule is a pure function from frame to state and knows nothing about the renderer. Drawing closes outside it as a mapping from state to shapes — `SVG` and `WebGPU` consume the same schedule. During construction, every hypothesis that explained all dots with a single geometric rule was tested against rendered frames and rejected. Degrees of freedom that resist explanation stay as explicit keys rather than guesses — here, that is the mid family's radial slide. The numeric spec — key times, handles, radius ratios, onsets — ships verbatim in the schedule this page delivers; view-source doubles as the spec sheet. Observation ranks above abstraction."
             },
             {
               "type": "callout",
