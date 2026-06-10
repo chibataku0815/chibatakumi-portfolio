@@ -1581,7 +1581,7 @@
       "entries": {
         "lattice-breath": {
           "eyebrow": "Lattice / Emergence",
-          "title": "Counting dots up and down without a single count key — one envelope, phase-shifted clips",
+          "title": "Dissecting dots that seem to multiply",
           "summary": "A hexagonal lattice breathes and the visible dot count moves 6→19→6 — yet the element set never changes, and no channel drives the count itself. One normalized envelope co-drives radius and rotation on shared keys, while phase-shifted `scale` clips toggle per-family visibility; the count is a dependent variable emerging from how onsets overlap. Notes on organizing that construction logic as a framework-independent pure function.",
           "metaDescription": "A motion study of emergent counting from a hexagonal lattice's breath. The visible dot count appears to grow 6→19→6 while nothing is structurally created or destroyed — a pure schedule rendered live in `WebGPU`, finished with the same grain and chromatic-aberration math as the SNS clip."
         },
