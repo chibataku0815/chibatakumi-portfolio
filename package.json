@@ -43,6 +43,7 @@
     "build:web": "bun run --cwd apps/web build",
     "start:web": "bun run --cwd apps/web start",
     "verify:vercel-settings": "node scripts/check-vercel-monorepo-settings.mjs",
-    "verify:film-lab-surfaces": "bun run --cwd apps/web build"
+    "verify:film-lab-surfaces": "bun run --cwd apps/web build",
+    "verify:journal-style": "node scripts/check-motion-study-style.mjs --all"
   }
 }

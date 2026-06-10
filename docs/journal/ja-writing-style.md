@@ -40,6 +40,8 @@ OK（独立に書き直した）:
 
 **デザイン系同業者 + テクノロジスト**。
 
+> ⚠️ `motion-studies/` 配下はこの節を上書きする — 読者規定・雛形・語彙写像・機械ゲートは `motion-study-writing-style.md` が正本（2026-06-10 テイスト固定）。
+
 - WebGPU / Shader / Visual Viewport / Theatre.js などの語は説明なしで使える
 - ただし暗黙知をすべて前提にはしない。判断の理由は短くてもよいから書く
 - クラフト感と編集物としての強度を許容する読者層。文学的トーンも有効に働く
@@ -279,6 +281,7 @@ for slug, art in d['journal']['articles'].items():
 
 ## 参照
 
+- `docs/journal/motion-study-writing-style.md` — motion-studies 専用の上層規約（テイスト固定の正本）
 - `docs/journal/journal-curation-and-japanese-review-handoff-2026-04-29-jst.md` — 精査の経緯
 - `docs/journal/curation-rationale.md` — キュレーション根拠
 - `docs/journal/wave-2-backlog.md` — 次 wave 候補
