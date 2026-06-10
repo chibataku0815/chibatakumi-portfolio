@@ -23,6 +23,31 @@ const LEGACY_EXEMPT = new Set([
   "temporal-echo-residue",
 ]);
 
+// slug → drawer name from the original one-sheet (ja) + plain-English label
+// (en). The eyebrow IS the drawer name — research vocab there broke the
+// article ↔ technique mapping for readers (2026-06-10 user report). ja column
+// mirrors the rollout doc table; this map is the en source of truth.
+const DRAWER_EYEBROW = {
+  "lattice-breath": { ja: "増減", en: "Count growth" },
+  "pulse-grid": { ja: "ランダム", en: "Random" },
+  "tangency-coupled-drive": { ja: "連動", en: "Linkage" },
+  "complement-tangent-pair": { ja: "反比例", en: "Inverse proportion" },
+  "master-rotation-echo": { ja: "残像", en: "Afterimage" },
+  "shared-hold-pulse": { ja: "対称", en: "Symmetry" },
+  "whip-crawl-path-cycle": { ja: "循環", en: "Cycle" },
+  "coupled-shear-rotation": { ja: "分割", en: "Split" },
+  "gather-return": { ja: "一体化と分離", en: "Merge & split" },
+  "velocity-seeded-overshoot": { ja: "追従", en: "Follow-through" },
+  "parallax-bob": { ja: "視差", en: "Parallax" },
+  "arrangement-turntable": { ja: "配置移行", en: "Arrangement" },
+  "seeded-settle-jump": { ja: "時間遅延", en: "Time delay" },
+  "offset-stagger-conveyor": { ja: "オフセット", en: "Offset" },
+  "ring-dodge": { ja: "干渉", en: "Interference" },
+  "quadrant-sign-excursion": { ja: "差", en: "Difference" },
+  "ring-orbit-3d": { ja: "自動方向", en: "Auto-orient" },
+  "disc-tumble-projection": { ja: "2D→3D", en: "2D→3D" },
+};
+
 const JA_BANNED_JARGON = [
   "包絡", "エンベロープ", "正規化", "onset", "family",
   "キー時刻", "ハンドル", "schedule", "view-source",
@@ -70,6 +95,7 @@ const checkSlug = (slug) => {
   const jaArt = ja.journal?.articles?.["motion-studies"]?.[slug];
   const enArt = en.journal?.articles?.["motion-studies"]?.[slug];
   const jaEntry = ja.journal?.motionStudies?.entries?.[slug];
+  const enEntry = en.journal?.motionStudies?.entries?.[slug];
 
   if (!jaArt?.sections || !enArt?.sections) {
     return { errors: [`sections missing (ja:${!!jaArt} en:${!!enArt})`], warns };
@@ -90,8 +116,23 @@ const checkSlug = (slug) => {
   const enBody = texts(enS).join("\n");
   // metaDescription joined since 2026-06-10 — #4's first release carried
   // 保存量/積保存/棄却 in the meta only, invisible to the original scan scope.
+  // eyebrow joined the same day (drawer-name rule).
   const jaAll = jaBody + "\n" + (jaEntry?.title ?? "") + "\n" +
-    (jaEntry?.summary ?? "") + "\n" + (jaEntry?.metaDescription ?? "");
+    (jaEntry?.summary ?? "") + "\n" + (jaEntry?.metaDescription ?? "") +
+    "\n" + (jaEntry?.eyebrow ?? "");
+
+  // eyebrow = drawer name from the original one-sheet (rollout doc 不変条件).
+  const drawer = DRAWER_EYEBROW[slug];
+  if (drawer) {
+    if (jaEntry?.eyebrow !== drawer.ja) {
+      errors.push(`ja eyebrow 「${jaEntry?.eyebrow}」 → 原典 drawer 名「${drawer.ja}」に統一`);
+    }
+    if (enEntry?.eyebrow !== drawer.en) {
+      errors.push(`en eyebrow "${enEntry?.eyebrow}" → drawer label "${drawer.en}"`);
+    }
+  } else {
+    warns.push("DRAWER_EYEBROW に無い slug — drawer 記事なら対応表へ追記");
+  }
 
   // tone: 常体のみ
   const desumasu = jaBody.match(/(です|ます|ました|ません)。/g) ?? [];

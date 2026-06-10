@@ -20,8 +20,9 @@
 
 2026-06-10 追補: #4（complement-tangent-pair）初版が公開後に「理解しにくい単語・表現が多い」とユーザー指摘。§4 の追加行・§5 の数値集約と計測内幕の規律はこの再発防止。再構築可能性監査は精度数値を本文へ引き込む方向に働くため、可読性側のこの規律で釣り合いを取る。
 
-## 2. タイトルと summary
+## 2. eyebrow・タイトル・summary
 
+- **eyebrow = 引き出し名そのもの**（ja: 原典一枚絵の表記「増減 / ランダム / 連動 / 反比例 …」・en: 平易英訳「Count growth / Random / Linkage / Inverse proportion …」）。1 語・装飾なし。slug もタイトルも機構側を向くため、「どの技法の記事か」は eyebrow が一目で答える（2026-06-10 ユーザー指摘: 研究語彙の英語 eyebrow「Conservation / Complement」では記事 ↔ 技法の対応が読めない）。対応表の正本は rollout doc の展開表 + 機械ゲートの `DRAWER_EYEBROW`（ja/en とも完全一致を ERROR で強制）
 - **タイトル = 最短の現象名指し型**（例:「増えて見えるドットの解剖」12 字）。付ける前に「誰がどういう意図で読みに来るか」を 1 文で説明できること
   - 禁止: 解法の内部語彙を約束の位置に置く／誰も持っていない問題の否定形（「〜のキーなし」）／謎かけで引っ張る長文
 - **summary = 平易な種明かし**。現象 → 意外な事実 → 仕組みの一言 → 実装形態の順。種明かしの中身は summary が担い、タイトルは現象を名指すだけ
@@ -80,7 +81,7 @@
 
 ## 6. 公開前ゲート（順番に全部）
 
-1. **機械チェック**: `node scripts/check-motion-study-style.mjs <slug>`（または `bun run verify:journal-style` = `--all`）。ERROR ゼロが必須。走査対象は本文 + title / summary / **metaDescription**（2026-06-10 拡張 — #4 初版は meta 未走査で「保存量・積保存・棄却」がすり抜けた）。WARN の断定語リストは次工程の監査対象。wave-1 の hold プレースホルダ 4 本（Theatre/boil 系）は legacy 除外 — 公開するならこの型へ移行が先
+1. **機械チェック**: `node scripts/check-motion-study-style.mjs <slug>`（または `bun run verify:journal-style` = `--all`）。ERROR ゼロが必須。走査対象は本文 + title / summary / **metaDescription** / **eyebrow**（2026-06-10 拡張 — #4 初版は meta 未走査で「保存量・積保存・棄却」がすり抜けた）。eyebrow は `DRAWER_EYEBROW` の引き出し名と ja/en 完全一致が必須。WARN の断定語リストは次工程の監査対象。wave-1 の hold プレースホルダ 4 本（Theatre/boil 系）は legacy 除外 — 公開するならこの型へ移行が先
 2. **再構築可能性監査**（手動）: 記事だけを仕様書として「自分が同じものを作れるか」をシミュレートする — (a) 断定語を実装と 1 件ずつ突合 (b) 忠実に従うと別物になる不可視チャンネルがないか (c) 数値の復元経路が本文にあるか
 3. **ユーザー承認**: コミット/push = 本番公開がゲート。本文・タイトル・summary の変更は承認なしに公開しない
 

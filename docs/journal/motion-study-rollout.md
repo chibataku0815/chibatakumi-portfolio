@@ -15,6 +15,11 @@
   別 wave とし、個別記事の素材をいま食い潰さない。
 - **slug = package verb 名**（機構名）。drawer 名（ランダム/連動…）は描画結果の
   概念名なので slug に採らない — eyebrow / 本文 / callout で言及する。
+- **eyebrow = 原典 drawer 名そのもの**（ja は下表「drawer」列 = 原典一枚絵の
+  表記・en は平易英訳）。1 語・装飾なし。slug もタイトルも機構側を向くため、
+  記事 ↔ 技法の対応は eyebrow が一目で答える（2026-06-10 ユーザー指摘:
+  研究語彙の英語 eyebrow では対応が読めない）。ja/en の対応は機械ゲート
+  `DRAWER_EYEBROW`（`check-motion-study-style.mjs`）が完全一致で強制。
 - **記事構成 6 ビート**（lattice-breath の sections 構造）:
   ① motion-demo block（caption = 現象 + 90 frames / 3s loop）
   ② 観察 H2（現象を数えさせる/追わせる）
@@ -44,6 +49,7 @@
   7. `journal.ts` — motionStudyEntries に entry 追加（sitemap/静的生成は
      registry 駆動で自動）
   8. `messages/ja.json` + `en.json` — entries meta 4 キー + articles sections
+     （eyebrow = 原典 drawer 名・上の不変条件と `DRAWER_EYEBROW` 参照）
 - **正直さの拘束**: SNS 納品クリップが存在しないセルで「クリップとビット同一」
   系の主張をしない（lattice-breath の grain 文言を盲目コピーしない）。開放偏差
   （named residuals）は隠さず、1 つ選んで本文の素材にする。
@@ -70,20 +76,24 @@
 | 3 | tangency-coupled-drive | 連動 | キーフレームゼロ — 1 自由度の接触結合から全運動が幾何導出 | **公開済 2026-06-10** |
 | 4 | complement-tangent-pair | 反比例 | 積保存ではなく和保存（積仮説は 95× で棄却） | **公開済 2026-06-10** |
 | 5 | master-rotation-echo | 残像 | 残像 = 1 本のマスター回転の時間シフト合成 | |
-| 6 | shared-hold-pulse | シンメトリー | 正体は共有 rise-HOLD-fall 包絡 1 本 + 符号付き振幅 | |
-| 7 | whip-crawl-path-cycle | サイクル | | |
-| 8 | coupled-shear-rotation | 分裂 | 1 位相が群回転と対向シアを同時駆動 | |
-| 9 | gather-return | 集合・分散 | 昇格されたのは時間包絡だけ | |
-| 10 | velocity-seeded-overshoot | フォロースルー | 出口速度が種・自由振幅ゼロ | |
+| 6 | shared-hold-pulse | 対称 | 正体は共有 rise-HOLD-fall 包絡 1 本 + 符号付き振幅 | |
+| 7 | whip-crawl-path-cycle | 循環 | | |
+| 8 | coupled-shear-rotation | 分割 | 1 位相が群回転と対向シアを同時駆動 | |
+| 9 | gather-return | 一体化と分離 | 昇格されたのは時間包絡だけ | |
+| 10 | velocity-seeded-overshoot | 追従 | 出口速度が種・自由振幅ゼロ | |
 | 11 | parallax-bob | 視差 | 共有 3 キー bob × 振幅ラダー（amp∝r 法則は棄却） | |
 | 12 | arrangement-turntable | 配置移行 | 2 配置キーだけ — 渦も席替えも創発 | |
-| 13 | seeded-settle-jump | タイムディレイ | | |
+| 13 | seeded-settle-jump | 時間遅延 | | |
 | 14 | offset-stagger-conveyor | オフセット | | |
 | 15 | ring-dodge | 干渉 | 11f クロックパルス + 逆二乗近接場 | |
-| 16 | quadrant-sign-excursion | 差分 | evenodd 対称差 + union 輪郭 stroke | |
+| 16 | quadrant-sign-excursion | 差 | evenodd 対称差 + union 輪郭 stroke | |
 | 17 | ring-orbit-3d | 自動方向 | 3D ライブラリなしの傾いたリング二軸スピン | |
-| 18 | disc-tumble-projection | 平面→立体 | Three.js なしの立体化（canSkipThreeJs=YES） | |
+| 18 | disc-tumble-projection | 2D→3D | Three.js なしの立体化（canSkipThreeJs=YES） | |
 
+drawer 列は原典一枚絵（drawers-grid）の表記に統一（2026-06-10 — 旧表は
+シンメトリー/サイクル/分裂/集合・分散/フォロースルー/タイムディレイ/差分/
+平面→立体と揺れていた）。この表記をそのまま ja eyebrow に使う。en eyebrow の
+正本は `DRAWER_EYEBROW`（機械ゲート）。
 種明かし空欄は執筆直前に construction record から起こす（事前の予記入をしない）。
 
 ## per-cell 正本（motion-grammar-lab）

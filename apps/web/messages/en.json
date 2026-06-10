@@ -1580,25 +1580,25 @@
       "metaDescription": "Motion Studies index — Renewal 2026 motion vocabulary broken down into single-purpose R&D pieces.",
       "entries": {
         "lattice-breath": {
-          "eyebrow": "Lattice / Emergence",
+          "eyebrow": "Count growth",
           "title": "Dissecting dots that seem to multiply",
           "summary": "The dots seem to grow from 6 to 19 and fall back to 6 — yet not a single one is created. No key animates the count; it looks like more because each appearance is slightly offset in time. Layer time-shifted entrances onto a breathing lattice and the count change simply emerges. The whole trick is dissected as one framework-free pure function.",
           "metaDescription": "A motion study of emergent counting from a hexagonal lattice's breath. The visible dot count appears to grow 6→19→6 while nothing is structurally created or destroyed — a pure function rendered live in `WebGPU`, finished with the same grain and chromatic-aberration math as the SNS clip."
         },
         "pulse-grid": {
-          "eyebrow": "Scramble / Determinism",
+          "eyebrow": "Random",
           "title": "Dissecting an order that looks random",
           "summary": "Nine dots pop in an order you can't predict — yet no random number is drawn anywhere. The motion is one keyframed clip, replayed by all nine duplicates 2 frames apart; the order comes from a single fixed table holding the numbers 0–8. The whole build — down to the spring-like undershoot that turns out to be an authored key — is dissected as one pure function.",
           "metaDescription": "A motion study dissecting \"random\": the firing order of nine dots comes from one fixed table, zero rng — a single radius-keyframe clip time-shifted 2 frames × rank, fully deterministic. The pure function renders live in `WebGPU` with two-pass grain and chromatic aberration."
         },
         "tangency-coupled-drive": {
-          "eyebrow": "Tangency / Derivation",
+          "eyebrow": "Linkage",
           "title": "Dissecting a rotation that seems to stop",
           "summary": "While the center square makes a quarter turn, the side squares slide as if bolted to it, and near the diamond everything seems to pause. Yet only the rotation carries keyframes — three. The sides have zero; their position is computed every frame as the closest spot that stays clear of the spinning square. Even the pause is nobody stopping anything. One rotation and a one-line contact law, dissected as one pure function.",
           "metaDescription": "A motion study dissecting linkage: three rotation keyframes drive everything, and the side squares are computed each frame from a tangency (contact) law — the apparent stop near the diamond is a geometric plateau, not a hold key. The pure function renders live in `WebGPU` with two-pass grain and chromatic aberration."
         },
         "complement-tangent-pair": {
-          "eyebrow": "Conservation / Complement",
+          "eyebrow": "Inverse proportion",
           "title": "Dissecting two circles that look inversely proportional",
           "summary": "Two kissing circles keep trading size — one inflates exactly as the other deflates. The drawer is named \"inverse proportion\", yet measured, the equation where the product of the radii stays constant does not hold. What stays constant is the addition: the radii always sum to 81px. Keyframes sit only on the top-left circle's radius — 3 of them; the other radius is a subtraction from 81, and both centres are computed to recede from a fixed kiss point by their own radius, so the contact never moves in 90 frames. The whole build is dissected as one framework-free pure function.",
           "metaDescription": "A motion study dissecting two circles that look inversely proportional: what stays constant is the radius sum, 81px, not the product — the constant-product model misses by roughly 95×. 3 keyframes on one radius, a subtraction for its partner, centres computed from a fixed contact point so the kiss never drifts. The pure function renders live in `WebGPU` with two-pass grain and chromatic aberration."
