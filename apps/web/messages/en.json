@@ -1583,25 +1583,25 @@
           "eyebrow": "Lattice / Emergence",
           "title": "Dissecting dots that seem to multiply",
           "summary": "The dots seem to grow from 6 to 19 and fall back to 6 — yet not a single one is created. No key animates the count; it looks like more because each appearance is slightly offset in time. Layer time-shifted entrances onto a breathing lattice and the count change simply emerges. The whole trick is dissected as one framework-free pure function.",
-          "metaDescription": "A motion study of emergent counting from a hexagonal lattice's breath. The visible dot count appears to grow 6→19→6 while nothing is structurally created or destroyed — a pure schedule rendered live in `WebGPU`, finished with the same grain and chromatic-aberration math as the SNS clip."
+          "metaDescription": "A motion study of emergent counting from a hexagonal lattice's breath. The visible dot count appears to grow 6→19→6 while nothing is structurally created or destroyed — a pure function rendered live in `WebGPU`, finished with the same grain and chromatic-aberration math as the SNS clip."
         },
         "pulse-grid": {
           "eyebrow": "Scramble / Determinism",
           "title": "Dissecting an order that looks random",
           "summary": "Nine dots pop in an order you can't predict — yet no random number is drawn anywhere. The motion is one keyframed clip, replayed by all nine duplicates 2 frames apart; the order comes from a single fixed table holding the numbers 0–8. The whole build — down to the spring-like undershoot that turns out to be an authored key — is dissected as one pure function.",
-          "metaDescription": "A motion study dissecting \"random\": the firing order of nine dots comes from one fixed table, zero rng — a single radius-keyframe clip time-shifted 2 frames × rank, fully deterministic. The pure schedule renders live in `WebGPU` with two-pass grain and chromatic aberration."
+          "metaDescription": "A motion study dissecting \"random\": the firing order of nine dots comes from one fixed table, zero rng — a single radius-keyframe clip time-shifted 2 frames × rank, fully deterministic. The pure function renders live in `WebGPU` with two-pass grain and chromatic aberration."
         },
         "tangency-coupled-drive": {
           "eyebrow": "Tangency / Derivation",
           "title": "Dissecting a rotation that seems to stop",
           "summary": "While the center square makes a quarter turn, the side squares slide as if bolted to it, and near the diamond everything seems to pause. Yet only the rotation carries keyframes — three. The sides have zero; their position is computed every frame as the closest spot that stays clear of the spinning square. Even the pause is nobody stopping anything. One rotation and a one-line contact law, dissected as one pure function.",
-          "metaDescription": "A motion study dissecting linkage: three rotation keyframes drive everything, and the side squares are derived each frame from a tangency (contact) law — the apparent stop near the diamond is the flat top of a cosine, not a hold key. The pure schedule renders live in `WebGPU` with two-pass grain and chromatic aberration."
+          "metaDescription": "A motion study dissecting linkage: three rotation keyframes drive everything, and the side squares are computed each frame from a tangency (contact) law — the apparent stop near the diamond is a geometric plateau, not a hold key. The pure function renders live in `WebGPU` with two-pass grain and chromatic aberration."
         },
         "complement-tangent-pair": {
           "eyebrow": "Conservation / Complement",
           "title": "Dissecting two circles that look inversely proportional",
-          "summary": "Two kissing circles keep trading size — one inflates exactly as the other deflates. The drawer is named \"inverse proportion\", yet measurement rejects the constant-product equation: what is conserved is the sum of the radii, 81px. Keyframes sit only on the top-left circle's radius — 3 of them; the other radius is a subtraction from 81, and both centres recede from a fixed kiss point by their own radius, so the contact never moves in 90 frames. The whole build is dissected as one framework-free pure function.",
-          "metaDescription": "A motion study dissecting \"inverse proportion\": the conserved quantity is the radius sum 81px, not the product — the constant-product model is rejected at roughly 95× the error. 3 keyframes on one radius, a subtraction for its partner, centres derived from a fixed contact point so the kiss never drifts. The pure schedule renders live in `WebGPU` with two-pass grain and chromatic aberration."
+          "summary": "Two kissing circles keep trading size — one inflates exactly as the other deflates. The drawer is named \"inverse proportion\", yet measured, the equation where the product of the radii stays constant does not hold. What stays constant is the addition: the radii always sum to 81px. Keyframes sit only on the top-left circle's radius — 3 of them; the other radius is a subtraction from 81, and both centres are computed to recede from a fixed kiss point by their own radius, so the contact never moves in 90 frames. The whole build is dissected as one framework-free pure function.",
+          "metaDescription": "A motion study dissecting two circles that look inversely proportional: what stays constant is the radius sum, 81px, not the product — the constant-product model misses by roughly 95×. 3 keyframes on one radius, a subtraction for its partner, centres computed from a fixed contact point so the kiss never drifts. The pure function renders live in `WebGPU` with two-pass grain and chromatic aberration."
         },
         "signal-stroke-relay": {
           "eyebrow": "Theatre / Cascade",
@@ -2642,7 +2642,7 @@
             },
             {
               "type": "paragraph",
-              "text": "This motion is named \"inverse proportion\" — the textbook relation where one quantity grows as the other shrinks. Measure the original, though, and the constant-product equation does not hold. What stays constant is the sum: the two radii always add up to 81px. Keyframes sit only on the top-left circle's radius — 3 of them. The bottom-right radius is \"81 minus the top-left\", and carries not a single key."
+              "text": "This motion is named \"inverse proportion\" — the textbook relation where one quantity grows as the other shrinks. In a true inverse proportion, multiplying the two radii (their product) would give the same number on every frame. Measure the original, though, and it does not. What stays constant is the addition instead: the two radii always add up to 81px. Keyframes sit only on the top-left circle's radius — 3 of them. The bottom-right radius is \"81 minus the top-left\", and carries not a single key."
             },
             {
               "type": "heading",
@@ -2664,7 +2664,7 @@
             },
             {
               "type": "paragraph",
-              "text": "Whether it is the product equation can be judged at the moment the circles pass at equal size. The crossing comes around frames 21–22, both radii at 40.5px — exactly half of 81. If the product were constant, the radius sum would have to dip to 76.6px at that moment. The original measures 80.931px near rest and 80.930px at the crossing — a 0.001px difference. The product model misses by roughly 95× the constant-sum error, and is rejected."
+              "text": "The product and sum equations part ways at the moment the circles pass at equal size. The crossing comes around frames 21–22, both radii at 40.5px — exactly half of 81. Keep a product unchanged while pushing two numbers closer together, and their sum always shrinks. So if the product were constant, the radius sum would have to sag to 76.6px at this moment. The measured sum sits at 80.931px near rest and 80.930px at the crossing — a 0.001px difference, no sag anywhere. Next to the constant-sum fit, the product model's miss is roughly 95× larger — so it was thrown out."
             },
             {
               "type": "heading",
@@ -2673,19 +2673,15 @@
             },
             {
               "type": "paragraph",
-              "text": "At the bottom of the shrink, the motion seems to rest for a while. The first measurement agreed — a shelf pinned at radius 27.146px across frames 42–46, and the \"there is a hold key here\" verdict won by an overwhelming margin."
+              "text": "At the bottom of the shrink, the motion seems to rest for a while. The first measurement agreed: \"there is a hold key here\". But that was a fake stillness, created by a habit of the measuring program — it recycled the previous frame's answer as the starting point for the next one. Break the habit, measure again, and the stillness dissolves into a single very shallow valley."
             },
             {
               "type": "paragraph",
-              "text": "But the flatness was a habit of the measuring program: it recycled the previous frame's answer as the next starting guess. Scatter the starting guesses and the shelf dissolves into a shallow U, 0.17px deep. The bottom sits on frame 44.0 — both loops of footage point at the same spot independently."
+              "text": "The settled build has no hold key. The motion seems to rest because the tail of the one easing curve each segment owns lies long and gentle against its target. The outbound and return curves are similar but not identical — reuse a single curve for both, and the error against the measurement grows about 5×."
             },
             {
               "type": "paragraph",
-              "text": "The settled build has no hold key. The seeming rest is the long shoulder of the one easing curve each segment owns. The outbound and return curves are similar but not identical — force one shared curve onto both and the error jumps from 0.035px to 0.175px, about 5×."
-            },
-            {
-              "type": "paragraph",
-              "text": "The curve's tail also carries a small signature: it slips just past its target before settling back, so the radius actually bottoms near frame 44.1, not 45, and peaks near frame 88.7. The extrema measured independently from the original land on 44.0 and 88.7."
+              "text": "The curve's tail also carries a small expression: it slips just past its target before settling back, so the radius bottoms near frame 44.1, not 45, and peaks near frame 88.7. The valley and the peak measured independently from the original land on 44.0 and 88.7."
             },
             {
               "type": "heading",
@@ -2694,7 +2690,7 @@
             },
             {
               "type": "paragraph",
-              "text": "The implementation is one pure function: pass a frame number, get back both centres and radii. Only the top-left radius is keyed; the other is a subtraction, and the centres derive from the contact point — so contact drift is impossible by construction. Give the radius ladder 5 keys and the same function fits 2 round-trips of the trade into one loop. The keys, the curves, the 81 and the contact coordinates sit as plain constants in the JavaScript this page loads: the browser's view-source doubles as the spec sheet."
+              "text": "The implementation is one pure function: pass a frame number, get back both centres and radii. Only the top-left radius is keyed; the other is a subtraction, and the centres are computed from the contact point — so contact drift is impossible by construction. Grow the radius keys from 3 to 5 — 54→27→54→27→54 — and the same function fits 2 round-trips of the trade into one loop. The keys, the curves, the 81 and the contact coordinates sit as plain constants in the JavaScript this page loads: the browser's view-source doubles as the spec sheet."
             },
             {
               "type": "callout",

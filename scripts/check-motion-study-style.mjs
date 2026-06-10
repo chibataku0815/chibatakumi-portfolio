@@ -25,9 +25,13 @@ const LEGACY_EXEMPT = new Set([
 
 const JA_BANNED_JARGON = [
   "包絡", "エンベロープ", "正規化", "onset", "family",
-  "キー時刻", "ハンドル", "schedule 実体", "view-source",
+  "キー時刻", "ハンドル", "schedule", "view-source",
+  // 2026-06-10 additions (#4 incident — style doc §4): research-internal words
+  // that slipped past the original list built from lattice-breath's rewrite.
+  "棄却", "梯子", "導出", "平坦", "定常", "極値",
+  "保存量", "積保存", "和保存",
 ];
-const JA_WARN_JARGON = ["腕", "位相", "写像", "同型", "ひと粒ぶん"];
+const JA_WARN_JARGON = ["腕", "位相", "写像", "同型", "ひと粒ぶん", "初期値", "余り"];
 const EN_BANNED_JARGON = ["family", "envelope", "onset"];
 const JA_AUDIOTEST = [
   "という形", "という話", "ということです", "大事なのは",
@@ -84,7 +88,10 @@ const checkSlug = (slug) => {
 
   const jaBody = texts(jaS).join("\n");
   const enBody = texts(enS).join("\n");
-  const jaAll = jaBody + "\n" + (jaEntry?.title ?? "") + "\n" + (jaEntry?.summary ?? "");
+  // metaDescription joined since 2026-06-10 — #4's first release carried
+  // 保存量/積保存/棄却 in the meta only, invisible to the original scan scope.
+  const jaAll = jaBody + "\n" + (jaEntry?.title ?? "") + "\n" +
+    (jaEntry?.summary ?? "") + "\n" + (jaEntry?.metaDescription ?? "");
 
   // tone: 常体のみ
   const desumasu = jaBody.match(/(です|ます|ました|ません)。/g) ?? [];
