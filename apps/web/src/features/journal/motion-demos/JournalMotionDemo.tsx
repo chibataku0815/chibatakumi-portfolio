@@ -8,10 +8,12 @@
 // shared i18n block model. Adding a new motion study = registering one more
 // id here and one more vendored verb under ./verbs.
 
-import { LatticeBreathDemo } from "./LatticeBreathDemo";
+import { LatticeBreathFinishDemo } from "./LatticeBreathFinishDemo";
 
 const DEMO_REGISTRY: Record<string, () => React.ReactElement> = {
-  "lattice-breath": LatticeBreathDemo,
+  // WebGPU finish (grain + CA, parity-proven WGSL port); falls back to the
+  // plain SVG LatticeBreathDemo internally when WebGPU is unavailable.
+  "lattice-breath": LatticeBreathFinishDemo,
 };
 
 interface JournalMotionDemoProps {

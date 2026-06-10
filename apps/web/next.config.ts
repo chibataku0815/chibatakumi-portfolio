@@ -4,7 +4,15 @@ import createNextIntlPlugin from "next-intl/plugin";
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const nextConfig: NextConfig = {
+  // Playwright e2e drives the dev server via 127.0.0.1 (playwright.config baseURL)
+  // while `next dev` binds to localhost — Next 16 blocks cross-origin dev resources
+  // by default, which silently prevents hydration in e2e. Dev-only setting.
+  allowedDevOrigins: ["127.0.0.1"],
   transpilePackages: [
+    "@bridges/svg-webgpu",
+    "@bridges/webgpu-finish",
+    "@forestone/visual-effect-core",
+    "@forestone/visual-render-core",
     "film-lab-core",
     "film-lab-renderer",
     "film-lab-smart-look",

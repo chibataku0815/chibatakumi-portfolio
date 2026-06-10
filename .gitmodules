@@ -1,3 +1,6 @@
 [submodule "vendor/filmtone"]
 	path = vendor/filmtone
 	url = git@github.com:chibataku0815/filmtone.git
+[submodule "vendor/visual-effect-core"]
+	path = vendor/visual-effect-core
+	url = git@github.com:chibataku0815/visual-effect-core.git

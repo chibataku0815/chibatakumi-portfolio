@@ -11,6 +11,7 @@
     "start": "next start",
     "lint": "eslint",
     "e2e:install": "playwright install chromium",
+    "e2e:finish-parity": "playwright test e2e/finish-parity.spec.ts",
     "e2e:smart-look-pending": "playwright test e2e/smart-look-pending.spec.ts",
     "e2e:preset-quality": "playwright test e2e/preset-quality-snapshots.spec.ts"
   },
@@ -26,6 +27,8 @@
     "@vercel/kv": "^3.0.0",
     "@vercel/speed-insights": "^2.0.0",
     "date-fns": "^4.1.0",
+    "@bridges/svg-webgpu": "workspace:*",
+    "@bridges/webgpu-finish": "workspace:*",
     "@chibatakumi/design-system": "workspace:*",
     "@chibatakumi/motion-core": "workspace:*",
     "@chibatakumi/motion-dot": "workspace:*",

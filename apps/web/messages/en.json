@@ -1583,7 +1583,7 @@
           "eyebrow": "Lattice / Emergence",
           "title": "The dot count seems to grow 6→19→6, yet nothing is ever created or destroyed — emergent counting from a polar lattice's breath",
           "summary": "A hexagonal lattice breathes and the visible dot count swells from 6 to 19, then falls back. Structurally, nothing is created or destroyed. One `master` timing co-drives radius and parent rotation on shared keys while staggered `scale` clips bring interior families in and out — the count is purely emergent from how those onsets overlap. A framework-independent rewrite of one motion grammar as a pure function.",
-          "metaDescription": "A motion study of emergent counting from a hexagonal lattice's breath. The visible dot count appears to grow 6→19→6 while nothing is structurally created or destroyed — a pure schedule rendered directly in `SVG` and `requestAnimationFrame`."
+          "metaDescription": "A motion study of emergent counting from a hexagonal lattice's breath. The visible dot count appears to grow 6→19→6 while nothing is structurally created or destroyed — a pure schedule rendered live in `WebGPU`, finished with the same grain and chromatic-aberration math as the SNS clip."
         },
         "signal-stroke-relay": {
           "eyebrow": "Theatre / Cascade",
@@ -2444,7 +2444,7 @@
             {
               "type": "callout",
               "tone": "note",
-              "text": "This motion is a framework-independent rewrite of one grammar extracted in a motion-research repo from @PuttiMW's drawer series, re-authored as a pure function. The palette is swapped from the reference red/pink to the site's light-substrate ink. The demo above runs in plain `SVG` and `requestAnimationFrame` — not Remotion or `WebGPU`."
+              "text": "This motion is a framework-independent rewrite of one grammar extracted in a motion-research repo from @PuttiMW's drawer series, re-authored as a pure function. The palette is swapped from the reference red/pink to the same fixed light palette as the SNS clip. The demo above composites grain and chromatic aberration live in two `WebGPU` passes — a verbatim port of the math in the pipeline that finished the clip, down to a bit-identical grain random sequence. Where `WebGPU` is unavailable it falls back to plain `SVG` + `requestAnimationFrame`."
             }
           ]
         },
