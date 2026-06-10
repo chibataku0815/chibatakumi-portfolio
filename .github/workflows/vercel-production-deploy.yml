@@ -38,6 +38,18 @@ jobs:
           git config submodule.vendor/filmtone.url git@github.com:chibataku0815/filmtone.git
           GIT_SSH_COMMAND='ssh -i ~/.ssh/filmtone_submodule -o IdentitiesOnly=yes' git submodule update --init --recursive vendor/filmtone
 
+      - name: Checkout private visual-effect-core submodule
+        env:
+          VISUAL_EFFECT_CORE_SUBMODULE_SSH_KEY: ${{ secrets.VISUAL_EFFECT_CORE_SUBMODULE_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$VISUAL_EFFECT_CORE_SUBMODULE_SSH_KEY" > ~/.ssh/vec_submodule
+          chmod 600 ~/.ssh/vec_submodule
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          git config submodule.vendor/visual-effect-core.url git@github.com:chibataku0815/visual-effect-core.git
+          GIT_SSH_COMMAND='ssh -i ~/.ssh/vec_submodule -o IdentitiesOnly=yes' git submodule update --init --recursive vendor/visual-effect-core
+
       - name: Set up Bun
         uses: oven-sh/setup-bun@v2
         with:
