@@ -1597,6 +1597,12 @@
           "summary": "While the center square makes a quarter turn, the side squares slide as if bolted to it, and near the diamond everything seems to pause. Yet only the rotation carries keyframes — three. The sides have zero; their position is computed every frame as the closest spot that stays clear of the spinning square. Even the pause is nobody stopping anything. One rotation and a one-line contact law, dissected as one pure function.",
           "metaDescription": "A motion study dissecting linkage: three rotation keyframes drive everything, and the side squares are derived each frame from a tangency (contact) law — the apparent stop near the diamond is the flat top of a cosine, not a hold key. The pure schedule renders live in `WebGPU` with two-pass grain and chromatic aberration."
         },
+        "complement-tangent-pair": {
+          "eyebrow": "Conservation / Complement",
+          "title": "Dissecting two circles that look inversely proportional",
+          "summary": "Two kissing circles keep trading size — one inflates exactly as the other deflates. The drawer is named \"inverse proportion\", yet measurement rejects the constant-product equation: what is conserved is the sum of the radii, 81px. Keyframes sit only on the top-left circle's radius — 3 of them; the other radius is a subtraction from 81, and both centres recede from a fixed kiss point by their own radius, so the contact never moves in 90 frames. The whole build is dissected as one framework-free pure function.",
+          "metaDescription": "A motion study dissecting \"inverse proportion\": the conserved quantity is the radius sum 81px, not the product — the constant-product model is rejected at roughly 95× the error. 3 keyframes on one radius, a subtraction for its partner, centres derived from a fixed contact point so the kiss never drifts. The pure schedule renders live in `WebGPU` with two-pass grain and chromatic aberration."
+        },
         "signal-stroke-relay": {
           "eyebrow": "Theatre / Cascade",
           "title": "The relay sensation cannot be built from separate animations — a Theatre.js timeline referenced by multiple layers with phase offsets",
@@ -2615,6 +2621,85 @@
               "type": "callout",
               "tone": "note",
               "text": "The source is one cell of @PuttiMW's drawer series — decomposed and rebuilt in a motion-research repo. An earlier analysis had ruled \"not contact-driven\"; finer measurement overturned that ruling itself. The palette swaps the reference red for the fixed light palette. The demo above composites grain and chromatic aberration live in two `WebGPU` passes — the math is ported line by line from the delivery pipeline and verified to match its CPU implementation. Where `WebGPU` is unavailable it falls back to `SVG` + `requestAnimationFrame`."
+            }
+          ]
+        },
+        "complement-tangent-pair": {
+          "sections": [
+            {
+              "type": "motion-demo",
+              "demo": "complement-tangent-pair",
+              "caption": "they trade sizes, the kiss point never moves — 90 frames / 3s loop"
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "Stare at the kiss point"
+            },
+            {
+              "type": "paragraph",
+              "text": "In the loop above, the bottom-right circle inflates by exactly as much as the top-left circle deflates, and over 45 frames they trade sizes; the second half trades them back. Now stare at the single point where the two circles touch — however far the trade goes, that contact point never moves once in all 90 frames."
+            },
+            {
+              "type": "paragraph",
+              "text": "This motion is named \"inverse proportion\" — the textbook relation where one quantity grows as the other shrinks. Measure the original, though, and the constant-product equation does not hold. What stays constant is the sum: the two radii always add up to 81px. Keyframes sit only on the top-left circle's radius — 3 of them. The bottom-right radius is \"81 minus the top-left\", and carries not a single key."
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "Write one radius and a one-line subtraction"
+            },
+            {
+              "type": "list",
+              "items": [
+                "3 radius keys — 54px on frame 0, 27px on frame 45, 54px on frame 90",
+                "one easing curve per segment, two in total",
+                "bottom-right radius: zero keys — just 81 minus the top-left",
+                "both centres: zero keys — each recedes from the fixed contact point by its own radius"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "The placement of the centres is the heart of the build. Fix a single contact point on the 45° diagonal; the top-left circle puts its centre its own radius away from that point, up-left along the axis, and the bottom-right circle does the same down-right. As the radii change the centres slide on their own, and the circles kiss at that point on every frame — no key ever aligns the contact. The point held still in the opening because it is built to hold still."
+            },
+            {
+              "type": "paragraph",
+              "text": "Whether it is the product equation can be judged at the moment the circles pass at equal size. The crossing comes around frames 21–22, both radii at 40.5px — exactly half of 81. If the product were constant, the radius sum would have to dip to 76.6px at that moment. The original measures 80.931px near rest and 80.930px at the crossing — a 0.001px difference. The product model misses by roughly 95× the constant-sum error, and is rejected."
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "No key parks the bottom"
+            },
+            {
+              "type": "paragraph",
+              "text": "At the bottom of the shrink, the motion seems to rest for a while. The first measurement agreed — a shelf pinned at radius 27.146px across frames 42–46, and the \"there is a hold key here\" verdict won by an overwhelming margin."
+            },
+            {
+              "type": "paragraph",
+              "text": "But the flatness was a habit of the measuring program: it recycled the previous frame's answer as the next starting guess. Scatter the starting guesses and the shelf dissolves into a shallow U, 0.17px deep. The bottom sits on frame 44.0 — both loops of footage point at the same spot independently."
+            },
+            {
+              "type": "paragraph",
+              "text": "The settled build has no hold key. The seeming rest is the long shoulder of the one easing curve each segment owns. The outbound and return curves are similar but not identical — force one shared curve onto both and the error jumps from 0.035px to 0.175px, about 5×."
+            },
+            {
+              "type": "paragraph",
+              "text": "The curve's tail also carries a small signature: it slips just past its target before settling back, so the radius actually bottoms near frame 44.1, not 45, and peaks near frame 88.7. The extrema measured independently from the original land on 44.0 and 88.7."
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "One pure function is all you need"
+            },
+            {
+              "type": "paragraph",
+              "text": "The implementation is one pure function: pass a frame number, get back both centres and radii. Only the top-left radius is keyed; the other is a subtraction, and the centres derive from the contact point — so contact drift is impossible by construction. Give the radius ladder 5 keys and the same function fits 2 round-trips of the trade into one loop. The keys, the curves, the 81 and the contact coordinates sit as plain constants in the JavaScript this page loads: the browser's view-source doubles as the spec sheet."
+            },
+            {
+              "type": "callout",
+              "tone": "note",
+              "text": "The source is one cell of @PuttiMW's drawer series — decomposed and rebuilt in a motion-research repo. The palette swaps the reference blue for the fixed light palette. The demo above composites grain and chromatic aberration live in two `WebGPU` passes — the math is ported line by line from the research repo's delivery pipeline and verified to match its CPU implementation. Where `WebGPU` is unavailable it falls back to `SVG` + `requestAnimationFrame`."
             }
           ]
         },

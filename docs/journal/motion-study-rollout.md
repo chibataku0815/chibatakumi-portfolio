@@ -4,7 +4,7 @@
 再構築 + packages API 化済み）を `/journal/motion-studies/` に 1 記事 1 技法で
 展開する正本。lattice-breath（2026-06-10 公開）が型。
 
-最終更新: 2026-06-10 / 状態: 1/18 公開・#2 pulse-grid 執筆中
+最終更新: 2026-06-10 / 状態: 4/18 公開（#1〜#4）
 
 ---
 
@@ -50,6 +50,13 @@
 - **公開ゲート**: 全ファイル uncommitted で作成 → ユーザーがローカル
   プレビュー（`bun run dev` → `/journal/motion-studies/<slug>`）→ 承認後に
   1 記事 1 コミット。**push = Actions 本番出荷**。一括 commit/push 禁止。
+- **共有ファイルの編集順 = 公開スイッチを最後に**: 作業 dir は並行セッションと
+  共有で、執筆途中に別記事の公開コミットが走り得る（2026-06-10、#4 執筆中の
+  `journal.ts` エントリ + registry 行が #2/#3 の公開コミット cd1c9366 へ未完
+  状態で混入しデプロイが割れた — bfc65a53 で修復）。記事 N は i18n sections+meta
+  → verbs/params/デモコンポーネント → registry 行 → `journal.ts` エントリの順に
+  書く。i18n・コンポーネントはどの途中状態で commit に巻き込まれても inert、
+  registry 行とエントリだけが「点火スイッチ」なので全ファイル完成後に最後へ。
 
 ## 展開順（種明かし強度順・第 1 バッチ 5 本）
 
@@ -59,9 +66,9 @@
 | # | slug (= package verb) | drawer | 種明かし 1 行 | 状態 |
 |---|---|---|---|---|
 | 1 | lattice-breath | 増減 | 個数アニメなしの創発カウント | **公開済 2026-06-10** |
-| 2 | pulse-grid | ランダム | 乱数ゼロ — 「ランダム」は固定順列表 1 枚 | 執筆中 |
-| 3 | tangency-coupled-drive | 連動 | キーフレームゼロ — 1 自由度の接触結合から全運動が幾何導出 | |
-| 4 | complement-tangent-pair | 反比例 | 積保存ではなく和保存（積仮説は 95× で棄却） | |
+| 2 | pulse-grid | ランダム | 乱数ゼロ — 「ランダム」は固定順列表 1 枚 | **公開済 2026-06-10** |
+| 3 | tangency-coupled-drive | 連動 | キーフレームゼロ — 1 自由度の接触結合から全運動が幾何導出 | **公開済 2026-06-10** |
+| 4 | complement-tangent-pair | 反比例 | 積保存ではなく和保存（積仮説は 95× で棄却） | **公開済 2026-06-10** |
 | 5 | master-rotation-echo | 残像 | 残像 = 1 本のマスター回転の時間シフト合成 | |
 | 6 | shared-hold-pulse | シンメトリー | 正体は共有 rise-HOLD-fall 包絡 1 本 + 符号付き振幅 | |
 | 7 | whip-crawl-path-cycle | サイクル | | |
