@@ -6,7 +6,7 @@
 // Exit 1 on any ERROR. WARNs (e.g. quantifier words) feed the manual
 // reconstructability audit and never fail the run.
 
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
@@ -187,6 +187,39 @@ const checkSlug = (slug) => {
   const onlyEn = [...enNums].filter((n) => !jaNums.has(n));
   if (onlyJa.length) errors.push(`数値が en に無い: ${onlyJa.join(", ")}`);
   if (onlyEn.length) errors.push(`数値が ja に無い: ${onlyEn.join(", ")}`);
+
+  // How-to-think skeleton (2026-06-11, style doc §3): the spine is the build
+  // walkthrough, so at least one code block must show the skeleton (one driver
+  // → derived reads). Constant COMPLETENESS is deliberately not checked (user
+  // refinement: the thinking matters, not an exhaustive constant table), but
+  // every number that does appear in code must trace to the vendored
+  // params/verb — an untraceable constant is fabricated (or drifted).
+  const jaCode = jaS.filter((b) => b.type === "code");
+  if (!jaCode.length) {
+    errors.push("code block なし — 組み立ての骨格コードを作り方セクションに置く (style doc §3)");
+  } else {
+    const vendorDir = join(root, "apps/web/src/features/journal/motion-demos/verbs");
+    const vendorFiles = [`${slug}.params.ts`, `${slug}.ts`]
+      .map((f) => join(vendorDir, f))
+      .filter((p) => existsSync(p));
+    if (!vendorFiles.length) {
+      warns.push("vendored verb/params が見つからない — code 定数の突合をスキップ");
+    } else {
+      const vendorNums = numberSet(
+        vendorFiles.map((p) => readFileSync(p, "utf8")).join("\n"),
+        false,
+      );
+      // 0/1/2 appear structurally (indices, halves, r1/r2) — not constants.
+      const STRUCTURAL = new Set(["0", "1", "2"]);
+      for (const block of jaCode) {
+        for (const n of numberSet(block.text, false)) {
+          if (!vendorNums.has(n) && !STRUCTURAL.has(n)) {
+            errors.push(`code 内の数値 ${n} が vendored params/verb に無い — 出所不明の定数`);
+          }
+        }
+      }
+    }
+  }
 
   // quantifiers → manual reconstructability audit targets
   for (const m of jaBody.matchAll(QUANTIFIERS)) {
