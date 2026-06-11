@@ -206,6 +206,17 @@ export const motionStudyEntries: readonly JournalEntry[] = [
     status: "published",
     evidenceLevel: "production",
   },
+  // Article #7 of the drawer rollout — same uncommitted-until-reviewed gate.
+  {
+    slug: "whip-crawl-path-cycle",
+    kind: "motion-study",
+    href: "/journal/motion-studies/whip-crawl-path-cycle",
+    publishedAt: "2026-06-11",
+    priority: 7,
+    tags: ["Path", "Dash", "Easing", "SVG"],
+    status: "published",
+    evidenceLevel: "production",
+  },
   {
     slug: "signal-stroke-relay",
     kind: "motion-study",

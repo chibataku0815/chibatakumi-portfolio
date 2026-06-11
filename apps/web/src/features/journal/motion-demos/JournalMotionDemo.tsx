@@ -14,6 +14,7 @@ import { MasterRotationEchoFinishDemo } from "./MasterRotationEchoFinishDemo";
 import { PulseGridFinishDemo } from "./PulseGridFinishDemo";
 import { SharedHoldPulseFinishDemo } from "./SharedHoldPulseFinishDemo";
 import { TangencyCoupledDriveFinishDemo } from "./TangencyCoupledDriveFinishDemo";
+import { WhipCrawlPathCycleFinishDemo } from "./WhipCrawlPathCycleFinishDemo";
 
 const DEMO_REGISTRY: Record<string, () => React.ReactElement> = {
   // WebGPU finish (grain + CA, parity-proven WGSL port); falls back to the
@@ -25,6 +26,7 @@ const DEMO_REGISTRY: Record<string, () => React.ReactElement> = {
   "complement-tangent-pair": ComplementTangentPairFinishDemo,
   "master-rotation-echo": MasterRotationEchoFinishDemo,
   "shared-hold-pulse": SharedHoldPulseFinishDemo,
+  "whip-crawl-path-cycle": WhipCrawlPathCycleFinishDemo,
 };
 
 interface JournalMotionDemoProps {

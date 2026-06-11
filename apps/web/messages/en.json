@@ -1615,6 +1615,12 @@
           "summary": "4 bars stretch open to the left and right, the center square swells, all of them freeze together at full stretch for a beat, then walk the same road home. They look perfectly rehearsed, yet not one shape has its own keyframes — the only thing animated is a single number that climbs from 0 to 1, pauses, and returns to 0. Every shape just reads that number times its own motion amount; the mirror is nothing but the sign flipping between left and right. The center square even makes a half turn on the same number. One number and a table of motion amounts, dissected as one pure function.",
           "metaDescription": "A motion study dissecting the symmetry drawer: one number that climbs from 0 to 1, holds, and returns drives 4 mirrored bars and a half-turning center square at once — no per-shape keyframes; the mirror is just a sign flip between left and right. The pure function renders live in `WebGPU` with two-pass grain and chromatic aberration."
         },
+        "whip-crawl-path-cycle": {
+          "eyebrow": "Cycle",
+          "title": "Dissecting a lap that seems to shift gears",
+          "summary": "A thick stroke's head and its dot sprint through most of a lap of an ∞ track in one burst, then crawl the rest. It looks like switching between a fast gear and a slow one, but there is no gear mechanism — you choose just 2 speed keys, one whip's worth, and the third key's value — and with it the crawl's speed — follows automatically from the promise that 90 frames close exactly 1 lap. The line never stretches either: a fixed-length window covering 0.896 of the full path slides along the track. One head-progress number and a closed path, dissected as one pure function.",
+          "metaDescription": "A motion study dissecting the drawer technique 'cycle'. The two-gear pacing of a dot lapping an ∞ track is one cubic-bezier whip plus the crawl left over by the promise of closing the lap — no gearbox anywhere. The stroke is a fixed-length dash window sliding on the path. The pure function is drawn live in `WebGPU`, with grain and chromatic aberration composited in 2 passes."
+        },
         "signal-stroke-relay": {
           "eyebrow": "Theatre / Cascade",
           "title": "The relay sensation cannot be built from separate animations — a Theatre.js timeline referenced by multiple layers with phase offsets",
@@ -2987,6 +2993,114 @@
               "type": "callout",
               "tone": "note",
               "text": "The source is one cell of PuttiMW's (@PuttiMW) drawer series — decomposed and rebuilt in a motion-research repo. The palette swaps the reference blue for the fixed light palette. The texture on the demo above — grain and chromatic aberration — is composited live by the video-finishing package we are building in-house: everything from the easing solver to the grain randomness is our own code. Where `WebGPU` is unavailable, the demo falls back to plain `SVG` + `requestAnimationFrame` rendering."
+            }
+          ]
+        },
+        "whip-crawl-path-cycle": {
+          "sections": [
+            {
+              "type": "motion-demo",
+              "demo": "whip-crawl-path-cycle",
+              "caption": "One number drives the ∞ track and its dot — 90 frames / 3s loop"
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "Sprint, crawl, sprint again"
+            },
+            {
+              "type": "paragraph",
+              "text": "A thick stroke and the dot riding its head keep tracing an ∞-shaped track. Most of the lap goes by in one whip-like burst; for one remaining stretch the dot suddenly slows to a crawl, then takes off again. It reads like a lap that keeps switching between a fast gear and a slow one."
+            },
+            {
+              "type": "paragraph",
+              "text": "But there is no gear mechanism anywhere. You only get to choose 2 keys — one whip's worth. A third key exists, but its value follows automatically from the promise that 90 frames close exactly 1 lap back to the same spot — nobody decided the crawl's speed. The line never stretches either: a fixed-length window covering 0.896 of the full path just slides along the track."
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "Set up a track, a window and a dot"
+            },
+            {
+              "type": "list",
+              "items": [
+                "A closed ∞-shaped track — this demo runs the idealized one with perfectly round lobes (the original is a slightly distorted ∞ drawn with 4 pen-tool anchors)",
+                "A thick stroke covering 0.896 of the track's full length (15.6px wide on a 324px-square canvas, round caps at both ends) — the undrawn 0.104 seeds the gap (the round caps eat into it from both ends, so the visible gap is slightly narrower)",
+                "A dot riding the head (radius 13.5px) — the gap straddles the dot, front and back",
+                "Keys on the head's progress u — you choose 2: the whip starts from 0.357 on frame 3 of the loop and covers 0.901 of the lap in 51 frames"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "Those are all the parts. The build is a single function: frame number in, head progress u out — once u is known, the dot's coordinates and the gap's position all follow from it."
+            },
+            {
+              "type": "code",
+              "lang": "ts",
+              "text": "// Only one thing moves: the head's progress u. 0 is the track start; 1 is a full lap.\nconst whip = cubicBezier(0.85, 0.191, 0.349, 0.833); // the whip's face — this is the dial\nconst linear = (t) => t;                              // the crawl just moves straight\n\n// u's key table: the whip eats 0.901 of the lap; the rest is the straight line home\nconst uKeys = [\n  { frame: 0,  value: 0.357,         curve: whip   }, // whip start = launch spot (frame 3 of the loop)\n  { frame: 51, value: 0.357 + 0.901, curve: linear }, // whip end\n  { frame: 90, value: 0.357 + 1 },                    // same spot, one lap later — not yours to choose\n];\n\n// fill between the keys with the curve — every motion in this article fits this shape\nfunction keyAt(keys, frame) {\n  if (frame <= keys[0].frame) return keys[0].value;      // outside the range, hold the edge value\n  for (let i = 0; i + 1 < keys.length; i++) {\n    const a = keys[i], b = keys[i + 1];\n    if (frame <= b.frame) {\n      const t = (frame - a.frame) / (b.frame - a.frame);  // progress through the span, 0 to 1\n      return a.value + (b.value - a.value) * a.curve(t);  // advance the difference in the curve's shape\n    }\n  }\n  return keys[keys.length - 1].value;\n}\n\n// frame number → head progress. Align the whip's start to 0, then read the table\nfunction uAt(frame) {\n  const local = ((frame - 3) % 90 + 90) % 90;\n  return keyAt(uKeys, local) % 1; // anything past 1 wraps into the next lap\n}"
+            },
+            {
+              "type": "paragraph",
+              "text": "`whip` is exactly the same math as CSS `cubic-bezier(0.85, 0.191, 0.349, 0.833)`, and npm's `bezier-easing` takes these 4 numbers as-is. It holds back at the start, surges through the middle, then sheds speed at the end to hand off gently into the crawl — the whip's snap lives in these 4 numbers."
+            },
+            {
+              "type": "paragraph",
+              "text": "The third key's value, `0.357 + 1`, is the heart of this build. The moment you decide that 90 frames close exactly 1 lap back to the same spot, the last span can only be written as the remaining distance over the remaining time. The whip ate 0.901 of the lap, so the crawl gets 0.099 — covered in 39 frames at a perfectly constant speed. There is no dial for the crawl's speed anywhere."
+            },
+            {
+              "type": "paragraph",
+              "text": "To put it on screen, give the `path` a `pathLength={1}` so the track's length reads as 1. Set `stroke-dasharray` to `0.896 0.104` and `stroke-dashoffset` to `0.896 + 0.054 - u`, and the fixed window slides along the track, pulled by u — 0.054 is the measured nudge that keeps the gap straddling the dot."
+            },
+            {
+              "type": "paragraph",
+              "text": "The dot's coordinates come from `getPointAtLength(u × total length)`. The browser already knows how to turn distance along a path into coordinates — you only write up to u, and leave the arc math to it."
+            },
+            {
+              "type": "paragraph",
+              "text": "Then drive it with `requestAnimationFrame`: elapsed seconds × 30, modulo 90, is the frame number — the same 3-second loop as the demo above. The loop's seam sits inside the crawl (near its end), and the speed across the seam is the crawl's own speed, so nothing pops at the boundary. That's not luck — it was settled the moment the crawl became the straight line that closes 1 full lap."
+            },
+            {
+              "type": "paragraph",
+              "text": "The track doesn't have to be an ∞. u only says how far along the track you are, so any closed path — a circle, a heart — works with the same uKeys. The dials: the whip's 4 numbers, the 51 frames it takes, and how much of the lap it eats — 0.901. Feed the whip more and the crawl slows; feed it less and the crawl quickens — you can't touch the crawl directly, so you steer it from the whip's side. Shrink the window's 0.896 way down and the look turns into a half-drawn line racing around the track."
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "Why it reads as a gear shift"
+            },
+            {
+              "type": "paragraph",
+              "text": "It reads as two speeds, but not because the speed was designed in 2 places. It was designed in 1 place — the whip — and the crawl is the design's leftover margin, what the promise of a closed lap left behind. Measure the crawl stretch of the original video and its speed is a perfectly straight line down to measurement rounding — a smoothness hand-placed keys almost never produce. Even the small step where whip speed meets crawl speed is a trace of 2 speeds tied to the same single promise."
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "The crawl's speed fell out of arithmetic"
+            },
+            {
+              "type": "paragraph",
+              "text": "This reproduction, too, started as plain number-copying — hold a table of the head's position for all 90 frames and replay it. It moves, but it can't say why that speed. The rebuild starts by guessing, in a single line, how the author made it."
+            },
+            {
+              "type": "paragraph",
+              "text": "First, the track's shape. Of 2 textbook ∞ formulas, one missed outright; the closer one lost narrowly in the numbers — and it isn't how a pen tool draws. The winner: a symmetric path drawn with 4 pen-tool anchors. The decider: raising the shape's dials from 6 to 20 didn't improve the fit at all. When extra freedom explains nothing, 6 dials have already told the whole shape."
+            },
+            {
+              "type": "paragraph",
+              "text": "Full disclosure: the round-lobe ∞ the demo above is lapping is exactly that 'closest formula'. The original's pen-drawn track runs thin at the tips and its lobes bulge a little. For a demo meant to be read, we chose the perfectly round ideal, knowing it is not the original's track — the way it runs (u's table) is untouched."
+            },
+            {
+              "type": "paragraph",
+              "text": "Then the speed. Constant speed missed by a mile; the stock easing presets missed too. A free curve with 3 keys can nearly overlap the numbers, but it demands the speed jump 3-fold at 2 of its keys — a setting no human hand places. The numbers fit, and still you can't believe anyone would make it that way. Only 1 whip paired with the automatic straight line matched both the fit and a believable hand."
+            },
+            {
+              "type": "paragraph",
+              "text": "The finisher was a prediction. If this build is right, the crawl's speed can simply be computed: (1 − 0.901) ÷ 39. The measured crawl speed differed from that value by 0.41%. And if the track is symmetric, its 4 landmarks — right tip, crossing, left tip, crossing — must land exactly at u = 0, 0.25, 0.5 and 0.75; the measurements sat there to within measurement noise. Neither number was fitted. Values the build produces on its own had shown up in the measurements first."
+            },
+            {
+              "type": "callout",
+              "tone": "note",
+              "text": "The source is one cell of PuttiMW's (@PuttiMW) drawer series — decomposed and rebuilt in a motion-research repo. The palette swaps the reference red/salmon for the fixed light palette. The texture on the demo above — grain and chromatic aberration — is composited live by the video-finishing package we are building in-house: everything from the easing solver to the grain randomness is our own code. Where `WebGPU` is unavailable, the demo falls back to plain `SVG` + `requestAnimationFrame` rendering."
             }
           ]
         },
