@@ -6,7 +6,7 @@
 // Exit 1 on any ERROR. WARNs (e.g. quantifier words) feed the manual
 // reconstructability audit and never fail the run.
 
-import { existsSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { parse } from "../apps/web/node_modules/acorn/dist/acorn.mjs";
@@ -88,6 +88,45 @@ const PROSE_TECH_TERMS = new Set(["SVG", "CSS", "RGB", "RGBA"]);
 // 形の見本。手書きループ蓄積 (for/while + push) は map/flatMap/findIndex/Array.from
 // へ、if の入れ子はガード節・三項で平らに、var は禁止。acorn AST で機械判定する。
 // else-if チェーンは入れ子に数えない。
+//
+// 2026-06-12 第 7 次 (user: 「めちゃくちゃ定数書いてありますよね？記事上では具体的な
+// 数字は必要ない」— 同軸 3 度目): コードブロックも実測定数の置き場にしない。記事
+// コードは値レス骨格 — つまみは役割を語る小文字の裸名 (riseStart, slideMax...) で、
+// 値は読者が自分の画面に合わせて決める。許される数値リテラルは構造の {0,1,2} と
+// 普遍的な度数計算の {90,180,360} だけ。小数はコメント込みで全面禁止。実測値は
+// vendored params (ライブデモの駆動側) と研究リポにだけ残る。
+const CODE_NUMERAL_WHITELIST = new Set([0, 1, 2, 90, 180, 360]);
+const codeNumeralErrors = (text, where) => {
+  let ast;
+  try {
+    ast = parse(text, { ecmaVersion: "latest", sourceType: "script" });
+  } catch {
+    return []; // パース不能は codeStyleErrors 側が ERROR にする
+  }
+  const errs = [];
+  const walk = (node) => {
+    if (!node || typeof node !== "object") return;
+    if (Array.isArray(node)) { node.forEach(walk); return; }
+    if (node.type === "Literal" && typeof node.value === "number" &&
+        !CODE_NUMERAL_WHITELIST.has(node.value)) {
+      errs.push(`${where}: コードに具体的な数値 ${node.raw} — 記事コードは値レス骨格、つまみは裸名に (第 7 次)`);
+    }
+    for (const [k, v] of Object.entries(node)) {
+      if (k !== "type" && k !== "start" && k !== "end") walk(v);
+    }
+  };
+  walk(ast);
+  for (const m of text.matchAll(/\d+\.\d+/g)) {
+    errs.push(`${where}: コード本文に小数 ${m[0]} (コメント含む) — 実測値は記事面に載せない (第 7 次)`);
+  }
+  return errs;
+};
+// 散文の小文字チップが同記事 code に実在することを保証する際の、コードに現れない
+// プラットフォーム名 (DOM API / SVG 要素・属性 / npm スクリプト類)。
+const PROSE_PLATFORM_TERMS = new Set([
+  "requestAnimationFrame", "viewBox", "rect", "circle", "canvas", "rx",
+  "transform", "path",
+]);
 const codeStyleErrors = (text, where) => {
   let ast;
   try {
@@ -259,6 +298,12 @@ const checkSlug = (slug) => {
             errors.push(`${loc} block ${i}: 散文が \`${m[1]}\` を指すが同記事の code に無い`);
           }
         }
+        // 第 7 次: 小文字のつまみ名チップも同記事 code に実在必須 (knob 名ドリフト防止)
+        for (const m of s.matchAll(/`([a-z$][A-Za-z0-9_$]*)`/g)) {
+          if (!codeText.includes(m[1]) && !PROSE_PLATFORM_TERMS.has(m[1])) {
+            errors.push(`${loc} block ${i}: 散文が \`${m[1]}\` を指すが同記事の code に無い (第 7 次)`);
+          }
+        }
       }
     });
   }
@@ -312,26 +357,13 @@ const checkSlug = (slug) => {
   if (!jaCode.length) {
     errors.push("code block なし — 組み立ての骨格コードを作り方セクションに置く (style doc §3)");
   } else {
-    const vendorDir = join(root, "apps/web/src/features/journal/motion-demos/verbs");
-    const vendorFiles = [`${slug}.params.ts`, `${slug}.ts`]
-      .map((f) => join(vendorDir, f))
-      .filter((p) => existsSync(p));
-    if (!vendorFiles.length) {
-      warns.push("vendored verb/params が見つからない — code 定数の突合をスキップ");
-    } else {
-      const vendorNums = numberSet(
-        vendorFiles.map((p) => readFileSync(p, "utf8")).join("\n"),
-        false,
-      );
-      // 0/1/2 appear structurally (indices, halves, r1/r2) — not constants.
-      const STRUCTURAL = new Set(["0", "1", "2"]);
-      for (const block of jaCode) {
-        for (const n of numberSet(block.text, false)) {
-          if (!vendorNums.has(n) && !STRUCTURAL.has(n)) {
-            errors.push(`code 内の数値 ${n} が vendored params/verb に無い — 出所不明の定数`);
-          }
-        }
-      }
+    // 第 7 次: 旧「code 内数値は vendored params と一致」ゲートを反転 — 記事コードは
+    // 値レス骨格なので、構造数値の白名単の外にある数値リテラルそのものが ERROR。
+    for (const [loc, secs] of [["ja", jaS], ["en", enS]]) {
+      secs.forEach((b, i) => {
+        if (b.type !== "code") return;
+        errors.push(...codeNumeralErrors(b.text, `${loc} block ${i}`));
+      });
     }
     // 2026-06-11 第 4 次 (style doc §3 自己完結): code が呼ぶ At 系ヘルパーは同記事の
     // code 内に定義が要る。第 3 次版は breathAt/clipAt/angleAt/radiusAt を概念のまま
