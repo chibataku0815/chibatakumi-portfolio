@@ -80,7 +80,7 @@
 | 3 | tangency-coupled-drive | 連動 | キーフレームゼロ — 1 自由度の接触結合から全運動が幾何導出 | **公開済 2026-06-10** |
 | 4 | complement-tangent-pair | 反比例 | 積保存ではなく和保存（積仮説は 95× で棄却） | **公開済 2026-06-10** |
 | 5 | master-rotation-echo | 残像 | 残像 = 1 本のマスター回転の時間シフト合成 | **公開済 2026-06-11** |
-| 6 | shared-hold-pulse | 対称 | 正体は共有 rise-HOLD-fall 包絡 1 本 + 符号付き振幅 | |
+| 6 | shared-hold-pulse | 対称 | 正体は共有 rise-HOLD-fall 包絡 1 本 + 符号付き振幅 | **公開済 2026-06-11** |
 | 7 | whip-crawl-path-cycle | 循環 | | |
 | 8 | coupled-shear-rotation | 分割 | 1 位相が群回転と対向シアを同時駆動 | |
 | 9 | gather-return | 一体化と分離 | 昇格されたのは時間包絡だけ | |

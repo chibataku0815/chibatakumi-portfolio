@@ -195,6 +195,17 @@ export const motionStudyEntries: readonly JournalEntry[] = [
     status: "published",
     evidenceLevel: "production",
   },
+  // Article #6 of the drawer rollout — same uncommitted-until-reviewed gate.
+  {
+    slug: "shared-hold-pulse",
+    kind: "motion-study",
+    href: "/journal/motion-studies/shared-hold-pulse",
+    publishedAt: "2026-06-11",
+    priority: 6,
+    tags: ["Pulse", "Hold", "Easing", "SVG"],
+    status: "published",
+    evidenceLevel: "production",
+  },
   {
     slug: "signal-stroke-relay",
     kind: "motion-study",

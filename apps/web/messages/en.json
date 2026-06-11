@@ -1609,6 +1609,12 @@
           "summary": "While 2 dots make one lap around a circle, the tail splits into flip-book frames in the fast stretch, melts into one band in the slow stretch, and vanishes the moment they stop. Yet only one rotation is animated — every layer of the tail is the dot's own past, the same rotation replayed 1.65 frames later per copy. And nobody switches between the split and the melt, either. One rotation and 9 copies, dissected as one pure function.",
           "metaDescription": "A motion study dissecting the afterimage: one animated rotation, and a tail of 9 copies replaying it 1.65 frames apart — whether the tail reads as flip-book frames or melts into one band depends only on whether the dot outruns its own width within one copy's delay. The pure function renders live in `WebGPU` with two-pass grain and chromatic aberration."
         },
+        "shared-hold-pulse": {
+          "eyebrow": "Symmetry",
+          "title": "Dissecting 5 shapes that seem choreographed",
+          "summary": "4 bars stretch open to the left and right, the center square swells, all of them freeze together at full stretch for a beat, then walk the same road home. They look perfectly rehearsed, yet not one shape has its own keyframes — the only thing animated is a single number that climbs from 0 to 1, pauses, and returns to 0. Every shape just reads that number times its own motion amount; the mirror is nothing but the sign flipping between left and right. The center square even makes a half turn on the same number. One number and a table of motion amounts, dissected as one pure function.",
+          "metaDescription": "A motion study dissecting the symmetry drawer: one number that climbs from 0 to 1, holds, and returns drives 4 mirrored bars and a half-turning center square at once — no per-shape keyframes; the mirror is just a sign flip between left and right. The pure function renders live in `WebGPU` with two-pass grain and chromatic aberration."
+        },
         "signal-stroke-relay": {
           "eyebrow": "Theatre / Cascade",
           "title": "The relay sensation cannot be built from separate animations — a Theatre.js timeline referenced by multiple layers with phase offsets",
@@ -2879,6 +2885,108 @@
               "type": "callout",
               "tone": "note",
               "text": "The source is one cell of PuttiMW's (@PuttiMW) drawer series — decomposed and rebuilt in a motion-research repo. The palette swaps the reference red for the fixed light palette. The texture on the demo above — grain and chromatic aberration — is composited live by the video-finishing package we are building in-house: everything from the easing solver to the grain randomness is our own code. Where `WebGPU` is unavailable it falls back to `SVG` + `requestAnimationFrame`."
+            }
+          ]
+        },
+        "shared-hold-pulse": {
+          "sections": [
+            {
+              "type": "motion-demo",
+              "demo": "shared-hold-pulse",
+              "caption": "5 shapes, 1 driving number — 90 frames / 3s loop"
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "Open, hold, return"
+            },
+            {
+              "type": "paragraph",
+              "text": "4 tall bars stretch while splitting to the left and right. The small square in the middle swells at the same time. At full stretch, all 5 freeze for a beat — then walk the road back exactly the way they came. The left half mirrors the right, and no shape starts early or arrives late."
+            },
+            {
+              "type": "paragraph",
+              "text": "There are no per-shape keyframes. The only thing animated is a single number that climbs from 0 to 1, sits at 1 for 5 frames, and comes back to 0 — call it the pulse. Each shape just reads that same pulse, multiplied by its own motion amount (how many px one pulse moves it), and the mirror is nothing more than the travel sign flipping between left and right. The center square even makes a half turn (180°) on the same pulse."
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "Set up one pulse and 5 shapes"
+            },
+            {
+              "type": "list",
+              "items": [
+                "4 tall bars — width 27.5px, round caps, resting height 51.5px",
+                "a rounded square in the middle — 21.5 × 19.5px at rest, corner radius 2.5px",
+                "2 outer bars: height +123px, sliding 19.85px outward",
+                "2 inner bars: height +36px, sliding 12.7px outward",
+                "the center square: width and height +12px, rotation +180°",
+                "4 pulse keys — 0 on frame 2, 1 on frame 42, still 1 through frame 47, 0 on frame 87"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "That's every part. Assembly is one function: pass a frame number, get back where each shape goes — compute the pulse once, and let the 5 shapes read it through their own motion amounts."
+            },
+            {
+              "type": "code",
+              "lang": "ts",
+              "text": "// Only one thing moves: a single pulse. Every shape just reads it through its own motion amounts.\nconst ease = cubicBezier(0.684, 0.036, 0.292, 0.985); // the face of the motion — your knob\n\n// the pulse's key table: 0 → 1 → (stays 1) → 0, gaps filled by ease\nconst pulseKeys = [\n  { frame: 2,  value: 0, curve: ease },\n  { frame: 42, value: 1, curve: ease }, // 42–47 stays at 1 = the held pause\n  { frame: 47, value: 1, curve: ease }, // the way back — values run 1 → 0, so the same curve simply runs downhill\n  { frame: 87, value: 0, curve: ease },\n];\n\n// fill the gaps between key rows with a curve — every move in this article fits this shape\nfunction keyAt(keys, frame) {\n  if (frame <= keys[0].frame) return keys[0].value;      // outside the range, hold the edge value\n  for (let i = 0; i + 1 < keys.length; i++) {\n    const a = keys[i], b = keys[i + 1];\n    if (frame <= b.frame) {\n      const t = (frame - a.frame) / (b.frame - a.frame);  // progress through the span, 0–1\n      return a.value + (b.value - a.value) * a.curve(t);  // advance the difference along the curve\n    }\n  }\n  return keys[keys.length - 1].value;\n}\n\n// per-shape motion-amount table: where it sits, and how far one pulse moves it\nconst shapes = [\n  { x: 51,  w: 27.5, h: 51.5, growW: 0,  growH: 123, slide: -19.85, spin: 0   },\n  { x: 85,  w: 27.5, h: 51.5, growW: 0,  growH: 36,  slide: -12.7,  spin: 0   },\n  { x: 120, w: 21.5, h: 19.5, growW: 12, growH: 12,  slide: 0,      spin: 180 },\n  { x: 155, w: 27.5, h: 51.5, growW: 0,  growH: 36,  slide: 12.7,   spin: 0   },\n  { x: 189, w: 27.5, h: 51.5, growW: 0,  growH: 123, slide: 19.85,  spin: 0   },\n];\n\n// pure function: frame number in, placements out (loops every 90 frames)\nfunction shapesAt(frame) {\n  const pulse = keyAt(pulseKeys, frame % 90);\n  return shapes.map((s) => ({\n    cx: s.x + s.slide * pulse,            // horizontal position — left gets minus, right gets plus\n    cy: 120,                              // vertical stays fixed\n    width:  s.w + s.growW * pulse,\n    height: s.h + s.growH * pulse,\n    angle:  s.spin * pulse,               // only the center turns, 0–180°\n  }));\n}"
+            },
+            {
+              "type": "paragraph",
+              "text": "`ease` holds the entire face of this motion. It is exactly the math of CSS `cubic-bezier(0.684, 0.036, 0.292, 0.985)`, and npm's `bezier-easing` takes these 4 numbers as-is."
+            },
+            {
+              "type": "paragraph",
+              "text": "The curve starts deep and slow, rushes through the middle, and lands on a long soft tail. The way out (frames 2–42) is this one curve. The way back (frames 47–87) is the same curve again — the key values run from 1 down to 0, so the same progression simply runs downhill in value. That's why going and returning wear the same face."
+            },
+            {
+              "type": "paragraph",
+              "text": "In between, across frames 42–47, the keys read 1 and 1, and the value stays put. That 5-frame held pause is the showpiece of this motion: change the 4 numbers and only the pacing changes, while the key table keeps guarding the pause."
+            },
+            {
+              "type": "paragraph",
+              "text": "To put it on screen, set up a 240 × 240 `viewBox` and hand the values to a `rect` — the top-left corner is the center minus half the size (`x = cx - width / 2`), the bars' round caps come from a corner radius `rx` of 13.75 (half the width), the square's from 2.5. Rotation in SVG is 1 line, `transform=\"rotate(angle cx cy)\"` — the shape spins about its own center."
+            },
+            {
+              "type": "paragraph",
+              "text": "Then drive it with `requestAnimationFrame`: elapsed seconds × 30, modulo 90, is your frame number — the same 3-second loop as the demo above. The pulse lands back on 0 by frame 87 and stays there across the loop edge — the seam hides inside the resting stretch."
+            },
+            {
+              "type": "paragraph",
+              "text": "The motion-amount table is the playground. Grow the row to 6 bars, give every `slide` the same sign so the whole row drifts one way, hand `spin` to the outer bars — the one-pulse structure keeps working. Point the pulse at opacity or color intensity instead, and the logic still holds. Wiring everything you want moving together to the same single number is the heart of this build."
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "Why they land in lockstep"
+            },
+            {
+              "type": "paragraph",
+              "text": "They look coordinated not because something coordinates them, but because there is nothing that could drift: every shape reads the same single number, so the timing cannot disagree. No shape starts late — measuring the original video found no timing gap beyond measurement noise. No code knows about left versus right either; all that exists is the ± sign on the travel. Even the freeze at full stretch is no special case — it is just the 5 frames where the keys run from 1 to 1, made visible."
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "The rotation vanished from the first measurement"
+            },
+            {
+              "type": "paragraph",
+              "text": "The first measurement of this motion concluded that the center square does not rotate. The square is the smallest of the 5, and a check that compares how silhouettes overlap barely notices which way a small shape points — compare only the moments where the square looks upright (its unrotated orientation), and the pose after a half turn makes the exact same picture as no turn at all."
+            },
+            {
+              "type": "paragraph",
+              "text": "The crack showed up in the size reading. On frames where rotation mixes in, only the box drawn around the shape swells — by up to 6px — while the painted area doesn't grow at all. A box that fattens with no extra area is the proof that the shape inside is tilted."
+            },
+            {
+              "type": "paragraph",
+              "text": "Re-reading the angle from the shape's proportions: the square turns 180° per pulse. A 90° theory predicts a diamond tilted 45° on frame 22 — the observation is upright. A 360° theory predicts a return to upright on frame 18 — the observation is a diamond. Only 180° fits every place a diamond or an upright pose shows up."
+            },
+            {
+              "type": "callout",
+              "tone": "note",
+              "text": "The source is one cell of PuttiMW's (@PuttiMW) drawer series — decomposed and rebuilt in a motion-research repo. The palette swaps the reference blue for the fixed light palette. The texture on the demo above — grain and chromatic aberration — is composited live by the video-finishing package we are building in-house: everything from the easing solver to the grain randomness is our own code. Where `WebGPU` is unavailable, the demo falls back to plain `SVG` + `requestAnimationFrame` rendering."
             }
           ]
         },

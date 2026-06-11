@@ -12,6 +12,7 @@ import { ComplementTangentPairFinishDemo } from "./ComplementTangentPairFinishDe
 import { LatticeBreathFinishDemo } from "./LatticeBreathFinishDemo";
 import { MasterRotationEchoFinishDemo } from "./MasterRotationEchoFinishDemo";
 import { PulseGridFinishDemo } from "./PulseGridFinishDemo";
+import { SharedHoldPulseFinishDemo } from "./SharedHoldPulseFinishDemo";
 import { TangencyCoupledDriveFinishDemo } from "./TangencyCoupledDriveFinishDemo";
 
 const DEMO_REGISTRY: Record<string, () => React.ReactElement> = {
@@ -23,6 +24,7 @@ const DEMO_REGISTRY: Record<string, () => React.ReactElement> = {
   "tangency-coupled-drive": TangencyCoupledDriveFinishDemo,
   "complement-tangent-pair": ComplementTangentPairFinishDemo,
   "master-rotation-echo": MasterRotationEchoFinishDemo,
+  "shared-hold-pulse": SharedHoldPulseFinishDemo,
 };
 
 interface JournalMotionDemoProps {
