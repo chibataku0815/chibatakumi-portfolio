@@ -8,14 +8,12 @@ import type {
   JournalParagraphBlock,
   JournalQuoteBlock,
 } from "./article-blocks";
+import { MONO_STACK, renderInlineCode } from "./inline-code";
 import { JournalMotionDemo } from "./motion-demos/JournalMotionDemo";
 
 interface JournalArticleBodyProps {
   blocks: readonly JournalBlock[];
 }
-
-const MONO_STACK =
-  'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace';
 
 export function JournalArticleBody({ blocks }: JournalArticleBodyProps) {
   return (
@@ -83,7 +81,7 @@ function Heading({ block }: { block: JournalHeadingBlock }) {
 function Paragraph({ block }: { block: JournalParagraphBlock }) {
   return (
     <p className="text-[1rem] leading-[1.85] text-[var(--text-base-80)]">
-      {block.text}
+      {renderInlineCode(block.text)}
     </p>
   );
 }
@@ -93,7 +91,7 @@ function List({ block }: { block: JournalListBlock }) {
     return (
       <ol className="list-decimal space-y-2 pl-6 text-[1rem] leading-[1.85] text-[var(--text-base-80)] marker:text-[var(--text-base-50)]">
         {block.items.map((item, index) => (
-          <li key={index}>{item}</li>
+          <li key={index}>{renderInlineCode(item)}</li>
         ))}
       </ol>
     );
@@ -114,7 +112,7 @@ function Quote({ block }: { block: JournalQuoteBlock }) {
         className="text-[1.05rem] italic leading-[1.7] text-[var(--text-base)]"
         style={{ fontFamily: "var(--font-family-display)" }}
       >
-        {block.text}
+        {renderInlineCode(block.text)}
       </p>
       {block.cite ? (
         <cite className="mt-3 block font-sans text-[10px] not-italic uppercase tracking-[0.18em] text-[var(--text-base-60)]">
@@ -147,7 +145,7 @@ function Callout({ block }: { block: JournalCalloutBlock }) {
         {isWarn ? "Caveat" : "Note"}
       </p>
       <p className="mt-2 text-[0.95rem] leading-[1.75] text-[var(--text-base-80)]">
-        {block.text}
+        {renderInlineCode(block.text)}
       </p>
     </aside>
   );

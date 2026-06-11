@@ -59,9 +59,15 @@ const JA_BANNED_JARGON = [
   // articles, not just #4; the per-incident list had let these through).
   "創発", "署名", "決定論", "タンジェンシー", "減衰",
   "帰結", "裁定", "転覆", "納品", "振幅",
+  // 2026-06-11 third sweep (user: 「意味わからない文面が多いです」 on #1) —
+  // the 純関数 boilerplate had survived in every summary/metaDescription and
+  // 6 code comments even after the body purge. SNS 版/クリップ系の内輪参照ごと禁止。
+  "純関数", "SNS 版クリップ",
 ];
 const JA_WARN_JARGON = ["腕", "位相", "写像", "同型", "ひと粒ぶん", "初期値", "余り", "踊り場", "駆動"];
-const EN_BANNED_JARGON = ["family", "envelope", "onset", "deterministic", "emergent"];
+const EN_BANNED_JARGON = ["family", "envelope", "onset", "deterministic", "emergent",
+  // 2026-06-11 third sweep — mirrors ja 純関数 boilerplate purge.
+  "pure function"];
 const JA_AUDIOTEST = [
   "という形", "という話", "ということです", "大事なのは",
   "位置づけ", "することができ", "と言えるで",
@@ -156,6 +162,28 @@ const checkSlug = (slug) => {
     if (new RegExp(`\\b${j}\\b`, "i").test(enAll)) errors.push(`en banned jargon: "${j}"`);
   }
   if (/(^|[^a-zA-Z])f\d/.test(jaBody)) errors.push("ja f記法残存 (f10 等) → 「10 フレーム目」");
+
+  // inline-code markup (2026-06-11 — backticks shipped RAW to readers for a
+  // month because no check ever looked at the rendered surface; the renderer
+  // now parses `token` into <code> chips in prose blocks only).
+  // Prose: pairs must stay balanced. summary/metaDescription: plain-text
+  // surfaces (listing cards, <meta>/OG tags) — no backticks at all.
+  for (const [loc, secs] of [["ja", jaS], ["en", enS]]) {
+    secs.forEach((b, i) => {
+      if (b.type === "code") return;
+      for (const s of texts(b)) {
+        const ticks = (s.match(/`/g) ?? []).length;
+        if (ticks % 2) errors.push(`${loc} block ${i}: バッククォート ${ticks} 個 (奇数) — \`トークン\` の対で書く`);
+      }
+    });
+  }
+  for (const [loc, entry] of [["ja", jaEntry], ["en", enEntry]]) {
+    for (const k of ["summary", "metaDescription"]) {
+      if ((entry?.[k] ?? "").includes("`")) {
+        errors.push(`${loc} ${k} にバッククォート — listing カードと <meta> はプレーン表示 (インラインコード不可)`);
+      }
+    }
+  }
 
   // attribution honorific
   const jaCallout = jaS[jaS.length - 1]?.text ?? "";
