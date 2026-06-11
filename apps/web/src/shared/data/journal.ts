@@ -184,6 +184,17 @@ export const motionStudyEntries: readonly JournalEntry[] = [
     status: "published",
     evidenceLevel: "production",
   },
+  // Article #5 of the drawer rollout — same uncommitted-until-reviewed gate.
+  {
+    slug: "master-rotation-echo",
+    kind: "motion-study",
+    href: "/journal/motion-studies/master-rotation-echo",
+    publishedAt: "2026-06-11",
+    priority: 5,
+    tags: ["Echo", "Time Shift", "Easing", "SVG"],
+    status: "published",
+    evidenceLevel: "production",
+  },
   {
     slug: "signal-stroke-relay",
     kind: "motion-study",

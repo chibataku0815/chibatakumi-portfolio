@@ -4,7 +4,7 @@
 再構築 + packages API 化済み）を `/journal/motion-studies/` に 1 記事 1 技法で
 展開する正本。lattice-breath（2026-06-10 公開）が型。
 
-最終更新: 2026-06-10 / 状態: 4/18 公開（#1〜#4）
+最終更新: 2026-06-11 / 状態: 5/18 公開（#1〜#5）
 
 ---
 
@@ -75,7 +75,7 @@
 | 2 | pulse-grid | ランダム | 乱数ゼロ — 「ランダム」は固定順列表 1 枚 | **公開済 2026-06-10** |
 | 3 | tangency-coupled-drive | 連動 | キーフレームゼロ — 1 自由度の接触結合から全運動が幾何導出 | **公開済 2026-06-10** |
 | 4 | complement-tangent-pair | 反比例 | 積保存ではなく和保存（積仮説は 95× で棄却） | **公開済 2026-06-10** |
-| 5 | master-rotation-echo | 残像 | 残像 = 1 本のマスター回転の時間シフト合成 | |
+| 5 | master-rotation-echo | 残像 | 残像 = 1 本のマスター回転の時間シフト合成 | **公開済 2026-06-11** |
 | 6 | shared-hold-pulse | 対称 | 正体は共有 rise-HOLD-fall 包絡 1 本 + 符号付き振幅 | |
 | 7 | whip-crawl-path-cycle | 循環 | | |
 | 8 | coupled-shear-rotation | 分割 | 1 位相が群回転と対向シアを同時駆動 | |

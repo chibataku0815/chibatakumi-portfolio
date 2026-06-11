@@ -1603,6 +1603,12 @@
           "summary": "Two kissing circles keep trading size — one inflates exactly as the other deflates. The drawer is named \"inverse proportion\", yet measured, the equation where the product of the radii stays constant does not hold. What stays constant is the addition: the radii always sum to 81px. Keyframes sit only on the top-left circle's radius — 3 of them; the other radius is a subtraction from 81, and both centres are computed to recede from a fixed kiss point by their own radius, so the contact never moves in 90 frames. The whole build is dissected as one framework-free pure function.",
           "metaDescription": "A motion study dissecting two circles that look inversely proportional: what stays constant is the radius sum, 81px, not the product — the constant-product equation misses about 95× worse than the constant-sum one. 3 keyframes on one radius, a subtraction for its partner, centres computed from a fixed contact point so the kiss never drifts. The pure function renders live in `WebGPU` with two-pass grain and chromatic aberration."
         },
+        "master-rotation-echo": {
+          "eyebrow": "Afterimage",
+          "title": "Dissecting dots that seem to trail",
+          "summary": "While 2 dots make one lap around a circle, the tail splits into flip-book frames in the fast stretch, melts into one band in the slow stretch, and vanishes the moment they stop. Yet only one rotation is animated — every layer of the tail is the dot's own past, the same rotation replayed 1.65 frames later per copy. And nobody switches between the split and the melt, either. One rotation and 9 copies, dissected as one pure function.",
+          "metaDescription": "A motion study dissecting the afterimage: one animated rotation, and a tail of 9 copies replaying it 1.65 frames apart — whether the tail reads as flip-book frames or melts into one band depends only on whether the dot outruns its own width within one copy's delay. The pure function renders live in `WebGPU` with two-pass grain and chromatic aberration."
+        },
         "signal-stroke-relay": {
           "eyebrow": "Theatre / Cascade",
           "title": "The relay sensation cannot be built from separate animations — a Theatre.js timeline referenced by multiple layers with phase offsets",
@@ -2696,6 +2702,82 @@
               "type": "callout",
               "tone": "note",
               "text": "The source is one cell of @PuttiMW's drawer series — decomposed and rebuilt in a motion-research repo. The palette swaps the reference blue for the fixed light palette. The demo above composites grain and chromatic aberration live in two `WebGPU` passes — the math is ported line by line from the code that finished the SNS clips and verified to match its CPU implementation. Where `WebGPU` is unavailable it falls back to `SVG` + `requestAnimationFrame`."
+            }
+          ]
+        },
+        "master-rotation-echo": {
+          "sections": [
+            {
+              "type": "motion-demo",
+              "demo": "master-rotation-echo",
+              "caption": "the tail is 9 replays of the past — 90 frames / 3s loop"
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "Count the tail"
+            },
+            {
+              "type": "paragraph",
+              "text": "2 dots make one full lap around a circle and stop. Watch the tail on the way — in the fast stretch it splits apart, one copy at a time, like a flip-book. In the slow stretch it melts into a continuous band. The moment they stop, the tail is gone — just 2 dots again."
+            },
+            {
+              "type": "paragraph",
+              "text": "Only one thing is animated: a single rotation. Every layer of the tail is a copy replaying that same rotation slightly late — copy 1 runs 1.65 frames behind, copy 2 runs 3.3 frames behind, and so on through 9 copies. Opacity thins by 0.77× per copy. The afterimage is the dot's own past, replayed."
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "Set up one rotation and 9 copies"
+            },
+            {
+              "type": "list",
+              "items": [
+                "dots: radius 16.5px — 2 of them, on exactly opposite sides of the center",
+                "orbit radius: 72.5px",
+                "2 rotation keys — 0° on frame 0, 360° on frame 79, one easing curve",
+                "frames 79–90: rest, no rotation keys there",
+                "9 copies — each one 1.65 frames further into the past, each 0.77× the opacity"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "The easing starts slow, peaks around frame 38 — 25–30° in one frame — and eases off to land on frame 79. The copies decide nothing. Each one reads the same curve, shifted into the past by its own delay."
+            },
+            {
+              "type": "paragraph",
+              "text": "No key switches the tail between flip-book and band, either. The spacing between neighboring copies is exactly how far the dot moves in 1.65 frames — once that beats the dot's own width (its diameter, about 26.3° of arc), the copies pull apart and read one by one. Below it they overlap and melt into a continuous tail. The look flips on speed alone."
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "The first measurement said half a turn"
+            },
+            {
+              "type": "paragraph",
+              "text": "When this motion was first measured, the rotation read as 180° for one full lap. The tracker followed the center of the whole smeared blob, which drags the reading backward — and with the 2 dots sitting exactly opposite each other, a half-turn error produces the same picture, so nothing flagged it."
+            },
+            {
+              "type": "paragraph",
+              "text": "One contradiction broke that reading. Assume 180°, and the dense tail on frame 36 sits about 55° ahead of the dot it belongs to — no rig puts the tail in front of the dot. Re-tracking only the leading edge of the densest color reads as a full turn — 360° per lap, not half — and the first conclusion flipped under remeasurement."
+            },
+            {
+              "type": "paragraph",
+              "text": "The same measurement also pins the end rest sharply: move the last rotation key off frame 79 by just 1 frame, and the fit across all frames gets 2.7× worse."
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "One pure function is all you need"
+            },
+            {
+              "type": "paragraph",
+              "text": "The implementation is one pure function: pass a frame number, get back the angle and opacity of the lead and its 9 copies, for each of the 2 dots. And the copy trick is not rotation-specific — any looping motion, a horizontal slide or a scale pulse, grows a tail from the same formula: replay your own past. Every number sits as a plain constant in the JavaScript this page loads: the browser's view-source doubles as the spec sheet."
+            },
+            {
+              "type": "callout",
+              "tone": "note",
+              "text": "The source is one cell of @PuttiMW's drawer series — decomposed and rebuilt in a motion-research repo. The palette swaps the reference red for the fixed light palette. The demo above composites grain and chromatic aberration live in two `WebGPU` passes — the math is ported line by line from the code that finished the SNS clips and verified to match its CPU implementation. Where `WebGPU` is unavailable it falls back to `SVG` + `requestAnimationFrame`."
             }
           ]
         },
