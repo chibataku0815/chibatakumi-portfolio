@@ -1584,44 +1584,44 @@
         "lattice-breath": {
           "eyebrow": "増減",
           "title": "増えて見えるドットの解剖",
-          "summary": "ドットは 6 個から 19 個へ増え、また 6 個へ戻って見える。だが 1 個も作られていない。個数を直接アニメするキーはなく、増えて見えるのは現れるタイミングが少しずつずれているからだ。格子全体の開閉に、グループごとに時間差をつけた出現を重ねると、個数の変化はひとりでに生まれる。その仕掛けを、フレームワークに依存しない純関数ひとつに収めて解剖する。",
-          "metaDescription": "個数を増やすキーなしでドットが 6→19→6 と増えて見える motion study。実際には 1 個も作られておらず、出現タイミングの時間差が数の変化を生む。純関数を `WebGPU` でライブ描画し、粒状と色収差の仕上げを SNS 版クリップと同じ計算で乗せる。"
+          "summary": "ドットは 6 個から 19 個へ増え、また 6 個へ戻って見える。だが 1 個も作られていない。個数を直接アニメするキーはなく、増えて見えるのは現れるタイミングが少しずつずれているからだ。格子全体の開閉に、グループごとに時間差をつけた出現を重ねると、個数の変化はひとりでに生まれる。その仕掛けを、フレームワークに依存しない短い関数に書き起こして解剖する。",
+          "metaDescription": "個数を増やすキーなしでドットが 6→19→6 と増えて見える motion study。実際には 1 個も作られておらず、出現タイミングの時間差が数の変化を生む。動きを計算する短い関数を記事に載せ、ブラウザでライブ再生する。"
         },
         "pulse-grid": {
           "eyebrow": "ランダム",
           "title": "ランダムに見える順番の解剖",
-          "summary": "9 個のドットが、予測できない順に弾む。だが乱数はどこにも使われていない。動きはキーフレームで打たれたクリップ 1 本だけ — 9 個全てが同じクリップを 2 フレームずつずらして再生している。順番の正体は、9 マスに 0〜8 を書き込んだ固定の表 1 枚だ。ばねに見えるアンダーシュートまで含めて、その作りを純関数ひとつに収めて解剖する。",
-          "metaDescription": "「ランダム」の正体を解剖する motion study。9 ドットの弾む順番は固定の順番表 1 枚で決まり、乱数はゼロ — 半径キーフレームのクリップ 1 本を 2 フレーム × 順番で時間ずらしするだけの、毎回同じ動きになる作り。純関数を `WebGPU` でライブ描画し、粒状と色収差を 2 パスで乗せる。"
+          "summary": "9 個のドットが、予測できない順に弾む。だが乱数はどこにも使われていない。動きはキーフレームで打たれたクリップ 1 本だけ — 9 個全てが同じクリップを 2 フレームずつずらして再生している。順番の正体は、9 マスに 0〜8 を書き込んだ固定の表 1 枚だ。ばねに見えるアンダーシュートまで含めて、その作りを短い関数に書き起こして解剖する。",
+          "metaDescription": "「ランダム」の正体を解剖する motion study。9 ドットの弾む順番は固定の順番表 1 枚で決まり、乱数はゼロ — 半径キーフレームのクリップ 1 本を 2 フレーム × 順番で時間ずらしするだけの、毎回同じ動きになる作り。動きを計算する短い関数を記事に載せ、ブラウザでライブ再生する。"
         },
         "tangency-coupled-drive": {
           "eyebrow": "連動",
           "title": "止まって見える回転の解剖",
-          "summary": "中央の正方形が四分の一回転するあいだ、両脇はぴったり結ばれたように滑り、ダイヤのあたりで全部が止まって見える。だがキーフレームは回転の 3 個だけ — 両脇にはゼロで、その位置は「回転する正方形に触れないギリギリ」を毎フレーム計算した結果だ。止まって見える瞬間さえ、誰も止めていない。回転 1 本と接触の法則 1 行を、純関数ひとつに収めて解剖する。",
-          "metaDescription": "連動の正体を解剖する motion study。キーフレームは中央の回転 3 個だけで、両脇の正方形は「回転する正方形に触れないギリギリの位置」の毎フレーム計算で決まる — ダイヤ付近の「停止」はホールドキーではなく、45° 前後で横幅がほとんど変わらないために生まれる。純関数を `WebGPU` でライブ描画し、粒状と色収差を 2 パスで乗せる。"
+          "summary": "中央の正方形が四分の一回転するあいだ、両脇はぴったり結ばれたように滑り、ダイヤのあたりで全部が止まって見える。だがキーフレームは回転の 3 個だけ — 両脇にはゼロで、その位置は「回転する正方形に触れないギリギリ」を毎フレーム計算した結果だ。止まって見える瞬間さえ、誰も止めていない。回転 1 本と接触の法則 1 行を、短い関数に書き起こして解剖する。",
+          "metaDescription": "連動の正体を解剖する motion study。キーフレームは中央の回転 3 個だけで、両脇の正方形は「回転する正方形に触れないギリギリの位置」の毎フレーム計算で決まる — ダイヤ付近の「停止」はホールドキーではなく、45° 前後で横幅がほとんど変わらないために生まれる。動きを計算する短い関数を記事に載せ、ブラウザでライブ再生する。"
         },
         "complement-tangent-pair": {
           "eyebrow": "反比例",
           "title": "反比例に見える 2 円の解剖",
-          "summary": "接し合う 2 つの円が、一方はふくらみ一方はしぼんで、大きさを交換し続ける。名前は「反比例」— だが測ると、掛けた答え（積）が一定になる反比例の式は成り立っていない。一定なのは足し算のほう、半径の和 81px。キーフレームは左上の円の半径に 3 個だけで、右下の半径は 81 からの引き算、2 つの中心は固定の接点から自分の半径ぶん退いた位置に計算で決まる。接点が 90 フレーム動かない理由ごと、純関数ひとつに収めて解剖する。",
-          "metaDescription": "反比例に見える 2 円の正体を解剖する motion study。一定なのは掛けた答え（積）ではなく半径の和 81px — 積の式のずれは和の式の約 95 倍大きい。キーは片方の半径に 3 個だけ、相方は 81 からの引き算、中心は固定の接点から計算で決まり、接点は一度も動かない。純関数を `WebGPU` でライブ描画し、粒状と色収差を 2 パスで乗せる。"
+          "summary": "接し合う 2 つの円が、一方はふくらみ一方はしぼんで、大きさを交換し続ける。名前は「反比例」— だが測ると、掛けた答え（積）が一定になる反比例の式は成り立っていない。一定なのは足し算のほう、半径の和 81px。キーフレームは左上の円の半径に 3 個だけで、右下の半径は 81 からの引き算、2 つの中心は固定の接点から自分の半径ぶん退いた位置に計算で決まる。接点が 90 フレーム動かない理由ごと、短い関数に書き起こして解剖する。",
+          "metaDescription": "反比例に見える 2 円の正体を解剖する motion study。一定なのは掛けた答え（積）ではなく半径の和 81px — 積の式のずれは和の式の約 95 倍大きい。キーは片方の半径に 3 個だけ、相方は 81 からの引き算、中心は固定の接点から計算で決まり、接点は一度も動かない。動きを計算する短い関数を記事に載せ、ブラウザでライブ再生する。"
         },
         "master-rotation-echo": {
           "eyebrow": "残像",
           "title": "尾を引いて見えるドットの解剖",
-          "summary": "2 個のドットが円を 1 周するあいだ、速い区間では尾がコマ送りのように分かれ、遅い区間ではひとつながりに溶けて、止まると消える。だが動かしているのは回転 1 本だけ — 尾の 1 枚 1 枚は、同じ回転を 1.65 フレームずつ遅れて再生した過去の自分だ。分かれるか溶けるかも、誰も切り替えていない。回転 1 本と複製 9 枚を、純関数ひとつに収めて解剖する。",
-          "metaDescription": "残像の正体を解剖する motion study。動かしているのは回転 1 本だけで、尾は同じ回転を 1.65 フレームずつ遅らせて再生する複製 9 枚 — コマ送りに分かれるか、ひとつながりに溶けるかは、ドットが複製 1 枚ぶんの遅れの間に自分の幅より進むかどうかだけで決まる。純関数を `WebGPU` でライブ描画し、粒状と色収差を 2 パスで乗せる。"
+          "summary": "2 個のドットが円を 1 周するあいだ、速い区間では尾がコマ送りのように分かれ、遅い区間ではひとつながりに溶けて、止まると消える。だが動かしているのは回転 1 本だけ — 尾の 1 枚 1 枚は、同じ回転を 1.65 フレームずつ遅れて再生した過去の自分だ。分かれるか溶けるかも、誰も切り替えていない。回転 1 本と複製 9 枚を、短い関数に書き起こして解剖する。",
+          "metaDescription": "残像の正体を解剖する motion study。動かしているのは回転 1 本だけで、尾は同じ回転を 1.65 フレームずつ遅らせて再生する複製 9 枚 — コマ送りに分かれるか、ひとつながりに溶けるかは、ドットが複製 1 枚ぶんの遅れの間に自分の幅より進むかどうかだけで決まる。動きを計算する短い関数を記事に載せ、ブラウザでライブ再生する。"
         },
         "shared-hold-pulse": {
           "eyebrow": "対称",
           "title": "息が合って見える 5 つの図形の解剖",
-          "summary": "4 本のバーが左右へ開きながら伸び、中央のスクエアがふくらみ、いちばん伸び切ったところで一瞬そろって止まって、同じ道を帰ってくる。完璧に申し合わせたように見えるが、図形ごとのキーフレームは 1 つもない — 動いているのは 0 から 1 へ上がり、少し止まって 0 へ帰る数値 1 本だけだ。各図形はその数値に自分の動き幅を掛けて読んでいるだけで、鏡写しの正体は符号が左右で逆なこと。中央のスクエアは同じ数値で半回転までする。数値 1 本と動き幅の表を、純関数ひとつに収めて解剖する。",
-          "metaDescription": "対称の正体を解剖する motion study。鏡写しに開く 4 本のバーと半回転する中央スクエアを、0 から 1 へ上がって少し止まり 0 へ帰る数値 1 本が同時に動かす — 図形ごとのキーフレームはなく、鏡写しは読み取りの符号が左右で逆なだけ。純関数を `WebGPU` でライブ描画し、粒状と色収差を 2 パスで乗せる。"
+          "summary": "4 本のバーが左右へ開きながら伸び、中央のスクエアがふくらみ、いちばん伸び切ったところで一瞬そろって止まって、同じ道を帰ってくる。完璧に申し合わせたように見えるが、図形ごとのキーフレームは 1 つもない — 動いているのは 0 から 1 へ上がり、少し止まって 0 へ帰る数値 1 本だけだ。各図形はその数値に自分の動き幅を掛けて読んでいるだけで、鏡写しの正体は符号が左右で逆なこと。中央のスクエアは同じ数値で半回転までする。数値 1 本と動き幅の表を、短い関数に書き起こして解剖する。",
+          "metaDescription": "対称の正体を解剖する motion study。鏡写しに開く 4 本のバーと半回転する中央スクエアを、0 から 1 へ上がって少し止まり 0 へ帰る数値 1 本が同時に動かす — 図形ごとのキーフレームはなく、鏡写しは読み取りの符号が左右で逆なだけ。動きを計算する短い関数を記事に載せ、ブラウザでライブ再生する。"
         },
         "whip-crawl-path-cycle": {
           "eyebrow": "循環",
           "title": "変速して見える周回の解剖",
           "summary": "∞ の道を、太い線の頭とドットが 1 周のほとんどをひと息に駆け、残りだけゆっくり這う。二段変速に見えるが、自分で決める速さのキーは鞭のひと振りぶんの 2 つだけ — 這いの速さは「90 フレームでちょうど 1 周して戻る」という約束から自動で決まる。線は伸び縮みせず、固定長の窓が道の上を滑っているだけだ。",
-          "metaDescription": "循環の正体を解剖する motion study。∞ の道を駆けて這うドットの二段変速に見える緩急は、cubic-bezier の鞭 1 本と「1 周して戻る」約束が残す這い — 変速の仕組みはどこにもない。線は固定長のダッシュ窓のスライド。純関数を `WebGPU` でライブ描画し、粒状と色収差を 2 パスで乗せる。"
+          "metaDescription": "循環の正体を解剖する motion study。∞ の道を駆けて這うドットの二段変速に見える緩急は、cubic-bezier の鞭 1 本と「1 周して戻る」約束が残す這い — 変速の仕組みはどこにもない。線は固定長のダッシュ窓のスライド。動きを計算する短い関数を記事に載せ、ブラウザでライブ再生する。"
         },
         "signal-stroke-relay": {
           "eyebrow": "Theatre / Cascade",
@@ -1638,7 +1638,7 @@
         "boiling-poster-aperture": {
           "eyebrow": "Boil Field / Reveal",
           "title": "ポスターが紙のようににじむ reveal — 縁だけを揺らす boil ノイズの設計（中身を揺らすと紙の質感は消える）",
-          "summary": "CSS の `clip-path` で抜くポスターの reveal は、エッジが硬くて機械的になる。紙のような滲みを出すには、WebGL の低周波ノイズで時間発展する boil 場を持ち、マスクの縁だけを displacement で乱す。内側の絵柄は1ピクセルも動かさない。中身を揺らした瞬間に紙ではなくゼリーになる、という直感に反するルールの記録。",
+          "summary": "CSS の clip-path で抜くポスターの reveal は、エッジが硬くて機械的になる。紙のような滲みを出すには、WebGL の低周波ノイズで時間発展する boil 場を持ち、マスクの縁だけを displacement で乱す。内側の絵柄は1ピクセルも動かさない。中身を揺らした瞬間に紙ではなくゼリーになる、という直感に反するルールの記録。",
           "metaDescription": "ポスターの reveal を「紙が滲むように」見せるための boil ノイズと displacement の設計。揺らすのは縁だけ、内側は完全に静止させる、という反直感的なルールの motion study。"
         },
         "temporal-echo-residue": {
@@ -2467,7 +2467,11 @@
             },
             {
               "type": "paragraph",
-              "text": "動力は、格子がどれだけ開いているかを表す 0〜1 の数値がひとつ — 90 フレームで 0 → 1 → 0 と往復する。0–30 フレームで開き、30–44 で保ち、44–73 で閉じて、残りは静止。これを呼吸と呼ぶ。呼吸が動かすのは、六角形の半径（中心から頂点まで 28.8 → 75.6）と、格子全体の回転だ。コードに起こすための部品は、キーの間をカーブで埋める関数がひとつあれば足りる。"
+              "text": "動力は、格子がどれだけ開いているかを表す 0〜1 の数値がひとつ — 90 フレームで 0 → 1 → 0 と往復する。0–30 フレームで開き、30–44 で保ち、44–73 で閉じて、残りは静止。これを呼吸と呼ぶ。"
+            },
+            {
+              "type": "paragraph",
+              "text": "呼吸が直接動かすのは、六角形の半径（中心から頂点まで 28.8 → 75.6）だ。格子全体の回転も同じ区間で動くが、呼吸の値は使わず、自分のキーの表とカーブを持つ — コードの `SPIN` がそれだ。コードに起こすための部品は、キーの間をカーブで埋める関数がひとつあれば足りる。"
             },
             {
               "type": "code",
@@ -2476,20 +2480,32 @@
             },
             {
               "type": "paragraph",
-              "text": "この `keyAt` が、この記事のほとんど唯一の部品だ。キーの表は「どのフレームで・どの値か・次の区間をどのカーブで埋めるか」を 1 行ずつ並べたもの。カーブは CSS の `cubic-bezier()` と同じ 4 つの数で、npm の `bezier-easing` がそのまま受け取る。範囲の外では端の値を返すから、動きはじめる前と終わったあとの静止は何も書かなくても出る。"
+              "text": "この `keyAt` が、この記事のほとんど唯一の部品だ。キーの表は「どのフレームで・どの値か・次の区間をどのカーブで埋めるか」を 1 行ずつ並べたもの。"
+            },
+            {
+              "type": "paragraph",
+              "text": "カーブは CSS の `cubic-bezier()` と同じ 4 つの数で指定する。次のコードの `cubicBezier` は `import cubicBezier from \"bezier-easing\"` で手に入る — npm の `bezier-easing` が 4 つの数を受け取って、区間を埋めるカーブの関数を返す。範囲の外では端の値を返すから、動きはじめる前と終わったあとの静止は何も書かなくても出る。"
             },
             {
               "type": "code",
               "lang": "ts",
-              "text": "const linear = (t) => t; // 値が同じ区間用 — どんなカーブでも動かない\n\n// 呼吸 — 開き(0〜30)と閉じ(44〜73)で別カーブ、あいだは値が同じなので保ちになる\nconst BREATH = [\n  { frame: 0,  value: 0,   curve: cubicBezier(0.7, 0.01, 0.21, 1) },\n  { frame: 30, value: 1,   curve: linear },\n  { frame: 44, value: 1,   curve: cubicBezier(0.75, 0, 0.3, 1) },\n  { frame: 73, value: 0 },\n];\n// 回転 — フレーム区間は呼吸と同じ、カーブだけ自分の 2 本を持つ\nconst SPIN = [\n  { frame: 0,  value: 0,   curve: cubicBezier(0.68, 0.03, 0.24, 1) },\n  { frame: 30, value: 0.5, curve: linear },\n  { frame: 44, value: 0.5, curve: cubicBezier(0.69, -0.05, 0.34, 1) },\n  { frame: 73, value: 1 },\n];\n// 外縁専用レール — 32.84 → 65.68 を自分のフレーム区間で往復\nconst RAIL = [\n  { frame: 10, value: 32.84, curve: cubicBezier(0.5, 0.04, 0.2, 1) },\n  { frame: 28, value: 65.68, curve: linear },\n  { frame: 44, value: 65.68, curve: cubicBezier(0.81, 0, 0.35, 1) },\n  { frame: 70, value: 32.84 },\n];\n\n// フレーム番号を渡すと 19 個ぶんの位置と大きさを返す純関数\nfunction latticeAt(frame) {\n  const breath = keyAt(BREATH, frame);\n  const radius = 28.8 + (75.6 - 28.8) * breath;    // 六角形の半径だけが呼吸に乗る\n  const spin = -180 * keyAt(SPIN, frame);          // 1 ループで −180°\n  return DOTS.map((dot) => ({\n    angle: dot.angle + spin,                       // 全ドットが同じ回転に乗る\n    dist: dot.role === \"arm\"  ? radius             // 土台の 6 個\n        : dot.role === \"edge\" ? keyAt(RAIL, frame) // 外縁の 6 個\n        : dot.dist,                                // 中心 0・内側の輪 38.1 は固定\n    scale: dot.grow ? keyAt(dot.grow, frame) : 1,  // 出現も退場も scale のキー\n  }));\n}"
+              "text": "const linear = (t) => t; // 値が同じ区間用 — どんなカーブでも動かない\n\n// 呼吸 — 開き(0〜30)と閉じ(44〜73)で別カーブ、あいだは値が同じなので保ちになる\nconst BREATH = [\n  { frame: 0,  value: 0,   curve: cubicBezier(0.7, 0.01, 0.21, 1) },\n  { frame: 30, value: 1,   curve: linear },\n  { frame: 44, value: 1,   curve: cubicBezier(0.75, 0, 0.3, 1) },\n  { frame: 73, value: 0 },\n];\n// 回転 — フレーム区間は呼吸と同じ、カーブだけ自分の 2 本を持つ\nconst SPIN = [\n  { frame: 0,  value: 0,   curve: cubicBezier(0.68, 0.03, 0.24, 1) },\n  { frame: 30, value: 0.5, curve: linear },\n  { frame: 44, value: 0.5, curve: cubicBezier(0.69, -0.05, 0.34, 1) },\n  { frame: 73, value: 1 },\n];\n// 外縁専用レール — 32.84 → 65.68 を自分のフレーム区間で往復\nconst RAIL = [\n  { frame: 10, value: 32.84, curve: cubicBezier(0.5, 0.04, 0.2, 1) },\n  { frame: 28, value: 65.68, curve: linear },\n  { frame: 44, value: 65.68, curve: cubicBezier(0.81, 0, 0.35, 1) },\n  { frame: 70, value: 32.84 },\n];\n\n// フレーム番号を渡すと 19 個ぶんの位置と大きさを返す関数\nfunction latticeAt(frame) {\n  const breath = keyAt(BREATH, frame);\n  const radius = 28.8 + (75.6 - 28.8) * breath;    // 六角形の半径だけが呼吸に乗る\n  const spin = -180 * keyAt(SPIN, frame);          // 1 ループで −180°\n  return DOTS.map((dot) => ({\n    angle: dot.angle + spin,                       // 全ドットが同じ回転に乗る\n    dist: dot.role === \"arm\"  ? radius             // 土台の 6 個\n        : dot.role === \"edge\" ? keyAt(RAIL, frame) // 外縁の 6 個\n        : dot.dist,                                // 中心 0・内側の輪 38.1 は固定\n    scale: dot.grow ? keyAt(dot.grow, frame) : 1,  // 出現も退場も scale のキー\n  }));\n}"
             },
             {
               "type": "paragraph",
-              "text": "`DOTS` は 19 行の設計図だ。1 行が持つのは役割・角度・固定の距離・出現と退場のキーの表 `grow` で、土台の 6 個だけは `grow` を持たず常に立っている。中心の距離は 0、内側の輪は 38.1 で固定 — 呼吸で伸び縮みする距離は、土台の 6 個のものだけだ。角度は 60° ごとに 6 本、外縁はそのあいだ（+30°）に立つ。"
+              "text": "`DOTS` は 19 行の設計図だ。1 行が持つのは役割・角度・距離・出現と退場のキーの表 `grow` で、土台の 6 個だけは `grow` を持たず常に立っている。"
             },
             {
               "type": "paragraph",
-              "text": "置き方は、中心 (120, 120) から角度の方向へ距離ぶん進んだ点に円を描くだけ — `x = 120 + dist * Math.cos(rad(angle))`、`y` は `sin`、`rad()` は度に `Math.PI / 180` を掛ける 1 行。`requestAnimationFrame` で経過秒 × 30 を 90 で割った残りをフレーム番号にすれば、このデモと同じ 3 秒ループになる。"
+              "text": "行に書いた距離がそのまま使われるのは中心（0）と内側の輪（38.1）だけ — 土台の 6 個は呼吸の半径が、外縁の 6 個は専用レールが毎フレーム距離を決める。角度は 60° おきの 6 方向で、土台と内側の輪は同じ 6 方向に立ち、外縁だけがそのあいだ（+30°）に立つ。"
+            },
+            {
+              "type": "paragraph",
+              "text": "置き方は、中心 (120, 120) から角度の方向へ距離ぶん進んだ点に円を描くだけ — `x = 120 + dist * Math.cos(rad(angle))`、`y = 120 - dist * Math.sin(rad(angle))`（画面の y 軸は下向きなので、`sin` の符号はマイナス）。`rad()` は度に `Math.PI / 180` を掛ける 1 行。"
+            },
+            {
+              "type": "paragraph",
+              "text": "`requestAnimationFrame` で経過秒 × 30 を 90 で割った余り（`frame = (sec * 30) % 90`）をフレーム番号にすれば、このデモと同じ 3 秒ループになる。"
             },
             {
               "type": "paragraph",
@@ -2497,7 +2513,7 @@
             },
             {
               "type": "paragraph",
-              "text": "`DOTS` の表を書き換えれば、格子は別の絵になる。並びを四角に変えても、出現フレームの時間差さえ残せば「数が増えて見える」理屈はそのまま働くし、呼吸 1 本に吊るす相手を半径から不透明度に替えても、同じ骨格のまま別の表情になる。"
+              "text": "`DOTS` の表を書き換えれば、格子は別の絵になる。並びを四角に変えても、出現フレームの時間差さえ残せば「数が増えて見える」理屈はそのまま働くし、呼吸で動かす相手を半径から不透明度に替えても、同じ骨格のまま別の表情になる。"
             },
             {
               "type": "heading",
@@ -2574,7 +2590,7 @@
             {
               "type": "code",
               "lang": "ts",
-              "text": "const linear = (t) => t; // 値が同じ区間用 — 保ちはこれで出る\n\nconst CLIP = [ // 値 = 半径。各行のカーブは「次のキーへ向かう区間」のもの\n  { frame: 0,  value: 12.02, curve: cubicBezier(0.62, 0.08, 0.5, 0.92) }, // → 弾む\n  { frame: 9,  value: 26.19, curve: cubicBezier(0.32, 0.06, 0.5, 1.0) },  // → 落としすぎる\n  { frame: 18, value: 21.84, curve: cubicBezier(0.48, 0.38, 0.5, 0.88) }, // → 拾う\n  { frame: 25, value: 22.39, curve: linear },                             // → 25 フレーム保つ\n  { frame: 50, value: 22.39, curve: cubicBezier(0.2, 0.17, 0.2, 0.83) },  // → 静止へ戻る\n  { frame: 68, value: 12.02 },\n];\nconst ORDER = [[5, 1, 6], [7, 3, 4], [8, 2, 0]]; // 「ランダム」の正体はこの表 1 枚\n\n// フレーム番号を渡すと 9 個の半径を返す純関数\nfunction radiiAt(frame) {\n  return ORDER.flat().map((rank) => {\n    const local = frame - 3 - rank * 2; // 自分の番 × 2 フレームずつ遅れて再生\n    return keyAt(CLIP, local);          // キーの間を区間カーブで埋める\n  });\n}"
+              "text": "const linear = (t) => t; // 値が同じ区間用 — 保ちはこれで出る\n\nconst CLIP = [ // 値 = 半径。各行のカーブは「次のキーへ向かう区間」のもの\n  { frame: 0,  value: 12.02, curve: cubicBezier(0.62, 0.08, 0.5, 0.92) }, // → 弾む\n  { frame: 9,  value: 26.19, curve: cubicBezier(0.32, 0.06, 0.5, 1.0) },  // → 落としすぎる\n  { frame: 18, value: 21.84, curve: cubicBezier(0.48, 0.38, 0.5, 0.88) }, // → 拾う\n  { frame: 25, value: 22.39, curve: linear },                             // → 25 フレーム保つ\n  { frame: 50, value: 22.39, curve: cubicBezier(0.2, 0.17, 0.2, 0.83) },  // → 静止へ戻る\n  { frame: 68, value: 12.02 },\n];\nconst ORDER = [[5, 1, 6], [7, 3, 4], [8, 2, 0]]; // 「ランダム」の正体はこの表 1 枚\n\n// フレーム番号を渡すと 9 個の半径を返す関数\nfunction radiiAt(frame) {\n  return ORDER.flat().map((rank) => {\n    const local = frame - 3 - rank * 2; // 自分の番 × 2 フレームずつ遅れて再生\n    return keyAt(CLIP, local);          // キーの間を区間カーブで埋める\n  });\n}"
             },
             {
               "type": "paragraph",
@@ -2667,7 +2683,7 @@
             {
               "type": "code",
               "lang": "ts",
-              "text": "const THETA = [ // 値 = 中央の角度。キー 3 個 + 区間カーブ 2 本 — 打ってあるのはこれだけ\n  { frame: 3,  value: 0,  curve: cubicBezier(0.67, 0.06, 0.16, 1.0) },  // → ダイヤへ上る\n  { frame: 46, value: 45, curve: cubicBezier(0.76, 0.04, 0.19, 0.98) }, // → 直立へ下りる\n  { frame: 89, value: 90 },\n];\n\n// フレーム番号を渡すと、中央の角度と両脇の位置を返す純関数\nfunction squaresAt(frame) {\n  const angle = keyAt(THETA, frame);\n  // 法則 1 行: 回転した正方形の横幅の半分は「45° からの離れ具合」で決まる\n  const phi = Math.abs(((angle % 90) + 90) % 90 - 45);\n  const halfWidth = (54 / Math.SQRT2) * Math.cos((phi * Math.PI) / 180);\n  const push = Math.max(0, halfWidth - 54 / 2 - 0.1); // 隙間 0.1px を保って押し出す\n  return {\n    center: { rotate: angle },\n    left:   { x: 66 - push },  // 両脇にキーはゼロ — 法則は左右対称\n    right:  { x: 174 + push },\n  };\n}"
+              "text": "const THETA = [ // 値 = 中央の角度。キー 3 個 + 区間カーブ 2 本 — 打ってあるのはこれだけ\n  { frame: 3,  value: 0,  curve: cubicBezier(0.67, 0.06, 0.16, 1.0) },  // → ダイヤへ上る\n  { frame: 46, value: 45, curve: cubicBezier(0.76, 0.04, 0.19, 0.98) }, // → 直立へ下りる\n  { frame: 89, value: 90 },\n];\n\n// フレーム番号を渡すと、中央の角度と両脇の位置を返す関数\nfunction squaresAt(frame) {\n  const angle = keyAt(THETA, frame);\n  // 法則 1 行: 回転した正方形の横幅の半分は「45° からの離れ具合」で決まる\n  const phi = Math.abs(((angle % 90) + 90) % 90 - 45);\n  const halfWidth = (54 / Math.SQRT2) * Math.cos((phi * Math.PI) / 180);\n  const push = Math.max(0, halfWidth - 54 / 2 - 0.1); // 隙間 0.1px を保って押し出す\n  return {\n    center: { rotate: angle },\n    left:   { x: 66 - push },  // 両脇にキーはゼロ — 法則は左右対称\n    right:  { x: 174 + push },\n  };\n}"
             },
             {
               "type": "paragraph",
@@ -2764,7 +2780,7 @@
             {
               "type": "code",
               "lang": "ts",
-              "text": "const R1 = [ // 値 = 左上の半径。キー 3 個 + 区間カーブ 2 本 — 打ってあるのはこれだけ\n  { frame: 0,  value: 54, curve: cubicBezier(0.777, 0.029, 0.173, 1.016) }, // → しぼむ\n  { frame: 45, value: 27, curve: cubicBezier(0.765, 0.02, 0.155, 1.024) },  // → ふくらむ\n  { frame: 90, value: 54 },\n];\n\n// フレーム番号を渡すと 2 円の中心と半径を返す純関数\nfunction circlesAt(frame) {\n  const r1 = keyAt(R1, frame);              // 左上の半径\n  const r2 = 81 - r1;                       // 右下はキーゼロ — 引き算 1 行\n  const d = Math.SQRT1_2;                   // 45° 対角線方向の成分(= cos 45°)\n  return [\n    { r: r1, x: 120 - r1 * d, y: 120 - r1 * d }, // 接点(120, 120)から左上へ退く\n    { r: r2, x: 120 + r2 * d, y: 120 + r2 * d }, // 接点から右下へ退く\n  ];\n}"
+              "text": "const R1 = [ // 値 = 左上の半径。キー 3 個 + 区間カーブ 2 本 — 打ってあるのはこれだけ\n  { frame: 0,  value: 54, curve: cubicBezier(0.777, 0.029, 0.173, 1.016) }, // → しぼむ\n  { frame: 45, value: 27, curve: cubicBezier(0.765, 0.02, 0.155, 1.024) },  // → ふくらむ\n  { frame: 90, value: 54 },\n];\n\n// フレーム番号を渡すと 2 円の中心と半径を返す関数\nfunction circlesAt(frame) {\n  const r1 = keyAt(R1, frame);              // 左上の半径\n  const r2 = 81 - r1;                       // 右下はキーゼロ — 引き算 1 行\n  const d = Math.SQRT1_2;                   // 45° 対角線方向の成分(= cos 45°)\n  return [\n    { r: r1, x: 120 - r1 * d, y: 120 - r1 * d }, // 接点(120, 120)から左上へ退く\n    { r: r2, x: 120 + r2 * d, y: 120 + r2 * d }, // 接点から右下へ退く\n  ];\n}"
             },
             {
               "type": "paragraph",
@@ -2845,7 +2861,7 @@
             {
               "type": "code",
               "lang": "ts",
-              "text": "// 動かしているのは回転 1 本。残りは全部、その読み替え。\nconst ease = cubicBezier(0.82, 0.003, 0.163, 0.996); // 動きの顔 — ここがつまみ\n\n// フレーム番号を渡すと、描く円の一覧を返す純関数（90 フレームでループ）\nfunction dotsAt(frame) {\n  const dots = [];\n  for (const rest of [-90, 90]) {                    // 正反対に置いた 2 個のドット\n    for (let copy = 0; copy <= 9; copy++) {          // 0 = 本体、1〜9 = 複製\n      const past = frame - copy * 1.65;              // 複製は少しだけ過去を読む\n      const t = Math.min(Math.max(past / 79, 0), 1); // 進み具合を 0〜1 に直す\n      dots.push({\n        angle: rest + 360 * ease(t),                 // 1 周ぶん回す\n        opacity: 0.77 ** copy,                       // 1 枚ごとに 0.77 倍薄く\n      });\n    }\n  }\n  return dots;\n}"
+              "text": "// 動かしているのは回転 1 本。残りは全部、その読み替え。\nconst ease = cubicBezier(0.82, 0.003, 0.163, 0.996); // 動きの顔 — ここがつまみ\n\n// フレーム番号を渡すと、描く円の一覧を返す関数（90 フレームでループ）\nfunction dotsAt(frame) {\n  const dots = [];\n  for (const rest of [-90, 90]) {                    // 正反対に置いた 2 個のドット\n    for (let copy = 0; copy <= 9; copy++) {          // 0 = 本体、1〜9 = 複製\n      const past = frame - copy * 1.65;              // 複製は少しだけ過去を読む\n      const t = Math.min(Math.max(past / 79, 0), 1); // 進み具合を 0〜1 に直す\n      dots.push({\n        angle: rest + 360 * ease(t),                 // 1 周ぶん回す\n        opacity: 0.77 ** copy,                       // 1 枚ごとに 0.77 倍薄く\n      });\n    }\n  }\n  return dots;\n}"
             },
             {
               "type": "paragraph",
@@ -2939,7 +2955,7 @@
             {
               "type": "code",
               "lang": "ts",
-              "text": "// 動かしているのはパルス 1 本。図形はみんな、それを自分の動き幅で読むだけ。\nconst ease = cubicBezier(0.684, 0.036, 0.292, 0.985); // 動きの顔 — ここがつまみ\n\n// パルスのキーの表: 0 → 1 → (1 のまま) → 0。間は ease で埋める\nconst pulseKeys = [\n  { frame: 2,  value: 0, curve: ease },\n  { frame: 42, value: 1, curve: ease }, // 42〜47 は値 1 のまま = ため\n  { frame: 47, value: 1, curve: ease }, // ここから帰り — 値が 1 → 0 なので、同じカーブのまま下りになる\n  { frame: 87, value: 0, curve: ease },\n];\n\n// キーの表のあいだをカーブで埋める — この記事の動きはぜんぶこの形で書ける\nfunction keyAt(keys, frame) {\n  if (frame <= keys[0].frame) return keys[0].value;      // 範囲の外では端の値のまま\n  for (let i = 0; i + 1 < keys.length; i++) {\n    const a = keys[i], b = keys[i + 1];\n    if (frame <= b.frame) {\n      const t = (frame - a.frame) / (b.frame - a.frame);  // 区間の進み具合 0〜1\n      return a.value + (b.value - a.value) * a.curve(t);  // 差をカーブの形で進める\n    }\n  }\n  return keys[keys.length - 1].value;\n}\n\n// 図形ごとの動き幅の表: 置き場所と「パルス 1 につき何 px 動くか」\nconst shapes = [\n  { x: 51,  w: 27.5, h: 51.5, growW: 0,  growH: 123, slide: -19.85, spin: 0   },\n  { x: 85,  w: 27.5, h: 51.5, growW: 0,  growH: 36,  slide: -12.7,  spin: 0   },\n  { x: 120, w: 21.5, h: 19.5, growW: 12, growH: 12,  slide: 0,      spin: 180 },\n  { x: 155, w: 27.5, h: 51.5, growW: 0,  growH: 36,  slide: 12.7,   spin: 0   },\n  { x: 189, w: 27.5, h: 51.5, growW: 0,  growH: 123, slide: 19.85,  spin: 0   },\n];\n\n// フレーム番号を渡すと、図形の置き方の一覧を返す純関数(90 フレームでループ)\nfunction shapesAt(frame) {\n  const pulse = keyAt(pulseKeys, frame % 90);\n  return shapes.map((s) => ({\n    cx: s.x + s.slide * pulse,            // 横の置き場所 — 左は引かれ、右は足される\n    cy: 120,                              // 縦は固定\n    width:  s.w + s.growW * pulse,\n    height: s.h + s.growH * pulse,\n    angle:  s.spin * pulse,               // 中央だけ 0〜180° 回る\n  }));\n}"
+              "text": "// 動かしているのはパルス 1 本。図形はみんな、それを自分の動き幅で読むだけ。\nconst ease = cubicBezier(0.684, 0.036, 0.292, 0.985); // 動きの顔 — ここがつまみ\n\n// パルスのキーの表: 0 → 1 → (1 のまま) → 0。間は ease で埋める\nconst pulseKeys = [\n  { frame: 2,  value: 0, curve: ease },\n  { frame: 42, value: 1, curve: ease }, // 42〜47 は値 1 のまま = ため\n  { frame: 47, value: 1, curve: ease }, // ここから帰り — 値が 1 → 0 なので、同じカーブのまま下りになる\n  { frame: 87, value: 0, curve: ease },\n];\n\n// キーの表のあいだをカーブで埋める — この記事の動きはぜんぶこの形で書ける\nfunction keyAt(keys, frame) {\n  if (frame <= keys[0].frame) return keys[0].value;      // 範囲の外では端の値のまま\n  for (let i = 0; i + 1 < keys.length; i++) {\n    const a = keys[i], b = keys[i + 1];\n    if (frame <= b.frame) {\n      const t = (frame - a.frame) / (b.frame - a.frame);  // 区間の進み具合 0〜1\n      return a.value + (b.value - a.value) * a.curve(t);  // 差をカーブの形で進める\n    }\n  }\n  return keys[keys.length - 1].value;\n}\n\n// 図形ごとの動き幅の表: 置き場所と「パルス 1 につき何 px 動くか」\nconst shapes = [\n  { x: 51,  w: 27.5, h: 51.5, growW: 0,  growH: 123, slide: -19.85, spin: 0   },\n  { x: 85,  w: 27.5, h: 51.5, growW: 0,  growH: 36,  slide: -12.7,  spin: 0   },\n  { x: 120, w: 21.5, h: 19.5, growW: 12, growH: 12,  slide: 0,      spin: 180 },\n  { x: 155, w: 27.5, h: 51.5, growW: 0,  growH: 36,  slide: 12.7,   spin: 0   },\n  { x: 189, w: 27.5, h: 51.5, growW: 0,  growH: 123, slide: 19.85,  spin: 0   },\n];\n\n// フレーム番号を渡すと、図形の置き方の一覧を返す関数(90 フレームでループ)\nfunction shapesAt(frame) {\n  const pulse = keyAt(pulseKeys, frame % 90);\n  return shapes.map((s) => ({\n    cx: s.x + s.slide * pulse,            // 横の置き場所 — 左は引かれ、右は足される\n    cy: 120,                              // 縦は固定\n    width:  s.w + s.growW * pulse,\n    height: s.h + s.growH * pulse,\n    angle:  s.spin * pulse,               // 中央だけ 0〜180° 回る\n  }));\n}"
             },
             {
               "type": "paragraph",
