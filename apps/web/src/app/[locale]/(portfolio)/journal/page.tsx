@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { Fragment, type ReactNode } from "react";
 import { JournalIndexCard } from "@/features/journal/JournalIndexCard";
 import { JournalIndexGroup } from "@/features/journal/JournalIndexGroup";
 import {
+  type JournalEntry,
   publishedJournalEntries,
   publishedMotionStudyEntries,
 } from "@/shared/data/journal";
@@ -65,6 +67,136 @@ export default async function JournalPage({
     (entry) => entry.kind === "study",
   );
 
+  const newestOf = (entries: readonly JournalEntry[]): string =>
+    entries.reduce(
+      (max, entry) => (entry.publishedAt > max ? entry.publishedAt : max),
+      "",
+    );
+
+  // Index groups render in descending date order (each group's newest entry),
+  // so the page leads with the latest articles: the motion-study garden keeps
+  // growing and must not sit below the static April case studies. Ties keep
+  // this editorial order (Array.prototype.sort is stable).
+  const groups: { key: string; newest: string; node: ReactNode }[] = [];
+
+  if (flagship) {
+    groups.push({
+      key: "flagship",
+      newest: flagship.publishedAt,
+      node: (
+        <JournalIndexGroup label={t("indexLabels.flagship")} count={1}>
+          <JournalIndexCard
+            href={flagship.href}
+            eyebrow={t(`entries.${flagship.slug}.eyebrow`)}
+            title={t(`entries.${flagship.slug}.title`)}
+            summary={t(`entries.${flagship.slug}.summary`)}
+            tags={flagship.tags}
+            variant="flagship"
+          />
+        </JournalIndexGroup>
+      ),
+    });
+  }
+
+  if (engineering.length) {
+    groups.push({
+      key: "engineering",
+      newest: newestOf(engineering),
+      node: (
+        <JournalIndexGroup
+          label={t("indexLabels.engineeringNotes")}
+          count={engineering.length}
+        >
+          <ul>
+            {engineering.map((entry) => (
+              <li key={entry.slug}>
+                <JournalIndexCard
+                  href={entry.href}
+                  eyebrow={t(`entries.${entry.slug}.eyebrow`)}
+                  title={t(`entries.${entry.slug}.title`)}
+                  summary={t(`entries.${entry.slug}.summary`)}
+                  tags={entry.tags}
+                />
+              </li>
+            ))}
+          </ul>
+        </JournalIndexGroup>
+      ),
+    });
+  }
+
+  if (studies.length) {
+    groups.push({
+      key: "studies",
+      newest: newestOf(studies),
+      node: (
+        <JournalIndexGroup
+          label={t("indexLabels.studies")}
+          count={studies.length}
+        >
+          <ul>
+            {studies.map((entry) => (
+              <li key={entry.slug}>
+                <JournalIndexCard
+                  href={entry.href}
+                  eyebrow={t(`entries.${entry.slug}.eyebrow`)}
+                  title={t(`entries.${entry.slug}.title`)}
+                  summary={t(`entries.${entry.slug}.summary`)}
+                  tags={entry.tags}
+                />
+              </li>
+            ))}
+          </ul>
+        </JournalIndexGroup>
+      ),
+    });
+  }
+
+  if (publishedMotionStudyEntries.length) {
+    groups.push({
+      key: "motion-studies",
+      newest: newestOf(publishedMotionStudyEntries),
+      node: (
+        <JournalIndexGroup
+          label={t("indexLabels.motionStudies")}
+          count={publishedMotionStudyEntries.length}
+          link={{
+            href: "/journal/motion-studies",
+            label: t("indexLabels.viewAll"),
+          }}
+        >
+          <ul>
+            {publishedMotionStudyEntries.map((entry) => (
+              <li key={entry.slug}>
+                <JournalIndexCard
+                  href={entry.href}
+                  eyebrow={t(
+                    `motionStudies.entries.${entry.slug}.eyebrow`,
+                  )}
+                  title={t(
+                    `motionStudies.entries.${entry.slug}.title`,
+                  )}
+                  summary={t(
+                    `motionStudies.entries.${entry.slug}.summary`,
+                  )}
+                  tags={entry.tags}
+                />
+              </li>
+            ))}
+          </ul>
+        </JournalIndexGroup>
+      ),
+    });
+  }
+
+  groups.sort((a, b) => b.newest.localeCompare(a.newest));
+
+  const updatedAt = newestOf([
+    ...publishedJournalEntries,
+    ...publishedMotionStudyEntries,
+  ]);
+  const updatedLabel = `${updatedAt.slice(0, 4)}.${updatedAt.slice(5, 7)}`;
+
   return (
     <main className="relative min-h-screen text-[var(--text-base)]">
       <article>
@@ -101,94 +233,9 @@ export default async function JournalPage({
                 {t("intro")}
               </p>
 
-              {flagship ? (
-                <JournalIndexGroup
-                  label={t("indexLabels.flagship")}
-                  count={1}
-                >
-                  <JournalIndexCard
-                    href={flagship.href}
-                    eyebrow={t(`entries.${flagship.slug}.eyebrow`)}
-                    title={t(`entries.${flagship.slug}.title`)}
-                    summary={t(`entries.${flagship.slug}.summary`)}
-                    tags={flagship.tags}
-                    variant="flagship"
-                  />
-                </JournalIndexGroup>
-              ) : null}
-
-              {engineering.length ? (
-                <JournalIndexGroup
-                  label={t("indexLabels.engineeringNotes")}
-                  count={engineering.length}
-                >
-                  <ul>
-                    {engineering.map((entry) => (
-                      <li key={entry.slug}>
-                        <JournalIndexCard
-                          href={entry.href}
-                          eyebrow={t(`entries.${entry.slug}.eyebrow`)}
-                          title={t(`entries.${entry.slug}.title`)}
-                          summary={t(`entries.${entry.slug}.summary`)}
-                          tags={entry.tags}
-                        />
-                      </li>
-                    ))}
-                  </ul>
-                </JournalIndexGroup>
-              ) : null}
-
-              {studies.length ? (
-                <JournalIndexGroup
-                  label={t("indexLabels.studies")}
-                  count={studies.length}
-                >
-                  <ul>
-                    {studies.map((entry) => (
-                      <li key={entry.slug}>
-                        <JournalIndexCard
-                          href={entry.href}
-                          eyebrow={t(`entries.${entry.slug}.eyebrow`)}
-                          title={t(`entries.${entry.slug}.title`)}
-                          summary={t(`entries.${entry.slug}.summary`)}
-                          tags={entry.tags}
-                        />
-                      </li>
-                    ))}
-                  </ul>
-                </JournalIndexGroup>
-              ) : null}
-
-              {publishedMotionStudyEntries.length ? (
-                <JournalIndexGroup
-                  label={t("indexLabels.motionStudies")}
-                  count={publishedMotionStudyEntries.length}
-                  link={{
-                    href: "/journal/motion-studies",
-                    label: t("indexLabels.viewAll"),
-                  }}
-                >
-                  <ul>
-                    {publishedMotionStudyEntries.map((entry) => (
-                      <li key={entry.slug}>
-                        <JournalIndexCard
-                          href={entry.href}
-                          eyebrow={t(
-                            `motionStudies.entries.${entry.slug}.eyebrow`,
-                          )}
-                          title={t(
-                            `motionStudies.entries.${entry.slug}.title`,
-                          )}
-                          summary={t(
-                            `motionStudies.entries.${entry.slug}.summary`,
-                          )}
-                          tags={entry.tags}
-                        />
-                      </li>
-                    ))}
-                  </ul>
-                </JournalIndexGroup>
-              ) : null}
+              {groups.map((group) => (
+                <Fragment key={group.key}>{group.node}</Fragment>
+              ))}
             </div>
 
             {/* RIGHT: masthead meta (sticky on lg+) */}
@@ -204,7 +251,7 @@ export default async function JournalPage({
                   </div>
                   <div className="flex justify-between gap-4">
                     <dt>Updated</dt>
-                    <dd className="text-[var(--text-base)]">2026.04</dd>
+                    <dd className="text-[var(--text-base)]">{updatedLabel}</dd>
                   </div>
                   <div className="flex justify-between gap-4">
                     <dt>Entries</dt>
