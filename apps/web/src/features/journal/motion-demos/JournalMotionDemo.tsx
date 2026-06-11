@@ -8,6 +8,7 @@
 // shared i18n block model. Adding a new motion study = registering one more
 // id here and one more vendored verb under ./verbs.
 
+import { renderInlineCode } from "../inline-code";
 import { ComplementTangentPairFinishDemo } from "./ComplementTangentPairFinishDemo";
 import { LatticeBreathFinishDemo } from "./LatticeBreathFinishDemo";
 import { MasterRotationEchoFinishDemo } from "./MasterRotationEchoFinishDemo";
@@ -46,7 +47,7 @@ export function JournalMotionDemo({ demo, caption }: JournalMotionDemoProps) {
       <Demo />
       {caption ? (
         <figcaption className="font-sans text-[10px] uppercase tracking-[0.18em] text-[var(--text-base-60)]">
-          {caption}
+          {renderInlineCode(caption)}
         </figcaption>
       ) : null}
     </figure>

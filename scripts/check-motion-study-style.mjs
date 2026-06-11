@@ -73,6 +73,15 @@ const JA_AUDIOTEST = [
   "位置づけ", "することができ", "と言えるで",
 ];
 const QUANTIFIERS = /(のみ|だけ|すべて|1 個もない|を持たない|しか[^。]{0,12}ない)/g;
+// 2026-06-11 第 5 次 (user: 「定数書くなって伝えてるんですが使ってますよね？マジック
+// ナンバー使わないでください — 変数名で文章作ればいい」): 散文がコード定数の生値を
+// 語るのは ERROR。数値はコードブロックの表の中だけに置き、散文は `BREATH` のように
+// 変数名で指す。可算の個数 (「6 個」「キーは 3 個」) は数値でなく構造なので対象外 —
+// この regex は単位付き数値と小数だけを拾う。
+const CONST_IN_PROSE =
+  /\d+(?:\.\d+)?\s*(?:°|度|%|フレーム|px|秒|frames?|seconds?|degrees?)|\bframes?\s+\d+(?:\.\d+)?|\d+\.\d+|\b\d+s\b|\d+-(?:second|frame|px|degree)/gi;
+// 散文で許可する大文字トークン (コード変数でない技術名)
+const PROSE_TECH_TERMS = new Set(["SVG", "CSS", "RGB", "RGBA"]);
 // English number words → digits so "two passes" matches ja 「2 パス」.
 const EN_NUM_WORDS = {
   one: "1", two: "2", three: "3", four: "4", five: "5", six: "6",
@@ -183,6 +192,26 @@ const checkSlug = (slug) => {
         errors.push(`${loc} ${k} にバッククォート — listing カードと <meta> はプレーン表示 (インラインコード不可)`);
       }
     }
+  }
+
+  // magic numbers in prose (2026-06-11 第 5 次 — see CONST_IN_PROSE above).
+  // 散文の `IDENT` 参照は同記事・同 locale の code に実在しないと ERROR (名前ドリフト
+  // 防止 — 変数名で文章を作る以上、その名前が code に無ければ読者は照合できない)。
+  for (const [loc, secs] of [["ja", jaS], ["en", enS]]) {
+    const codeText = secs.filter((b) => b.type === "code").map((b) => b.text).join("\n");
+    secs.forEach((b, i) => {
+      if (b.type === "code") return;
+      for (const s of texts(b)) {
+        for (const m of s.matchAll(CONST_IN_PROSE)) {
+          errors.push(`${loc} block ${i}: 散文にコード定数の生値 「${m[0]}」 — 数値は code の表へ、散文は変数名で指す (第 5 次)`);
+        }
+        for (const m of s.matchAll(/`([A-Z][A-Z0-9_]{2,})`/g)) {
+          if (!codeText.includes(m[1]) && !PROSE_TECH_TERMS.has(m[1])) {
+            errors.push(`${loc} block ${i}: 散文が \`${m[1]}\` を指すが同記事の code に無い`);
+          }
+        }
+      }
+    });
   }
 
   // attribution honorific
