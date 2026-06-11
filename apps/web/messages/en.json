@@ -2435,6 +2435,10 @@
               "text": "All 19 dots exist from the first frame, and not a single one is ever created. Each dot raises its `scale` from 0 to 1 on its own cue — the center on frame 10, the edge on frame 13, the inner ring on frame 16. The cues are staggered a few frames per group — that stagger is the whole reason the count seems to grow."
             },
             {
+              "type": "paragraph",
+              "text": "The disappearing side is keyed the same way — the inner ring from frame 48, the center and the edge from frame 54, each taking 9 frames back to 0."
+            },
+            {
               "type": "heading",
               "level": 2,
               "text": "Set up the lattice and the breath"
@@ -2449,20 +2453,25 @@
             },
             {
               "type": "paragraph",
-              "text": "The motor is a single 0-to-1 number that says how far the lattice has opened — it travels 0 → 1 → 0 across the 90 frames, opening on frames 0–30, holding on 30–44, closing on 44–73, resting after. Call it the breath. The breath drives the hexagon's radius (center to vertex, 28.8 → 75.6) and the rotation of the whole lattice. Put into code, the skeleton looks like this."
+              "text": "The motor is a single 0-to-1 number that says how far the lattice has opened — it travels 0 → 1 → 0 across the 90 frames, opening on frames 0–30, holding on 30–44, closing on 44–73, resting after. Call it the breath. The breath drives the hexagon's radius (center to vertex, 28.8 → 75.6) and the rotation of the whole lattice. To put it into code, a single part is enough: a function that fills the space between keys with a curve."
             },
             {
               "type": "code",
               "lang": "ts",
-              "text": "// the driver is one number — how far the lattice has opened (0–1). Call it the breath\nconst open  = cubicBezier(0.7, 0.01, 0.21, 1); // opening (frames 0–30)\nconst close = cubicBezier(0.75, 0, 0.3, 1);    // closing (frames 44–73)\n\n// pure function: frame number in, position and size of all 19 dots out\nfunction latticeAt(frame) {\n  const breath = breathAt(frame, open, close);  // 0 → 1 → 0 (held at 1 in between)\n  const radius = 28.8 + (75.6 - 28.8) * breath; // hexagon radius rides the breath\n  const spin = -180 * spinAt(frame);            // −180° per loop (own curves)\n  return DOTS.map((dot) => ({\n    angle: dot.angle + spin,                    // every dot rides the same rotation\n    dist: dot.rail ? railAt(frame) : dot.ring * radius, // edge dots ride their own rail\n    scale: growAt(frame, dot.appear),           // scale 0 → 1 from its cue frame\n  }));\n}"
+              "text": "// fill between the rows of a key table with curves — every motion in this article has this shape\nfunction keyAt(keys, frame) {\n  if (frame <= keys[0].frame) return keys[0].value;      // outside the range, hold the end value\n  for (let i = 0; i + 1 < keys.length; i++) {\n    const a = keys[i], b = keys[i + 1];\n    if (frame <= b.frame) {\n      const t = (frame - a.frame) / (b.frame - a.frame);  // progress inside the segment, 0–1\n      return a.value + (b.value - a.value) * a.curve(t);  // advance the gap along the curve\n    }\n  }\n  return keys[keys.length - 1].value;\n}"
             },
             {
               "type": "paragraph",
-              "text": "`breathAt` fills the space between keys with a curve. The curves are the same 4 numbers as CSS `cubic-bezier()` — npm's `bezier-easing` takes them as-is — one each for opening and closing, and `spinAt` moves on the same frame ranges with curves of its own."
+              "text": "This `keyAt` is nearly the only part the article needs. A key table is just rows of “on which frame, which value, and which curve fills the next segment”. The curves are the same 4 numbers as CSS `cubic-bezier()` — npm's `bezier-easing` takes them as-is. Outside its range it returns the end values, so the stillness before and after the motion costs nothing."
+            },
+            {
+              "type": "code",
+              "lang": "ts",
+              "text": "const linear = (t) => t; // for segments between equal values — any curve, no movement\n\n// the breath — separate curves for opening (0–30) and closing (44–73); equal values hold in between\nconst BREATH = [\n  { frame: 0,  value: 0,   curve: cubicBezier(0.7, 0.01, 0.21, 1) },\n  { frame: 30, value: 1,   curve: linear },\n  { frame: 44, value: 1,   curve: cubicBezier(0.75, 0, 0.3, 1) },\n  { frame: 73, value: 0 },\n];\n// the rotation — same frame ranges as the breath, with 2 curves of its own\nconst SPIN = [\n  { frame: 0,  value: 0,   curve: cubicBezier(0.68, 0.03, 0.24, 1) },\n  { frame: 30, value: 0.5, curve: linear },\n  { frame: 44, value: 0.5, curve: cubicBezier(0.69, -0.05, 0.34, 1) },\n  { frame: 73, value: 1 },\n];\n// the edge rail — 32.84 → 65.68 and back, on its own frame ranges\nconst RAIL = [\n  { frame: 10, value: 32.84, curve: cubicBezier(0.5, 0.04, 0.2, 1) },\n  { frame: 28, value: 65.68, curve: linear },\n  { frame: 44, value: 65.68, curve: cubicBezier(0.81, 0, 0.35, 1) },\n  { frame: 70, value: 32.84 },\n];\n\n// pure function: frame number in, position and size of all 19 dots out\nfunction latticeAt(frame) {\n  const breath = keyAt(BREATH, frame);\n  const radius = 28.8 + (75.6 - 28.8) * breath;    // only the hexagon radius rides the breath\n  const spin = -180 * keyAt(SPIN, frame);          // −180° per loop\n  return DOTS.map((dot) => ({\n    angle: dot.angle + spin,                       // every dot rides the same rotation\n    dist: dot.role === \"arm\"  ? radius             // the 6 base dots\n        : dot.role === \"edge\" ? keyAt(RAIL, frame) // the 6 edge dots\n        : dot.dist,                                // center 0 and inner ring 38.1 stay fixed\n    scale: dot.grow ? keyAt(dot.grow, frame) : 1,  // appearing and leaving are scale keys\n  }));\n}"
             },
             {
               "type": "paragraph",
-              "text": "`growAt` raises each dot's `scale` from 0 to 1 starting at its cue frame. `DOTS` is the blueprint table: 19 rows of role, angle, ring factor and cue frame."
+              "text": "`DOTS` is the 19-row blueprint. Each row carries a role, an angle, a fixed distance, and `grow` — a little key table for appearing and leaving. The 6 base dots carry no `grow` and simply stand. The center sits at distance 0 and the inner ring is fixed at 38.1 — the only distance that breathes belongs to the 6 base dots. The angles repeat every 60°, with the edge dots standing between them (+30°)."
             },
             {
               "type": "paragraph",
@@ -2470,7 +2479,7 @@
             },
             {
               "type": "paragraph",
-              "text": "Only the six edge dots carry one more independent motion — they slide along their own radius rail (32.84 → 65.68) on their own frame ranges (outward on 10–28, inward on 44–70). The build started from the idea that every dot moves by one shared rule, but checking the numbers against the original video showed the edge dots alone didn't fit. Instead of forcing them under the shared rule, they keep their own keys — that is `dot.rail` in the code above."
+              "text": "Only the six edge dots carry one more independent motion — they slide along their own radius rail (32.84 → 65.68) on their own frame ranges (outward on 10–28, inward on 44–70). The build started from the idea that every dot moves by one shared rule, but checking the numbers against the original video showed the edge dots alone didn't fit. Instead of forcing them under the shared rule, they keep their own keys — that is the `RAIL` table in the code above."
             },
             {
               "type": "paragraph",
@@ -2519,7 +2528,7 @@
             },
             {
               "type": "paragraph",
-              "text": "What looks scattered is not a random number. The motion is a single clip, and nine duplicates replay that same clip 2 frames apart. Which duplicate starts when is decided by one fixed order table — nine grid cells holding the numbers 0–8: `[[5,1,6],[7,3,4],[8,2,0]]`. That one table is the entire \"random\"."
+              "text": "What looks scattered is not a random number. The motion is a single clip, and nine duplicates replay that same clip 2 frames apart. Which duplicate starts when is decided by one fixed order table — nine grid cells holding the numbers 0–8: `[[5,1,6],[7,3,4],[8,2,0]]`. That one table is the entire \"random\". The smaller the number in a cell, the earlier it moves — the bottom-right 0 leads."
             },
             {
               "type": "heading",
@@ -2530,23 +2539,28 @@
               "type": "list",
               "items": [
                 "pop from the rest radius 12.02 to 26.19 in 9 frames",
-                "drop too far, to 21.84, in 9 more — an authored undershoot",
+                "drop too far, to 21.84, in 9 more — a key placed deliberately low",
                 "recover to 22.39 in 7, then hold for 25 frames",
                 "one final 18-frame ease back to the rest radius"
               ]
             },
             {
               "type": "paragraph",
-              "text": "The clip is just six radius keyframes and five easing curves, one per segment. Put into code, it is two tables and one small function."
+              "text": "The clip is just six radius keyframes and five easing curves, one per segment. Put into code, it is one fill-between-keys function and two tables."
             },
             {
               "type": "code",
               "lang": "ts",
-              "text": "const CLIP = [                  // 6 radius keys — this one clip is the whole motion\n  { frame: 0,  radius: 12.02 }, // rest\n  { frame: 9,  radius: 26.19 }, // pop\n  { frame: 18, radius: 21.84 }, // drop too far (an authored key)\n  { frame: 25, radius: 22.39 }, // recover\n  { frame: 50, radius: 22.39 }, // hold for 25 frames\n  { frame: 68, radius: 12.02 }, // back to rest\n];\nconst ORDER = [[5, 1, 6], [7, 3, 4], [8, 2, 0]]; // the entire \"random\" is this table\n\n// pure function: frame number in, 9 radii out\nfunction radiiAt(frame) {\n  return ORDER.flat().map((rank) => {\n    const local = frame - 3 - rank * 2; // each replay starts 2 frames later per rank\n    return clipAt(CLIP, local);         // fill between keys with the segment curves\n  });\n}"
+              "text": "// fill between the rows of a key table with curves — every motion in this article has this shape\nfunction keyAt(keys, frame) {\n  if (frame <= keys[0].frame) return keys[0].value;      // outside the range, hold the end value\n  for (let i = 0; i + 1 < keys.length; i++) {\n    const a = keys[i], b = keys[i + 1];\n    if (frame <= b.frame) {\n      const t = (frame - a.frame) / (b.frame - a.frame);  // progress inside the segment, 0–1\n      return a.value + (b.value - a.value) * a.curve(t);  // advance the gap along the curve\n    }\n  }\n  return keys[keys.length - 1].value;\n}"
             },
             {
               "type": "paragraph",
-              "text": "`clipAt` fills the space between keys with an easing curve — the same 4 numbers as CSS `cubic-bezier()`, one curve per segment (the rise is `cubic-bezier(0.62, 0.08, 0.5, 0.92)`). Outside its range it returns the end values — all the stillness before and after the clip comes from that alone."
+              "text": "Each row of the `keyAt` table carries the curve that fills the next segment — the same 4 numbers as CSS `cubic-bezier()`, which npm's `bezier-easing` takes as-is. Outside its range it returns the end values — all the stillness before and after the clip comes from that alone."
+            },
+            {
+              "type": "code",
+              "lang": "ts",
+              "text": "const linear = (t) => t; // for segments between equal values — the hold costs nothing\n\nconst CLIP = [ // value = radius. Each row's curve belongs to the segment toward the next key\n  { frame: 0,  value: 12.02, curve: cubicBezier(0.62, 0.08, 0.5, 0.92) }, // → pop\n  { frame: 9,  value: 26.19, curve: cubicBezier(0.32, 0.06, 0.5, 1.0) },  // → drop too far\n  { frame: 18, value: 21.84, curve: cubicBezier(0.48, 0.38, 0.5, 0.88) }, // → recover\n  { frame: 25, value: 22.39, curve: linear },                             // → hold for 25 frames\n  { frame: 50, value: 22.39, curve: cubicBezier(0.2, 0.17, 0.2, 0.83) },  // → back to rest\n  { frame: 68, value: 12.02 },\n];\nconst ORDER = [[5, 1, 6], [7, 3, 4], [8, 2, 0]]; // the entire \"random\" is this table\n\n// pure function: frame number in, 9 radii out\nfunction radiiAt(frame) {\n  return ORDER.flat().map((rank) => {\n    const local = frame - 3 - rank * 2; // each replay starts 2 frames later per rank\n    return keyAt(CLIP, local);          // fill between keys with the segment curves\n  });\n}"
             },
             {
               "type": "paragraph",
@@ -2625,20 +2639,33 @@
             },
             {
               "type": "paragraph",
-              "text": "Now put it into code. The one-line law measures \"half the width of the rotated square\" every frame, and pushes each side out by however much it grew over rest — that is all."
+              "text": "Now put it into code. The parts: one fill-between-keys function, the rotation's key table, and the one-line law — measure “half the width of the rotated square” every frame, and push each side out by however much it grew over rest. That is all."
             },
             {
               "type": "code",
               "lang": "ts",
-              "text": "// the center's rotation — 3 keys (0° on frame 3, 45° on 46, 90° on 89), 2 segment curves\nconst rise = cubicBezier(0.67, 0.06, 0.16, 1.0);\nconst fall = cubicBezier(0.76, 0.04, 0.19, 0.98);\n\n// pure function: frame number in, center angle and side positions out\nfunction squaresAt(frame) {\n  const angle = angleAt(frame, rise, fall); // rotation, filled between keys by the curves\n  // the one-line law: a rotated square's half-width depends on the distance from 45°\n  const phi = Math.abs(((angle % 90) + 90) % 90 - 45);\n  const halfWidth = (54 / Math.SQRT2) * Math.cos((phi * Math.PI) / 180);\n  const push = Math.max(0, halfWidth - 54 / 2 - 0.1); // keep a 0.1px gap while pushing\n  return {\n    center: { rotate: angle },\n    left:   { x: 66 - push },  // zero keys on the sides — the law is symmetric\n    right:  { x: 174 + push },\n  };\n}"
+              "text": "// fill between the rows of a key table with curves — every motion in this article has this shape\nfunction keyAt(keys, frame) {\n  if (frame <= keys[0].frame) return keys[0].value;      // outside the range, hold the end value\n  for (let i = 0; i + 1 < keys.length; i++) {\n    const a = keys[i], b = keys[i + 1];\n    if (frame <= b.frame) {\n      const t = (frame - a.frame) / (b.frame - a.frame);  // progress inside the segment, 0–1\n      return a.value + (b.value - a.value) * a.curve(t);  // advance the gap along the curve\n    }\n  }\n  return keys[keys.length - 1].value;\n}"
             },
             {
               "type": "paragraph",
-              "text": "`angleAt` fills the space between the 3 keys with the segment curves and returns the end values outside their range — the upright frames 0–2 come from that alone. The curves are the same 4 numbers as CSS `cubic-bezier()`, 2 of them. And the width line is written as \"distance from 45°\", so it works for any angle you feed it."
+              "text": "Each row of the `keyAt` table carries the curve that fills the next segment — the same 4 numbers as CSS `cubic-bezier()`. Outside its range it returns the end values, so the upright frames 0–2 cost nothing."
+            },
+            {
+              "type": "code",
+              "lang": "ts",
+              "text": "const THETA = [ // value = the center's angle. 3 keys + 2 segment curves — nothing else is keyed\n  { frame: 3,  value: 0,  curve: cubicBezier(0.67, 0.06, 0.16, 1.0) },  // → climb to the diamond\n  { frame: 46, value: 45, curve: cubicBezier(0.76, 0.04, 0.19, 0.98) }, // → descend to upright\n  { frame: 89, value: 90 },\n];\n\n// pure function: frame number in, center angle and side positions out\nfunction squaresAt(frame) {\n  const angle = keyAt(THETA, frame);\n  // the one-line law: a rotated square's half-width depends on the distance from 45°\n  const phi = Math.abs(((angle % 90) + 90) % 90 - 45);\n  const halfWidth = (54 / Math.SQRT2) * Math.cos((phi * Math.PI) / 180);\n  const push = Math.max(0, halfWidth - 54 / 2 - 0.1); // keep a 0.1px gap while pushing\n  return {\n    center: { rotate: angle },\n    left:   { x: 66 - push },  // zero keys on the sides — the law is symmetric\n    right:  { x: 174 + push },\n  };\n}"
+            },
+            {
+              "type": "paragraph",
+              "text": "`((angle % 90) + 90) % 90` is the line that folds any angle, however many turns it has made, into one 0–90 stretch. That is why the width line is written as “distance from 45°” — feed it any angle and it works."
             },
             {
               "type": "paragraph",
               "text": "In numbers: a square with a 54px side is 54px wide while it stands upright. At the diamond (45°) its diagonal turns sideways and it widens to about 76px, so the push travels 0 → about 11px → 0. Right and left move by the same formula, symmetric, with no time offset — the 0.1px is the gap that keeps them just clear of touching."
+            },
+            {
+              "type": "paragraph",
+              "text": "To place it, set three 54px squares at the same height and rotate only the center one by `rotate(angle)`. Drive it with `requestAnimationFrame`: elapsed seconds × 30, modulo 90, is the frame number — the same 3-second loop as the demo above."
             },
             {
               "type": "paragraph",
@@ -2709,16 +2736,21 @@
             },
             {
               "type": "paragraph",
-              "text": "The placement of the centres is the heart of the build. Fix a single contact point on the 45° diagonal; each circle puts its centre its own radius away from that point — the top-left circle up-left along the axis, the bottom-right circle down-right. That goes into code as-is."
+              "text": "The placement of the centres is the heart of the build. Fix a single contact point on the 45° diagonal; each circle puts its centre its own radius away from that point — the top-left circle up-left along the axis, the bottom-right circle down-right. That goes into code as-is. The only machinery it needs is a single fill-between-keys function."
             },
             {
               "type": "code",
               "lang": "ts",
-              "text": "// only the top-left radius is keyed — 54 → 27 → 54 on frames 0, 45, 90\nconst shrink = cubicBezier(0.777, 0.029, 0.173, 1.016);\nconst grow   = cubicBezier(0.765, 0.02, 0.155, 1.024);\n\n// pure function: frame number in, both centres and radii out\nfunction circlesAt(frame) {\n  const r1 = radiusAt(frame, shrink, grow); // top-left radius (3 keys + 2 curves)\n  const r2 = 81 - r1;                       // bottom-right: zero keys — one subtraction\n  const d = Math.SQRT1_2;                   // the 45° diagonal component (= cos 45°)\n  return [\n    { r: r1, x: 120 - r1 * d, y: 120 - r1 * d }, // recede up-left from the contact (120, 120)\n    { r: r2, x: 120 + r2 * d, y: 120 + r2 * d }, // recede down-right from the contact\n  ];\n}"
+              "text": "// fill between the rows of a key table with curves — every motion in this article has this shape\nfunction keyAt(keys, frame) {\n  if (frame <= keys[0].frame) return keys[0].value;      // outside the range, hold the end value\n  for (let i = 0; i + 1 < keys.length; i++) {\n    const a = keys[i], b = keys[i + 1];\n    if (frame <= b.frame) {\n      const t = (frame - a.frame) / (b.frame - a.frame);  // progress inside the segment, 0–1\n      return a.value + (b.value - a.value) * a.curve(t);  // advance the gap along the curve\n    }\n  }\n  return keys[keys.length - 1].value;\n}"
             },
             {
               "type": "paragraph",
-              "text": "`radiusAt` fills the space between the 3 keys with the segment curves. The curves are the same 4 numbers as CSS `cubic-bezier()` — the shrink and the grow are similar but separate, 1 each. Reuse one of them for both, and the error against the measurement grows about 5×."
+              "text": "Each row of the `keyAt` table carries the curve that fills the next segment — the same 4 numbers as CSS `cubic-bezier()`. The shrink and the grow are similar but separate, 1 each — reuse one of them for both, and the error against the measurement grows about 5×."
+            },
+            {
+              "type": "code",
+              "lang": "ts",
+              "text": "const R1 = [ // value = the top-left radius. 3 keys + 2 segment curves — nothing else is keyed\n  { frame: 0,  value: 54, curve: cubicBezier(0.777, 0.029, 0.173, 1.016) }, // → shrink\n  { frame: 45, value: 27, curve: cubicBezier(0.765, 0.02, 0.155, 1.024) },  // → grow\n  { frame: 90, value: 54 },\n];\n\n// pure function: frame number in, both centres and radii out\nfunction circlesAt(frame) {\n  const r1 = keyAt(R1, frame);              // the top-left radius\n  const r2 = 81 - r1;                       // bottom-right: zero keys — one subtraction\n  const d = Math.SQRT1_2;                   // the 45° diagonal component (= cos 45°)\n  return [\n    { r: r1, x: 120 - r1 * d, y: 120 - r1 * d }, // recede up-left from the contact (120, 120)\n    { r: r2, x: 120 + r2 * d, y: 120 + r2 * d }, // recede down-right from the contact\n  ];\n}"
             },
             {
               "type": "paragraph",

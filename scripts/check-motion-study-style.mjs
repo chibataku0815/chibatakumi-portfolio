@@ -219,6 +219,23 @@ const checkSlug = (slug) => {
         }
       }
     }
+    // 2026-06-11 第 4 次 (style doc §3 自己完結): code が呼ぶ At 系ヘルパーは同記事の
+    // code 内に定義が要る。第 3 次版は breathAt/clipAt/angleAt/radiusAt を概念のまま
+    // 呼んでいて、写経しても動かなかった。cubicBezier だけは許可 (散文で npm
+    // bezier-easing へ橋渡し済み)。
+    const codeText = jaCode.map((b) => b.text).join("\n");
+    const definedFns = new Set();
+    for (const m of codeText.matchAll(/function\s+([A-Za-z_$][\w$]*)/g)) definedFns.add(m[1]);
+    for (const m of codeText.matchAll(/const\s+([A-Za-z_$][\w$]*)\s*=/g)) definedFns.add(m[1]);
+    const ALLOWED_EXTERNAL_FNS = new Set(["cubicBezier"]);
+    const undefCalled = new Set();
+    for (const m of codeText.matchAll(/\b([a-z][\w$]*At)\s*\(/g)) {
+      const fn = m[1];
+      if (!definedFns.has(fn) && !ALLOWED_EXTERNAL_FNS.has(fn)) undefCalled.add(fn);
+    }
+    for (const fn of undefCalled) {
+      errors.push(`code が ${fn}() を呼ぶが同記事 code 内に定義が無い — keyAt の形で掲載する (style doc §3 自己完結)`);
+    }
   }
 
   // quantifiers → manual reconstructability audit targets
