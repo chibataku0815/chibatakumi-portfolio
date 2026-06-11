@@ -26,6 +26,8 @@
 
 2026-06-11 第 5 次指摘「定数書くなって伝えてるんですが使ってますよね？マジックナンバー使わないでください — 変数名で文章作ればいいのではないでしょうか」。第 3 次改稿の「定数網羅撤回」を私は「全部は列挙しない」と読み、§5 旧規律（「本文に出す数値 = フレーム番号・%・角度・半径」）がむしろ散文の生値を推奨していた — 第 3 次指摘の修正でも 38.1 / 120 / 30 / 90 等を散文に**足して**いた。ユーザーの意図は量でなく**置き場所**: 数値は code の表だけ、散文は変数名で語る。全 7 記事×両言語を変数名散文へ変換し、§5 を書き換え、散文の単位付き数値・小数を機械 ERROR 化（CONST_IN_PROSE）。教訓: 指示が既存 doc と矛盾したら doc の側を疑う — doc は過去の私の解釈であって正本はユーザーの指示。
 
+2026-06-11 第 6 次指摘「コードについてですが map など新しい書き方で簡潔に書けるところがかなりの箇所あると感じています」「if の入れ子などもアンチパターンです」。記事コードは読者にそのまま書いてほしい形の見本なのに、`keyAt` が手書き for ループ（6 記事×両言語）、master-rotation-echo の `dotsAt` が二重 for + push のままだった。対策: ガード節 + `findIndex` / `flatMap` + `Array.from` へ改稿（旧新の数値出力は全数サンプリングで完全一致を証明してから差し替え）+ §3 にコードの書法を明文化 + acorn AST で機械 ERROR 化（手書きループ・if 入れ子・var）。
+
 ## 2. eyebrow・タイトル・summary
 
 - **eyebrow = 引き出し名そのもの**（ja: 原典一枚絵の表記「増減 / ランダム / 連動 / 反比例 …」・en: 平易英訳「Count growth / Random / Linkage / Inverse proportion …」）。1 語・装飾なし。slug もタイトルも機構側を向くため、「どの技法の記事か」は eyebrow が一目で答える（2026-06-10 ユーザー指摘: 研究語彙の英語 eyebrow「Conservation / Complement」では記事 ↔ 技法の対応が読めない）。対応表の正本は rollout doc の展開表 + 機械ゲートの `DRAWER_EYEBROW`（ja/en とも完全一致を ERROR で強制）
@@ -64,6 +66,7 @@
 - **骨格コードは自己完結**（2026-06-11 第 4 次） — code が呼ぶ関数は同記事の code 内に定義する（例外は `cubicBezier` のみ。npm `bezier-easing` への橋渡しを散文に置く）。「キーの間をカーブで埋める」は概念で終わらせず、標準形 `keyAt`（キーの表 = 1 行が「どのフレームで・どの値・次の区間のカーブ」、範囲外は端の値。数字は 0/1 のみの約 11 行）を該当記事ごとに掲載する。キーが 2 個で clamp 1 行で済む記事（master-rotation-echo）は keyAt 不要
 - **機構は数字を持たない** — keyAt や法則の式そのものに実測値を埋め込まない。実測値はキーの表・つまみの位置にだけ現れ、差し替えても構造が壊れないことを散文が言う（定数の網羅撤回と両立する分業: 構造 = コード / 実値 = 表とつまみ / 細部の表情 = 散文）
 - **機構表現は vendored schedule と等価に** — 見た目がそれらしくても機構が違う骨格は書かない（lattice 事故: 内輪固定 38.1 をリング係数 × 呼吸と誤表現・退場キー欠落）。置き方/回し方の橋渡しは全記事必須（#3 は第 3 次版で回し方が欠けていた）
+- **モダン記法で書く（2026-06-11 第 6 次・ユーザー直指示）** — 記事コードは読者にそのまま書いてほしい形の見本。配列の生成・走査は `map` / `flatMap` / `findIndex` / `Array.from` で書き、手書き for / while + push の蓄積は使わない。if の入れ子はアンチパターン — ガード節（早期 return）か三項で平らにする（else-if チェーンは可）。`var` 禁止・`const` 基本。簡潔さは可読性の手段であって目的ではない — ジュニア読者が追えなくなる圧縮（多段ワンライナー等）はしない。**既存コードを書き換えるときは、旧新の出力の完全一致を全数サンプリングで証明してから差し替える**（コメントだけが変わる位置でも証明を省かない）
 
 **末尾 callout（帰属 + 宣伝枠）の規律**:
 
@@ -122,7 +125,7 @@
 
 ## 6. 公開前ゲート（順番に全部）
 
-1. **機械チェック**: `node scripts/check-motion-study-style.mjs <slug>`（または `bun run verify:journal-style` = `--all`）。ERROR ゼロが必須。走査対象は本文 + title / summary / **metaDescription** / **eyebrow**（2026-06-10 拡張 — #4 初版は meta 未走査で「保存量・積保存・棄却」がすり抜けた）。eyebrow は `DRAWER_EYEBROW` の引き出し名と ja/en 完全一致が必須。**2026-06-11 拡張: code block 不在は ERROR・code block 内の数値が vendored `verbs/<slug>.params.ts` / `<slug>.ts` に無ければ ERROR（出所不明の定数 = 捏造検知）。定数の網羅はチェックしない（求めない — §3）**。**同日第 4 次拡張: code が呼ぶ `…At()` 系ヘルパーが同記事の code 内に未定義なら ERROR（自己完結の機械化。`cubicBezier` は許可リスト）**。**同日第 3 次指摘対応: 散文のバッククォートは対（偶数）でないと ERROR（レンダラーが `トークン` を `<code>` チップ化する唯一のインライン記法）・summary / metaDescription にバッククォートがあると ERROR（listing カードと `<meta>` はプレーン表示でパースされない）**。**同日第 5 次拡張: 散文（code 以外の全 block・両 locale）の単位付き数値（°・度・%・フレーム・px・秒・frames・seconds・degrees）と小数は ERROR（CONST_IN_PROSE — マジックナンバー禁止の機械化）・散文が `UPPER_SNAKE` を名指して同記事の code に実在しなければ ERROR（名前ドリフト防止）・title / summary / metaDescription も同 regex で ERROR（コードを併置できない表面は定性表現に開く: 「2 フレームずつ」→「一定の間隔で」）**。WARN の断定語リストは次工程の監査対象。wave-1 の hold プレースホルダ 4 本（Theatre/boil 系）は legacy 除外 — 公開するならこの型へ移行が先
+1. **機械チェック**: `node scripts/check-motion-study-style.mjs <slug>`（または `bun run verify:journal-style` = `--all`）。ERROR ゼロが必須。走査対象は本文 + title / summary / **metaDescription** / **eyebrow**（2026-06-10 拡張 — #4 初版は meta 未走査で「保存量・積保存・棄却」がすり抜けた）。eyebrow は `DRAWER_EYEBROW` の引き出し名と ja/en 完全一致が必須。**2026-06-11 拡張: code block 不在は ERROR・code block 内の数値が vendored `verbs/<slug>.params.ts` / `<slug>.ts` に無ければ ERROR（出所不明の定数 = 捏造検知）。定数の網羅はチェックしない（求めない — §3）**。**同日第 4 次拡張: code が呼ぶ `…At()` 系ヘルパーが同記事の code 内に未定義なら ERROR（自己完結の機械化。`cubicBezier` は許可リスト）**。**同日第 3 次指摘対応: 散文のバッククォートは対（偶数）でないと ERROR（レンダラーが `トークン` を `<code>` チップ化する唯一のインライン記法）・summary / metaDescription にバッククォートがあると ERROR（listing カードと `<meta>` はプレーン表示でパースされない）**。**同日第 5 次拡張: 散文（code 以外の全 block・両 locale）の単位付き数値（°・度・%・フレーム・px・秒・frames・seconds・degrees）と小数は ERROR（CONST_IN_PROSE — マジックナンバー禁止の機械化）・散文が `UPPER_SNAKE` を名指して同記事の code に実在しなければ ERROR（名前ドリフト防止）・title / summary / metaDescription も同 regex で ERROR（コードを併置できない表面は定性表現に開く: 「2 フレームずつ」→「一定の間隔で」）**。**同日第 6 次拡張: code block を acorn AST で走査し、手書きループ（for / for-of / for-in / while / do-while）・if の入れ子（else-if チェーンは除外）・var は ERROR（モダン記法の機械化 — §3）。パース不能な code block も ERROR**。WARN の断定語リストは次工程の監査対象。wave-1 の hold プレースホルダ 4 本（Theatre/boil 系）は legacy 除外 — 公開するならこの型へ移行が先
 2. **再構築可能性監査**（手動）: 記事だけを仕様書として「自分が同じものを作れるか」をシミュレートする — (a) 断定語を実装と 1 件ずつ突合 (b) 忠実に従うと別物になる不可視チャンネルがないか (c) **コード block の手順を頭から実行して、本文の外の知識が要る箇所が無いか**（cubic-bezier の橋渡し文・ループの回し方まで）
 3. **ユーザー承認**: コミット/push = 本番公開がゲート。本文・タイトル・summary の変更は承認なしに公開しない
 

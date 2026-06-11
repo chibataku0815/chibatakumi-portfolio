@@ -9,6 +9,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import { parse } from "../apps/web/node_modules/acorn/dist/acorn.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const ja = JSON.parse(readFileSync(join(root, "apps/web/messages/ja.json"), "utf8"));
@@ -82,6 +83,44 @@ const CONST_IN_PROSE =
   /\d+(?:\.\d+)?\s*(?:°|度|%|フレーム|px|秒|frames?|seconds?|degrees?)|\bframes?\s+\d+(?:\.\d+)?|\d+\.\d+|\b\d+s\b|\d+-(?:second|frame|px|degree)/gi;
 // 散文で許可する大文字トークン (コード変数でない技術名)
 const PROSE_TECH_TERMS = new Set(["SVG", "CSS", "RGB", "RGBA"]);
+// 2026-06-11 第 6 次 (user: 「map など新しい書き方で簡潔に書けるところがかなりの箇所
+// ある」「if の入れ子などもアンチパターン」): 記事コードは読者にそのまま書いてほしい
+// 形の見本。手書きループ蓄積 (for/while + push) は map/flatMap/findIndex/Array.from
+// へ、if の入れ子はガード節・三項で平らに、var は禁止。acorn AST で機械判定する。
+// else-if チェーンは入れ子に数えない。
+const codeStyleErrors = (text, where) => {
+  let ast;
+  try {
+    ast = parse(text, { ecmaVersion: "latest", sourceType: "script" });
+  } catch (e) {
+    return [`${where}: code が JS としてパース不能 — ${e.message}`];
+  }
+  const errs = [];
+  const walk = (node, ifDepth) => {
+    if (!node || typeof node !== "object") return;
+    if (Array.isArray(node)) { node.forEach((n) => walk(n, ifDepth)); return; }
+    if (node.type === "IfStatement") {
+      const d = ifDepth + 1;
+      if (d >= 2) errs.push(`${where}: if の入れ子 — ガード節か三項で平らに (第 6 次)`);
+      walk(node.test, ifDepth);
+      walk(node.consequent, d);
+      // else-if は同じ深さの分岐の続きとして扱う
+      walk(node.alternate, node.alternate?.type === "IfStatement" ? ifDepth : d);
+      return;
+    }
+    if (/^(For|ForIn|ForOf|While|DoWhile)Statement$/.test(node.type ?? "")) {
+      errs.push(`${where}: 手書きループ (${node.type}) — map/flatMap/findIndex/Array.from で書く (第 6 次)`);
+    }
+    if (node.type === "VariableDeclaration" && node.kind === "var") {
+      errs.push(`${where}: var — const で書く (第 6 次)`);
+    }
+    for (const [k, v] of Object.entries(node)) {
+      if (k !== "type" && k !== "start" && k !== "end") walk(v, ifDepth);
+    }
+  };
+  walk(ast, 0);
+  return errs;
+};
 // English number words → digits so "two passes" matches ja 「2 パス」.
 const EN_NUM_WORDS = {
   one: "1", two: "2", three: "3", four: "4", five: "5", six: "6",
@@ -221,6 +260,14 @@ const checkSlug = (slug) => {
           }
         }
       }
+    });
+  }
+
+  // code style: モダン記法 (2026-06-11 第 6 次 — codeStyleErrors を参照)
+  for (const [loc, secs] of [["ja", jaS], ["en", enS]]) {
+    secs.forEach((b, i) => {
+      if (b.type !== "code") return;
+      errors.push(...codeStyleErrors(b.text, `${loc} block ${i}`));
     });
   }
 
