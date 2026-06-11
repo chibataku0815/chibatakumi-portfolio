@@ -195,6 +195,16 @@ const checkSlug = (slug) => {
   }
 
   // magic numbers in prose (2026-06-11 第 5 次 — see CONST_IN_PROSE above).
+  // summary / metaDescription / title はコードを併置できない表面なので、定数は
+  // 定性表現に開く (「2 フレームずつ」→「一定の間隔で」)。本番スキャンで残った
+  // 定数ヒットは全て summary 由来だった — 同じ規律で締める。
+  for (const [loc, entry] of [["ja", jaEntry], ["en", enEntry]]) {
+    for (const k of ["title", "summary", "metaDescription"]) {
+      for (const m of (entry?.[k] ?? "").matchAll(CONST_IN_PROSE)) {
+        errors.push(`${loc} ${k}: コード定数の生値 「${m[0]}」 — meta 表面は定性表現に開く (第 5 次)`);
+      }
+    }
+  }
   // 散文の `IDENT` 参照は同記事・同 locale の code に実在しないと ERROR (名前ドリフト
   // 防止 — 変数名で文章を作る以上、その名前が code に無ければ読者は照合できない)。
   for (const [loc, secs] of [["ja", jaS], ["en", enS]]) {

@@ -99,7 +99,7 @@ function List({ block }: { block: JournalListBlock }) {
   return (
     <ul className="list-disc space-y-2 pl-6 text-[1rem] leading-[1.85] text-[var(--text-base-80)] marker:text-[var(--text-base-50)]">
       {block.items.map((item, index) => (
-        <li key={index}>{item}</li>
+        <li key={index}>{renderInlineCode(item)}</li>
       ))}
     </ul>
   );
