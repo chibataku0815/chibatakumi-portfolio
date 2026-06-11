@@ -2444,7 +2444,7 @@
             },
             {
               "type": "paragraph",
-              "text": "All 19 dots exist from the first frame, and not a single one is ever created. Each dot just raises its `scale` on its own cue, and the cues land in order — center, then edge, then inner ring — a few frames apart. That stagger is the whole reason the count seems to grow. Which frame each dot stands up on lives in `grow`, the little key table each row of the `DOTS` blueprint carries."
+              "text": "All 19 dots exist from the first frame, and not a single one is ever created. Each dot just raises its `scale` on its own cue, and the cues land in order — center, then edge, then inner ring — a few frames apart. That stagger is the whole reason the count seems to grow. Which frame each dot stands up on lives in `grow`, the little key table each row of the `dots` blueprint carries."
             },
             {
               "type": "paragraph",
@@ -2465,11 +2465,11 @@
             },
             {
               "type": "paragraph",
-              "text": "The motor is a single number that says how far the lattice has opened — it climbs from 0 (closed) to 1 (fully open), holds for a while, and falls back to 0. Which frames it opens on, where it holds, when it closes — the `BREATH` key table in the code below carries that whole split. Call it the breath."
+              "text": "The motor is a single number that says how far the lattice has opened — it climbs from 0 (closed) to 1 (fully open), holds for a while, and falls back to 0. Which frames it opens on, where it holds, when it closes — that whole split is yours to choose by placing the keys in the `breathKeys` table in the code below. Call it the breath."
             },
             {
               "type": "paragraph",
-              "text": "What the breath directly drives is the hexagon's radius — the center-to-vertex distance. The breath value fills the gap between `RADIUS_REST` (closed) and `RADIUS_PEAK` (fully open) as-is. The whole lattice also rotates across the same spans, but not from the breath value — the rotation keeps its own key table and curves, the `SPIN` in the code below. To put it into code, a single part is enough: a function that fills the space between keys with a curve."
+              "text": "What the breath directly drives is the hexagon's radius — the center-to-vertex distance. The breath value fills the gap between `radiusRest` (closed) and `radiusPeak` (fully open) as-is. The whole lattice also rotates across the same spans, but not from the breath value — the rotation keeps its own key table and curves, the `spinKeys` in the code below. To put it into code, a single part is enough: a function that fills the space between keys with a curve."
             },
             {
               "type": "code",
@@ -2482,36 +2482,36 @@
             },
             {
               "type": "paragraph",
-              "text": "The curves are specified with the same 4 numbers as CSS `cubic-bezier()`. The `cubicBezier` in the code below comes from `import cubicBezier from \"bezier-easing\"` — npm's `bezier-easing` takes the 4 numbers and returns the curve function that fills a segment. Outside the key range, `keyAt` returns the end values, so the stillness before and after the motion costs nothing."
+              "text": "The curves are specified with the same 4 numbers as CSS `cubic-bezier()`. The `cubicBezier` in the code comes from `import cubicBezier from \"bezier-easing\"` — it takes the 4 numbers you place under a name like `breathOpenHandles` as-is. Outside the key range, `keyAt` returns the end values, so the stillness before and after the motion costs nothing."
             },
             {
               "type": "code",
               "lang": "ts",
-              "text": "const FPS = 30;          // frames per second of this demo\nconst LOOP_FRAMES = 90;  // loop length — one breath every 3 seconds\nconst linear = (t) => t; // for segments between equal values — any curve, no movement\n\n// the breath — separate curves for opening and closing; equal values hold in between\nconst BREATH = [\n  { frame: 0,  value: 0,   curve: cubicBezier(0.7, 0.01, 0.21, 1) },\n  { frame: 30, value: 1,   curve: linear },\n  { frame: 44, value: 1,   curve: cubicBezier(0.75, 0, 0.3, 1) },\n  { frame: 73, value: 0 },\n];\n// the rotation — same frame ranges as the breath, with 2 curves of its own\nconst SPIN = [\n  { frame: 0,  value: 0,   curve: cubicBezier(0.68, 0.03, 0.24, 1) },\n  { frame: 30, value: 0.5, curve: linear },\n  { frame: 44, value: 0.5, curve: cubicBezier(0.69, -0.05, 0.34, 1) },\n  { frame: 73, value: 1 },\n];\n// the edge rail — a radius round trip on its own frame ranges\nconst RAIL = [\n  { frame: 10, value: 32.84, curve: cubicBezier(0.5, 0.04, 0.2, 1) },\n  { frame: 28, value: 65.68, curve: linear },\n  { frame: 44, value: 65.68, curve: cubicBezier(0.81, 0, 0.35, 1) },\n  { frame: 70, value: 32.84 },\n];\n\nconst RADIUS_REST = 28.8;          // hexagon radius — closed\nconst RADIUS_PEAK = 75.6;          // hexagon radius — fully open\nconst SPIN_DEGREES = -180;         // rotation per loop\nconst CENTER = { x: 120, y: 120 }; // center of the drawing canvas\nconst rad = (deg) => (deg * Math.PI) / 180; // degrees → radians\n\n// frame number in, position and size of all 19 dots out\nfunction latticeAt(frame) {\n  const breath = keyAt(BREATH, frame);\n  const radius = RADIUS_REST + (RADIUS_PEAK - RADIUS_REST) * breath; // only the radius rides the breath\n  const spin = SPIN_DEGREES * keyAt(SPIN, frame);\n  return DOTS.map((dot) => ({\n    angle: dot.angle + spin,                       // every dot rides the same rotation\n    dist: dot.role === \"arm\"  ? radius             // base dots — the breath's radius\n        : dot.role === \"edge\" ? keyAt(RAIL, frame) // edge dots — the dedicated rail\n        : dot.dist,                                // center and inner ring — the row's distance (0 and 38.1)\n    scale: dot.grow ? keyAt(dot.grow, frame) : 1,  // appearing and leaving are scale keys\n  }));\n}\n\n// from angle and distance to screen coordinates\nfunction dotXY(dot) {\n  return {\n    x: CENTER.x + dot.dist * Math.cos(rad(dot.angle)),\n    y: CENTER.y - dot.dist * Math.sin(rad(dot.angle)), // the screen's y axis points down, hence −sin\n  };\n}"
+              "text": "// Only one thing moves: a single breath. Radius, rotation and appearance all read key tables through keyAt.\n// Bare lowercase names (holdStart, radiusRest) are numbers you pick for your own canvas —\n// what this article wants you to take home is the shape, not any value.\nconst linear = (t) => t; // for segments between equal values — any curve, no movement\n\n// every curve is the same standard as CSS cubic-bezier() — the numbers are yours to choose\nconst breathOpen  = cubicBezier(...breathOpenHandles);  // the breath opening\nconst breathClose = cubicBezier(...breathCloseHandles); // the breath closing — its own face\nconst spinRise    = cubicBezier(...spinRiseHandles);    // rotation, way out\nconst spinFall    = cubicBezier(...spinFallHandles);    // rotation, way back\nconst railOut     = cubicBezier(...railOutHandles);     // edge rail, way out\nconst railBack    = cubicBezier(...railBackHandles);    // edge rail, way back\n\n// the breath — separate curves for opening and closing; equal values hold in between\nconst breathKeys = [\n  { frame: openStart, value: 0, curve: breathOpen },  // the opening starts here\n  { frame: holdStart, value: 1, curve: linear },      // fully open — the hold begins\n  { frame: holdEnd,   value: 1, curve: breathClose }, // hold over — into the close\n  { frame: closeEnd,  value: 0 },                     // closed and resting\n];\n// the rotation — same frame ranges as the breath, with 2 curves of its own\nconst spinKeys = [\n  { frame: openStart, value: 0,     curve: spinRise },\n  { frame: holdStart, value: 1 / 2, curve: linear },  // half the turn by the hold\n  { frame: holdEnd,   value: 1 / 2, curve: spinFall },\n  { frame: closeEnd,  value: 1 },                     // the other half on the way home\n];\n// the edge rail — a radius round trip on its own frame ranges\nconst railKeys = [\n  { frame: railStart,     value: railRest, curve: railOut },\n  { frame: railHoldStart, value: railPeak, curve: linear },\n  { frame: railHoldEnd,   value: railPeak, curve: railBack },\n  { frame: railEnd,       value: railRest },\n];\n\nconst center = { x: stageSize / 2, y: stageSize / 2 }; // center of a square canvas of side stageSize\nconst rad = (deg) => (deg * Math.PI) / 180; // degrees → radians\n\n// frame number in, position and size of all 19 dots out\nfunction latticeAt(frame) {\n  const breath = keyAt(breathKeys, frame);\n  const radius = radiusRest + (radiusPeak - radiusRest) * breath; // only the radius rides the breath\n  const spin = spinPerLoop * keyAt(spinKeys, frame);\n  return dots.map((dot) => ({\n    angle: dot.angle + spin,                           // every dot rides the same rotation\n    dist: dot.role === \"arm\"  ? radius                 // base dots — the breath's radius\n        : dot.role === \"edge\" ? keyAt(railKeys, frame) // edge dots — the dedicated rail\n        : dot.dist,                                    // center and inner ring — the row's distance\n    scale: dot.grow ? keyAt(dot.grow, frame) : 1,      // appearing and leaving are scale keys\n  }));\n}\n\n// from angle and distance to screen coordinates\nfunction dotXY(dot) {\n  return {\n    x: center.x + dot.dist * Math.cos(rad(dot.angle)),\n    y: center.y - dot.dist * Math.sin(rad(dot.angle)), // the screen's y axis points down, hence −sin\n  };\n}"
             },
             {
               "type": "paragraph",
-              "text": "`DOTS` is the 19-row blueprint. Each row carries a role, an angle, a distance, and `grow` — a little key table for appearing and leaving. The 6 base dots carry no `grow` and simply stand."
+              "text": "`dots` is the 19-row blueprint. Each row carries a role, an angle, a distance, and `grow` — a little key table for appearing and leaving. The 6 base dots carry no `grow` and simply stand."
             },
             {
               "type": "paragraph",
-              "text": "The distance written in a row is used as-is only for the center and the inner ring — for the 6 base dots the breath's radius decides it, and for the 6 edge dots the `RAIL` decides it, every frame. The angles start from the hexagon's 6 vertex directions; the base and the inner ring stand on those directions, and only the edge dots stand between them."
+              "text": "The distance written in a row is used as-is only for the center and the inner ring — for the 6 base dots the breath's radius decides it, and for the 6 edge dots the `railKeys` table decides it, every frame. The angles start from the hexagon's 6 vertex directions; the base and the inner ring stand on those directions, and only the edge dots stand between them."
             },
             {
               "type": "paragraph",
-              "text": "Placement is exactly the `dotXY` in the code — walk from `CENTER` along the dot's angle by its distance and draw a circle there. The screen's y axis points down, hence the minus sign on `Math.sin`."
+              "text": "Placement is exactly the `dotXY` in the code — make the canvas a square of whatever side `stageSize` you choose, then walk from its `center` along the dot's angle by its distance and draw a circle there. The screen's y axis points down, hence the minus sign on `Math.sin`."
             },
             {
               "type": "paragraph",
-              "text": "Drive it with `requestAnimationFrame`: compute `frame = (sec * FPS) % LOOP_FRAMES` from the elapsed seconds and you get the same loop as the demo above."
+              "text": "Drive it with `requestAnimationFrame`: multiply the elapsed seconds by your frames-per-second, take the remainder against the loop length, and hand the frame number to `latticeAt` — you get the same loop as the demo above."
             },
             {
               "type": "paragraph",
-              "text": "Only the six edge dots carry one more independent motion — a radius round trip that slides on its own frame ranges, separate from the breath. Both the destinations and the ranges live in the `RAIL` key table in the code above. The build started from the idea that every dot moves by one shared rule, but checking the numbers against the original video showed the edge dots alone didn't fit. Instead of forcing them under the shared rule, they keep their own keys."
+              "text": "Only the six edge dots carry one more independent motion — a radius round trip that slides on its own frame ranges, separate from the breath. Both the destinations and the ranges are yours to place in the `railKeys` table in the code above. The build started from the idea that every dot moves by one shared rule, but checking the numbers against the original video showed the edge dots alone didn't fit. Instead of forcing them under the shared rule, they keep their own keys."
             },
             {
               "type": "paragraph",
-              "text": "Rewrite the `DOTS` table and the lattice becomes a different picture. Square up the layout and the count still seems to grow, as long as the cue stagger survives; let the breath drive opacity instead of the radius and the same skeleton wears a different face."
+              "text": "Rewrite the `dots` table and the lattice becomes a different picture. Square up the layout and the count still seems to grow, as long as the cue stagger survives; let the breath drive opacity instead of the radius and the same skeleton wears a different face."
             },
             {
               "type": "heading",
@@ -2520,7 +2520,7 @@
             },
             {
               "type": "paragraph",
-              "text": "What makes it work is the per-loop rotation amount — `SPIN_DEGREES` in the code. A hexagonal lattice returns to the same pose whenever it turns by one vertex step, and `SPIN_DEGREES` is an exact multiple of that step, so the landing is indistinguishable from the initial layout — the last frame coincides with the first and the loop seam disappears."
+              "text": "What makes it work is the per-loop rotation amount — `spinPerLoop` in the code. A hexagonal lattice returns to the same pose whenever it turns by one vertex step. Pick `spinPerLoop` as an exact multiple of that step and the landing is indistinguishable from the initial layout — the last frame coincides with the first and the loop seam disappears."
             },
             {
               "type": "heading",
@@ -2556,7 +2556,7 @@
             },
             {
               "type": "paragraph",
-              "text": "What looks scattered is not a random number. The motion is a single clip, and 9 duplicates replay that same clip staggered `STEP_FRAMES` frames apart. Which duplicate starts when is decided by one fixed order table — 9 grid cells, each holding its place in line: the `ORDER` table in the code. That one table is the entire \"random\". The smaller the number in a cell, the earlier it moves — bottom-right leads."
+              "text": "What looks scattered is not a random number. The motion is a single clip, and 9 duplicates replay that same clip staggered `stepFrames` frames apart. Which duplicate starts when is decided by one fixed order table — 9 grid cells, each holding its place in line: the `fireOrder` table in the code. That one table is the entire \"random\". The smaller the number in a cell, the earlier it moves — bottom-right leads."
             },
             {
               "type": "heading",
@@ -2566,15 +2566,15 @@
             {
               "type": "list",
               "items": [
-                "pop from the rest radius `R_REST` up to `R_PEAK`",
-                "drop too far, to `R_UNDER` — a key placed deliberately low",
-                "recover to `R_HOLD`, then hold it for a long stretch",
-                "one final ease back to the rest radius `R_REST`"
+                "pop from the rest radius `restRadius` up to `peakRadius`",
+                "drop too far, to `underRadius` — a key placed deliberately low",
+                "recover to `holdRadius`, then hold it for a long stretch",
+                "one final ease back to the rest radius `restRadius`"
               ]
             },
             {
               "type": "paragraph",
-              "text": "The clip is just 6 radius keyframes and 5 easing curves, one per segment. Put into code, it is one fill-between-keys function and 2 tables."
+              "text": "The clip is just 6 radius keyframes and 5 easing curves, one per segment — where the keys sit on the timeline is yours to choose. Put into code, it is one fill-between-keys function and 2 tables."
             },
             {
               "type": "code",
@@ -2588,19 +2588,19 @@
             {
               "type": "code",
               "lang": "ts",
-              "text": "const linear = (t) => t; // for segments between equal values — the hold costs nothing\n\nconst FPS = 30;         // playback rate — LOOP_FRAMES / FPS = 3 seconds\nconst LOOP_FRAMES = 90; // frames in 1 loop\nconst CLIP_START = 3;   // frame where the first duplicate starts\nconst STEP_FRAMES = 2;  // start offset between duplicates, in frames\n\nconst R_REST = 12.02;  // rest radius\nconst R_PEAK = 26.19;  // pop peak\nconst R_UNDER = 21.84; // the key placed deliberately low\nconst R_HOLD = 22.39;  // the recover-and-hold radius\n\nconst CLIP = [ // value = radius. Each row's curve belongs to the segment toward the next key\n  { frame: 0,  value: R_REST,  curve: cubicBezier(0.62, 0.08, 0.5, 0.92) }, // → pop\n  { frame: 9,  value: R_PEAK,  curve: cubicBezier(0.32, 0.06, 0.5, 1.0) },  // → drop too far\n  { frame: 18, value: R_UNDER, curve: cubicBezier(0.48, 0.38, 0.5, 0.88) }, // → recover\n  { frame: 25, value: R_HOLD,  curve: linear },                             // → hold for 25 frames\n  { frame: 50, value: R_HOLD,  curve: cubicBezier(0.2, 0.17, 0.2, 0.83) },  // → back to rest\n  { frame: 68, value: R_REST },\n];\nconst ORDER = [[5, 1, 6], [7, 3, 4], [8, 2, 0]]; // the entire \"random\" is this table\n\n// frame number in, 9 radii out\nfunction radiiAt(frame) {\n  return ORDER.flat().map((rank) => {\n    const local = frame - CLIP_START - rank * STEP_FRAMES; // each replay starts later by its rank\n    return keyAt(CLIP, local);                             // fill between keys with the segment curves\n  });\n}"
+              "text": "// The moving parts: one clip, plus one table holding the order.\n// Bare lowercase names (clipStart, restRadius) are numbers you pick for your own canvas —\n// what this article wants you to take home is the shape, not any value.\nconst linear = (t) => t; // for segments between equal values — the hold costs nothing\n\n// one curve per segment — each the same standard as CSS cubic-bezier(), any 4 numbers you like\nconst popEase = cubicBezier(...popHandles);         // rest → peak\nconst dropEase = cubicBezier(...dropHandles);       // peak → too far\nconst recoverEase = cubicBezier(...recoverHandles); // too far → recover\nconst settleEase = cubicBezier(...settleHandles);   // end of hold → rest\n\nconst clipKeys = [ // value = radius. Each row's curve belongs to the segment toward the next key\n  { frame: 0,          value: restRadius,  curve: popEase },     // → pop\n  { frame: peakFrame,  value: peakRadius,  curve: dropEase },    // → drop too far\n  { frame: underFrame, value: underRadius, curve: recoverEase }, // → recover\n  { frame: holdStart,  value: holdRadius,  curve: linear },      // → hold as long as you like\n  { frame: holdEnd,    value: holdRadius,  curve: settleEase },  // → back to rest\n  { frame: clipEnd,    value: restRadius },\n];\n\n// The entire \"random\" is this one table — 9 cells, each holding its place in line.\n// fireOrder draws no random number: you scramble it once, by hand\n\n// frame number in, 9 radii out — the player loops by taking the remainder of frame against loopFrames (1 loop)\nfunction radiiAt(frame) {\n  return fireOrder.flat().map((rank) => {\n    const local = frame - clipStart - rank * stepFrames; // each replay starts later by its rank\n    return keyAt(clipKeys, local);                       // fill between keys with the segment curves\n  });\n}"
             },
             {
               "type": "paragraph",
-              "text": "A segment between equal values cannot move no matter what its curve says. That is how the long hold in `CLIP` is made — there is no dedicated hold machinery at all."
+              "text": "A segment between equal values cannot move no matter what its curve says. That is how the long hold in `clipKeys` is made — there is no dedicated hold machinery at all."
             },
             {
               "type": "paragraph",
-              "text": "Placement is just 9 dots fixed on a 3×3 grid at a near-uniform pitch — only the radius moves. Drive it with `requestAnimationFrame`: compute `frame = (sec * FPS) % LOOP_FRAMES` from the elapsed seconds, and you get a loop the same length as the demo above."
+              "text": "Placement is just 9 dots fixed on a 3×3 grid at a near-uniform pitch — only the radius moves. Drive it with `requestAnimationFrame`: multiply the elapsed seconds by your frames-per-second to get `frame`, take the remainder against `loopFrames`, and you get a loop built the same way as the demo above."
             },
             {
               "type": "paragraph",
-              "text": "The return after the pop lands exactly on the rest radius `R_REST`. The original video trails a faint tail that never quite returns to `R_REST` — but the last duplicate's clip starts latest and ends right at the loop's edge, using up nearly all `LOOP_FRAMES` frames. Chasing the tail would break the loop seam. So the tail was dropped, in favor of a loop whose last frame lines up exactly with its first."
+              "text": "The return after the pop lands exactly on the rest radius `restRadius`. The original video trails a faint tail that never quite returns to `restRadius` — but the last duplicate's clip starts latest and ends right at the loop's edge, using up nearly the whole loop. Chasing the tail would break the loop seam. So the tail was dropped, in favor of a loop whose last frame lines up exactly with its first."
             },
             {
               "type": "heading",
@@ -2609,7 +2609,7 @@
             },
             {
               "type": "paragraph",
-              "text": "The duplicates carry no individuality. Pop size and curve shape are shared by all dots — align all 9 on their start frames and overlay them, and the spread all but vanishes. Only the start frame differs, and for every dot that shift measures exactly `STEP_FRAMES` × the table's number. No shuffle, no random seed — the same frame always returns the same pose."
+              "text": "The duplicates carry no individuality. Pop size and curve shape are shared by all dots — align all 9 on their start frames and overlay them, and the spread all but vanishes. Only the start frame differs, and for every dot that shift measures exactly `stepFrames` × the table's number. No shuffle, no random seed — the same frame always returns the same pose."
             },
             {
               "type": "heading",
@@ -2659,7 +2659,7 @@
             {
               "type": "list",
               "items": [
-                "3 rotation keys — upright to the diamond, then back to upright (frames and values sit in the `THETA` table)",
+                "3 rotation keys — upright to the diamond, then back to upright (where they sit on the timeline is yours to choose in `rotationKeys`)",
                 "one easing curve per segment, two in total",
                 "zero keyframes on the side squares",
                 "the push distance grows from zero to its peak, then returns to zero"
@@ -2676,28 +2676,28 @@
             },
             {
               "type": "paragraph",
-              "text": "Each row of the `keyAt` table carries the curve that fills the next segment — the same 4 numbers as CSS `cubic-bezier()`. Outside its range it returns the end values, so the upright stretch before the first key costs nothing."
+              "text": "Each row of the `keyAt` table carries the curve that fills the next segment — exactly the math of CSS `cubic-bezier()`, and the 4 numbers you put in `climbHandles` and `descendHandles` go straight into npm's `bezier-easing`. Outside its range it returns the end values, so the upright stretch before the first key costs nothing."
             },
             {
               "type": "code",
               "lang": "ts",
-              "text": "const SIDE = 54;        // square side (px) — same for all three\nconst GAP = 0.1;        // clearance that keeps the sides just clear (px)\nconst DIAMOND_DEG = 45; // the diamond angle (degrees)\nconst QUARTER_DEG = 90; // the law repeats after this much rotation (degrees) — every quarter turn\nconst FPS = 30;         // playback rate (frames per second)\nconst LOOP_FRAMES = 90; // length of one loop (frames)\n\nconst THETA = [ // value = the center's angle. 3 keys + 2 segment curves — nothing else is keyed\n  { frame: 3,  value: 0,           curve: cubicBezier(0.67, 0.06, 0.16, 1.0) },  // → climb to the diamond\n  { frame: 46, value: DIAMOND_DEG, curve: cubicBezier(0.76, 0.04, 0.19, 0.98) }, // → descend to upright\n  { frame: 89, value: QUARTER_DEG },\n];\n\n// frame number in, center angle and side positions out\nfunction squaresAt(frame) {\n  const angle = keyAt(THETA, frame);\n  // the one-line law: a rotated square's half-width depends on the distance from the diamond\n  const phi = Math.abs(((angle % QUARTER_DEG) + QUARTER_DEG) % QUARTER_DEG - DIAMOND_DEG);\n  const halfWidth = (SIDE / Math.SQRT2) * Math.cos((phi * Math.PI) / 180);\n  const push = Math.max(0, halfWidth - SIDE / 2 - GAP); // push while keeping the GAP clearance\n  return {\n    center: { rotate: angle },\n    left:   { x: 66 - push },  // zero keys on the sides — the law is symmetric\n    right:  { x: 174 + push },\n  };\n}"
+              "text": "// Only one thing moves: the center's rotation. The sides just read it through a contact law.\n// Bare lowercase names (riseStart, side) are numbers you pick for your own canvas —\n// what this article wants you to take home is the shape, not any value.\nconst climbCurve = cubicBezier(...climbHandles);     // same standard as CSS cubic-bezier() — any 4 numbers you like\nconst descendCurve = cubicBezier(...descendHandles); // the return segment — one more curve, same standard\n\n// the rotation's key table: upright → the diamond → back upright after the quarter turn. Nothing else is keyed\nconst rotationKeys = [\n  { frame: riseStart,    value: 0,            curve: climbCurve },   // → climb to the diamond\n  { frame: diamondFrame, value: diamondAngle, curve: descendCurve }, // → descend to upright\n  { frame: loopEnd,      value: quarterTurn },\n];\n\n// frame number in, center angle and side positions out\nfunction squaresAt(frame) {\n  const angle = keyAt(rotationKeys, frame);\n  // the one-line law: a rotated square's half-width depends on the distance from the diamond\n  const phi = Math.abs(((angle % quarterTurn) + quarterTurn) % quarterTurn - diamondAngle);\n  const halfWidth = (side / Math.SQRT2) * Math.cos((phi * Math.PI) / 180);\n  const push = Math.max(0, halfWidth - side / 2 - gap); // push while keeping the gap clearance\n  return {\n    center: { rotate: angle },\n    left:   { x: leftHome - push },  // zero keys on the sides — the law is symmetric\n    right:  { x: rightHome + push },\n  };\n}"
             },
             {
               "type": "paragraph",
-              "text": "`((angle % QUARTER_DEG) + QUARTER_DEG) % QUARTER_DEG` folds any angle, however many turns it has made, into one stretch from zero to `QUARTER_DEG`. That is why the width line is written as \"distance from `DIAMOND_DEG`\" — feed it any angle and it works."
+              "text": "`((angle % quarterTurn) + quarterTurn) % quarterTurn` folds any angle, however many turns it has made, into one stretch from zero to `quarterTurn`. That is why the width line is written as \"distance from `diamondAngle`\" — feed it any angle and it works."
             },
             {
               "type": "paragraph",
-              "text": "A square of side `SIDE` is exactly `SIDE` wide while it stands upright. At the diamond its diagonal turns sideways and the width grows by a factor of `Math.SQRT2` — that growth becomes the push, which travels from zero to its peak and back to zero. Right and left move by the same formula, symmetric, with no time offset. `GAP` is the clearance that keeps them just short of touching."
+              "text": "A square of side `side` is exactly `side` wide while it stands upright. At the diamond its diagonal turns sideways and the width grows by a factor of `Math.SQRT2` — that growth becomes the push, which travels from zero to its peak and back to zero. Right and left move by the same formula, symmetric, with no time offset. `gap` is the clearance that keeps them just short of touching."
             },
             {
               "type": "paragraph",
-              "text": "To place it, set three squares of side `SIDE` at the same height and rotate only the center one by `rotate(angle)`. Drive it with `requestAnimationFrame`: compute `frame = (sec * FPS) % LOOP_FRAMES` from the elapsed seconds and you get the same loop length as the demo above."
+              "text": "To place it, set three squares of side `side` at the same height and rotate only the center one by `rotate(angle)`. Drive it with `requestAnimationFrame`: multiply the elapsed seconds by your frames-per-second to get `frame`, take the remainder against the loop length, and you get a loop built the same way as the demo above."
             },
             {
               "type": "paragraph",
-              "text": "To play with it, feed in more rotation. The law repeats every `QUARTER_DEG`, so a quarter turn yields 1 push and a half turn really does yield 2 — the count is never decided in advance; it follows from the rotation you feed in."
+              "text": "To play with it, feed in more rotation. The law repeats every `quarterTurn`, so a quarter turn yields 1 push and a half turn really does yield 2 — the count is never decided in advance; it follows from the rotation you feed in."
             },
             {
               "type": "heading",
@@ -2746,7 +2746,7 @@
             },
             {
               "type": "paragraph",
-              "text": "This motion is named \"inverse proportion\" — the textbook relation where one quantity grows as the other shrinks. In a true inverse proportion, multiplying the two radii (their product) would give the same number on every frame. Measure the original, though, and it does not. What stays constant is the addition instead: the two radii always add up to the value `R_SUM` holds in the code. Keyframes sit only on the top-left circle's radius — 3 of them. The bottom-right radius is \"`R_SUM` minus the top-left\", and carries not a single key."
+              "text": "This motion is named \"inverse proportion\" — the textbook relation where one quantity grows as the other shrinks. In a true inverse proportion, multiplying the two radii (their product) would give the same number on every frame. Measure the original, though, and it does not. What stays constant is the addition instead: the two radii always add up to the value `radiusSum` holds in the code. Keyframes sit only on the top-left circle's radius — 3 of them. The bottom-right radius is \"`radiusSum` minus the top-left\", and carries not a single key."
             },
             {
               "type": "heading",
@@ -2756,9 +2756,9 @@
             {
               "type": "list",
               "items": [
-                "3 radius keys — `R_REST` at both ends, `R_MID` at the turnaround",
-                "one easing curve per segment, two in total",
-                "bottom-right radius: zero keys — just `R_SUM` minus the top-left",
+                "3 radius keys — `restRadius` at both ends, `midRadius` at the turnaround; where they sit on the timeline is yours to choose in `radiusKeys`",
+                "one easing curve per segment, two in total — the numbers go in `shrinkHandles` and `growHandles`, picked to taste",
+                "bottom-right radius: zero keys — just `radiusSum` minus the top-left",
                 "both centres: zero keys — each recedes from the fixed contact point by its own radius"
               ]
             },
@@ -2773,20 +2773,20 @@
             },
             {
               "type": "paragraph",
-              "text": "Each row of the `keyAt` table carries the curve that fills the next segment — the same 4 numbers as CSS `cubic-bezier()`. The shrink and the grow are similar but separate, 1 each — reuse one of them for both, and the error against the measurement grows several times over."
+              "text": "Each row of the `keyAt` table carries the curve that fills the next segment — the same 4 numbers as CSS `cubic-bezier()`, and the numbers you put in `shrinkHandles` and `growHandles` go straight into npm's `bezier-easing`. The shrink and the grow are similar but separate, 1 each — reuse one of them for both, and the error against the measurement grows several times over."
             },
             {
               "type": "code",
               "lang": "ts",
-              "text": "const FPS = 30;          // frames per second\nconst LOOP_FRAMES = 90;  // length of one full loop, in frames\nconst MID_FRAME = 45;    // the frame where the turnaround key sits\nconst R_REST = 54;       // radius at both end keys (px)\nconst R_MID = 27;        // radius at the turnaround key (px)\nconst R_SUM = 81;        // the 2 radii add up to this on every frame\nconst CONTACT = 120;     // the fixed contact point (same value for x and y)\n\nconst R1 = [ // value = the top-left radius. 3 keys + 2 segment curves — nothing else is keyed\n  { frame: 0,           value: R_REST, curve: cubicBezier(0.777, 0.029, 0.173, 1.016) }, // → shrink\n  { frame: MID_FRAME,   value: R_MID,  curve: cubicBezier(0.765, 0.02, 0.155, 1.024) },  // → grow; the rendered valley lands near frame 44.1 via the overshoot\n  { frame: LOOP_FRAMES, value: R_REST },\n];\n\n// frame number in, both centres and radii out\nfunction circlesAt(frame) {\n  const r1 = keyAt(R1, frame);              // the top-left radius\n  const r2 = R_SUM - r1;                    // bottom-right: zero keys — one subtraction\n  const d = Math.SQRT1_2;                   // the 45° diagonal component (= cos 45°)\n  return [\n    { r: r1, x: CONTACT - r1 * d, y: CONTACT - r1 * d }, // recede up-left from the contact\n    { r: r2, x: CONTACT + r2 * d, y: CONTACT + r2 * d }, // recede down-right from the contact\n  ];\n}"
+              "text": "// Only the top-left radius is keyed. The other radius is a subtraction; both centres are computed from the contact point.\n// Bare lowercase names (restRadius, contact) are numbers you pick for your own canvas —\n// what this article wants you to take home is the shape, not any value.\nconst shrink = cubicBezier(...shrinkHandles); // same standard as CSS cubic-bezier() — the shrink segment's curve\nconst grow = cubicBezier(...growHandles);     // the grow segment's curve — similar, but its own\n\n// the radius key table: value = the top-left radius. This is everything that is keyed — where the keys sit is yours to choose\nconst radiusKeys = [\n  { frame: 0,          value: restRadius, curve: shrink }, // → shrink\n  { frame: midFrame,   value: midRadius,  curve: grow },   // → grow — the turnaround\n  { frame: loopFrames, value: restRadius },                // back to rest — the loop seam\n];\n\n// frame number in, both centres and radii out\nfunction circlesAt(frame) {\n  const r1 = keyAt(radiusKeys, frame);      // the top-left radius\n  const r2 = radiusSum - r1;                // bottom-right: zero keys — one subtraction\n  const d = Math.SQRT1_2;                   // the diagonal component (= 1 / √2)\n  return [\n    { r: r1, x: contact - r1 * d, y: contact - r1 * d }, // recede up-left from the contact\n    { r: r2, x: contact + r2 * d, y: contact + r2 * d }, // recede down-right from the contact\n  ];\n}"
             },
             {
               "type": "paragraph",
-              "text": "As the radii change the centres slide on their own, and the circles kiss at that point on every frame — no key ever aligns the contact. The point held still in the opening because it is built to hold still. Drive it with `requestAnimationFrame`: compute `frame = (sec * FPS) % LOOP_FRAMES` from the elapsed seconds, and you get a loop the same length as this demo."
+              "text": "As the radii change the centres slide on their own, and the circles kiss at that point on every frame — no key ever aligns the contact. The point held still in the opening because it is built to hold still. Drive it with `requestAnimationFrame`: multiply the elapsed seconds by your frames-per-second, take the remainder against `loopFrames`, and you get a loop built the same way as the demo above."
             },
             {
               "type": "paragraph",
-              "text": "To play with it, add keys. Grow the radius keys from 3 to 5 — `R_REST`→`R_MID`→`R_REST`→`R_MID`→`R_REST` — and the same function fits 2 round-trips of the trade into one loop. Change `R_SUM` and the pair's total changes with it — the one-line subtraction never breaks."
+              "text": "To play with it, add keys. Grow the radius keys from 3 to 5 — `restRadius`→`midRadius`→`restRadius`→`midRadius`→`restRadius` — and the same function fits 2 round-trips of the trade into one loop. Change `radiusSum` and the pair's total changes with it — the one-line subtraction never breaks."
             },
             {
               "type": "heading",
@@ -2795,7 +2795,7 @@
             },
             {
               "type": "paragraph",
-              "text": "The product and sum equations part ways at the moment the circles pass at equal size. The crossing comes partway through the shrink, with both radii at exactly half of `R_SUM`. Keep a product unchanged while pushing two numbers closer together, and their sum always shrinks. So if the product were constant, the radius sum would have to sag clearly toward this moment. The measured sum barely changes between rest and the crossing — no sag anywhere. Next to the constant-sum fit, the product model's miss is larger by an order of magnitude — so it was thrown out."
+              "text": "The product and sum equations part ways at the moment the circles pass at equal size. The crossing comes partway through the shrink, with both radii at exactly half of `radiusSum`. Keep a product unchanged while pushing two numbers closer together, and their sum always shrinks. So if the product were constant, the radius sum would have to sag clearly toward this moment. The measured sum barely changes between rest and the crossing — no sag anywhere. Next to the constant-sum fit, the product model's miss is larger by an order of magnitude — so it was thrown out."
             },
             {
               "type": "heading",
@@ -2808,7 +2808,7 @@
             },
             {
               "type": "paragraph",
-              "text": "The settled build has no hold key. The motion seems to rest because the tail of the one curve each segment owns is long and gentle, easing slowly toward its target value. The tail also carries a small expression — it slips just past the target before settling back, so the radius bottoms just shy of `MID_FRAME` rather than on it, and peaks just shy of the loop seam. The valley and the peak measured independently from the original point to nearly the same spots."
+              "text": "The settled build has no hold key. The motion seems to rest because the tail of the one curve each segment owns is long and gentle, easing slowly toward its target value. The tail also carries a small expression — it slips just past the target before settling back, so the radius bottoms just shy of `midFrame` rather than on it, and peaks just shy of the loop seam. The valley and the peak measured independently from the original point to nearly the same spots."
             },
             {
               "type": "callout",
@@ -2835,7 +2835,7 @@
             },
             {
               "type": "paragraph",
-              "text": "Only one thing is animated: a single rotation. Every layer of the tail is a copy replaying that same rotation slightly late — copy 1 runs `DELAY_FRAMES` behind, copy 2 twice that, and so on through 9 copies. Opacity thins by a factor of `DECAY` per copy. The afterimage is the dot's own past, replayed."
+              "text": "Only one thing is animated: a single rotation. Every layer of the tail is a copy replaying that same rotation slightly late — copy 1 runs `delayFrames` behind, copy 2 twice that, and so on through 9 copies. Opacity thins by a factor of `fadePerCopy` per copy. The afterimage is the dot's own past, replayed."
             },
             {
               "type": "heading",
@@ -2845,11 +2845,11 @@
             {
               "type": "list",
               "items": [
-                "dot radius `DOT_RADIUS` — 2 of them, on exactly opposite sides of the center",
-                "orbit radius `ORBIT_RADIUS`",
-                "2 rotation keys — the rest angle at the start, exactly one full lap by frame `SWEEP_FRAMES`, one easing curve",
-                "frames `SWEEP_FRAMES` to `LOOP_FRAMES`: rest, no rotation keys there",
-                "9 copies — each one `DELAY_FRAMES` further into the past, each `DECAY`× the opacity"
+                "dot radius `dotRadius` — 2 of them, on exactly opposite sides of the center, rest angles listed in `restAngles`",
+                "orbit radius `orbitRadius`",
+                "2 rotation keys — the rest angle at the start, exactly one full lap by frame `sweepFrames`, one easing curve",
+                "frames `sweepFrames` to `loopFrames`: rest, no rotation keys there",
+                "`copies` copies — 9 in the demo above, each one `delayFrames` further into the past, each `fadePerCopy`× the opacity"
               ]
             },
             {
@@ -2859,11 +2859,11 @@
             {
               "type": "code",
               "lang": "ts",
-              "text": "// Only one thing moves: a single rotation. Everything else re-reads it.\nconst FPS = 30;            // playback rate, frames per second\nconst LOOP_FRAMES = 90;    // length of the whole loop, in frames\nconst SWEEP_FRAMES = 79;   // last rotation key — rest from here to the loop end\nconst COPIES = 9;          // number of trailing copies\nconst DELAY_FRAMES = 1.65; // lag per copy, in frames\nconst DECAY = 0.77;        // opacity ratio per copy\nconst CENTER = 120;        // orbit center (same value for x and y)\nconst ORBIT_RADIUS = 72.5; // orbit radius\nconst DOT_RADIUS = 16.5;   // dot radius\nconst REST_ANGLES = [-90, 90]; // rest angles of the 2 dots on opposite sides\nconst rad = (deg) => (deg / 360) * 2 * Math.PI; // degrees to radians\n\nconst ease = cubicBezier(0.82, 0.003, 0.163, 0.996); // the face of the motion — your knob\n\n// frame number in, list of circles out (loops every LOOP_FRAMES frames)\nfunction dotsAt(frame) {\n  return REST_ANGLES.flatMap((rest) =>\n    Array.from({ length: COPIES + 1 }, (_, copy) => {       // 0 = lead, then the copies\n      const past = frame - copy * DELAY_FRAMES;             // each copy reads slightly into the past\n      const t = Math.min(Math.max(past / SWEEP_FRAMES, 0), 1); // progress, clamped to 0–1\n      return {\n        angle: rest + 360 * ease(t),                        // one full lap\n        opacity: DECAY ** copy,                             // DECAY× thinner per copy\n      };\n    })\n  );\n}"
+              "text": "// Only one thing moves: a single rotation. Everything else re-reads it.\n// Bare lowercase names (copies, delayFrames) are numbers you pick for your own canvas —\n// what this article wants you to take home is the shape, not any value.\nconst ease = cubicBezier(...easeHandles); // same standard as CSS cubic-bezier() — pacing from numbers you like\nconst rad = (deg) => (deg / 360) * 2 * Math.PI; // degrees to radians\n\n// placement numbers are yours too — orbit center (center), orbit radius (orbitRadius), dot radius (dotRadius).\n// the rest-angle table restAngles lists the angles of the 2 dots on opposite sides\n\n// frame number in, list of circles out (loops every loopFrames frames)\nfunction dotsAt(frame) {\n  return restAngles.flatMap((rest) =>\n    Array.from({ length: copies + 1 }, (_, copy) => {       // 0 = lead, then the copies\n      const past = frame - copy * delayFrames;              // each copy reads slightly into the past\n      const t = Math.min(Math.max(past / sweepFrames, 0), 1); // progress, clamped to 0–1\n      return {\n        angle: rest + 360 * ease(t),                        // one full lap\n        opacity: fadePerCopy ** copy,                       // fadePerCopy× thinner per copy\n      };\n    })\n  );\n}"
             },
             {
               "type": "paragraph",
-              "text": "`ease` holds the entire face of this motion. It is exactly the math of CSS `cubic-bezier()` — npm's `bezier-easing` takes the 4 numbers passed to `ease` as-is."
+              "text": "`ease` holds the entire face of this motion. It is exactly the math of CSS `cubic-bezier()`, and the 4 numbers you put in `easeHandles` go straight into npm's `bezier-easing`."
             },
             {
               "type": "paragraph",
@@ -2871,15 +2871,15 @@
             },
             {
               "type": "paragraph",
-              "text": "To put it on screen, turn each angle into a point on the orbit — center `CENTER` for both x and y, radius `ORBIT_RADIUS`: `x = CENTER + ORBIT_RADIUS * Math.cos(rad(angle))`, `y = CENTER + ORBIT_RADIUS * Math.sin(rad(angle))`. `rad()` is the one-liner that converts degrees to radians."
+              "text": "To put it on screen, turn each angle into a point on the orbit — center `center` for both x and y, radius `orbitRadius`: `x = center + orbitRadius * Math.cos(rad(angle))`, `y = center + orbitRadius * Math.sin(rad(angle))`. Both are numbers you pick for your own canvas, and `rad()` is the one-liner that converts degrees to radians."
             },
             {
               "type": "paragraph",
-              "text": "Then drive it with `requestAnimationFrame`: compute `frame = (sec * FPS) % LOOP_FRAMES` from elapsed seconds for the frame number — the same loop length as the demo above. `SVG` `circle` or `canvas`, either works."
+              "text": "Then drive it with `requestAnimationFrame`: multiply the elapsed seconds by your frames-per-second and take the remainder against `loopFrames` for the `frame` number — a loop built the same way as the demo above. `SVG` `circle` or `canvas`, either works."
             },
             {
               "type": "paragraph",
-              "text": "The best part of this build: rotation doesn't have to be the star. Swap the `angle` line for a horizontal slide or a `scale` pulse, and the structure — stacked copies each reading slightly into the past — keeps working. Any looping motion grows a tail by the same logic."
+              "text": "The best part of this build: rotation doesn't have to be the star. Swap the `angle` line for a horizontal slide or a scale pulse, and the structure — stacked copies each reading slightly into the past — keeps working. Any looping motion grows a tail by the same logic."
             },
             {
               "type": "heading",
@@ -2888,7 +2888,7 @@
             },
             {
               "type": "paragraph",
-              "text": "The copies decide nothing — each reads the same curve, shifted into the past by its own delay. The spacing between neighboring copies is exactly how far the dot moves in `DELAY_FRAMES`. In the fastest stretch that spacing beats the dot's own width (a full diameter), so the copies pull apart and read one by one; in the slow stretches they overlap and melt into a band. Flip-book or melt is decided by speed alone."
+              "text": "The copies decide nothing — each reads the same curve, shifted into the past by its own delay. The spacing between neighboring copies is exactly how far the dot moves in `delayFrames`. In the fastest stretch that spacing beats the dot's own width (a full diameter), so the copies pull apart and read one by one; in the slow stretches they overlap and melt into a band. Flip-book or melt is decided by speed alone."
             },
             {
               "type": "heading",
@@ -2901,7 +2901,7 @@
             },
             {
               "type": "paragraph",
-              "text": "One contradiction broke that reading. Assume half a turn, and in the fastest stretch the dense tail would sit well ahead of the dot it belongs to — no rig puts the tail in front of the dot. Re-tracking only the densest leading edge reads a full turn per lap, and the conclusion flipped. The end rest is pinned by the same measurement — nudge the last rotation key off `SWEEP_FRAMES` and the fit across all frames gets visibly worse."
+              "text": "One contradiction broke that reading. Assume half a turn, and in the fastest stretch the dense tail would sit well ahead of the dot it belongs to — no rig puts the tail in front of the dot. Re-tracking only the densest leading edge reads a full turn per lap, and the conclusion flipped. The end rest is pinned by the same measurement — nudge the last rotation key off `sweepFrames` and the fit across all frames gets visibly worse."
             },
             {
               "type": "callout",
@@ -2939,11 +2939,11 @@
               "type": "list",
               "items": [
                 "4 tall bars — width from the table's `w`, round caps, resting height from `h`",
-                "a rounded square in the middle — resting size from its `w` and `h` row, corner radius `SQUARE_CORNER`",
-                "2 outer bars: heights grow by `growH` and slide outward by `slide` — the 2 outer rows carry the larger values",
-                "2 inner bars: the same `growH` and `slide` columns, with smaller values than the outer pair",
+                "a rounded square in the middle — resting size from its `w` and `h` row, corners rounded just slightly",
+                "2 outer bars: heights grow by `growH` and slide outward by `slide` — give these 2 rows the largest motion amounts",
+                "2 inner bars: the same `growH` and `slide` columns, kept gentler than the outer pair",
                 "the center square: `growW` and `growH` swell both sides, `spin` gives the half turn",
-                "4 pulse keys — running 0 → 1 → (stays 1) → 0, frame positions as listed in `pulseKeys`"
+                "4 pulse keys — running 0 → 1 → (stays 1) → 0; where they sit on the timeline is yours to choose in `pulseKeys`"
               ]
             },
             {
@@ -2953,11 +2953,11 @@
             {
               "type": "code",
               "lang": "ts",
-              "text": "// Only one thing moves: a single pulse. Every shape just reads it through its own motion amounts.\nconst FPS = 30;          // frames per second of this demo\nconst LOOP_FRAMES = 90;  // loop length — one round trip in 3 seconds\nconst VIEWBOX = 240;     // the canvas is a VIEWBOX × VIEWBOX square\nconst BAR_CAP = 13.75;     // the bars' corner radius rx — half the width makes the round cap\nconst SQUARE_CORNER = 2.5; // the center square's corner radius rx\n\nconst ease = cubicBezier(0.684, 0.036, 0.292, 0.985); // the face of the motion — your knob\n\n// the pulse's key table: 0 → 1 → (stays 1) → 0, gaps filled by ease\nconst pulseKeys = [\n  { frame: 2,  value: 0, curve: ease },\n  { frame: 42, value: 1, curve: ease }, // 42–47 stays at 1 = the held pause\n  { frame: 47, value: 1, curve: ease }, // the way back — values run 1 → 0, so the same curve simply runs downhill\n  { frame: 87, value: 0, curve: ease },\n];\n\n// fill between the rows of a key table with curves — every motion in this article has this shape\nfunction keyAt(keys, frame) {\n  if (frame <= keys[0].frame) return keys[0].value;          // at or before the first key — hold the first value\n  if (frame > keys.at(-1).frame) return keys.at(-1).value;   // after the last key — hold the last value\n  const next = keys.findIndex((key) => frame <= key.frame);  // index of the key we are heading toward\n  const a = keys[next - 1], b = keys[next];                  // that key and the one before it bound the segment\n  const t = (frame - a.frame) / (b.frame - a.frame);         // progress inside the segment, 0–1\n  return a.value + (b.value - a.value) * a.curve(t);         // advance the gap along the curve\n}\n\n// per-shape motion-amount table: where it sits, and how far one pulse moves it\nconst shapes = [\n  { x: 51,  w: 27.5, h: 51.5, growW: 0,  growH: 123, slide: -19.85, spin: 0   },\n  { x: 85,  w: 27.5, h: 51.5, growW: 0,  growH: 36,  slide: -12.7,  spin: 0   },\n  { x: 120, w: 21.5, h: 19.5, growW: 12, growH: 12,  slide: 0,      spin: 180 },\n  { x: 155, w: 27.5, h: 51.5, growW: 0,  growH: 36,  slide: 12.7,   spin: 0   },\n  { x: 189, w: 27.5, h: 51.5, growW: 0,  growH: 123, slide: 19.85,  spin: 0   },\n];\n\n// frame number in, placements out (loops every LOOP_FRAMES)\nfunction shapesAt(frame) {\n  const pulse = keyAt(pulseKeys, frame % LOOP_FRAMES);\n  return shapes.map((s) => ({\n    cx: s.x + s.slide * pulse,            // horizontal position — left gets minus, right gets plus\n    cy: VIEWBOX / 2,                      // vertical stays fixed — mid-canvas height\n    width:  s.w + s.growW * pulse,\n    height: s.h + s.growH * pulse,\n    angle:  s.spin * pulse,               // only the center turns, 0–180°\n  }));\n}"
+              "text": "// Only one thing moves: a single pulse. Every shape just reads it through its own motion amounts.\n// Bare lowercase names (riseStart, barW) are numbers you pick for your own canvas —\n// what this article wants you to take home is the shape, not any value.\nconst ease = cubicBezier(...easeHandles); // same standard as CSS cubic-bezier() — any 4 numbers you like\n\n// the pulse's key table: 0 → 1 → (stays 1) → 0, gaps filled by ease\nconst pulseKeys = [\n  { frame: riseStart, value: 0, curve: ease }, // the stretch starts here\n  { frame: holdStart, value: 1, curve: ease }, // fully stretched — the held pause begins\n  { frame: holdEnd,   value: 1, curve: ease }, // pause over — the same curve simply runs downhill\n  { frame: loopEnd,   value: 0, curve: ease }, // back to rest\n];\n\n// fill between the rows of a key table with curves — every motion in this article has this shape\nfunction keyAt(keys, frame) {\n  if (frame <= keys[0].frame) return keys[0].value;          // at or before the first key — hold the first value\n  if (frame > keys.at(-1).frame) return keys.at(-1).value;   // after the last key — hold the last value\n  const next = keys.findIndex((key) => frame <= key.frame);  // index of the key we are heading toward\n  const a = keys[next - 1], b = keys[next];                  // that key and the one before it bound the segment\n  const t = (frame - a.frame) / (b.frame - a.frame);         // progress inside the segment, 0–1\n  return a.value + (b.value - a.value) * a.curve(t);         // advance the gap along the curve\n}\n\n// per-shape motion-amount table: where it sits, and how far one pulse moves it.\n// Outer rows get the bigger amounts; left and right differ only in slide's sign — the mirror is that sign\nconst shapes = [\n  { x: outerLeftX,  w: barW,    h: barH,    growW: 0,          growH: outerGrow,  slide: -outerSlide, spin: 0        },\n  { x: innerLeftX,  w: barW,    h: barH,    growW: 0,          growH: innerGrow,  slide: -innerSlide, spin: 0        },\n  { x: centerX,     w: squareW, h: squareH, growW: squareGrow, growH: squareGrow, slide: 0,           spin: halfTurn },\n  { x: innerRightX, w: barW,    h: barH,    growW: 0,          growH: innerGrow,  slide: innerSlide,  spin: 0        },\n  { x: outerRightX, w: barW,    h: barH,    growW: 0,          growH: outerGrow,  slide: outerSlide,  spin: 0        },\n];\n\n// frame number in, placements out (loops every loopFrames)\nfunction shapesAt(frame) {\n  const pulse = keyAt(pulseKeys, frame % loopFrames);\n  return shapes.map((s) => ({\n    cx: s.x + s.slide * pulse,            // horizontal position — left gets minus, right gets plus\n    cy: stageSize / 2,                    // vertical stays fixed — mid-canvas height\n    width:  s.w + s.growW * pulse,\n    height: s.h + s.growH * pulse,\n    angle:  s.spin * pulse,               // only the center turns, up to halfTurn\n  }));\n}"
             },
             {
               "type": "paragraph",
-              "text": "`ease` holds the entire face of this motion. It is exactly the math of CSS `cubic-bezier()`, and npm's `bezier-easing` takes the 4 numbers written in the code as-is."
+              "text": "`ease` holds the entire face of this motion. It is exactly the math of CSS `cubic-bezier()`, and the 4 numbers you put in `easeHandles` go straight into npm's `bezier-easing`."
             },
             {
               "type": "paragraph",
@@ -2969,11 +2969,11 @@
             },
             {
               "type": "paragraph",
-              "text": "To put it on screen, make the `viewBox` a square of side `VIEWBOX` and hand the values to a `rect` — the top-left corner sits half a size away from the center (`x = cx - width / 2`), the bars' round caps come from a corner radius `rx` of `BAR_CAP`, the square's from `SQUARE_CORNER`. Rotation in SVG is 1 line, `transform=\"rotate(angle cx cy)\"` — the shape spins about its own center."
+              "text": "To put it on screen, make the `viewBox` a square of whatever side `stageSize` you choose and hand the values to a `rect` — the top-left corner sits half a size away from the center (`x = cx - width / 2`), a corner radius `rx` of half the bar's width makes the round cap, and the square takes a smaller rounding. Rotation in SVG is 1 line, `transform=\"rotate(angle cx cy)\"` — the shape spins about its own center."
             },
             {
               "type": "paragraph",
-              "text": "Then drive it with `requestAnimationFrame`: compute `frame = (sec * FPS) % LOOP_FRAMES` from the elapsed seconds and you get the same loop length as the demo above. The pulse lands back on 0 at its last key and stays there across the loop edge — the seam hides inside the resting stretch."
+              "text": "Then drive it with `requestAnimationFrame`: multiply the elapsed seconds by your frames-per-second, take the remainder against `loopFrames`, and you get a loop built the same way as the demo above. The pulse lands back on 0 at its last key and stays there across the loop edge — the seam hides inside the resting stretch."
             },
             {
               "type": "paragraph",
@@ -3003,7 +3003,7 @@
             },
             {
               "type": "paragraph",
-              "text": "Re-reading the angle from the shape's proportions: the square makes a half turn per pulse — `spin` in the code is that value. A quarter-turn theory predicts a clearly tilted diamond at a moment on the way out — the observation there is upright. A full-turn theory predicts a return to upright partway through — the observation there is a diamond. Only the half turn fits every place a diamond or an upright pose shows up."
+              "text": "Re-reading the angle from the shape's proportions: the square makes a half turn per pulse — that's `halfTurn`, sitting in the `spin` column of the code. A quarter-turn theory predicts a clearly tilted diamond at a moment on the way out — the observation there is upright. A full-turn theory predicts a return to upright partway through — the observation there is a diamond. Only the half turn fits every place a diamond or an upright pose shows up."
             },
             {
               "type": "callout",
@@ -3030,7 +3030,7 @@
             },
             {
               "type": "paragraph",
-              "text": "You choose only 2 speed keys — one whip's worth. The third key's value follows automatically from the promise that `PERIOD_FRAMES` frames close exactly 1 lap — nobody decided the crawl's speed. The line never stretches either: a fixed-length window covering `DRAWN_FRACTION` of the full path slides along the track."
+              "text": "You choose only 2 speed keys — one whip's worth. The third key's value follows automatically from the promise that `periodFrames` frames close exactly 1 lap — nobody decided the crawl's speed. The line never stretches either: a fixed-length window covering `drawnFraction` of the full path slides along the track."
             },
             {
               "type": "heading",
@@ -3041,9 +3041,9 @@
               "type": "list",
               "items": [
                 "A closed ∞-shaped track — this demo runs the idealized one with perfectly round lobes, the original is a slightly distorted ∞ drawn with 4 pen-tool anchors",
-                "A thick stroke (`STROKE_WIDTH` px wide on a `VIEWBOX` px-square canvas) covering `DRAWN_FRACTION` of the track's length taken as 1 — the undrawn `GAP_FRACTION` becomes the gap",
-                "A dot riding the head (radius `DOT_RADIUS` px) — the gap straddles the dot, front and back",
-                "The head's progress u (0 = start, 1 = a full lap) — 2 keys, the whip starts from `U_AT_WHIP_START` on frame `WHIP_START_FRAME` of the loop and covers `WHIP_SPAN` of the lap in `WHIP_DUR_FRAMES` frames"
+                "A thick stroke (`strokeWidth` px wide on a `stageSize` px-square canvas) covering `drawnFraction` of the track's length taken as 1 — the undrawn `gapFraction` becomes the gap",
+                "A dot riding the head (radius `dotRadius` px) — the gap straddles the dot, front and back",
+                "The head's progress u (0 = start, 1 = a full lap) — 2 keys, the whip starts from `uAtWhipStart` on frame `whipStartFrame` of the loop and covers `whipSpan` of the lap in `whipDurFrames` frames"
               ]
             },
             {
@@ -3053,19 +3053,19 @@
             {
               "type": "code",
               "lang": "ts",
-              "text": "// Only one thing moves: the head's progress u. 0 is the track start; 1 is a full lap.\nconst FPS = 30;                // frames per second — 90 frames make the 3s loop\nconst PERIOD_FRAMES = 90;      // frames in one lap = the loop length\nconst WHIP_START_FRAME = 3;    // loop-local frame where the whip starts\nconst WHIP_DUR_FRAMES = 51;    // length of the whip beat, in frames\nconst U_AT_WHIP_START = 0.357; // u at the moment the whip starts = the launch spot\nconst WHIP_SPAN = 0.901;       // share of the lap the whip eats\n\n// The crawl is the leftover — not yours to choose\nconst CRAWL_SPAN = 1 - WHIP_SPAN;                         // share left for the crawl = 0.099\nconst CRAWL_DUR_FRAMES = PERIOD_FRAMES - WHIP_DUR_FRAMES; // frames left for the crawl = 39\n\n// On-screen numbers — the stroke window and the dot\nconst VIEWBOX = 324;          // canvas side length (px)\nconst STROKE_WIDTH = 15.6;    // width of the thick stroke (px)\nconst DOT_RADIUS = 13.5;      // radius of the head dot (px)\nconst DRAWN_FRACTION = 0.896; // drawn share of the track, full length taken as 1\nconst GAP_FRACTION = 1 - DRAWN_FRACTION; // the undrawn gap\nconst PAINT_HEAD_LAG = 0.054; // measured nudge that keeps the gap straddling the dot\n\nconst whip = cubicBezier(0.85, 0.191, 0.349, 0.833); // the whip's face — this is the dial\nconst linear = (t) => t;                              // the crawl just moves straight\n\n// u's key table: the whip eats WHIP_SPAN of the lap; the rest is the straight line home\nconst uKeys = [\n  { frame: 0,               value: U_AT_WHIP_START,             curve: whip   }, // whip start = launch spot\n  { frame: WHIP_DUR_FRAMES, value: U_AT_WHIP_START + WHIP_SPAN, curve: linear }, // whip end\n  { frame: PERIOD_FRAMES,   value: U_AT_WHIP_START + 1 },                        // same spot, one lap later — not yours to choose\n];\n\n// fill between the rows of a key table with curves — every motion in this article has this shape\nfunction keyAt(keys, frame) {\n  if (frame <= keys[0].frame) return keys[0].value;          // at or before the first key — hold the first value\n  if (frame > keys.at(-1).frame) return keys.at(-1).value;   // after the last key — hold the last value\n  const next = keys.findIndex((key) => frame <= key.frame);  // index of the key we are heading toward\n  const a = keys[next - 1], b = keys[next];                  // that key and the one before it bound the segment\n  const t = (frame - a.frame) / (b.frame - a.frame);         // progress inside the segment, 0–1\n  return a.value + (b.value - a.value) * a.curve(t);         // advance the gap along the curve\n}\n\n// frame number → head progress. Align the whip's start to 0, then read the table\nfunction uAt(frame) {\n  const local = ((frame - WHIP_START_FRAME) % PERIOD_FRAMES + PERIOD_FRAMES) % PERIOD_FRAMES;\n  return keyAt(uKeys, local) % 1; // anything past 1 wraps into the next lap\n}"
+              "text": "// Only one thing moves: the head's progress u. 0 is the track start; 1 is a full lap.\n// Bare lowercase names (whipSpan, periodFrames) are numbers you pick for your own canvas —\n// what this article wants you to take home is the shape, not any value.\nconst whip = cubicBezier(...whipHandles); // same standard as CSS cubic-bezier() — the whip's face is any 4 numbers you like\nconst linear = (t) => t;                  // the crawl just moves straight\n\n// The crawl is the leftover — not yours to choose\nconst crawlSpan = 1 - whipSpan;                      // share of the lap left for the crawl\nconst crawlDurFrames = periodFrames - whipDurFrames; // frames left for the crawl\n\n// On-screen dials: a stageSize-square canvas, a stroke strokeWidth wide, a dot of radius dotRadius.\n// paintHeadLag is the nudge, set by eye, that keeps the gap straddling the dot\nconst gapFraction = 1 - drawnFraction; // whatever the drawnFraction window leaves undrawn is the gap\n\n// u's key table: the whip eats whipSpan of the lap; the rest is the straight line home\nconst uKeys = [\n  { frame: 0,             value: uAtWhipStart,            curve: whip   }, // whip start = launch spot\n  { frame: whipDurFrames, value: uAtWhipStart + whipSpan, curve: linear }, // whip end\n  { frame: periodFrames,  value: uAtWhipStart + 1 },                       // same spot, one lap later — not yours to choose\n];\n\n// fill between the rows of a key table with curves — every motion in this article has this shape\nfunction keyAt(keys, frame) {\n  if (frame <= keys[0].frame) return keys[0].value;          // at or before the first key — hold the first value\n  if (frame > keys.at(-1).frame) return keys.at(-1).value;   // after the last key — hold the last value\n  const next = keys.findIndex((key) => frame <= key.frame);  // index of the key we are heading toward\n  const a = keys[next - 1], b = keys[next];                  // that key and the one before it bound the segment\n  const t = (frame - a.frame) / (b.frame - a.frame);         // progress inside the segment, 0–1\n  return a.value + (b.value - a.value) * a.curve(t);         // advance the gap along the curve\n}\n\n// frame number → head progress. Align the whip's start, whipStartFrame, to 0, then read the table\nfunction uAt(frame) {\n  const local = ((frame - whipStartFrame) % periodFrames + periodFrames) % periodFrames;\n  return keyAt(uKeys, local) % 1; // anything past 1 wraps into the next lap\n}"
             },
             {
               "type": "paragraph",
-              "text": "`whip` is exactly the same math as CSS `cubic-bezier()`, and npm's `bezier-easing` takes `whip`'s 4 numbers as-is. It holds back at the start, surges through the middle, then sheds speed to hand off into the crawl."
+              "text": "`whip` is exactly the same math as CSS `cubic-bezier()`, and the 4 numbers you place in `whipHandles` go straight into npm's `bezier-easing`. It holds back at the start, surges through the middle, then sheds speed to hand off into the crawl."
             },
             {
               "type": "paragraph",
-              "text": "The heart is the third key's value, `U_AT_WHIP_START + 1`. The moment you decide that `PERIOD_FRAMES` frames close 1 lap, the last span can only be written as the remaining `CRAWL_SPAN` over the remaining `CRAWL_DUR_FRAMES` frames. There is no dial for the crawl's speed — to change it, grow or shrink the `WHIP_SPAN` the whip eats. Change the leftover and the crawl changes on its own."
+              "text": "The heart is the third key's value, `uAtWhipStart + 1`. The moment you decide that `periodFrames` frames close 1 lap, the last span can only be written as the remaining `crawlSpan` over the remaining `crawlDurFrames` frames. There is no dial for the crawl's speed — to change it, grow or shrink the `whipSpan` the whip eats. Change the leftover and the crawl changes on its own."
             },
             {
               "type": "paragraph",
-              "text": "Two conversions put it on screen. For the line, give the `path` a `pathLength={1}` so the track's length reads as 1, then set `stroke-dasharray` to `DRAWN_FRACTION GAP_FRACTION` and `stroke-dashoffset` to `DRAWN_FRACTION + PAINT_HEAD_LAG - u`. The window slides, pulled by u, and the gap shifts by `PAINT_HEAD_LAG` to straddle the dot."
+              "text": "Two conversions put it on screen. For the line, give the `path` a `pathLength={1}` so the track's length reads as 1, then set `stroke-dasharray` to `drawnFraction gapFraction` and `stroke-dashoffset` to `drawnFraction + paintHeadLag - u`. The window slides, pulled by u, and the gap shifts by `paintHeadLag` to straddle the dot."
             },
             {
               "type": "paragraph",
@@ -3073,11 +3073,11 @@
             },
             {
               "type": "paragraph",
-              "text": "Drive it with `requestAnimationFrame`: compute `frame = (sec * FPS) % PERIOD_FRAMES` from the elapsed seconds and that is the frame number. The loop's seam sits near the end of the crawl, and the speed across the seam is the crawl's own speed, so nothing pops at the boundary."
+              "text": "Drive it with `requestAnimationFrame`: multiply the elapsed seconds by your frames-per-second to get `frame`, then take the remainder by `periodFrames`. The loop's seam sits near the end of the crawl, and the speed across the seam is the crawl's own speed, so nothing pops at the boundary."
             },
             {
               "type": "paragraph",
-              "text": "The track doesn't have to be an ∞. u only says how far along the track you are, so any closed path — a circle, a heart — works with the same `uKeys`. Shrink the window's `DRAWN_FRACTION` and the look turns into a half-drawn line racing the track."
+              "text": "The track doesn't have to be an ∞. u only says how far along the track you are, so any closed path — a circle, a heart — works with the same `uKeys`. Shrink the window's `drawnFraction` and the look turns into a half-drawn line racing the track."
             },
             {
               "type": "heading",
@@ -3095,11 +3095,11 @@
             },
             {
               "type": "paragraph",
-              "text": "This reproduction started as plain copying — replaying the head's position for all `PERIOD_FRAMES` frames — and it couldn't say why that speed. The rebuild started with the track: a symmetric path drawn with 4 pen-tool anchors fit better than 2 textbook ∞ formulas. The round-lobe ∞ in the demo above is the closest formula, the one that narrowly lost. We chose it for reading, knowing it is not the original's track — u's table is untouched."
+              "text": "This reproduction started as plain copying — replaying the head's position for the whole lap — and it couldn't say why that speed. The rebuild started with the track: a symmetric path drawn with 4 pen-tool anchors fit better than 2 textbook ∞ formulas. The round-lobe ∞ in the demo above is the closest formula, the one that narrowly lost. We chose it for reading, knowing it is not the original's track — u's table is untouched."
             },
             {
               "type": "paragraph",
-              "text": "Then the speed. Constant speed missed, the stock easing presets missed, and a free 3-key curve matches the numbers only by letting the speed jump several-fold at a key — a setting no human hand places. What remained was 1 whip plus the automatic straight line — and that pair predicts the crawl's speed: `CRAWL_SPAN` divided by `CRAWL_DUR_FRAMES`. The measurement agreed to within a fraction of a percent."
+              "text": "Then the speed. Constant speed missed, the stock easing presets missed, and a free 3-key curve matches the numbers only by letting the speed jump several-fold at a key — a setting no human hand places. What remained was 1 whip plus the automatic straight line — and that pair predicts the crawl's speed: `crawlSpan` divided by `crawlDurFrames`. The measurement agreed to within a fraction of a percent."
             },
             {
               "type": "callout",
