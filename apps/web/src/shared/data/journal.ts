@@ -217,6 +217,17 @@ export const motionStudyEntries: readonly JournalEntry[] = [
     status: "published",
     evidenceLevel: "production",
   },
+  // Article #8 of the drawer rollout — same uncommitted-until-reviewed gate.
+  {
+    slug: "coupled-shear-rotation",
+    kind: "motion-study",
+    href: "/journal/motion-studies/coupled-shear-rotation",
+    publishedAt: "2026-06-12",
+    priority: 8,
+    tags: ["Shear", "Rotation", "Easing", "SVG"],
+    status: "published",
+    evidenceLevel: "production",
+  },
   {
     slug: "signal-stroke-relay",
     kind: "motion-study",

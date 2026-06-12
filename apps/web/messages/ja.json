@@ -1623,6 +1623,12 @@
           "summary": "∞ の道を、太い線の頭とドットが 1 周のほとんどをひと息に駆け、残りだけゆっくり這う。二段変速に見えるが、自分で決める速さのキーは鞭のひと振りぶんの 2 つだけ — 這いの速さは「決めたフレーム数でちょうど 1 周して戻る」という約束から自動で決まる。線は伸び縮みせず、固定長の窓が道の上を滑っているだけだ。",
           "metaDescription": "循環の正体を解剖する motion study。∞ の道を駆けて這うドットの二段変速に見える緩急は、cubic-bezier の鞭 1 本と「1 周して戻る」約束が残す這い — 変速の仕組みはどこにもない。線は固定長のダッシュ窓のスライド。動きを計算する短い関数を記事に載せ、ブラウザでライブ再生する。"
         },
+        "coupled-shear-rotation": {
+          "eyebrow": "分割",
+          "title": "2 つの動きに見える割れた円の解剖",
+          "summary": "円が縦に割れ、2 つの半円がすれ違いながら全体が回り、また 1 つの円に閉じる。回転とスライドの二重の振り付けに見えて、動かしている数値は進み具合 1 本。締めの一致は腕ではなく図形の性質が引き受けている — その分解を、組み立ての考え方から歩く。",
+          "metaDescription": "分割の正体を解剖する motion study。割れた円の回転とすれ違いは 1 本の進み具合からの計算で出て、継ぎ目のないループは単色の円が向きを隠すことで閉じる。骨格コードと突き止め方つき。"
+        },
         "signal-stroke-relay": {
           "eyebrow": "Theatre / Cascade",
           "title": "同じ動きが場所を変えながら伝わる感覚は、別アニメーションの集合では作れない — Theatre.js のタイムラインを複数レイヤーが位相差で参照する設計",
@@ -3107,6 +3113,106 @@
               "type": "callout",
               "tone": "note",
               "text": "原典はプッティさん（@PuttiMW）の「モーションの引き出し」の 1 セル — 研究リポで分解・再構築したもの。色は参照の赤／サーモンではなく固定ライトパレット。上のデモの質感 — 粒状（grain）と色収差 — は、自分たちで開発している映像仕上げ用パッケージでライブ合成していて、イージングのソルバーから粒の乱数まで自作だ。`WebGPU` が使えない環境では `SVG` + `requestAnimationFrame` 描画に切り替わる。"
+            }
+          ]
+        },
+        "coupled-shear-rotation": {
+          "sections": [
+            {
+              "type": "motion-demo",
+              "demo": "coupled-shear-rotation",
+              "caption": "円が縦に割れて 2 つの半円がすれ違い、少し回って、また 1 つの円に閉じる"
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "割れて、すれ違って、閉じる"
+            },
+            {
+              "type": "paragraph",
+              "text": "まん丸の円が縦にすぱっと割れる。左右の半円は逆向きにすれ違い、あいだに S 字のくびれができる。離れ切ったところから今度は戻りはじめるが、ただの巻き戻しではない — 全体がゆっくり回りつづけたまま閉じて、最後はまた 1 つの円で静止する。"
+            },
+            {
+              "type": "paragraph",
+              "text": "回転の振り付けとスライドの振り付けが別々にあるように見えるが、キーフレームを持つ数値はこの画面に 1 本しかない。0 から 2 へ進む「進み具合」u だ。回転もすれ違いも、毎フレーム u から計算で出している。閉じた円がずれなく重なるのも、アニメーションの腕ではなく図形の性質の仕事 — 種は後半で明かす。"
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "半円 2 つと進み具合 1 本を用意する"
+            },
+            {
+              "type": "list",
+              "items": [
+                "まん丸の円を縦の切り口で割った左右 2 つの半円 — 描くのに要るのは中心の置き場所・半径 `discRadius`・ふくらむ向きの 3 つ",
+                "進み具合 u — 0 が割れる前の静止、1 が離れ切り、2 がもう一度閉じた静止で、キーフレームは `uKeys` に打った 3 個",
+                "u から毎フレーム計算で出す 2 つの数 — グループ全体の回転角(u に比例して進みつづける)と、すれ違いの距離(`slideMax` まで行って帰る)",
+                "隙間予防の押し込み `seamInset` — S 字のくびれが切れないよう、2 つの半円をわずかに相手へめり込ませる"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "作る関数は 2 つでいい。打ってあるキーフレームのあいだを補間して、いまのフレームの u を出す `keyAt` と、u を 2 つの半円の置き場所に変える `piecesAt` だ。"
+            },
+            {
+              "type": "code",
+              "lang": "ts",
+              "text": "// 動かしている数値は「進み具合」u の 1 本だけ — 0 で静止、1 で離れ切り、2 でまた閉じる。\n// 小文字ではじまる裸の名前(splitStart や slideMax)は、自分の画面に合わせて決める数 —\n// この記事が持ち帰ってほしいのは値ではなく、この「形」だ。\nconst openCurve = cubicBezier(...openHandles);   // 割れて離れるビートの緩急 — CSS の cubic-bezier() と同じ規格\nconst closeCurve = cubicBezier(...closeHandles); // 閉じて戻るビートの緩急\n\n// u に打つキーフレーム: 0 → 1 → 2。値 1 までが行き、2 までが帰り。各キーフレームの curve は次のキーフレームまでの区間に効く\nconst uKeys = [\n  { frame: splitStart, value: 0, curve: openCurve },  // ここまで円のまま静止\n  { frame: apartPeak,  value: 1, curve: closeCurve }, // 離れ切る — 回転はまだ道半ば\n  { frame: sealEnd,    value: 2, curve: closeCurve }, // 閉じ切る — 残りは静止\n];\n\n// 打ったキーフレームのあいだをカーブで埋めて補間する — この記事の動きはぜんぶこの形で書ける\nfunction keyAt(keys, frame) {\n  if (frame <= keys[0].frame) return keys[0].value;          // 最初のキー以前 — 最初の値のまま\n  if (frame > keys.at(-1).frame) return keys.at(-1).value;   // 終わりより後 — 最後の値のまま\n  const next = keys.findIndex((key) => frame <= key.frame);  // いま向かっている先のキーの番号\n  const a = keys[next - 1], b = keys[next];                  // 手前のキーとの 2 個で区間が決まる\n  const t = (frame - a.frame) / (b.frame - a.frame);         // 区間の進み具合 0〜1\n  return a.value + (b.value - a.value) * a.curve(t);         // 差をカーブの形で進める\n}\n\n// フレーム番号を渡すと、2 つの半円の置き場所を返す関数(loopFrames ごとにループ)\nfunction piecesAt(frame) {\n  const u = keyAt(uKeys, frame % loopFrames);\n  const turn = (turnPerLoop * u) / 2;             // 回転は u に比例 — 自前の緩急を持たず、戻りもしない\n  const slide = slideMax * (1 - Math.abs(1 - u)); // すれ違いは山なり — 行って帰る\n  const inset = Math.min(slide, seamInset);       // 相手側への押し込み — すぐ頭打ちになる\n\n  // 切り口の向き cutAngle(縦なら 90)に沿ってすれ違い、直角の向きに押し込む\n  const cut = (cutAngle * Math.PI) / 180;\n  const alongX = Math.cos(cut);                   // 切り口に沿う向き\n  const alongY = Math.sin(cut);\n  const intoX = alongY;                           // 半円 A が相手へめり込む向き\n  const intoY = -alongX;\n\n  // 半円 A のずれを作り、グループ回転で回してから中心に足す\n  const shiftX = intoX * inset - alongX * slide;\n  const shiftY = intoY * inset - alongY * slide;\n  const g = (turn * Math.PI) / 180;\n  const ax = centerX + Math.cos(g) * shiftX - Math.sin(g) * shiftY;\n  const ay = centerY + Math.sin(g) * shiftX + Math.cos(g) * shiftY;\n\n  // ふくらむ向き = 切り口と直角 + グループ回転ぶん。半円 B は A の点対称\n  const bulgeA = cutAngle + 90 + turn;\n  return [\n    { x: ax, y: ay, r: discRadius, bulge: bulgeA },\n    { x: 2 * centerX - ax, y: 2 * centerY - ay, r: discRadius, bulge: bulgeA + 180 },\n  ];\n}"
+            },
+            {
+              "type": "paragraph",
+              "text": "`openCurve` と `closeCurve` は CSS の `cubic-bezier()` と同じ規格で、`openHandles` に置く 4 つの数は npm の `bezier-easing` にそのまま渡せる。キーフレームの範囲の外では `keyAt` が端の値を返すから、割れる前と閉じたあとの静止は何も書かなくても出る。"
+            },
+            {
+              "type": "paragraph",
+              "text": "芯は `piecesAt` の最初の 3 行にある。回転は u に比例してためなく進み、すれ違いは山なり(`1 - Math.abs(1 - u)`)で行って帰る。同じ u を読んでいるから、離れ切った瞬間 — u がちょうど 1 — に回転は必ず道のり半分まで来ている。2 つの動きを合わせる作業は、そもそも存在しない。"
+            },
+            {
+              "type": "paragraph",
+              "text": "半円の描き方はひとつ覚えれば足りる。弧の両端は、中心から「ふくらむ向き」と直角に、両側へ半径ぶん進んだ 2 点 — この 2 点を結ぶ平らな縁が切り口だ。2 点を、ふくらむ向きの側へ張り出す半円弧でつなぐ。`SVG` なら円弧コマンドを 1 本入れた `path` で書け、回り方は弧がふくらむ向きの側へ出るほうを選ぶ。"
+            },
+            {
+              "type": "paragraph",
+              "text": "ふくらむ向きには `piecesAt` が毎フレーム返す値をそのまま使う — グループ回転はそこに織り込み済みだ。半円 B は半円 A の点対称(中心をはさんで正反対)だから、`piecesAt` の最後の行のように座標を中心まわりに裏返し、ふくらむ向きに半回転を足すだけで出てくる。"
+            },
+            {
+              "type": "paragraph",
+              "text": "押し込みの行が地味に効く。すれ違いの最中、2 つの半円は `seamInset` のぶんだけ相手側へめり込んでいて、S 字のくびれに髪の毛ほどの隙間が開かない。`Math.min` で頭打ちにしてあるから、止まっているときはゼロ — 円の形は歪まない。"
+            },
+            {
+              "type": "paragraph",
+              "text": "`requestAnimationFrame` で、経過秒に毎秒のコマ数を掛けて `frame` を出し、`loopFrames` で余りを取ればループになる。ここで効くのが単色だ。ループの終わりに 2 つの半円は、切り口が縦から横へ直角ぶん回った姿勢で静止するが、1 色で塗った円は向きを持たない — 最初のフレームと見分けがつかず、継ぎ目が消える。"
+            },
+            {
+              "type": "paragraph",
+              "text": "逆に言うと、2 色に塗り分けるとループの継ぎ目で色の置き場所ががくっと飛んで破綻する — 単色は飾りではなく構造の条件だ。図形は円でなくてもいい。研究リポの汎用デモでは、正方形を水平の切り口で割って半回転させても、同じ `piecesAt` がそのまま動いた。回りきった姿勢を最初と見分けられない図形なら、何にでも掛かる。"
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "1 本なのに 2 つの動きに見える理由"
+            },
+            {
+              "type": "paragraph",
+              "text": "人の目は「回りながら離れる」を 2 つの意思に分けて読む。だが計測すると、回転の進みとすれ違いの進みはループ全体でぴったり連れ立っていて、片方をほんのわずかに時間へずらしただけで一致が何倍も崩れた。別々に振り付けたのなら、ここまで合う理由がない。1 本の数値の 2 つの読み替えなら、合わない瞬間が作れない。"
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "割れ目の中点は、行きと帰りで別の道を通った"
+            },
+            {
+              "type": "paragraph",
+              "text": "最初の仮説は「どこか固定の点を中心にした回転」だった。割れ目の真ん中の点を全フレーム追いかけると、行きと帰りで別の道を通る輪っか状の軌道が出てきて、この仮説は死んだ — 固定の点を中心にした円運動なら、行きも帰りも同じ円周に乗るはずだからだ。回転 2 本の合成も試したが、残る誤差はただのノイズに散らばらず、時間とともにうねる癖を残した。"
+            },
+            {
+              "type": "paragraph",
+              "text": "決め手は引き算だ。グループ回転を計算で剥がすと、残ったすれ違いの軌跡は、計測の読み取りノイズと同じ幅でしか直線からずれていなかった — 滑りは本当にまっすぐ。押し込みが常に掛かる説も消えた。それなら静止した円は横にわずかに痩せるはずだが、静止形の縦横はぴったり同じだった。残ったのが、上の組み立てだ。"
+            },
+            {
+              "type": "callout",
+              "tone": "note",
+              "text": "原典はプッティさん（@PuttiMW）の「モーションの引き出し」の 1 セル — 研究リポで分解・再構築したもの。色は参照の赤ではなく固定ライトパレット。上のデモの質感 — 粒状（grain）と色収差 — は、自分たちで開発している映像仕上げ用パッケージでライブ合成していて、イージングのソルバーから粒の乱数まで自作だ。`WebGPU` が使えない環境では `SVG` + `requestAnimationFrame` 描画に切り替わる。"
             }
           ]
         },

@@ -10,6 +10,7 @@
 
 import { renderInlineCode } from "../inline-code";
 import { ComplementTangentPairFinishDemo } from "./ComplementTangentPairFinishDemo";
+import { CoupledShearRotationFinishDemo } from "./CoupledShearRotationFinishDemo";
 import { LatticeBreathFinishDemo } from "./LatticeBreathFinishDemo";
 import { MasterRotationEchoFinishDemo } from "./MasterRotationEchoFinishDemo";
 import { PulseGridFinishDemo } from "./PulseGridFinishDemo";
@@ -28,6 +29,7 @@ const DEMO_REGISTRY: Record<string, () => React.ReactElement> = {
   "master-rotation-echo": MasterRotationEchoFinishDemo,
   "shared-hold-pulse": SharedHoldPulseFinishDemo,
   "whip-crawl-path-cycle": WhipCrawlPathCycleFinishDemo,
+  "coupled-shear-rotation": CoupledShearRotationFinishDemo,
 };
 
 interface JournalMotionDemoProps {

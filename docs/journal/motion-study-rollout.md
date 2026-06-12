@@ -83,7 +83,7 @@
 | 5 | master-rotation-echo | 残像 | 残像 = 1 本のマスター回転の時間シフト合成 | **公開済 2026-06-11** |
 | 6 | shared-hold-pulse | 対称 | 正体は共有 rise-HOLD-fall 包絡 1 本 + 符号付き振幅 | **公開済 2026-06-11** |
 | 7 | whip-crawl-path-cycle | 循環 | 這いの速さはキーでなくループ閉包の残り — 鞭ベジェ 1 本 + 強制クロール | **公開済 2026-06-11** |
-| 8 | coupled-shear-rotation | 分割 | 1 位相が群回転と対向シアを同時駆動 | |
+| 8 | coupled-shear-rotation | 分割 | 1 位相が群回転と対向シアを同時駆動 | **公開済 2026-06-12** |
 | 9 | gather-return | 一体化と分離 | 昇格されたのは時間包絡だけ | |
 | 10 | velocity-seeded-overshoot | 追従 | 出口速度が種・自由振幅ゼロ | |
 | 11 | parallax-bob | 視差 | 共有 3 キー bob × 振幅ラダー（amp∝r 法則は棄却） | |

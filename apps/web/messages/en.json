@@ -1621,6 +1621,12 @@
           "summary": "A thick stroke's head and its dot sprint through most of a lap of an ∞ track in one burst, then crawl the rest. It looks like a two-gear lap, but you choose just 2 speed keys — one whip's worth; the crawl's speed follows automatically from the promise that one loop closes exactly 1 lap. The line never stretches: a fixed-length window slides along the track.",
           "metaDescription": "A motion study dissecting the drawer technique 'cycle'. The two-gear pacing of a dot lapping an ∞ track is one cubic-bezier whip plus the crawl left over by the promise of closing the lap — no gearbox anywhere. The stroke is a fixed-length dash window sliding on the path. The short function that computes the motion is in the article, replayed live in the browser."
         },
+        "coupled-shear-rotation": {
+          "eyebrow": "Split",
+          "title": "Dissecting a cracked circle that seems to move two ways",
+          "summary": "A disc cracks down the middle, the halves slide past each other while the whole pair turns, and it all seals back into one circle. It reads as two choreographies — rotation and slide — but only one progress number is animated. The perfect landing is geometry's job, not animation skill, and this article walks through the assembly that makes it so.",
+          "metaDescription": "A motion study dissecting the split drawer: the cracked circle's rotation and slide are both computed from a single progress number, and the seamless loop closes because a single-fill circle hides its own orientation. Skeleton code and the pin-down story included."
+        },
         "signal-stroke-relay": {
           "eyebrow": "Theatre / Cascade",
           "title": "The relay sensation cannot be built from separate animations — a Theatre.js timeline referenced by multiple layers with phase offsets",
@@ -3105,6 +3111,106 @@
               "type": "callout",
               "tone": "note",
               "text": "The source is one cell of PuttiMW's (@PuttiMW) drawer series — decomposed and rebuilt in a motion-research repo. The palette swaps the reference red/salmon for the fixed light palette. The texture on the demo above — grain and chromatic aberration — is composited live by the video-finishing package we are building in-house: everything from the easing solver to the grain randomness is our own code. Where `WebGPU` is unavailable, the demo falls back to plain `SVG` + `requestAnimationFrame` rendering."
+            }
+          ]
+        },
+        "coupled-shear-rotation": {
+          "sections": [
+            {
+              "type": "motion-demo",
+              "demo": "coupled-shear-rotation",
+              "caption": "A disc cracks down the middle, the halves slide past each other, turn a little, and seal back into one circle"
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "Crack, slide past, seal"
+            },
+            {
+              "type": "paragraph",
+              "text": "A perfectly round disc cracks straight down the middle. The two halves slide past each other in opposite directions, opening an S-shaped neck between them. From full separation they head back — but it is no plain rewind: the whole pair keeps turning slowly as it closes, and the motion ends as one resting circle again."
+            },
+            {
+              "type": "paragraph",
+              "text": "It reads like a rotation choreography and a slide choreography running side by side, but only one number on this screen owns keyframes: the progress u, walking from 0 to 2. Rotation and slide are both computed from u every frame. Even the flawless landing of the final circle is not animation skill but the shape's own doing — the trick comes later."
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "Set up two half-discs and one progress number"
+            },
+            {
+              "type": "list",
+              "items": [
+                "2 half-discs, made by cutting a round disc along a vertical line — drawing one takes just a center position, a radius `discRadius`, and the direction it bulges",
+                "the progress u — 0 is the rest before the crack, 1 is full separation, 2 is the resealed rest; its keyframes are the 3 placed in `uKeys`",
+                "2 numbers computed from u every frame — the group rotation angle (it keeps advancing in proportion to u) and the slide distance (out to `slideMax` and back)",
+                "a gap-prevention nudge `seamInset` — each half sinks slightly into its partner so the S-neck never tears open"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "Two functions are all it takes: `keyAt`, which interpolates between the keyframes you placed to get the current u, and `piecesAt`, which turns u into the two half-disc placements."
+            },
+            {
+              "type": "code",
+              "lang": "ts",
+              "text": "// Only one number is animated: the progress u — 0 at rest, 1 at full separation, 2 resealed.\n// Bare lowercase names (splitStart, slideMax) are numbers you pick for your own canvas —\n// what this article wants you to take home is the shape, not any value.\nconst openCurve = cubicBezier(...openHandles);   // pacing of the crack-apart beat — same standard as CSS cubic-bezier()\nconst closeCurve = cubicBezier(...closeHandles); // pacing of the seal-back beat\n\n// the keyframes placed on u: 0 → 1 → 2. Up to value 1 is the way out; up to 2 is the way home. Each keyframe's curve shapes the segment to the next keyframe\nconst uKeys = [\n  { frame: splitStart, value: 0, curve: openCurve },  // a whole circle at rest until here\n  { frame: apartPeak,  value: 1, curve: closeCurve }, // full separation — the turn is only halfway\n  { frame: sealEnd,    value: 2, curve: closeCurve }, // sealed — the rest is stillness\n];\n\n// fill between placed keyframes with curves — every motion in this article has this shape\nfunction keyAt(keys, frame) {\n  if (frame <= keys[0].frame) return keys[0].value;          // at or before the first key — hold the first value\n  if (frame > keys.at(-1).frame) return keys.at(-1).value;   // after the last key — hold the last value\n  const next = keys.findIndex((key) => frame <= key.frame);  // index of the key we are heading toward\n  const a = keys[next - 1], b = keys[next];                  // that key and the one before it bound the segment\n  const t = (frame - a.frame) / (b.frame - a.frame);         // progress inside the segment, 0–1\n  return a.value + (b.value - a.value) * a.curve(t);         // advance the gap along the curve\n}\n\n// frame number in, the two half-disc placements out (loops every loopFrames)\nfunction piecesAt(frame) {\n  const u = keyAt(uKeys, frame % loopFrames);\n  const turn = (turnPerLoop * u) / 2;             // rotation rides u — no easing of its own, and it never reverses\n  const slide = slideMax * (1 - Math.abs(1 - u)); // the slide is a hill — out, then back\n  const inset = Math.min(slide, seamInset);       // the nudge into the partner — caps out fast\n\n  // slide along the cut direction cutAngle (90 = vertical), nudge at a right angle to it\n  const cut = (cutAngle * Math.PI) / 180;\n  const alongX = Math.cos(cut);                   // direction along the cut\n  const alongY = Math.sin(cut);\n  const intoX = alongY;                           // direction half A sinks into its partner\n  const intoY = -alongX;\n\n  // build half A's offset, rotate it by the group turn, then add the center\n  const shiftX = intoX * inset - alongX * slide;\n  const shiftY = intoY * inset - alongY * slide;\n  const g = (turn * Math.PI) / 180;\n  const ax = centerX + Math.cos(g) * shiftX - Math.sin(g) * shiftY;\n  const ay = centerY + Math.sin(g) * shiftX + Math.cos(g) * shiftY;\n\n  // bulge direction = right angle to the cut + the group turn. Half B is A's point reflection\n  const bulgeA = cutAngle + 90 + turn;\n  return [\n    { x: ax, y: ay, r: discRadius, bulge: bulgeA },\n    { x: 2 * centerX - ax, y: 2 * centerY - ay, r: discRadius, bulge: bulgeA + 180 },\n  ];\n}"
+            },
+            {
+              "type": "paragraph",
+              "text": "`openCurve` and `closeCurve` follow the same standard as CSS `cubic-bezier()`, and the 4 numbers you put in `openHandles` go straight into npm's `bezier-easing`. Outside the keyframe range, `keyAt` returns the end values, so the stillness before the crack and after the seal costs nothing."
+            },
+            {
+              "type": "paragraph",
+              "text": "The heart is the first 3 lines of `piecesAt`. Rotation rides u with no easing of its own; the slide rides a hill (`1 - Math.abs(1 - u)`) — out, then back. Because both read the same u, the group is exactly halfway through its turn at the instant of full separation, when u reads exactly 1. The work of synchronizing two motions simply doesn't exist in the first place."
+            },
+            {
+              "type": "paragraph",
+              "text": "One drawing covers both halves. The arc's two endpoints sit a radius away from the piece's center, one to each side, at right angles to the bulge direction — the flat edge joining them is the cut. Connect the 2 points with a half-circle arc that bows out on the bulge side; in `SVG` that is a `path` with a single arc command, with the sweep chosen so the arc bows toward the bulge."
+            },
+            {
+              "type": "paragraph",
+              "text": "For the bulge direction, use the value `piecesAt` returns each frame — the group turn is already folded into it. Half B is half A's point reflection (exactly opposite across the center), so the last line of `piecesAt` flips the coordinates about the center and adds a half turn to the bulge."
+            },
+            {
+              "type": "paragraph",
+              "text": "The nudge line quietly earns its keep. Mid-slide, each half sinks `seamInset` into its partner, so the S-neck never opens a hair-thin gap. `Math.min` caps it, and at rest it reads zero — the circle's shape stays untouched."
+            },
+            {
+              "type": "paragraph",
+              "text": "Drive it with `requestAnimationFrame`: multiply the elapsed seconds by your frames-per-second to get `frame`, take the remainder against `loopFrames`, and it loops. Here the single fill does the closing work. The loop ends with the pair turned a right angle — the cut now horizontal instead of vertical — but a circle painted in one color carries no orientation, so the last frame is indistinguishable from the first and the seam disappears."
+            },
+            {
+              "type": "paragraph",
+              "text": "Flip that around: paint the halves in 2 colors and the loop hard-cuts at the seam as the color layout jumps — the single fill is a structural requirement, not a styling choice. The shape need not be a circle either. In the research repo's generality demo, a square cut by a horizontal line and making a half turn ran on the same `piecesAt` untouched. Any shape whose turned pose is indistinguishable from where it started will do."
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "Why one number reads as two motions"
+            },
+            {
+              "type": "paragraph",
+              "text": "Your eye splits “turning while separating” into two intentions. But measurement says the rotation's progress and the slide's progress travel in lockstep across the whole loop — shifting one by a sliver of time multiplied the disagreement several times over. Two separate choreographies have no reason to agree that tightly. Two readings of one number cannot disagree at all."
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "The crack's midpoint took two different roads"
+            },
+            {
+              "type": "paragraph",
+              "text": "The first hypothesis was a rotation about some fixed point. Tracking the midpoint of the crack across every frame produced a ring-shaped orbit whose outbound and return legs take different roads — and that killed the hypothesis, because circular motion about any fixed point puts both legs on the same circle. A blend of 2 rotations fared no better: the leftover error kept a clear pattern over time instead of dissolving into noise."
+            },
+            {
+              "type": "paragraph",
+              "text": "The decider was subtraction. With the group rotation peeled off, the leftover slide track strayed from a straight line by no more than the measurement's own reading noise — the slip really is straight. The always-on nudge theory died too: it predicts a resting circle slightly thinner than it is tall, and the resting silhouette measures exactly the same both ways. What remains is the assembly above."
+            },
+            {
+              "type": "callout",
+              "tone": "note",
+              "text": "The source is one cell of PuttiMW's (@PuttiMW) drawer series — decomposed and rebuilt in a motion-research repo. The palette swaps the reference red for the fixed light palette. The texture on the demo above — grain and chromatic aberration — is composited live by the video-finishing package we are building in-house: everything from the easing solver to the grain randomness is our own code. Where `WebGPU` is unavailable, the demo falls back to plain `SVG` + `requestAnimationFrame` rendering."
             }
           ]
         },
