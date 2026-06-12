@@ -64,11 +64,22 @@ const JA_BANNED_JARGON = [
   // the 純関数 boilerplate had survived in every summary/metaDescription and
   // 6 code comments even after the body purge. SNS 版/クリップ系の内輪参照ごと禁止。
   "純関数", "SNS 版クリップ",
+  // 2026-06-12 fourth sweep (user: 「キーの表って表現意味不明」→「そもそもキーフレームの
+  // 表ってなんですか？」 — the invented table-noun for keyframe arrays was rejected twice).
+  // AE vocabulary only: キーフレームを打つ / あいだは補間。Arrays are named by their
+  // backtick chip (uKeys), never as a 表/行.
+  "キーの表", "キーフレームの表", "Keys` の表", "keyAt` の表", "表 2 枚",
+  // generic chip-suffixed form (`restAngles` の表 etc.) — caught a master-rotation-echo
+  // leftover the literal list above missed. 順番表/この表 (fireOrder anaphora) stay legal.
+  "` の表",
 ];
 const JA_WARN_JARGON = ["腕", "位相", "写像", "同型", "ひと粒ぶん", "初期値", "余り", "踊り場", "駆動"];
 const EN_BANNED_JARGON = ["family", "envelope", "onset", "deterministic", "emergent",
   // 2026-06-11 third sweep — mirrors ja 純関数 boilerplate purge.
-  "pure function"];
+  "pure function",
+  // 2026-06-12 fourth sweep — mirrors ja table-noun rejection (keyframes are
+  // placed and interpolated; the array is its chip name, never a table/rows).
+  "key table", "keyframe table"];
 const JA_AUDIOTEST = [
   "という形", "という話", "ということです", "大事なのは",
   "位置づけ", "することができ", "と言えるで",
