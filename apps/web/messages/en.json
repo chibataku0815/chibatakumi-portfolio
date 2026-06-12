@@ -3195,19 +3195,6 @@
               "text": "Your eye splits “turning while separating” into two intentions. But measurement says the rotation's progress and the slide's progress travel in lockstep across the whole loop — shifting one by a sliver of time multiplied the disagreement several times over. Two separate choreographies have no reason to agree that tightly. Two readings of one number cannot disagree at all."
             },
             {
-              "type": "heading",
-              "level": 2,
-              "text": "The crack's midpoint took two different roads"
-            },
-            {
-              "type": "paragraph",
-              "text": "The first hypothesis was a rotation about some fixed point. Tracking the midpoint of the crack across every frame produced a ring-shaped orbit whose outbound and return legs take different roads — and that killed the hypothesis, because circular motion about any fixed point puts both legs on the same circle. A blend of 2 rotations fared no better: the leftover error kept a clear pattern over time instead of dissolving into noise."
-            },
-            {
-              "type": "paragraph",
-              "text": "The decider was subtraction. With the group rotation peeled off, the leftover slide track strayed from a straight line by no more than the measurement's own reading noise — the slip really is straight. The always-on nudge theory died too: it predicts a resting circle slightly thinner than it is tall, and the resting silhouette measures exactly the same both ways. What remains is the assembly above."
-            },
-            {
               "type": "callout",
               "tone": "note",
               "text": "The source is one cell of PuttiMW's (@PuttiMW) drawer series — decomposed and rebuilt in a motion-research repo. The palette swaps the reference red for the fixed light palette. The texture on the demo above — grain and chromatic aberration — is composited live by the video-finishing package we are building in-house: everything from the easing solver to the grain randomness is our own code. Where `WebGPU` is unavailable, the demo falls back to plain `SVG` + `requestAnimationFrame` rendering."
