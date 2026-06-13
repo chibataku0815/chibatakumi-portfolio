@@ -1658,6 +1658,12 @@
           "title": "動きが止まったあとの「余韻」を5–10%の不透明度で仕込む — VFXに倒れない残響の設計",
           "summary": "動きが止まった瞬間に画面はまだ動いていた、という主観的体験を仕組みとして書く。直前のNフレームを buffer として持ち、指数減衰させながらシェーダー出力に5–10%だけ寄与させる。これを20%にした瞬間に編集物が VFX に化けて、主役のモーションから注意が浮く。echo は内部値としては保持するが、見せる量で抑える、という編集判断。",
           "metaDescription": "動きが止まったあとの「余韻」を、見えるゴーストではなくシェーダー出力への5–10%混合として実装する残響設計の motion study。VFX に倒さないための量の制約も含めて書く。"
+        },
+        "velocity-seeded-overshoot": {
+          "eyebrow": "追従",
+          "title": "重さがあるように振れる i の解剖",
+          "summary": "i の形をした図形が右から左へ振れる。茎が先に動き、点はひと呼吸おいて追いかけ、止まる場所を少し行き過ぎてから落ち着く。この遅れも、しなりも、行き過ぎも、どこにも数で書いていない。あるのは片道の振り 1 本と、最後のキーを振り抜く速さがそのまま決める揺れだけ。骨格コードつきで組み立ての考え方から歩く。",
+          "metaDescription": "追従の正体を解剖する motion study。文字の遅れ・しなり・行き過ぎは振り付けたものではなく、片道の振り 1 本と、最後のキーを振り抜く速さがそのまま大きさを決める揺れから出る。骨格コードつき。"
         }
       }
     },
@@ -3464,6 +3470,87 @@
             {
               "type": "paragraph",
               "text": "セクション間のトランジション、scrolljack の終端、Filmtone のスライダーを離した直後の反応など。明示的な VFX ではなく、操作の手触りを下支えする層として効く。"
+            }
+          ]
+        },
+        "velocity-seeded-overshoot": {
+          "sections": [
+            {
+              "type": "motion-demo",
+              "demo": "velocity-seeded-overshoot",
+              "caption": "右から左へ振れる i — 点が茎より遅れて出発し、止まる場所を少し行き過ぎてから落ち着く"
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "振れて、遅れて、行き過ぎる"
+            },
+            {
+              "type": "paragraph",
+              "text": "i の形をした図形が、右から左へ振れている。まず茎が動きはじめ、点はひと呼吸おいてから追いかける。茎は動いているあいだだけ少ししなって、止まると真っ直ぐにもどる。いちばん目を引くのは点で、止まる場所をいったん通り越して外へふくらみ、それから定位置に落ち着く。左で少し待って、また右へ。これをくり返す。"
+            },
+            {
+              "type": "paragraph",
+              "text": "この遅れも、しなりも、行き過ぎも、どこにも数で書いていない。行き過ぎの大きさを決めるつまみは無く、点がどれだけ勢いよく止まりにいったかが、そのまま跳ね返りの大きさになる。遅れは 3 本の動きの出発をずらしただけ、しなりは茎の上と下がほんの少し違う位置にいるだけ。振り付けたのは片道の振り 1 本で、あとはそこから出てくる。"
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "片道の振り 1 本に、勢いで出る揺れを足す"
+            },
+            {
+              "type": "list",
+              "items": [
+                "片道の振り — `keyedLeg` が片道ぶんのキー移動を返す(最初のキーが出発点、最後が到着点、あいだは緩急で補間)",
+                "勢いで出る揺れ — 最後のキーを振り抜く速さ `exitSpeed` が、行って戻る揺れの大きさをそのまま決める(揺れ幅を別に決める数は無い)",
+                "片道で 1 周を閉じる — 後半は前半の左右反転なので author するのは片道だけ、`channelAt` がここまでをまとめる",
+                "3 本のチャンネル — 茎の上 `topMove`・茎の下 `botMove`・点 `dotMove` がそれぞれ x を動かし、`glyphAt` が茎と点に組む"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "主役は 2 つの関数 `channelAt` と `glyphAt` だ。`channelAt` は 1 本のチャンネルの位置を返し、`glyphAt` がそれを 3 本ぶん呼んで茎の両端と点に組む。脇に小さな助けがいくつか付く — 片道のキー移動を返す `keyedLeg`、振り抜く速さを出す `exitSpeed`、フレーム番号を 0〜loopFrames に巻き戻す `wrap` だ。"
+            },
+            {
+              "type": "code",
+              "lang": "ts",
+              "text": "// 動かしているのはキー移動 1 本と、その勢いで出る揺れ。残りは全部その読み替え。\n// 小文字ではじまる裸の名前(loopFrames や settleRate)は、自分の画面に合わせて決める数 —\n// この記事が持ち帰ってほしいのは値ではなく、この「形」だ。\n\nconst wrap = (value, span) => ((value % span) + span) % span;\n\nconst exitSpeed = (move) => {\n  const keys = move.keys;\n  const last = keys[keys.length - 1];\n  const prev = keys[keys.length - 2];\n  const [, , handleX, handleY] = move.eases[move.eases.length - 1]; // 最終区間の緩急を決める数\n  const slope = (1 - handleY) / (1 - handleX); // キーを離れる瞬間の傾き\n  return (slope * (last.x - prev.x)) / (last.t - prev.t);\n};\n\nconst keyedLeg = (tau, move) => { // 片道のキー移動。時刻 tau がどの区間にいるかを探し、その区間の緩急で位置を返す\n  const keys = move.keys;\n  if (tau < keys[0].t) return keys[0].x; // 動きはじめる前 — 出発点で待つ\n  const seg = keys.findIndex((k, i) => i > 0 && tau < k.t); // tau を追い越す最初のキー\n  if (seg < 0) return keys[keys.length - 1].x; // 動き終わったあと — 到着点で待つ\n  const from = keys[seg - 1];\n  const to = keys[seg];\n  const ease = cubicBezier(...move.eases[seg - 1]);\n  return from.x + (to.x - from.x) * ease((tau - from.t) / (to.t - from.t));\n};\n\nfunction channelAt(frame, move) { // 1 本のチャンネルの位置: 片道の振り + 振り抜く速さで出る揺れ。loopFrames ごとに繰り返す\n  const half = loopFrames / 2;\n  const t = wrap(frame, loopFrames);\n  const restA = move.keys[0].x;\n  const restB = move.keys[move.keys.length - 1].x;\n  const endTime = move.keys[move.keys.length - 1].t;\n  const keyed = t < half ? keyedLeg(t, move) : restA + restB - keyedLeg(t - half, move); // 後半は前半を左右反転して再生 — 片道だけ author すれば 1 周が閉じる\n  const speed = exitSpeed(move);\n  // 揺れ: 行って戻るサインがだんだん小さくなりながら収まる。大きさは振り抜く速さで決まる\n  // 両端の到着ぶんを足す(後半は符号を反転)。1 周ぶん前まで読んで前周の残りも拾う\n  const arrivals = [[endTime, 1], [endTime + half, -1]];\n  return arrivals.flatMap(([arrival, sign]) =>\n    [0, 1].map((lap) => {\n      const d = wrap(t - arrival, loopFrames) + lap * loopFrames;\n      return sign * ((speed * Math.exp(-move.settleDecay * d) * Math.sin(move.settleRate * d)) / move.settleRate);\n    })\n  ).reduce((sum, ring) => sum + ring, keyed);\n}\n\nfunction glyphAt(frame) { // フレーム番号を渡すと、茎の両端と点の置き場所を返す。3 本のチャンネルがそれぞれ x を動かす\n  return {\n    stemTop: { x: channelAt(frame, topMove), y: capTopY },\n    stemBot: { x: channelAt(frame, botMove), y: capBotY },\n    stemWidth,\n    dot: { cx: channelAt(frame, dotMove), cy: dotCy, r: dotRadius },\n  };\n}"
+            },
+            {
+              "type": "paragraph",
+              "text": "緩急は区間ごとに 1 つずつ持つ。`keyedLeg` は時刻がどのキーの区間にいるかを `findIndex` で探し、その区間の数で `cubicBezier` を作って補間する。これは CSS の `cubic-bezier()` に渡す 4 つの数とまったく同じで、npm の bezier-easing がそのまま使える。出発点より前の時刻では出発点に、到着点を過ぎた時刻では到着点に、静かに留まる。"
+            },
+            {
+              "type": "paragraph",
+              "text": "`channelAt` は片道の振りを 1 回 author するだけで 1 周を閉じる。ループの前半は片道をそのまま、後半は前半を左右反転して再生する(`restA` と `restB` を足して片道を引く)。だから右から左へ振って、左でひと息ついて、また右へ、という 1 周ぶんの動きが、半分の手間で出る。"
+            },
+            {
+              "type": "paragraph",
+              "text": "この動きの芯は揺れの作り方だ。`exitSpeed` は、最後のキーを離れる瞬間の傾き(緩急の数から出る)に、そのキーで動いた距離と時間を掛けて、振り抜く速さを出す。その速さを行って戻るサインに掛けると、揺れはだんだん小さくなりながら止まりにいく — 揺れ幅を決めるつまみはどこにも無い。だから勢いよく止まりにいった点は大きく跳ね、そっと止まった茎の下はほとんど跳ねない。同じ 1 つの仕組みから、跳ねの大小が自然に分かれる。"
+            },
+            {
+              "type": "paragraph",
+              "text": "`glyphAt` は `channelAt` を 3 回呼ぶ。茎の上 `topMove`・茎の下 `botMove`・点 `dotMove` が、それぞれ別のキーと別の揺れの収まり方を持つ。遅れは、点の動きが他より遅れて出発するだけで出る — 別に「遅らせる」コードは無い。しなりも、茎の上と下が動いているあいだだけ少し違う x にいるだけで、曲がった芯を持っているわけではない。止まればどちらも同じ位置にそろい、棒は真っ直ぐにもどる。"
+            },
+            {
+              "type": "paragraph",
+              "text": "描くほうは、茎を丸キャップの太い線、点を円にするだけだ。`SVG` でも `canvas` でもいい。色は 1 つ、`stemWidth` は線の太さ、点の白い目は元の文字の飾りなのでここでは描かない。届かないのは揺れの分け方で、3 本のチャンネルは収まり方 `settleDecay` と `settleRate` もそれぞれ別の数を持つ。1 組にまとめて共有すると、茎の上の端だけ揺れが足りなくなる。"
+            },
+            {
+              "type": "paragraph",
+              "text": "動かすときは `requestAnimationFrame` で経過秒に毎秒のコマ数を掛けて `frame` を作る。継ぎ目が見えないのは、ちょうど片道ぶんで 1 周が閉じるからだ。後半は前半の左右反転なので、片道を 1 回往復した時点で元の絵にぴったり重なる。振りはじめの右端と振り終わりの右端が同じ姿勢になり、点も茎も同じ位置にそろう。"
+            },
+            {
+              "type": "paragraph",
+              "text": "自分の数で組むときは、まず 3 本のキーの出発をずらす — 点をいちばん遅く出すと、いちばん大きく跳ねて尾を引く。終わりのキーはほぼ同じ時刻にそろえると、ばらけずに 1 つの動きに見える。揺れの `settleDecay` を大きくすると早く収まり、`settleRate` を変えると跳ねの細かさが変わる。`cubicBezier` の数を急にするほど、振り抜く速さが増えて跳ねも大きくなる。"
+            },
+            {
+              "type": "paragraph",
+              "text": "`channelAt` が返すのはただの位置の数だから、文字でなくても動かせる。研究リポの汎用デモでは、縦に並べた 4 本のチャンネルを別のキー・別の揺れで走らせ、同じ仕組みで鎖のように後ろが追いかけた — 遅く出して勢いよく止まるものほど大きく跳ねる、という同じ流れがそのまま出た。揺れ幅をひとつも書いていないのに、跳ねの大小が勝手にそろう。"
+            },
+            {
+              "type": "callout",
+              "text": "原典はプッティさん（@PuttiMW）の「モーションの引き出し」の 1 セル — 研究リポで分解・再構築したもの。色は参照の赤ではなく固定ライトパレットで、点の白い目は描いていない。上のデモの質感 — 粒状（grain）と色収差 — は、自分たちで開発している映像仕上げ用パッケージでライブ合成していて、イージングのソルバーから粒の乱数まで自作だ。`WebGPU` が使えない環境では `SVG` + `requestAnimationFrame` 描画に切り替わる。"
             }
           ]
         }

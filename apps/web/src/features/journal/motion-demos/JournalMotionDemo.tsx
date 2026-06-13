@@ -17,6 +17,7 @@ import { MasterRotationEchoFinishDemo } from "./MasterRotationEchoFinishDemo";
 import { PulseGridFinishDemo } from "./PulseGridFinishDemo";
 import { SharedHoldPulseFinishDemo } from "./SharedHoldPulseFinishDemo";
 import { TangencyCoupledDriveFinishDemo } from "./TangencyCoupledDriveFinishDemo";
+import { VelocitySeededOvershootFinishDemo } from "./VelocitySeededOvershootFinishDemo";
 import { WhipCrawlPathCycleFinishDemo } from "./WhipCrawlPathCycleFinishDemo";
 
 const DEMO_REGISTRY: Record<string, () => React.ReactElement> = {
@@ -32,6 +33,7 @@ const DEMO_REGISTRY: Record<string, () => React.ReactElement> = {
   "whip-crawl-path-cycle": WhipCrawlPathCycleFinishDemo,
   "coupled-shear-rotation": CoupledShearRotationFinishDemo,
   "gather-return": GatherReturnFinishDemo,
+  "velocity-seeded-overshoot": VelocitySeededOvershootFinishDemo,
 };
 
 interface JournalMotionDemoProps {

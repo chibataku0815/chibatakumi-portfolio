@@ -1656,6 +1656,12 @@
           "title": "Keeping a stopped motion's echo alive at 5–10% opacity — designing residue without collapsing into VFX",
           "summary": "We write the subjective feeling of \"the screen has stopped, but something is still moving\" as a mechanism. The last N frames are held in a buffer and decay exponentially, contributing 5–10% to the shader output. Push it to 20% and the editorial frame collapses into VFX, drawing attention away from the lead motion. Hold the echo internally; restrain how much of it is visible.",
           "metaDescription": "A motion study on designing residue — keeping the echo of a stopped motion alive in the shader output at 5–10% mix, with a hard cap to prevent collapse into VFX."
+        },
+        "velocity-seeded-overshoot": {
+          "eyebrow": "Follow-through",
+          "title": "Dissecting an i that swings like it has weight",
+          "summary": "A shape built like the letter i swings from right to left: the stem moves first, the dot follows a breath later and overshoots its resting spot before settling. None of it — the lag, the lean, the overshoot — is written as a number. All that exists is one one-way swing and a wobble whose size is set entirely by how fast the move leaves its last key. Skeleton code included — the article builds up from the assembly idea.",
+          "metaDescription": "A motion study dissecting the follow-through drawer: the letter's lag, lean and overshoot are not choreographed but fall out of one one-way swing plus a wobble whose size is set by how fast the move leaves its last key. Skeleton code included."
         }
       }
     },
@@ -3462,6 +3468,87 @@
             {
               "type": "paragraph",
               "text": "Section transitions, the trailing edge of scrolljack, the response after a Filmtone slider release. Not as VFX — as an underlayer that supports the feel of input."
+            }
+          ]
+        },
+        "velocity-seeded-overshoot": {
+          "sections": [
+            {
+              "type": "motion-demo",
+              "demo": "velocity-seeded-overshoot",
+              "caption": "An i swinging right to left — the dot leaves later than the stem and overshoots its resting spot before settling"
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "Swing, lag, overshoot"
+            },
+            {
+              "type": "paragraph",
+              "text": "A shape built like the letter i swings from right to left. The stem moves off first; the dot follows a breath later. While it travels the stem leans like a banana, then straightens once it stops. The eye goes to the dot: it sails past where it should land, bulges outward, then settles into place. A short wait on the left, and back to the right. Over and over."
+            },
+            {
+              "type": "paragraph",
+              "text": "None of it — the lag, the lean, the overshoot — is written as a number anywhere. There is no knob for how far it overshoots; how hard the dot drove into its stop is what becomes the size of the bounce. The lag is just the three moves starting at staggered times; the lean is just the top and bottom of the stem sitting at slightly different spots. One one-way swing is authored; everything else falls out of it."
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "One swing, plus a wobble the speed creates"
+            },
+            {
+              "type": "list",
+              "items": [
+                "The one-way swing — `keyedLeg` returns one leg of the keyed move: the first key is the start, the last key the arrival, and the easing interpolates between them",
+                "The wobble the speed creates — the speed of leaving the last key `exitSpeed` sets the size of the back-and-forth wobble directly (there is no separate number for how big the wobble is)",
+                "Closing the loop with one leg — the second half replays the first mirrored left-to-right, so you author only one leg; `channelAt` ties this together",
+                "Three channels — the stem top `topMove`, stem bottom `botMove`, and dot `dotMove` each drive an x, and `glyphAt` assembles them into the stem and the dot"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "Two functions carry it — `channelAt` and `glyphAt`. `channelAt` returns one channel's position, and `glyphAt` calls it three times to build the stem's two ends and the dot. A few small helpers sit alongside: `keyedLeg`, which returns one leg of the keyed move; `exitSpeed`, which reads the leaving speed; and `wrap`, which folds a frame number back into 0〜loopFrames."
+            },
+            {
+              "type": "code",
+              "lang": "ts",
+              "text": "// The motor is one keyed swing plus a wobble its own speed creates — everything else is a re-read.\n// Bare lowercase names (loopFrames, settleRate...) are numbers you pick for your own canvas —\n// what this article wants you to take home is the shape, not the values.\n\nconst wrap = (value, span) => ((value % span) + span) % span;\n\nconst exitSpeed = (move) => {\n  const keys = move.keys;\n  const last = keys[keys.length - 1];\n  const prev = keys[keys.length - 2];\n  const [, , handleX, handleY] = move.eases[move.eases.length - 1]; // the last segment's easing handles\n  const slope = (1 - handleY) / (1 - handleX); // the slope at the instant it leaves the key\n  return (slope * (last.x - prev.x)) / (last.t - prev.t);\n};\n\nconst keyedLeg = (tau, move) => { // one leg of the keyed move: find which segment the time tau sits in, ease across it\n  const keys = move.keys;\n  if (tau < keys[0].t) return keys[0].x; // before the move starts — rest at the start\n  const seg = keys.findIndex((k, i) => i > 0 && tau < k.t); // the first key past tau\n  if (seg < 0) return keys[keys.length - 1].x; // after the move ends — rest at the arrival\n  const from = keys[seg - 1];\n  const to = keys[seg];\n  const ease = cubicBezier(...move.eases[seg - 1]);\n  return from.x + (to.x - from.x) * ease((tau - from.t) / (to.t - from.t));\n};\n\nfunction channelAt(frame, move) { // one channel's position: the one-way swing + the speed-seeded wobble. Repeats every loopFrames\n  const half = loopFrames / 2;\n  const t = wrap(frame, loopFrames);\n  const restA = move.keys[0].x;\n  const restB = move.keys[move.keys.length - 1].x;\n  const endTime = move.keys[move.keys.length - 1].t;\n  const keyed = t < half ? keyedLeg(t, move) : restA + restB - keyedLeg(t - half, move); // second half = first half mirrored — author one leg and the lap closes\n  const speed = exitSpeed(move);\n  // wobble: a back-and-forth sine shrinking to rest; its size set by the leaving speed\n  // sum both ends' arrivals (mirror flips the sign), reading one lap back for the leftover\n  const arrivals = [[endTime, 1], [endTime + half, -1]];\n  return arrivals.flatMap(([arrival, sign]) =>\n    [0, 1].map((lap) => {\n      const d = wrap(t - arrival, loopFrames) + lap * loopFrames;\n      return sign * ((speed * Math.exp(-move.settleDecay * d) * Math.sin(move.settleRate * d)) / move.settleRate);\n    })\n  ).reduce((sum, ring) => sum + ring, keyed);\n}\n\nfunction glyphAt(frame) { // give a frame number, get the stem's two ends and the dot. Three channels each drive an x\n  return {\n    stemTop: { x: channelAt(frame, topMove), y: capTopY },\n    stemBot: { x: channelAt(frame, botMove), y: capBotY },\n    stemWidth,\n    dot: { cx: channelAt(frame, dotMove), cy: dotCy, r: dotRadius },\n  };\n}"
+            },
+            {
+              "type": "paragraph",
+              "text": "Each segment carries its own easing. `keyedLeg` uses `findIndex` to find which key's segment the time sits in, then builds a `cubicBezier` from that segment's numbers and interpolates. These are exactly the four numbers you hand CSS `cubic-bezier()` — npm's bezier-easing drops straight in — so pick the shape in whatever tool you like. Before the start time it rests at the start; past the arrival it rests at the arrival."
+            },
+            {
+              "type": "paragraph",
+              "text": "`channelAt` authors the one-way swing once and closes the whole loop. The first half of the loop plays the leg straight; the second half replays it mirrored left-to-right (`restA` plus `restB`, minus the leg). So the full lap — swing right to left, a beat on the left, back to the right — comes out for half the work."
+            },
+            {
+              "type": "paragraph",
+              "text": "The wobble is the heart of this motion. `exitSpeed` takes the slope at the instant the move leaves its last key (it comes out of the handles), times the distance and time of that key, to get the leaving speed. Multiply that speed into a back-and-forth sine and the wobble shrinks as it goes and comes to rest — with no knob anywhere for how big the wobble is. So the dot, which drove hard into its stop, bounces a lot; the bottom of the stem, which eased in gently, barely bounces. The same one mechanism splits the big and small bounces apart by itself."
+            },
+            {
+              "type": "paragraph",
+              "text": "`glyphAt` calls `channelAt` three times. The stem top `topMove`, stem bottom `botMove`, and dot `dotMove` each carry their own keys and their own wobble. The lag appears because the dot's move starts later than the others — there is no separate \"delay\" code. The lean appears because the top and bottom of the stem sit at slightly different x only while moving; there is no curved spine. Stop, and both line up at the same spot, and the bar is straight again."
+            },
+            {
+              "type": "paragraph",
+              "text": "Drawing is just the stem as a thick round-capped line and the dot as a circle, in `SVG` or `canvas`. One color; `stemWidth` is the line thickness; the two white eyes are a decoration on the original letter, so they are not drawn here. What this can't quite reach is how the wobble splits: the three channels each carry their own settle `settleDecay` and `settleRate`, and sharing one set across all of them leaves the top end of the stem short on wobble."
+            },
+            {
+              "type": "paragraph",
+              "text": "To run it, build `frame` with `requestAnimationFrame`, multiplying the elapsed seconds by your frames per second. The seam stays invisible because exactly one leg closes the lap: the second half is the mirror of the first, so after one round trip the picture lands back on itself. The right end at the start of the swing and the right end at the finish hold the same pose, and dot and stem line up."
+            },
+            {
+              "type": "paragraph",
+              "text": "Building it with your own numbers, stagger the three keys' starts first — let the dot leave last and it bounces the most and trails the longest. Bring the end keys to nearly the same time so they read as one move, not a scatter. Raise a channel's `settleDecay` and the wobble settles sooner; change `settleRate` and the bounce gets finer or coarser. The steeper the `cubicBezier` handles, the faster the leaving speed, and the bigger the bounce."
+            },
+            {
+              "type": "paragraph",
+              "text": "`channelAt` returns a plain position number, so it can move things that aren't letters. The research repo's generality demo ran four channels stacked vertically on different keys and different wobbles, and the same mechanism made them follow each other like a chain — the same rule held: the later it leaves and the harder it stops, the bigger it bounces. Without a single wobble size written down, the big and small bounces line up on their own."
+            },
+            {
+              "type": "callout",
+              "text": "The source is one cell of PuttiMW's (@PuttiMW) drawer series — decomposed and rebuilt in a motion-research repo. The palette swaps the reference red for the fixed light palette, and the dot's white eyes are left undrawn. The texture on the demo above — grain and chromatic aberration — is composited live by the video-finishing package we are building in-house: everything from the easing solver to the grain randomness is our own code. Where `WebGPU` is unavailable, the demo falls back to plain `SVG` + `requestAnimationFrame` rendering."
             }
           ]
         }
