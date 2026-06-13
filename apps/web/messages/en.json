@@ -1678,7 +1678,7 @@
         "offset-stagger-conveyor": {
           "eyebrow": "Offset",
           "title": "How to build offset",
-          "summary": "Five circles slide left, and a wave of sizes seems to travel right to left. But you don't animate them one by one — you take one move and layer it, each copy delayed by a little. That stagger is what “offset” is. Skeleton code included; we walk it from the build up.",
+          "summary": "Five circles slide left, and a wave of sizes seems to travel right to left. But you don't animate them one by one — you take one move and layer it, each copy delayed by a little. That stagger is what “offset” is. Skeleton code included — the article builds up from the assembly idea.",
           "metaDescription": "A motion study that unpacks offset: five circles slide left and a wave of sizes seems to travel right to left, but they aren't animated one by one. You take one move and layer it, each copy delayed a little — that stagger is “offset”. Skeleton code included."
         }
       }
