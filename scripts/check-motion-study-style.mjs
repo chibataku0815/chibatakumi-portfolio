@@ -218,7 +218,15 @@ const checkSlug = (slug) => {
   if (jaTypes !== enTypes) errors.push(`block type order differs\n    ja: ${jaTypes}\n    en: ${enTypes}`);
   if (jaS[0]?.type !== "motion-demo") errors.push("section[0] must be motion-demo (まず見せる)");
   if (jaS[jaS.length - 1]?.type !== "callout") errors.push("last section must be callout (帰属+finish)");
-  if (jaS.length < 8) warns.push(`only ${jaS.length} blocks — 雛形 5 セクション + demo + callout を確認`);
+  // 第 8 次 (2026-06-13): デモ → 組み立て → callout の 3 ブロック型。組み立て H2 は
+  // 1 本だけ。観察段落をデモ直後に挟まない (section[1] は heading)・なぜ成立/どうやって
+  // 突き止めた の独立節を作らない (heading が 2 本以上なら違反)。style doc §3 / §5。
+  const headingCount = jaS.filter((b) => b.type === "heading").length;
+  if (headingCount !== 1)
+    errors.push(`heading が ${headingCount} 本 — 組み立て H2 は 1 本のみ (観察/なぜ成立/どうやって突き止めた の独立節は廃止・第 8 次 §3)`);
+  if (jaS[1]?.type !== "heading")
+    errors.push("section[1] は heading (デモ直後に組み立て H2 — 観察段落を挟まない・第 8 次 §3)");
+  if (jaS.length < 6) warns.push(`only ${jaS.length} blocks — demo + 組み立て (heading/list/code/段落) + callout を確認`);
 
   const jaBody = texts(jaS).join("\n");
   const enBody = texts(enS).join("\n");

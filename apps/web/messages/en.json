@@ -2454,23 +2454,6 @@
             {
               "type": "heading",
               "level": 2,
-              "text": "Count the dots"
-            },
-            {
-              "type": "paragraph",
-              "text": "Watch the loop above and count. It starts at 6. As the lattice opens, one dot appears at the center — 7. Six more join along the outer edge — 13. An inner ring of six completes the bloom — 19. On the close the inner ring fades first, then the center and the edge together, back to 6."
-            },
-            {
-              "type": "paragraph",
-              "text": "All 19 dots exist from the first frame, and not a single one is ever created. Each dot just raises its `scale` on its own cue, and the cues land in order — center, then edge, then inner ring — a few frames apart. That stagger is the whole reason the count seems to grow. Which frame each dot stands up on lives in `grow`, the keyframes placed on each row of the `dots` blueprint."
-            },
-            {
-              "type": "paragraph",
-              "text": "The disappearing side is keyed the same way — the inner ring first, then the center and the edge together, shrinking away on the last segment of their `grow` keyframes."
-            },
-            {
-              "type": "heading",
-              "level": 2,
               "text": "Set up the lattice and the breath"
             },
             {
@@ -2509,7 +2492,7 @@
             },
             {
               "type": "paragraph",
-              "text": "`dots` is the 19-row blueprint. Each row carries a role, an angle, a distance, and `grow` — the keyframes placed for appearing and leaving. The 6 base dots carry no `grow` and simply stand."
+              "text": "`dots` is the 19-row blueprint. All 19 dots exist from the first frame and not a single one is ever created — each dot just raises its `scale` on its own cue, and the cues land in order (center, then edge, then inner ring) a few frames apart, so the count only seems to grow. Each row carries a role, an angle, a distance, and `grow` — the keyframes placed for appearing and leaving — and the 6 base dots carry no `grow` and simply stand."
             },
             {
               "type": "paragraph",
@@ -2521,33 +2504,15 @@
             },
             {
               "type": "paragraph",
-              "text": "Drive it with `requestAnimationFrame`: multiply the elapsed seconds by your frames-per-second, take the remainder against the loop length, and hand the frame number to `latticeAt` — you get the same loop as the demo above."
+              "text": "Drive it with `requestAnimationFrame`: multiply the elapsed seconds by your frames-per-second, take the remainder against the loop length, and hand the frame number to `latticeAt` — you get the same loop as the demo above. The seam stays invisible thanks to the per-loop rotation `spinPerLoop`: a hexagonal lattice returns to its own pose every vertex step, so picking `spinPerLoop` as a multiple of that step lands the last frame exactly on the first."
             },
             {
               "type": "paragraph",
-              "text": "Only the six edge dots carry one more independent motion — a radius round trip that slides on its own frame ranges, separate from the breath. Both the destinations and the ranges are yours to place as keyframes in `railKeys` in the code above. The build started from the idea that every dot moves by one shared rule, but checking the numbers against the original video showed the edge dots alone didn't fit. Instead of forcing them under the shared rule, they keep their own keys."
+              "text": "Only the six edge dots carry one more independent motion — a radius round trip that slides on its own frame ranges, separate from the breath. Both the destinations and the ranges are yours to place as keyframes in `railKeys` in the code above."
             },
             {
               "type": "paragraph",
               "text": "Rewrite the `dots` blueprint and the lattice becomes a different picture. Square up the layout and the count still seems to grow, as long as the cue stagger survives; let the breath drive opacity instead of the radius and the same skeleton wears a different face."
-            },
-            {
-              "type": "heading",
-              "level": 2,
-              "text": "Why the loop seam disappears"
-            },
-            {
-              "type": "paragraph",
-              "text": "What makes it work is the per-loop rotation amount — `spinPerLoop` in the code. A hexagonal lattice returns to the same pose whenever it turns by one vertex step. Pick `spinPerLoop` as an exact multiple of that step and the landing is indistinguishable from the initial layout — the last frame coincides with the first and the loop seam disappears."
-            },
-            {
-              "type": "heading",
-              "level": 2,
-              "text": "Overshoot, then settle"
-            },
-            {
-              "type": "paragraph",
-              "text": "The center and the inner ring appear with character: their `grow` keyframes overshoot past full size, then settle back over one more segment — that is the overshoot. The edge's `grow` just rises straight to full size. The breath, too, opens and closes on separate easing curves instead of reusing a single shape. Where character rides and where the rise stays plain — that choice is what gives this motion its face."
             },
             {
               "type": "callout",
@@ -2566,19 +2531,6 @@
             {
               "type": "heading",
               "level": 2,
-              "text": "Try to call the next dot"
-            },
-            {
-              "type": "paragraph",
-              "text": "Watch the loop and try to call which dot pops next. Bottom-right goes first. Then the middle of the top row, then the middle of the bottom row — it reads as scattered, yet the order is exactly the same every loop. Bottom-left pops last, and the loop hands back to bottom-right."
-            },
-            {
-              "type": "paragraph",
-              "text": "What looks scattered is not a random number. The motion is a single clip, and 9 duplicates replay that same clip staggered `stepFrames` frames apart. Which duplicate starts when is decided by one fixed order table — 9 grid cells, each holding its place in line: the `fireOrder` table in the code. That one table is the entire \"random\". The smaller the number in a cell, the earlier it moves — bottom-right leads."
-            },
-            {
-              "type": "heading",
-              "level": 2,
               "text": "Build exactly one clip"
             },
             {
@@ -2592,7 +2544,7 @@
             },
             {
               "type": "paragraph",
-              "text": "The clip is just 6 radius keyframes and 5 easing curves, one per segment — where the keys sit on the timeline is yours to choose. Put into code, it is one fill-between-keys function and 2 things you write by hand — the keyframes placed on the clip, and one order table."
+              "text": "The clip is just 6 radius keyframes and 5 easing curves, one per segment — where the keys sit on the timeline is yours to choose. Put into code, it is one fill-between-keys function and 2 things you write by hand — the keyframes placed on the clip, and one order table. What looks scattered is that one order table — no random numbers, no seed."
             },
             {
               "type": "code",
@@ -2621,28 +2573,6 @@
               "text": "The return after the pop lands exactly on the rest radius `restRadius`. The original video trails a faint tail that never quite returns to `restRadius` — but the last duplicate's clip starts latest and ends right at the loop's edge, using up nearly the whole loop. Chasing the tail would break the loop seam. So the tail was dropped, in favor of a loop whose last frame lines up exactly with its first."
             },
             {
-              "type": "heading",
-              "level": 2,
-              "text": "Why it reads as scattered"
-            },
-            {
-              "type": "paragraph",
-              "text": "The duplicates carry no individuality. Pop size and curve shape are shared by all dots — align all 9 on their start frames and overlay them, and the spread all but vanishes. Only the start frame differs, and for every dot that shift measures exactly `stepFrames` × the table's number. No shuffle, no random seed — the same frame always returns the same pose."
-            },
-            {
-              "type": "heading",
-              "level": 2,
-              "text": "Keys, not a spring"
-            },
-            {
-              "type": "paragraph",
-              "text": "Pop, overshoot, settle — it looks like a spring. But even the best-fit spring equation leaves a clearly measurable miss, while the 6-keyframe build shrinks the miss to a fraction of that. Even so, the deciding evidence is not how close the equations get. It sits at the exit of the hold."
-            },
-            {
-              "type": "paragraph",
-              "text": "Through the hold the radius barely drifts — a dead-flat stillness. Right after it, the radius velocity switches in one step from standing still to shrinking. A spring that keeps oscillating cannot produce that switch. The undershoot is not physics ringing out — it is a key someone placed."
-            },
-            {
               "type": "callout",
               "tone": "note",
               "text": "The source is one cell of PuttiMW's (@PuttiMW) drawer series — decomposed and rebuilt in a motion-research repo. The palette swaps the reference blue for the fixed light palette. The texture on the demo above — grain and chromatic aberration — is composited live by the video-finishing package we are building in-house: everything from the easing solver to the grain randomness is our own code. Where `WebGPU` is unavailable it falls back to `SVG` + `requestAnimationFrame`."
@@ -2655,19 +2585,6 @@
               "type": "motion-demo",
               "demo": "tangency-coupled-drive",
               "caption": "three rotation keyframes drive everything"
-            },
-            {
-              "type": "heading",
-              "level": 2,
-              "text": "Who moves the side squares?"
-            },
-            {
-              "type": "paragraph",
-              "text": "While the center square makes its quarter turn, the side squares slide outward, seem to pause around the diamond, and come back. The three motions are perfectly bound together — so what is doing the binding?"
-            },
-            {
-              "type": "paragraph",
-              "text": "Only the center's rotation carries keyframes — three of them. The sides have none. Their position is computed every frame: the closest spot that stays just clear of the spinning square. The linkage is one rotation plus a one-line contact law."
             },
             {
               "type": "heading",
@@ -2718,31 +2635,9 @@
               "text": "To play with it, feed in more rotation. The law repeats every `quarterTurn`, so a quarter turn yields 1 push and a half turn really does yield 2 — the count is never decided in advance; it follows from the rotation you feed in."
             },
             {
-              "type": "heading",
-              "level": 2,
-              "text": "Why it seems to stop at the diamond"
-            },
-            {
-              "type": "paragraph",
-              "text": "The apparent stop near the diamond is not a key holding anything. Around the diamond the width barely changes, so the push barely changes — a fake stop created by the shape itself. Measured, the rotation's speed through the diamond is small but not zero. The rotation never stops."
-            },
-            {
-              "type": "heading",
-              "level": 2,
-              "text": "Is it really touching?"
-            },
-            {
-              "type": "paragraph",
-              "text": "From the push trajectory alone you can solve backwards: if the sides really are touching, what must the square's side length be? The recovered side matches the side measured independently from the video. The remaining gap also stays nearly constant across the whole travel. A size that matches and a gap that holds still — those two are contact's fingerprints."
-            },
-            {
-              "type": "paragraph",
-              "text": "You could also key the sides by hand — 13 keys fit slightly better. That explanation was still thrown out: if the sides were keyed by hand, the side length recovered from their track matching the real square would be pure coincidence. The apparent left–right offset also vanished under finer measurement — false evidence manufactured by a coarse measuring method."
-            },
-            {
               "type": "callout",
               "tone": "note",
-              "text": "The source is one cell of PuttiMW's (@PuttiMW) drawer series — decomposed and rebuilt in a motion-research repo. An earlier analysis had concluded \"not driven by contact\"; measuring again with finer tools flipped that conclusion. The palette swaps the reference red for the fixed light palette. The texture on the demo above — grain and chromatic aberration — is composited live by the video-finishing package we are building in-house: everything from the easing solver to the grain randomness is our own code. Where `WebGPU` is unavailable it falls back to `SVG` + `requestAnimationFrame`."
+              "text": "The source is one cell of PuttiMW's (@PuttiMW) drawer series — decomposed and rebuilt in a motion-research repo. The palette swaps the reference red for the fixed light palette. The texture on the demo above — grain and chromatic aberration — is composited live by the video-finishing package we are building in-house: everything from the easing solver to the grain randomness is our own code. Where `WebGPU` is unavailable it falls back to `SVG` + `requestAnimationFrame`."
             }
           ]
         },
@@ -2752,19 +2647,6 @@
               "type": "motion-demo",
               "demo": "complement-tangent-pair",
               "caption": "they trade sizes, the kiss point never moves"
-            },
-            {
-              "type": "heading",
-              "level": 2,
-              "text": "Stare at the kiss point"
-            },
-            {
-              "type": "paragraph",
-              "text": "In the loop above, the bottom-right circle inflates by exactly as much as the top-left circle deflates, and over the first half of the loop they trade sizes; the second half trades them back. Now stare at the single point where the two circles touch — however far the trade goes, that contact point never moves once in the whole loop."
-            },
-            {
-              "type": "paragraph",
-              "text": "This motion is named \"inverse proportion\" — the textbook relation where one quantity grows as the other shrinks. In a true inverse proportion, multiplying the two radii (their product) would give the same number on every frame. Measure the original, though, and it does not. What stays constant is the addition instead: the two radii always add up to the value `radiusSum` holds in the code. Keyframes sit only on the top-left circle's radius — 3 of them. The bottom-right radius is \"`radiusSum` minus the top-left\", and carries not a single key."
             },
             {
               "type": "heading",
@@ -2782,7 +2664,7 @@
             },
             {
               "type": "paragraph",
-              "text": "The placement of the centres is the heart of the build. Fix a single contact point on the diagonal; each circle puts its centre its own radius away from that point — the top-left circle up-left along the axis, the bottom-right circle down-right. That goes into code as-is. The only machinery it needs is a single fill-between-keys function."
+              "text": "Despite the name \"inverse proportion\", what stays constant is not the two radii multiplied (their product) but added (their sum `radiusSum`) — so the bottom-right radius is just that sum minus the top-left. The placement of the centres is the heart of the build. Fix a single contact point on the diagonal; each circle puts its centre its own radius away from that point — the top-left circle up-left along the axis, the bottom-right circle down-right. That goes into code as-is. The only machinery it needs is a single fill-between-keys function."
             },
             {
               "type": "code",
@@ -2807,28 +2689,6 @@
               "text": "To play with it, add keys. Grow the radius keys from 3 to 5 — `restRadius`→`midRadius`→`restRadius`→`midRadius`→`restRadius` — and the same function fits 2 round-trips of the trade into one loop. Change `radiusSum` and the pair's total changes with it — the one-line subtraction never breaks."
             },
             {
-              "type": "heading",
-              "level": 2,
-              "text": "The crossing moment picked the equation"
-            },
-            {
-              "type": "paragraph",
-              "text": "The product and sum equations part ways at the moment the circles pass at equal size. The crossing comes partway through the shrink, with both radii at exactly half of `radiusSum`. Keep a product unchanged while pushing two numbers closer together, and their sum always shrinks. So if the product were constant, the radius sum would have to sag clearly toward this moment. The measured sum barely changes between rest and the crossing — no sag anywhere. Next to the constant-sum fit, the product model's miss is larger by an order of magnitude — so it was thrown out."
-            },
-            {
-              "type": "heading",
-              "level": 2,
-              "text": "No key parks the bottom"
-            },
-            {
-              "type": "paragraph",
-              "text": "At the bottom of the shrink, the motion seems to rest for a while. The first measurement agreed: \"there is a hold key here\". But that was a fake stillness, created by a habit of the measuring program — it recycled the previous frame's answer as the starting point for the next one. Break the habit, measure again, and the stillness dissolves into a single very shallow valley."
-            },
-            {
-              "type": "paragraph",
-              "text": "The settled build has no hold key. The motion seems to rest because the tail of the one curve each segment owns is long and gentle, easing slowly toward its target value. The tail also carries a small expression — it slips just past the target before settling back, so the radius bottoms just shy of `midFrame` rather than on it, and peaks just shy of the loop seam. The valley and the peak measured independently from the original point to nearly the same spots."
-            },
-            {
               "type": "callout",
               "tone": "note",
               "text": "The source is one cell of PuttiMW's (@PuttiMW) drawer series — decomposed and rebuilt in a motion-research repo. The palette swaps the reference blue for the fixed light palette. The texture on the demo above — grain and chromatic aberration — is composited live by the video-finishing package we are building in-house: everything from the easing solver to the grain randomness is our own code. Where `WebGPU` is unavailable it falls back to `SVG` + `requestAnimationFrame`."
@@ -2841,19 +2701,6 @@
               "type": "motion-demo",
               "demo": "master-rotation-echo",
               "caption": "the tail is 9 replays of the past"
-            },
-            {
-              "type": "heading",
-              "level": 2,
-              "text": "Count the tail"
-            },
-            {
-              "type": "paragraph",
-              "text": "2 dots make one full lap around a circle and stop. Watch the tail on the way — in the fast stretch it splits apart, one copy at a time, like a flip-book. In the slow stretch it melts into a continuous band. The moment they stop, the tail is gone — just 2 dots again."
-            },
-            {
-              "type": "paragraph",
-              "text": "Only one thing is animated: a single rotation. Every layer of the tail is a copy replaying that same rotation slightly late — copy 1 runs `delayFrames` behind, copy 2 twice that, and so on through 9 copies. Opacity thins by a factor of `fadePerCopy` per copy. The afterimage is the dot's own past, replayed."
             },
             {
               "type": "heading",
@@ -2900,28 +2747,6 @@
               "text": "The best part of this build: rotation doesn't have to be the star. Swap the `angle` line for a horizontal slide or a scale pulse, and the structure — stacked copies each reading slightly into the past — keeps working. Any looping motion grows a tail by the same logic."
             },
             {
-              "type": "heading",
-              "level": 2,
-              "text": "Why the tail changes its look"
-            },
-            {
-              "type": "paragraph",
-              "text": "The copies decide nothing — each reads the same curve, shifted into the past by its own delay. The spacing between neighboring copies is exactly how far the dot moves in `delayFrames`. In the fastest stretch that spacing beats the dot's own width (a full diameter), so the copies pull apart and read one by one; in the slow stretches they overlap and melt into a band. Flip-book or melt is decided by speed alone."
-            },
-            {
-              "type": "heading",
-              "level": 2,
-              "text": "The first measurement said half a turn"
-            },
-            {
-              "type": "paragraph",
-              "text": "When this motion was first measured, the rotation read as half a turn per lap. The tracker followed the center of the whole smeared blob, which drags the reading backward — and with the 2 dots sitting exactly opposite each other, a half-turn error produces the same picture, so nothing flagged it."
-            },
-            {
-              "type": "paragraph",
-              "text": "One contradiction broke that reading. Assume half a turn, and in the fastest stretch the dense tail would sit well ahead of the dot it belongs to — no rig puts the tail in front of the dot. Re-tracking only the densest leading edge reads a full turn per lap, and the conclusion flipped. The end rest is pinned by the same measurement — nudge the last rotation key off `sweepFrames` and the fit across all frames gets visibly worse."
-            },
-            {
               "type": "callout",
               "tone": "note",
               "text": "The source is one cell of PuttiMW's (@PuttiMW) drawer series — decomposed and rebuilt in a motion-research repo. The palette swaps the reference red for the fixed light palette. The texture on the demo above — grain and chromatic aberration — is composited live by the video-finishing package we are building in-house: everything from the easing solver to the grain randomness is our own code. Where `WebGPU` is unavailable it falls back to `SVG` + `requestAnimationFrame`."
@@ -2934,19 +2759,6 @@
               "type": "motion-demo",
               "demo": "shared-hold-pulse",
               "caption": "5 shapes, 1 driving number"
-            },
-            {
-              "type": "heading",
-              "level": 2,
-              "text": "Open, hold, return"
-            },
-            {
-              "type": "paragraph",
-              "text": "4 tall bars stretch while splitting to the left and right. The small square in the middle swells at the same time. At full stretch, all 5 freeze for a beat — then walk the road back exactly the way they came. The left half mirrors the right, and no shape starts early or arrives late."
-            },
-            {
-              "type": "paragraph",
-              "text": "There are no per-shape keyframes. The only thing animated is a single number that climbs from 0 to 1, sits at 1 for a short beat, and comes back to 0 — call it the pulse. Each shape just reads that same pulse, multiplied by its own motion amount (how many px one pulse moves it), and the mirror is nothing more than the travel sign flipping between left and right. The center square even makes a half turn on the same pulse."
             },
             {
               "type": "heading",
@@ -2998,32 +2810,6 @@
               "text": "The per-shape motion amounts are the playground. Grow the row to 6 bars, give every `slide` the same sign so the whole row drifts one way, hand `spin` to the outer bars — the one-pulse structure keeps working. Point the pulse at opacity or color intensity instead, and the logic still holds. Wiring everything you want moving together to the same single number is the heart of this build."
             },
             {
-              "type": "heading",
-              "level": 2,
-              "text": "Why they land in lockstep"
-            },
-            {
-              "type": "paragraph",
-              "text": "They look coordinated not because something coordinates them, but because there is nothing that could drift: every shape reads the same single number, so the timing cannot disagree. No shape starts late — measuring the original video found no timing gap beyond measurement noise. No code knows about left versus right either; all that exists is the ± sign on the travel. Even the freeze at full stretch is no special case — it is just the span where the keys run from 1 to 1, made visible."
-            },
-            {
-              "type": "heading",
-              "level": 2,
-              "text": "The rotation vanished from the first measurement"
-            },
-            {
-              "type": "paragraph",
-              "text": "The first measurement of this motion concluded that the center square does not rotate. The square is the smallest of the 5, and a check that compares how silhouettes overlap barely notices which way a small shape points — compare only the moments where the square looks upright (its unrotated orientation), and the pose after a half turn makes the exact same picture as no turn at all."
-            },
-            {
-              "type": "paragraph",
-              "text": "The crack showed up in the size reading. On frames where rotation mixes in, only the box drawn around the shape swells — while the painted area doesn't grow at all. A box that fattens with no extra area is the proof that the shape inside is tilted."
-            },
-            {
-              "type": "paragraph",
-              "text": "Re-reading the angle from the shape's proportions: the square makes a half turn per pulse — that's `halfTurn`, placed in `spin` in the code. A quarter-turn theory predicts a clearly tilted diamond at a moment on the way out — the observation there is upright. A full-turn theory predicts a return to upright partway through — the observation there is a diamond. Only the half turn fits every place a diamond or an upright pose shows up."
-            },
-            {
               "type": "callout",
               "tone": "note",
               "text": "The source is one cell of PuttiMW's (@PuttiMW) drawer series — decomposed and rebuilt in a motion-research repo. The palette swaps the reference blue for the fixed light palette. The texture on the demo above — grain and chromatic aberration — is composited live by the video-finishing package we are building in-house: everything from the easing solver to the grain randomness is our own code. Where `WebGPU` is unavailable, the demo falls back to plain `SVG` + `requestAnimationFrame` rendering."
@@ -3036,19 +2822,6 @@
               "type": "motion-demo",
               "demo": "whip-crawl-path-cycle",
               "caption": "One number drives the ∞ track and its dot — a loop that closes after one lap"
-            },
-            {
-              "type": "heading",
-              "level": 2,
-              "text": "Sprint, crawl, sprint again"
-            },
-            {
-              "type": "paragraph",
-              "text": "A thick stroke and the dot riding its head keep tracing an ∞-shaped track. Most of the lap goes by in one whip-like burst; only one remaining stretch crawls. It reads like a two-gear lap — but there is no gear mechanism anywhere."
-            },
-            {
-              "type": "paragraph",
-              "text": "You choose only 2 speed keyframes — one whip's worth. The third key's value follows automatically from the promise that `periodFrames` frames close exactly 1 lap — nobody decided the crawl's speed. The line never stretches either: a fixed-length window covering `drawnFraction` of the full path slides along the track."
             },
             {
               "type": "heading",
@@ -3079,7 +2852,7 @@
             },
             {
               "type": "paragraph",
-              "text": "The heart is the third key's value, `uAtWhipStart + 1`. The moment you decide that `periodFrames` frames close 1 lap, the last span can only be written as the remaining `crawlSpan` over the remaining `crawlDurFrames` frames. There is no dial for the crawl's speed — to change it, grow or shrink the `whipSpan` the whip eats. Change the leftover and the crawl changes on its own."
+              "text": "The heart is the last key's value, `uAtWhipStart + 1`. The moment you decide that `periodFrames` frames close 1 lap, that span can only be written as the remaining `crawlSpan` over the remaining `crawlDurFrames` frames. There is no dial for the crawl's speed — to change it, grow or shrink the `whipSpan` the whip eats. Change the leftover and the crawl changes on its own."
             },
             {
               "type": "paragraph",
@@ -3098,28 +2871,6 @@
               "text": "The track doesn't have to be an ∞. u only says how far along the track you are, so any closed path — a circle, a heart — works with the same `uKeys`. Shrink the window's `drawnFraction` and the look turns into a half-drawn line racing the track."
             },
             {
-              "type": "heading",
-              "level": 2,
-              "text": "Why it reads as a gear shift"
-            },
-            {
-              "type": "paragraph",
-              "text": "The speed is designed in 1 place — the whip — and the crawl is the leftover, what the promise of a closed lap left behind. Measure the crawl in the original video and its speed is a straight line down to measurement rounding — a smoothness hand-placed keys almost never produce."
-            },
-            {
-              "type": "heading",
-              "level": 2,
-              "text": "The crawl's speed fell out of arithmetic"
-            },
-            {
-              "type": "paragraph",
-              "text": "This reproduction started as plain copying — replaying the head's position for the whole lap — and it couldn't say why that speed. The rebuild started with the track: a symmetric path drawn with 4 pen-tool anchors fit better than 2 textbook ∞ formulas. The round-lobe ∞ in the demo above is the closest formula, the one that narrowly lost. We chose it for reading, knowing it is not the original's track — the keyframes placed on u are untouched."
-            },
-            {
-              "type": "paragraph",
-              "text": "Then the speed. Constant speed missed, the stock easing presets missed, and a free 3-key curve matches the numbers only by letting the speed jump several-fold at a key — a setting no human hand places. What remained was 1 whip plus the automatic straight line — and that pair predicts the crawl's speed: `crawlSpan` divided by `crawlDurFrames`. The measurement agreed to within a fraction of a percent."
-            },
-            {
               "type": "callout",
               "tone": "note",
               "text": "The source is one cell of PuttiMW's (@PuttiMW) drawer series — decomposed and rebuilt in a motion-research repo. The palette swaps the reference red/salmon for the fixed light palette. The texture on the demo above — grain and chromatic aberration — is composited live by the video-finishing package we are building in-house: everything from the easing solver to the grain randomness is our own code. Where `WebGPU` is unavailable, the demo falls back to plain `SVG` + `requestAnimationFrame` rendering."
@@ -3132,19 +2883,6 @@
               "type": "motion-demo",
               "demo": "coupled-shear-rotation",
               "caption": "A disc cracks down the middle, the halves slide past each other, turn a little, and seal back into one circle"
-            },
-            {
-              "type": "heading",
-              "level": 2,
-              "text": "Crack, slide past, seal"
-            },
-            {
-              "type": "paragraph",
-              "text": "A perfectly round disc cracks straight down the middle. The two halves slide past each other in opposite directions, opening an S-shaped neck between them. From full separation they head back — but it is no plain rewind: the whole pair keeps turning slowly as it closes, and the motion ends as one resting circle again."
-            },
-            {
-              "type": "paragraph",
-              "text": "It reads like a rotation choreography and a slide choreography running side by side, but only one number on this screen owns keyframes: the progress u, walking from 0 to 2. Rotation and slide are both computed from u every frame. Even the flawless landing of the final circle is not animation skill but the shape's own doing — the trick comes later."
             },
             {
               "type": "heading",
@@ -3198,15 +2936,6 @@
               "text": "Flip that around: paint the halves in 2 colors and the loop hard-cuts at the seam as the color layout jumps — the single fill is a structural requirement, not a styling choice. The shape need not be a circle either. In the research repo's generality demo, a square cut by a horizontal line and making a half turn ran on the same `piecesAt` untouched. Any shape whose turned pose is indistinguishable from where it started will do."
             },
             {
-              "type": "heading",
-              "level": 2,
-              "text": "Why one number reads as two motions"
-            },
-            {
-              "type": "paragraph",
-              "text": "Your eye splits “turning while separating” into two intentions. But measurement says the rotation's progress and the slide's progress travel in lockstep across the whole loop — shifting one by a sliver of time multiplied the disagreement several times over. Two separate choreographies have no reason to agree that tightly. Two readings of one number cannot disagree at all."
-            },
-            {
               "type": "callout",
               "tone": "note",
               "text": "The source is one cell of PuttiMW's (@PuttiMW) drawer series — decomposed and rebuilt in a motion-research repo. The palette swaps the reference red for the fixed light palette. The texture on the demo above — grain and chromatic aberration — is composited live by the video-finishing package we are building in-house: everything from the easing solver to the grain randomness is our own code. Where `WebGPU` is unavailable, the demo falls back to plain `SVG` + `requestAnimationFrame` rendering."
@@ -3219,19 +2948,6 @@
               "type": "motion-demo",
               "demo": "gather-return",
               "caption": "Eight circles dive into the center one by one as the ring turns, swelling the disc in the middle — then pop back out, one by one, to the ring"
-            },
-            {
-              "type": "heading",
-              "level": 2,
-              "text": "Dive, swell, return"
-            },
-            {
-              "type": "paragraph",
-              "text": "Eight circles sit on a ring, slowly turning. Then, one at a time, they start diving into the center. Each swallow makes the middle disc a size bigger, until everything is gone and one large circle remains. After a beat it spits them back out, one at a time — and each circle re-emerges further around than where it went in, proof that the rotation never stopped while the ring was out of sight."
-            },
-            {
-              "type": "paragraph",
-              "text": "No merge animation, no split animation is written anywhere. The heart of the motion is one clip — gather to the center, wait, return — and the eight circles replay that same clip with a small per-copy delay while riding the turning ring."
             },
             {
               "type": "heading",
@@ -3249,7 +2965,7 @@
             },
             {
               "type": "paragraph",
-              "text": "Three functions carry the motion, with a few small easing helpers at their side: `progressAt`, the clip itself; `absorbAt`, the swallow level; and `blobsAt`, which turns a frame number into every circle's placement."
+              "text": "No merge and no split is choreographed anywhere — there is just one clip, gather-wait-return. Three functions carry the motion, with a few small easing helpers at their side: `progressAt`, the clip itself; `absorbAt`, the swallow level; and `blobsAt`, which turns a frame number into every circle's placement."
             },
             {
               "type": "code",
