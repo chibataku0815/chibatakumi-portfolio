@@ -1670,6 +1670,12 @@
           "title": "奥行きに見える上下動の解剖",
           "summary": "7 つの円が上下に弾み、奥行きがあるように見える。だが遠近の法則はなく、全部が同じ 1 本の波を共有して、振れ幅だけが円ごとに違う。骨格コードつきで組み立ての考え方から歩く。",
           "metaDescription": "視差の正体を解剖する motion study。7 つの円が奥行きを持つように上下するが、遠近の法則はない — 全部が同じ 1 本の波を共有し、振れ幅だけが円ごとに手で決めた値だ。骨格コードつき。"
+        },
+        "arrangement-turntable": {
+          "eyebrow": "配置移行",
+          "title": "群舞に見える配置移行の解剖",
+          "summary": "9 つの点が集まり、リングへ放たれ、渦を巻いて別の席へ戻る — まるで振り付けられた群舞に見える。でもキーとして与えた配置は 2 つだけで、あいだは移動でつなぐ。渦も席替えも一つずつ振り付けず、配置のつなぎ方からひとりでに出てくる。骨格コードつきで組み立ての考え方から歩く。",
+          "metaDescription": "配置移行の正体を解剖する motion study。9 つの点が群舞のように集まり、リングへ放たれ、渦を巻いて別の席へ戻る。だがキーとして与えた配置は 2 つだけで、あいだは移動でつなぐ — 渦も席替えも一つずつ振り付けず、配置のつなぎ方からひとりでに現れる。骨格コードつき。"
         }
       }
     },
@@ -3306,6 +3312,56 @@
             {
               "type": "callout",
               "text": "原典はプッティさん（@PuttiMW）の「モーションの引き出し」の 1 セル — 研究リポで分解・再構築したもの。色は参照の赤ではなく固定ライトパレット。上のデモの質感 — 粒状（grain）と色収差 — は、自分たちで開発している映像仕上げ用パッケージでライブ合成していて、イージングのソルバーから粒の乱数まで自作だ。`WebGPU` が使えない環境では `SVG` + `requestAnimationFrame` 描画に切り替わる。"
+            }
+          ]
+        },
+        "arrangement-turntable": {
+          "sections": [
+            {
+              "type": "motion-demo",
+              "demo": "arrangement-turntable",
+              "caption": "9 つの点がグリッドとリングを行き来する — 渦も席替えも、2 つの配置のつなぎ方からひとりでに出てくる"
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "2 つの配置と、あいだを結ぶ 3 つの相を組む"
+            },
+            {
+              "type": "list",
+              "items": [
+                "キーになる配置は 2 つ — 中心を共有する、自由に置いた休みのグリッドと、1 つの半径に固定スロット角のリング",
+                "2 つの配置から各点のジオメトリを先に出す — 休み位置の半径と角度、スロットへの角度差、リング座標、回したあとの行き先",
+                "あいだを結ぶ 3 つの相 — 引きこんで放る拡張、リングで静止して待つ間、1 本の回転クロックで席を詰める収縮"
+              ]
+            },
+            {
+              "type": "code",
+              "text": "const deg = Math.PI / 180;\nconst signedArc = (from, to) => ((to - from + 180) % 360 + 360) % 360 - 180;\n\n// 2 つの配置キーから、各点のジオメトリを先に出す\nconst restRadius = restPositions.map(([x, y]) => Math.hypot(x - cx, y - cy));\nconst restAngle = restPositions.map(([x, y]) => Math.atan2(y - cy, x - cx) / deg);\nconst slotAngle = restToRing.map((slot) => ringAnglesDeg[slot]);\nconst angleGap = restAngle.map((a, dot) => signedArc(a, slotAngle[dot]));\nconst slotPoint = ringAnglesDeg.map((a) => [\n  cx + ringRadius * Math.cos(a * deg),\n  cy + ringRadius * Math.sin(a * deg),\n]);\nconst back = -turntableDeg * deg;\nconst destLocal = restToRing.map((slot, dot) => {\n  if (dot === centerDestinationDot) return [0, 0]; // 行き先が中心の点はそこを狙う\n  const [x, y] = restPositions[ringToRest[slot]];\n  const lx = x - cx;\n  const ly = y - cy;\n  return [lx * Math.cos(back) - ly * Math.sin(back), lx * Math.sin(back) + ly * Math.cos(back)];\n});"
+            },
+            {
+              "type": "paragraph",
+              "text": "はじめのコードがやるのは、2 つの配置から各点のジオメトリを先に出すことだ。`restToRing` はどの点がどのスロットへ向かうか、`ringToRest` は戻るときどの休み席へ座り直すかを表す並びで、この 2 本の並びが戻りの渦巻きと席の入れ替わりを丸ごと決める。中央のかたまりも、渦も、席替えも、一つずつ振り付けてはいない — 2 つの配置とそのつなぎ方からひとりでに出てくる。"
+            },
+            {
+              "type": "code",
+              "text": "const wrap = (frame, span) => ((frame % span) + span) % span;\nconst [lobeIn, lobeOut] = lobeXHandles;\nconst swingEase = cubicBezier(lobeIn, 0, lobeOut, 1);\nconst lastArrival = Math.max(...arrivals);\n\n// 第 1 相: いちど中心へ引きこんでから外のスロットへ放る(共有のふくらみ)\nconst expand = (frame, dot) => {\n  const span =\n    frame <= departures[dot] ? 0 : frame >= arrivals[dot] ? 1 : (frame - departures[dot]) / (arrivals[dot] - departures[dot]);\n  if (dot === centerSeatDot) { // 休み席が中心の点はへこむ余地がない → 半径は素直に外へ\n    const radius = restRadius[dot] + swingEase(span) * (ringRadius - restRadius[dot]);\n    const angle = slotAngle[dot] * deg;\n    return [cx + radius * Math.cos(angle), cy + radius * Math.sin(angle)];\n  }\n  const dip = cubicBezier(lobeIn, -lobeDepths[dot], lobeOut, 1)(span);\n  const radius = restRadius[dot] + dip * (ringRadius - restRadius[dot]);\n  const angle = (restAngle[dot] + swingEase(span) * angleGap[dot]) * deg;\n  return [cx + radius * Math.cos(angle), cy + radius * Math.sin(angle)];\n};\n\n// 第 3 相: 1 本の回転クロックが全点を回し、各点はリング → 行き先へ弦を詰める\nconst turnEase = cubicBezier(...phiBezier);\nconst chordEase = cubicBezier(...sConBezier);\nconst turnAt = (frame, delay) => {\n  const local = frame - delay;\n  if (local <= windowStart) return 0;\n  if (local >= windowEnd) return turntableDeg;\n  return turntableDeg * turnEase((local - windowStart) / (windowEnd - windowStart));\n};\nconst chordAt = (frame, delay) => {\n  const local = frame - delay;\n  if (local <= windowStart) return 0;\n  if (local >= windowEnd) return 1;\n  return chordEase((local - windowStart) / (windowEnd - windowStart));\n};\n\nfunction dotsAt(frame) { // フレーム番号 → 9 つの点の置き場所。相を選び、点ごとに読む\n  const f = wrap(frame, periodFrames);\n  return restPositions.map((_, dot) => {\n    const slot = restToRing[dot];\n    const delay = delaysPerSlot[slot];\n    if (f <= lastArrival) { const [x, y] = expand(f, dot); return { cx: x, cy: y, r: dotRadius }; }\n    if (f - delay < windowStart) return { cx: slotPoint[slot][0], cy: slotPoint[slot][1], r: dotRadius }; // 第 2 相: リングで静止\n    const chord = chordAt(f, delay);\n    const rlx = slotPoint[slot][0] - cx;\n    const rly = slotPoint[slot][1] - cy;\n    const lx = rlx + chord * (destLocal[dot][0] - rlx);\n    const ly = rly + chord * (destLocal[dot][1] - rly);\n    const turn = turnAt(f, delay) * deg;\n    return { cx: cx + lx * Math.cos(turn) - ly * Math.sin(turn), cy: cy + lx * Math.sin(turn) + ly * Math.cos(turn), r: dotRadius };\n  });\n}"
+            },
+            {
+              "type": "paragraph",
+              "text": "`expand` が第 1 相だ。各点は自分の `departures` で動きはじめ `arrivals` で止まり、いちど中心へ引きこまれてから外のスロットへ放られる。へこみの深さは `lobeDepths`、その曲がり方は `swingEase` が持つ。`swingEase` の中身は CSS の `cubic-bezier()` と同じ 4 つの数で、`phiBezier` や `sConBezier` に置く数も npm の `bezier-easing` にそのまま渡せる。第 3 相の `turnAt` は全点に共通の回転角を、`chordAt` はリングから行き先へ詰める進み具合を返す。"
+            },
+            {
+              "type": "paragraph",
+              "text": "画面に置くのは点を 9 つ、返ってきた `cx`・`cy`・`r` のとおりに描くだけだ。動かすのは `requestAnimationFrame` で、経過した時間にコマ数を掛けてフレーム番号を出し、`periodFrames` で `wrap` してから `dotsAt` に渡せば、このデモと同じループになる。`turntableDeg` のぶんだけ回るとリングのスロットがそっくり元の位置に重なり、各点は別の休み席へ座り直して 1 周が閉じるので、ループの継ぎ目は出ない。"
+            },
+            {
+              "type": "paragraph",
+              "text": "遊ぶなら並びを書き換える。`restToRing` と `ringToRest` を別の入れ替えにすると、戻りの渦の巻き方と席順がまるごと変わる。`turntableDeg` を増やせばリングを回る道のりが伸び、`delaysPerSlot` をいじれば点が散り散りに発つか、いっせいに発つかが変わる。配置の点を別の形に置き換えても、2 つのキーをつなぐこの骨格はそのまま働く。"
+            },
+            {
+              "type": "callout",
+              "text": "原典はプッティさん（@PuttiMW）の「モーションの引き出し」の 1 セル — 研究リポで分解・再構築したもの。色は参照の青ではなく固定ライトパレット。上のデモの質感 — 粒状（grain）と色収差 — は、自分たちで開発している映像仕上げ用パッケージでライブ合成していて、イージングのソルバーから粒の乱数まで自作だ。`WebGPU` が使えない環境では `SVG` + `requestAnimationFrame` 描画に切り替わる。"
             }
           ]
         }

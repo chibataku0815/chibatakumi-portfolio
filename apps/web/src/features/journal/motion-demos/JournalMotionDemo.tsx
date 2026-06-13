@@ -9,6 +9,7 @@
 // id here and one more vendored verb under ./verbs.
 
 import { renderInlineCode } from "../inline-code";
+import { ArrangementTurntableFinishDemo } from "./ArrangementTurntableFinishDemo";
 import { ComplementTangentPairFinishDemo } from "./ComplementTangentPairFinishDemo";
 import { CoupledShearRotationFinishDemo } from "./CoupledShearRotationFinishDemo";
 import { GatherReturnFinishDemo } from "./GatherReturnFinishDemo";
@@ -36,6 +37,7 @@ const DEMO_REGISTRY: Record<string, () => React.ReactElement> = {
   "gather-return": GatherReturnFinishDemo,
   "velocity-seeded-overshoot": VelocitySeededOvershootFinishDemo,
   "parallax-bob": ParallaxBobFinishDemo,
+  "arrangement-turntable": ArrangementTurntableFinishDemo,
 };
 
 interface JournalMotionDemoProps {

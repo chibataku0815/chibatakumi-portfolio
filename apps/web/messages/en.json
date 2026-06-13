@@ -1668,6 +1668,12 @@
           "title": "Dissecting a bob that reads as depth",
           "summary": "Seven circles bob up and down and look like they sit at different depths. But there is no depth law — every circle shares one and the same waveform, and only the travel amount differs. Skeleton code included — the article builds up from the assembly idea.",
           "metaDescription": "A motion study dissecting the parallax drawer: seven circles bob as if at different depths, but there is no depth law — they all share one and the same waveform, and only the travel amount, chosen by hand per circle, differs. Skeleton code included."
+        },
+        "arrangement-turntable": {
+          "eyebrow": "Arrangement",
+          "title": "Dissecting an arrangement swap that reads as a dance",
+          "summary": "Nine dots gather, fling out to a ring, and swirl back into different seats — it reads like a choreographed group dance. But only two arrangements are given as keys, with transit bridging them; the swirl and the seat-swap aren't authored one by one — they arise on their own from how the arrangements are joined. Skeleton code included — the article builds up from the assembly idea.",
+          "metaDescription": "A motion study dissecting the arrangement drawer: nine dots gather as if in a group dance, fling out to a ring, and swirl back into different seats. But only two arrangements are given as keys, with transit bridging them — the swirl and the seat-swap aren't authored one by one; they arise on their own from how the arrangements are joined. Skeleton code included."
         }
       }
     },
@@ -3304,6 +3310,56 @@
             {
               "type": "callout",
               "text": "The source is one cell of PuttiMW's (@PuttiMW) drawer series — decomposed and rebuilt in a motion-research repo. The palette swaps the reference red for the fixed light palette. The texture on the demo above — grain and chromatic aberration — is composited live by the video-finishing package we are building in-house: everything from the easing solver to the grain randomness is our own code. Where `WebGPU` is unavailable, the demo falls back to plain `SVG` + `requestAnimationFrame` rendering."
+            }
+          ]
+        },
+        "arrangement-turntable": {
+          "sections": [
+            {
+              "type": "motion-demo",
+              "demo": "arrangement-turntable",
+              "caption": "Nine dots shuttle between a grid and a ring — the swirl and the seat-swap both arise on their own from how just two arrangements are joined"
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "Two arrangements, and the three phases that bridge them"
+            },
+            {
+              "type": "list",
+              "items": [
+                "Two keyed arrangements, sharing one centre — a freely placed rest grid, and a ring of one radius with fixed slot angles",
+                "From the two arrangements, derive each dot's geometry up front — its rest radius and angle, the angle gap to its slot, the ring points, and where it lands after the turn",
+                "Three phases bridge them — a pull-in-then-fling expansion, a still wait on the ring, and a contraction where one rotation clock packs the dots into their seats"
+              ]
+            },
+            {
+              "type": "code",
+              "text": "const deg = Math.PI / 180;\nconst signedArc = (from, to) => ((to - from + 180) % 360 + 360) % 360 - 180;\n\n// derive each dot's geometry from the two arrangement keys\nconst restRadius = restPositions.map(([x, y]) => Math.hypot(x - cx, y - cy));\nconst restAngle = restPositions.map(([x, y]) => Math.atan2(y - cy, x - cx) / deg);\nconst slotAngle = restToRing.map((slot) => ringAnglesDeg[slot]);\nconst angleGap = restAngle.map((a, dot) => signedArc(a, slotAngle[dot]));\nconst slotPoint = ringAnglesDeg.map((a) => [\n  cx + ringRadius * Math.cos(a * deg),\n  cy + ringRadius * Math.sin(a * deg),\n]);\nconst back = -turntableDeg * deg;\nconst destLocal = restToRing.map((slot, dot) => {\n  if (dot === centerDestinationDot) return [0, 0]; // the dot whose destination is the centre aims there\n  const [x, y] = restPositions[ringToRest[slot]];\n  const lx = x - cx;\n  const ly = y - cy;\n  return [lx * Math.cos(back) - ly * Math.sin(back), lx * Math.sin(back) + ly * Math.cos(back)];\n});"
+            },
+            {
+              "type": "paragraph",
+              "text": "The first block just derives each dot's geometry from the two arrangements. `restToRing` says which dot heads to which slot; `ringToRest` says which rest seat each dot sits back down in on the way home — and these two orderings settle the whole return swirl and seat-swap. The central pile, the swirl, the seat-swap: none is choreographed one by one — they all arise on their own from the two arrangements and how they are joined."
+            },
+            {
+              "type": "code",
+              "text": "const wrap = (frame, span) => ((frame % span) + span) % span;\nconst [lobeIn, lobeOut] = lobeXHandles;\nconst swingEase = cubicBezier(lobeIn, 0, lobeOut, 1);\nconst lastArrival = Math.max(...arrivals);\n\n// phase 1: pull each dot in toward the centre, then fling it out to its slot (one shared bulge)\nconst expand = (frame, dot) => {\n  const span =\n    frame <= departures[dot] ? 0 : frame >= arrivals[dot] ? 1 : (frame - departures[dot]) / (arrivals[dot] - departures[dot]);\n  if (dot === centerSeatDot) { // the dot resting AT the centre has no room to dip → radius eases straight out\n    const radius = restRadius[dot] + swingEase(span) * (ringRadius - restRadius[dot]);\n    const angle = slotAngle[dot] * deg;\n    return [cx + radius * Math.cos(angle), cy + radius * Math.sin(angle)];\n  }\n  const dip = cubicBezier(lobeIn, -lobeDepths[dot], lobeOut, 1)(span);\n  const radius = restRadius[dot] + dip * (ringRadius - restRadius[dot]);\n  const angle = (restAngle[dot] + swingEase(span) * angleGap[dot]) * deg;\n  return [cx + radius * Math.cos(angle), cy + radius * Math.sin(angle)];\n};\n\n// phase 3: one rotation clock turns every dot while its chord closes ring → destination\nconst turnEase = cubicBezier(...phiBezier);\nconst chordEase = cubicBezier(...sConBezier);\nconst turnAt = (frame, delay) => {\n  const local = frame - delay;\n  if (local <= windowStart) return 0;\n  if (local >= windowEnd) return turntableDeg;\n  return turntableDeg * turnEase((local - windowStart) / (windowEnd - windowStart));\n};\nconst chordAt = (frame, delay) => {\n  const local = frame - delay;\n  if (local <= windowStart) return 0;\n  if (local >= windowEnd) return 1;\n  return chordEase((local - windowStart) / (windowEnd - windowStart));\n};\n\nfunction dotsAt(frame) { // frame number → where the 9 dots go; pick the phase, read each dot\n  const f = wrap(frame, periodFrames);\n  return restPositions.map((_, dot) => {\n    const slot = restToRing[dot];\n    const delay = delaysPerSlot[slot];\n    if (f <= lastArrival) { const [x, y] = expand(f, dot); return { cx: x, cy: y, r: dotRadius }; }\n    if (f - delay < windowStart) return { cx: slotPoint[slot][0], cy: slotPoint[slot][1], r: dotRadius }; // phase 2: hold still on the ring\n    const chord = chordAt(f, delay);\n    const rlx = slotPoint[slot][0] - cx;\n    const rly = slotPoint[slot][1] - cy;\n    const lx = rlx + chord * (destLocal[dot][0] - rlx);\n    const ly = rly + chord * (destLocal[dot][1] - rly);\n    const turn = turnAt(f, delay) * deg;\n    return { cx: cx + lx * Math.cos(turn) - ly * Math.sin(turn), cy: cy + lx * Math.sin(turn) + ly * Math.cos(turn), r: dotRadius };\n  });\n}"
+            },
+            {
+              "type": "paragraph",
+              "text": "`expand` is phase 1. Each dot departs at its own `departures`, stops at its `arrivals`, and is pulled in toward the centre before being flung out to its slot. The depth of the dip lives in `lobeDepths`, its curve in `swingEase`. `swingEase` is the same 4 numbers as CSS `cubic-bezier()`, and what you put in `phiBezier` and `sConBezier` goes straight into npm's `bezier-easing`. In phase 3, `turnAt` returns one rotation angle shared by every dot, and `chordAt` returns how far each has packed from the ring toward its destination."
+            },
+            {
+              "type": "paragraph",
+              "text": "Placement is just nine dots, drawn at the returned `cx`, `cy`, `r`. Drive it with `requestAnimationFrame`: multiply the elapsed time by your frame count, `wrap` against `periodFrames`, and hand the frame to `dotsAt` — you get the same loop as the demo. Turn by `turntableDeg` and the ring slots land exactly back on themselves while each dot sits down in a different rest seat, so one lap closes and the loop has no visible seam."
+            },
+            {
+              "type": "paragraph",
+              "text": "To play with it, rewrite the orderings. Swap `restToRing` and `ringToRest` for different permutations and the return swirl and the seating change wholesale. Raise `turntableDeg` and the path around the ring grows longer; tweak `delaysPerSlot` and the dots leave scattered or all at once. Replace the arrangement points with another shape, and the skeleton that joins the two keys keeps working."
+            },
+            {
+              "type": "callout",
+              "text": "The source is one cell of PuttiMW's (@PuttiMW) drawer series — decomposed and rebuilt in a motion-research repo. The palette swaps the reference blue for the fixed light palette. The texture on the demo above — grain and chromatic aberration — is composited live by the video-finishing package we are building in-house: everything from the easing solver to the grain randomness is our own code. Where `WebGPU` is unavailable, the demo falls back to plain `SVG` + `requestAnimationFrame` rendering."
             }
           ]
         }
