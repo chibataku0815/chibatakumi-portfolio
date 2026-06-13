@@ -3225,7 +3225,7 @@
             },
             {
               "type": "paragraph",
-              "text": "No merge animation, no split animation is written anywhere. The heart of the motion is one clip — gather to the center, wait, return — and the eight circles replay that same clip with a small per-copy delay while riding the turning ring. The melt is what same-color circles do when they overlap: the boundary between them disappears. And the middle disc's swelling is area bookkeeping — its radius grows as the square root of the swallowed count. The rest of the article unpacks each piece in turn."
+              "text": "No merge animation, no split animation is written anywhere. The heart of the motion is one clip — gather to the center, wait, return — and the eight circles replay that same clip with a small per-copy delay while riding the turning ring."
             },
             {
               "type": "heading",
@@ -3264,7 +3264,7 @@
             },
             {
               "type": "paragraph",
-              "text": "The drawing side is nothing but circles. Put a `circle` wherever `blobsAt` says — `SVG` or `canvas`, either works. The move that matters is painting everything one color: the paint does the melting for you, so no code ever tracks which circle is touching which. `minVisibleRadius` is the cutoff that skips drawing the middle disc on frames where it would be too small to see."
+              "text": "The drawing side is nothing but circles. Put a `circle` wherever `blobsAt` says — `SVG` or `canvas`, either works. The move that matters is painting everything one color: the paint does the melting for you, so no code ever tracks which circle is touching which. One thing plain overlap can't reach: at the instant of contact the real reference smooths the neck into a gooey rounded waist. `minVisibleRadius` is the cutoff that skips drawing the middle disc on frames where it would be too small to see."
             },
             {
               "type": "paragraph",
@@ -3281,15 +3281,6 @@
             {
               "type": "paragraph",
               "text": "`progressAt` returns a plain 0-to-1 number, so you can point it at anything, not just position. In the research repo's generality demo the same clip ran five squares with a different delay and different segment lengths, the progress feeding position, size, and rotation at once — and the gather-wait-return rhythm survived intact. Trim `holdSpan` and it turns hasty; stretch `backSpan` and the return turns graceful. Just keep `holdSpan` longer than the total delay if the all-swallowed moment should survive."
-            },
-            {
-              "type": "heading",
-              "level": 2,
-              "text": "Why you see a merge nobody choreographed"
-            },
-            {
-              "type": "paragraph",
-              "text": "Your eye reads joined outlines as “they merged” and a swelling middle as “it swallowed them”. All that actually exists is same-color overlap plus area bookkeeping, yet together they read as mass on the move. The measurements agree: the disc size the square root predicts matched the measured sizes at several swallow counts, almost indistinguishably. One thing stays out of reach — at the instant of contact the real reference smooths the neck into a gooey rounded waist, which plain overlapping circles cannot do."
             },
             {
               "type": "callout",
