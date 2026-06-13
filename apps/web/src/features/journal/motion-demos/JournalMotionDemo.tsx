@@ -14,6 +14,7 @@ import { CoupledShearRotationFinishDemo } from "./CoupledShearRotationFinishDemo
 import { GatherReturnFinishDemo } from "./GatherReturnFinishDemo";
 import { LatticeBreathFinishDemo } from "./LatticeBreathFinishDemo";
 import { MasterRotationEchoFinishDemo } from "./MasterRotationEchoFinishDemo";
+import { ParallaxBobFinishDemo } from "./ParallaxBobFinishDemo";
 import { PulseGridFinishDemo } from "./PulseGridFinishDemo";
 import { SharedHoldPulseFinishDemo } from "./SharedHoldPulseFinishDemo";
 import { TangencyCoupledDriveFinishDemo } from "./TangencyCoupledDriveFinishDemo";
@@ -34,6 +35,7 @@ const DEMO_REGISTRY: Record<string, () => React.ReactElement> = {
   "coupled-shear-rotation": CoupledShearRotationFinishDemo,
   "gather-return": GatherReturnFinishDemo,
   "velocity-seeded-overshoot": VelocitySeededOvershootFinishDemo,
+  "parallax-bob": ParallaxBobFinishDemo,
 };
 
 interface JournalMotionDemoProps {

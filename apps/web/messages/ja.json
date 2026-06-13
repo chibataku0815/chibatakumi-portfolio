@@ -1664,6 +1664,12 @@
           "title": "重さがあるように振れる i の解剖",
           "summary": "右から左へ振れる i のフォロースルー。遅れも跳ねもどこにも数で書かず、あるのは片道の振り 1 本と、最後のキーを振り抜く速さがそのまま決める揺れだけ。骨格コードつきで組み立ての考え方から歩く。",
           "metaDescription": "追従の正体を解剖する motion study。文字の遅れ・しなり・行き過ぎは振り付けたものではなく、片道の振り 1 本と、最後のキーを振り抜く速さがそのまま大きさを決める揺れから出る。骨格コードつき。"
+        },
+        "parallax-bob": {
+          "eyebrow": "視差",
+          "title": "奥行きに見える上下動の解剖",
+          "summary": "7 つの円が上下に弾み、奥行きがあるように見える。だが遠近の法則はなく、全部が同じ 1 本の波を共有して、振れ幅だけが円ごとに違う。骨格コードつきで組み立ての考え方から歩く。",
+          "metaDescription": "視差の正体を解剖する motion study。7 つの円が奥行きを持つように上下するが、遠近の法則はない — 全部が同じ 1 本の波を共有し、振れ幅だけが円ごとに手で決めた値だ。骨格コードつき。"
         }
       }
     },
@@ -3254,6 +3260,52 @@
             {
               "type": "callout",
               "text": "原典はプッティさん（@PuttiMW）の「モーションの引き出し」の 1 セル — 研究リポで分解・再構築したもの。色は参照の赤ではなく固定ライトパレットで、点の白い目は描いていない。上のデモの質感 — 粒状（grain）と色収差 — は、自分たちで開発している映像仕上げ用パッケージでライブ合成していて、イージングのソルバーから粒の乱数まで自作だ。`WebGPU` が使えない環境では `SVG` + `requestAnimationFrame` 描画に切り替わる。"
+            }
+          ]
+        },
+        "parallax-bob": {
+          "sections": [
+            {
+              "type": "motion-demo",
+              "demo": "parallax-bob",
+              "caption": "7 つの円が上下に弾む — 大きい円ほど大きく動いて見える"
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "波 1 本と円ごとの振れ幅を用意する"
+            },
+            {
+              "type": "list",
+              "items": [
+                "動かない 7 つの円 — 位置も大きさも固定で、上下にだけ動く",
+                "共有する波 1 本 — 上 → 下 → 上 の 3 キーで、各キーで速度ゼロ・下りと上りに別のイージングカーブ",
+                "円ごとの振れ幅 `amp` と中心 `mid` — 同じ波に自分の `amp` を掛け、`mid` から上下させる"
+              ]
+            },
+            {
+              "type": "code",
+              "text": "// 動かしているのは上下の波 1 本だけ。7 つの円はそれぞれの振れ幅でその波を読む。\n// 小文字ではじまる裸の名前(periodFrames や bottomKeyFrame)は、自分の画面に\n// 合わせて決める数 — この記事が持ち帰ってほしいのは値ではなく、この「形」だ。\n\nconst wrap = (value, span) => ((value % span) + span) % span;\n\nconst sharedWave = (designTime) => { // 上 → 下 → 上 を行き来する波。下りと上りで別のカーブ\n  const descEase = cubicBezier(...descHandles); // 下り(上→下)の緩急\n  const ascEase = cubicBezier(...ascHandles);   // 上り(下→上)の緩急\n  const t = wrap(designTime, periodFrames);\n  if (t <= bottomKeyFrame) return -1 + 2 * descEase(t / bottomKeyFrame); // 上から下へ\n  return 1 - 2 * ascEase((t - bottomKeyFrame) / (periodFrames - bottomKeyFrame)); // 下から上へ\n};\n\nfunction dotsAt(frame) { // フレーム番号 → 7 つの円の置き場所。波を計算し、円ごとに振れ幅で読む\n  const wave = sharedWave(frame + capturePhase);\n  return circles.map((c) => ({\n    cx: c.cx,\n    cy: c.mid + c.amp * wave,\n    r: c.r,\n  }));\n}"
+            },
+            {
+              "type": "paragraph",
+              "text": "`descEase` と `ascEase` がこの動きの顔だ。中身は CSS の `cubic-bezier()` と同じ 4 つの数で、`descHandles` と `ascHandles` に置く数は npm の `bezier-easing` にそのまま渡せる。波は上の端と下の端を往復する値で、その間をカーブが埋める。下り(上→下)と上り(下→上)でわざと別のカーブを持たせてある — 1 本を両方に使い回すと、元の動画とのずれがはっきり広がった。"
+            },
+            {
+              "type": "paragraph",
+              "text": "上下に弾む 7 つの円は、`sharedWave` という同じ 1 本の波を読んでいる。違うのは円ごとの `amp` だけで、出だしをずらすコードも、円ごとに別の波もない。大きい円ほど大きく動くように見えるが、大きさと振れ幅をそろえる法則はない — `amp` は円ごとに手で決めた値だ。元の動画でも大きさと振れ幅の比はばらばらで、きれいな比例にはならなかった。"
+            },
+            {
+              "type": "paragraph",
+              "text": "画面に置くのは円を 7 つ、返ってきた `cx`・`cy`・`r` のとおりに描くだけだ。動かすのは `requestAnimationFrame` で、経過秒に毎秒のコマ数を掛けてフレーム番号を出し、`periodFrames` で余りを取って `dotsAt` に渡せば、このデモと同じ作りのループになる。波は 1 周のおわりにちょうど出発の上へ戻るので、ループの継ぎ目は出ない。"
+            },
+            {
+              "type": "paragraph",
+              "text": "遊ぶなら `amp` を書き換える。全部の `amp` をそろえると奥行きは消えてただの一斉の上下動になり、ばらばらにすると奥行きが戻る。波を読む先を上下動から拡大縮小や濃さに変えても、同じ 1 本の波を共有する骨格はそのまま働く。"
+            },
+            {
+              "type": "callout",
+              "text": "原典はプッティさん（@PuttiMW）の「モーションの引き出し」の 1 セル — 研究リポで分解・再構築したもの。色は参照の赤ではなく固定ライトパレット。上のデモの質感 — 粒状（grain）と色収差 — は、自分たちで開発している映像仕上げ用パッケージでライブ合成していて、イージングのソルバーから粒の乱数まで自作だ。`WebGPU` が使えない環境では `SVG` + `requestAnimationFrame` 描画に切り替わる。"
             }
           ]
         }

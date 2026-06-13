@@ -1662,6 +1662,12 @@
           "title": "Dissecting an i that swings like it has weight",
           "summary": "The follow-through of an i swinging right to left. Neither the lag nor the bounce is written as a number anywhere — all that exists is one one-way swing and a wobble whose size is set entirely by how fast the move leaves its last key. Skeleton code included — the article builds up from the assembly idea.",
           "metaDescription": "A motion study dissecting the follow-through drawer: the letter's lag, lean and overshoot are not choreographed but fall out of one one-way swing plus a wobble whose size is set by how fast the move leaves its last key. Skeleton code included."
+        },
+        "parallax-bob": {
+          "eyebrow": "Parallax",
+          "title": "Dissecting a bob that reads as depth",
+          "summary": "Seven circles bob up and down and look like they sit at different depths. But there is no depth law — every circle shares one and the same waveform, and only the travel amount differs. Skeleton code included — the article builds up from the assembly idea.",
+          "metaDescription": "A motion study dissecting the parallax drawer: seven circles bob as if at different depths, but there is no depth law — they all share one and the same waveform, and only the travel amount, chosen by hand per circle, differs. Skeleton code included."
         }
       }
     },
@@ -3252,6 +3258,52 @@
             {
               "type": "callout",
               "text": "The source is one cell of PuttiMW's (@PuttiMW) drawer series — decomposed and rebuilt in a motion-research repo. The palette swaps the reference red for the fixed light palette, and the dot's white eyes are left undrawn. The texture on the demo above — grain and chromatic aberration — is composited live by the video-finishing package we are building in-house: everything from the easing solver to the grain randomness is our own code. Where `WebGPU` is unavailable, the demo falls back to plain `SVG` + `requestAnimationFrame` rendering."
+            }
+          ]
+        },
+        "parallax-bob": {
+          "sections": [
+            {
+              "type": "motion-demo",
+              "demo": "parallax-bob",
+              "caption": "Seven circles bob up and down — bigger ones look like they travel more"
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "Set up one waveform and a per-circle travel"
+            },
+            {
+              "type": "list",
+              "items": [
+                "Seven fixed circles — position and size locked, only the vertical moves",
+                "One shared waveform — top → bottom → top across 3 keys, zero speed at every key, a separate easing curve for the descent and the ascent",
+                "A per-circle travel `amp` and centre `mid` — multiply the shared wave by its own `amp` and bob from `mid`"
+              ]
+            },
+            {
+              "type": "code",
+              "text": "// All that moves is one vertical wave; the 7 circles each read it by their own travel.\n// The bare lowercase names (periodFrames, bottomKeyFrame) are numbers you choose for\n// your own screen — what this article is for is the shape, not the values.\n\nconst wrap = (value, span) => ((value % span) + span) % span;\n\nconst sharedWave = (designTime) => { // top → bottom → top; the descent and ascent carry separate curves\n  const descEase = cubicBezier(...descHandles); // descent (top→bottom) easing\n  const ascEase = cubicBezier(...ascHandles);   // ascent (bottom→top) easing\n  const t = wrap(designTime, periodFrames);\n  if (t <= bottomKeyFrame) return -1 + 2 * descEase(t / bottomKeyFrame); // top to bottom\n  return 1 - 2 * ascEase((t - bottomKeyFrame) / (periodFrames - bottomKeyFrame)); // bottom to top\n};\n\nfunction dotsAt(frame) { // frame number → where the 7 circles go; compute the wave, read each by travel\n  const wave = sharedWave(frame + capturePhase);\n  return circles.map((c) => ({\n    cx: c.cx,\n    cy: c.mid + c.amp * wave,\n    r: c.r,\n  }));\n}"
+            },
+            {
+              "type": "paragraph",
+              "text": "`descEase` and `ascEase` hold the face of this motion. They are the same 4 numbers as CSS `cubic-bezier()`, and what you put in `descHandles` and `ascHandles` goes straight into npm's `bezier-easing`. The wave runs between a top end and a bottom end, and the curve fills the space between. The descent (top→bottom) and the ascent (bottom→top) carry separate curves on purpose — reuse one for both and the miss against the original video grows clearly."
+            },
+            {
+              "type": "paragraph",
+              "text": "The seven bobbing circles all read the same `sharedWave`. The only thing that differs is each circle's `amp` — no code staggers their starts, and no circle gets its own wave. Bigger circles look like they travel more, but there is no law tying size to travel — each `amp` is a value chosen by hand. In the original video, too, the size-to-travel ratios are scattered, never a clean proportion."
+            },
+            {
+              "type": "paragraph",
+              "text": "Placement is just seven circles drawn at the returned `cx`, `cy`, `r`. Drive it with `requestAnimationFrame`: multiply the elapsed seconds by your frames-per-second, take the remainder against `periodFrames`, and hand the frame to `dotsAt` — you get the same loop as the demo above. The wave returns exactly to the starting top at the end of one lap, so the loop has no visible seam."
+            },
+            {
+              "type": "paragraph",
+              "text": "To play with it, rewrite `amp`. Make every `amp` equal and the depth vanishes into a plain unison bob; scatter them and the depth returns. Point the wave at scale or opacity instead of the vertical position, and the skeleton that shares one waveform keeps working."
+            },
+            {
+              "type": "callout",
+              "text": "The source is one cell of PuttiMW's (@PuttiMW) drawer series — decomposed and rebuilt in a motion-research repo. The palette swaps the reference red for the fixed light palette. The texture on the demo above — grain and chromatic aberration — is composited live by the video-finishing package we are building in-house: everything from the easing solver to the grain randomness is our own code. Where `WebGPU` is unavailable, the demo falls back to plain `SVG` + `requestAnimationFrame` rendering."
             }
           ]
         }

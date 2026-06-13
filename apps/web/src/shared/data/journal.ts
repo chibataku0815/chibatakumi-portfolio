@@ -250,6 +250,17 @@ export const motionStudyEntries: readonly JournalEntry[] = [
     status: "published",
     evidenceLevel: "production",
   },
+  // Article #11 of the drawer rollout — same uncommitted-until-reviewed gate.
+  {
+    slug: "parallax-bob",
+    kind: "motion-study",
+    href: "/journal/motion-studies/parallax-bob",
+    publishedAt: "2026-06-13",
+    priority: 11,
+    tags: ["Parallax", "Amplitude", "Easing", "SVG"],
+    status: "published",
+    evidenceLevel: "production",
+  },
   {
     slug: "signal-stroke-relay",
     kind: "motion-study",
