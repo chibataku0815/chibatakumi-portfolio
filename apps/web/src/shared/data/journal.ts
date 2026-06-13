@@ -272,6 +272,17 @@ export const motionStudyEntries: readonly JournalEntry[] = [
     status: "published",
     evidenceLevel: "production",
   },
+  // Article #14 of the drawer rollout — same uncommitted-until-reviewed gate.
+  {
+    slug: "offset-stagger-conveyor",
+    kind: "motion-study",
+    href: "/journal/motion-studies/offset-stagger-conveyor",
+    publishedAt: "2026-06-14",
+    priority: 14,
+    tags: ["Offset", "Stagger", "Easing", "SVG"],
+    status: "published",
+    evidenceLevel: "production",
+  },
   {
     slug: "signal-stroke-relay",
     kind: "motion-study",

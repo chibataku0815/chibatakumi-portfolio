@@ -1676,6 +1676,12 @@
           "title": "配置移行の作り方",
           "summary": "9 つの点が中央に集まり、リングの形に開き、渦を巻いて別の場所へ戻る — まるで細かく振り付けたように見える。でも手で形を決めたのは「グリッド」と「リング」の 2 つの並びだけ。渦も席の入れ替わりも一つずつ動かさず、この 2 つの並びと点の移し方から自然に生まれる。骨格コードつきで作り方を一から追う。",
           "metaDescription": "配置移行の正体を読み解く motion study。9 つの点が中央に集まり、リングの形に開き、渦を巻いて別の場所へ戻る。でも手で形を決めたのは「グリッド」と「リング」の 2 つの並びだけ — 渦も席の入れ替わりも一つずつ動かさず、2 つの並びと点の移し方から自然に生まれる。骨格コードつき。"
+        },
+        "offset-stagger-conveyor": {
+          "eyebrow": "オフセット",
+          "title": "オフセットの作り方",
+          "summary": "5 つの円が左へ送られ、大きさの波が右から左へ伝わって見える。でも 1 つずつ動かしているのではなく、ひとつの動きを少しずつ時間をずらして重ねているだけ。そのズレこそが「オフセット」だ。骨格コードつきで組み立ての考え方から歩く。",
+          "metaDescription": "オフセットの正体を読み解く motion study。5 つの円が左へ送られ、大きさの波が右から左へ伝わって見えるが、1 つずつ動かしてはいない。ひとつの動きを少しずつ時間をずらして重ねているだけ — そのズレが「オフセット」だ。骨格コードつき。"
         }
       }
     },
@@ -3362,6 +3368,56 @@
             {
               "type": "paragraph",
               "text": "遊ぶなら配置を書き換える。`restToRing` と `ringToRest` の対応を変えると、戻りの渦の巻き方と席順がまるごと変わる。`turntableDeg` を増やせばリングを回る道のりが伸び、`delaysPerSlot` をいじれば点が散り散りに動き出すか、いっせいに動き出すかが変わる。配置の点を別の形に置き換えても、2 つの配置をつなぐこの骨格はそのまま働く。"
+            },
+            {
+              "type": "callout",
+              "text": "原典はプッティさん（@PuttiMW）の「モーションの引き出し」の 1 セル — 研究リポで分解・再構築したもの。色は参照の青ではなく固定ライトパレット。上のデモの質感 — 粒状（grain）と色収差 — は、自分たちで開発している映像仕上げ用パッケージでライブ合成していて、イージングのソルバーから粒の乱数まで自作だ。`WebGPU` が使えない環境では `SVG` + `requestAnimationFrame` 描画に切り替わる。"
+            }
+          ]
+        },
+        "offset-stagger-conveyor": {
+          "sections": [
+            {
+              "type": "motion-demo",
+              "demo": "offset-stagger-conveyor",
+              "caption": "5 つの円が左へ送られ、大きさが順に膨らんで縮む — 波に見えるのは、同じ動きを時間でずらして重ねたぶんだけ"
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "ひとつの動きと、時間をずらした重ね方を用意する"
+            },
+            {
+              "type": "list",
+              "items": [
+                "手で決めるのは、円ひとつが左へすべる 1 本の動きと、スロットごとの大きさの並び",
+                "その 1 本の動きを、少しずつ時間をずらして重ねる — これが「オフセット」",
+                "右へ向かう複製のうち 1 つだけ、ひとつの大きさを少し増やしてある"
+              ]
+            },
+            {
+              "type": "code",
+              "text": "const wrap = (value, span) => ((value % span) + span) % span;\n\n// フレーム番号 → いま何割すすんだか(0 から 1)。ひと送りのあいだ前へ進み、送り切ったら待つ\nconst progressAt = (frame) => {\n  const local = wrap(frame, periodFrames);\n  const subcycle = Math.floor(local / subcycleFrames);\n  const within = local - subcycle * subcycleFrames;\n  return cubicBezier(...easeHandles)(Math.min(within / activeFrames, 1));\n};"
+            },
+            {
+              "type": "paragraph",
+              "text": "`progressAt` が返すのは、ひと送りのあいだに 0 から 1 へ動くひとつの数だ。あとで見るとおり、この同じ数が円の送り(位置)と大きさの両方を動かす。`cubicBezier` に渡す `easeHandles` は CSS の `cubic-bezier()` と同じ並びで、そのまま npm の `bezier-easing` にも渡せる。頭打ちにしてあるから、`activeFrames` のあいだだけ前へ送って、残りはそのまま次まで待つ。"
+            },
+            {
+              "type": "code",
+              "text": "const slotCount = slotKeys.length;\nconst dupCount = Math.round(periodFrames / subcycleFrames);\n\n// スロットの大きさ。時間ずらしの複製のうち 1 つだけ、右のひとつが別の値を返す\nconst valueOf = (slot, dup) => {\n  if (dup === overrideDup && slot === overrideSlot) return overrideValue;\n  return slot >= 0 && slot < slotCount ? slotKeys[slot] : 0;\n};\n\nfunction dotsAt(frame) { // フレーム番号 → 各スロットの位置と大きさ。1 つの progress が両方を決める\n  const subcycle = Math.floor(wrap(frame, periodFrames) / subcycleFrames);\n  const progress = progressAt(frame);\n  return slotKeys.map((_, slot) => {\n    const dup = wrap(subcycle + slot - (slotCount - 1), dupCount);\n    return {\n      coord: anchor + spacing * (slot - progress),\n      value: valueOf(slot, dup) * (1 - progress) + valueOf(slot - 1, dup) * progress,\n      slot,\n    };\n  });\n}"
+            },
+            {
+              "type": "paragraph",
+              "text": "ここがオフセットの正体だ。`dotsAt` は別々の波を描いていない — `dup` で複製を選び、ひとつの `progress` を時間差で読んでいるだけだ。右から左へ伝わる「大きさの波」は、同じ動きを少しずつ遅らせて重ねた見え方にすぎない。途中で大きさがふつうに戻っていくように見えるのも、増やしたひとつの値が、隣の共通の値へ補間されていくからで、別の戻し処理があるわけではない。"
+            },
+            {
+              "type": "paragraph",
+              "text": "画面に置くのは円だけだ。`dotsAt` が返した `coord` を横位置に、`value` を半径にして、ひとつの基準線の上にならべる。大きさがほぼ 0 のスロットは描かず外す。動かすのは `requestAnimationFrame` で、経過した時間にコマ数を掛けてフレーム番号を出し、`periodFrames` で `wrap` して `dotsAt` に渡せば、このデモと同じループになる。すすみが `periodFrames` で一周し、複製の選び方も一周ぶんで元へ戻るので、継ぎ目は出ない。"
+            },
+            {
+              "type": "paragraph",
+              "text": "遊ぶなら大きさの並びを書き換える。`slotKeys` の数をいじれば波の山が高く・低くなり、`spacing` を変えれば送る幅が変わる。増やしたひとつ(`overrideValue`)を消せば、波はどこも同じ大きさで流れる。`subcycleFrames` を縮めれば、送りも複製の間隔もせわしなくなる。色は決め打ちにせずページの地の色を受け取るので、円を四角に変えても、この骨格はそのまま働く。"
             },
             {
               "type": "callout",

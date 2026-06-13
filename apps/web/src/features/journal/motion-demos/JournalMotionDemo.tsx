@@ -15,6 +15,7 @@ import { CoupledShearRotationFinishDemo } from "./CoupledShearRotationFinishDemo
 import { GatherReturnFinishDemo } from "./GatherReturnFinishDemo";
 import { LatticeBreathFinishDemo } from "./LatticeBreathFinishDemo";
 import { MasterRotationEchoFinishDemo } from "./MasterRotationEchoFinishDemo";
+import { OffsetStaggerConveyorFinishDemo } from "./OffsetStaggerConveyorFinishDemo";
 import { ParallaxBobFinishDemo } from "./ParallaxBobFinishDemo";
 import { PulseGridFinishDemo } from "./PulseGridFinishDemo";
 import { SharedHoldPulseFinishDemo } from "./SharedHoldPulseFinishDemo";
@@ -38,6 +39,7 @@ const DEMO_REGISTRY: Record<string, () => React.ReactElement> = {
   "velocity-seeded-overshoot": VelocitySeededOvershootFinishDemo,
   "parallax-bob": ParallaxBobFinishDemo,
   "arrangement-turntable": ArrangementTurntableFinishDemo,
+  "offset-stagger-conveyor": OffsetStaggerConveyorFinishDemo,
 };
 
 interface JournalMotionDemoProps {

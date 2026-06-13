@@ -1674,6 +1674,12 @@
           "title": "How to build arrangement",
           "summary": "Nine dots gather at the centre, open into a ring, then swirl back to new places — it looks finely choreographed. But you only hand-author two layouts: a square grid and a ring. The swirl and the seat-swap aren't animated one by one — they fall out of those two layouts and how the dots are matched between them. Skeleton code included; we build it from scratch.",
           "metaDescription": "A motion study unpacking the arrangement drawer: nine dots gather at the centre, open into a ring, then swirl back to new places. But you only hand-author two layouts — a square grid and a ring; the swirl and the seat-swap aren't animated one by one, they fall out of those two layouts and how the dots are matched between them. Skeleton code included."
+        },
+        "offset-stagger-conveyor": {
+          "eyebrow": "Offset",
+          "title": "How to build offset",
+          "summary": "Five circles slide left, and a wave of sizes seems to travel right to left. But you don't animate them one by one — you take one move and layer it, each copy delayed by a little. That stagger is what “offset” is. Skeleton code included; we walk it from the build up.",
+          "metaDescription": "A motion study that unpacks offset: five circles slide left and a wave of sizes seems to travel right to left, but they aren't animated one by one. You take one move and layer it, each copy delayed a little — that stagger is “offset”. Skeleton code included."
         }
       }
     },
@@ -3364,6 +3370,56 @@
             {
               "type": "callout",
               "text": "The source is one cell of PuttiMW's (@PuttiMW) drawer series — decomposed and rebuilt in a motion-research repo. The palette swaps the reference blue for the fixed light palette. The texture on the demo above — grain and chromatic aberration — is composited live by the video-finishing package we are building in-house: everything from the easing solver to the grain randomness is our own code. Where `WebGPU` is unavailable, the demo falls back to plain `SVG` + `requestAnimationFrame` rendering."
+            }
+          ]
+        },
+        "offset-stagger-conveyor": {
+          "sections": [
+            {
+              "type": "motion-demo",
+              "demo": "offset-stagger-conveyor",
+              "caption": "Five circles slide left, swelling and shrinking in turn — the wave is just the same move layered at staggered time offsets"
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "One move, and the staggered offsets that layer it"
+            },
+            {
+              "type": "list",
+              "items": [
+                "You hand-author one move — a single dot sliding left — and the run of sizes, one per slot",
+                "You layer that one move, each copy delayed by a little — that is “offset”",
+                "One copy heading right carries a single size bumped up a touch"
+              ]
+            },
+            {
+              "type": "code",
+              "text": "const wrap = (value, span) => ((value % span) + span) % span;\n\n// frame number → how far along (0 to 1). Each slide advances forward, then holds\nconst progressAt = (frame) => {\n  const local = wrap(frame, periodFrames);\n  const subcycle = Math.floor(local / subcycleFrames);\n  const within = local - subcycle * subcycleFrames;\n  return cubicBezier(...easeHandles)(Math.min(within / activeFrames, 1));\n};"
+            },
+            {
+              "type": "paragraph",
+              "text": "`progressAt` returns one number that moves from 0 to 1 over each slide. As you'll see, that same number moves both the slide (position) and the size of every circle. The `easeHandles` you pass to `cubicBezier` are the same set as CSS `cubic-bezier()`, and drop straight into npm's `bezier-easing`. It's clamped, so it advances only for `activeFrames`, then holds until the next one."
+            },
+            {
+              "type": "code",
+              "text": "const slotCount = slotKeys.length;\nconst dupCount = Math.round(periodFrames / subcycleFrames);\n\n// size for a slot. In just one of the time-shifted copies, one right-hand slot returns a different value\nconst valueOf = (slot, dup) => {\n  if (dup === overrideDup && slot === overrideSlot) return overrideValue;\n  return slot >= 0 && slot < slotCount ? slotKeys[slot] : 0;\n};\n\nfunction dotsAt(frame) { // frame number → each slot's position and size. One progress decides both\n  const subcycle = Math.floor(wrap(frame, periodFrames) / subcycleFrames);\n  const progress = progressAt(frame);\n  return slotKeys.map((_, slot) => {\n    const dup = wrap(subcycle + slot - (slotCount - 1), dupCount);\n    return {\n      coord: anchor + spacing * (slot - progress),\n      value: valueOf(slot, dup) * (1 - progress) + valueOf(slot - 1, dup) * progress,\n      slot,\n    };\n  });\n}"
+            },
+            {
+              "type": "paragraph",
+              "text": "This is what offset really is. `dotsAt` doesn't draw separate waves — it picks a copy with `dup` and reads one `progress` at a time offset, nothing more. The “wave of sizes” travelling right to left is just the same move layered with small delays. The way a size looks like it eases back to normal on the way in is only that one bumped value being interpolated toward the shared neighbour — there's no separate falloff step."
+            },
+            {
+              "type": "paragraph",
+              "text": "Placing it is just circles. Take the `coord` `dotsAt` returns as the x, the `value` as the radius, and line them up on one baseline. Slots whose size is near 0 are dropped. Drive it with `requestAnimationFrame`: multiply elapsed time by your frame count to get a frame number, `wrap` it against `periodFrames`, and hand it to `dotsAt` — you get the same loop as the demo. Progress comes full circle over `periodFrames` and the copy assignment returns to its start over one lap, so there's no visible seam."
+            },
+            {
+              "type": "paragraph",
+              "text": "To play with it, rewrite the run of sizes. Change the numbers in `slotKeys` and the wave's peak rises or falls; change `spacing` and the slide step changes. Delete the one bumped value (`overrideValue`) and the wave flows at the same size everywhere. Shrink `subcycleFrames` and both the slide and the spacing between copies get busier. Since it takes the page's own ink rather than a hard-coded colour, you can swap the circles for squares and the same skeleton keeps working."
+            },
+            {
+              "type": "callout",
+              "text": "The source is one cell from Putti's (@PuttiMW) “motion drawers” — taken apart and rebuilt in the research repo. The colour is a fixed light palette, not the reference blue. The texture on the demo above — grain and chromatic aberration — is composited live by a film-finish package we build ourselves, with everything from the easing solver to the grain's randomness written by hand. Where `WebGPU` isn't available, it falls back to `SVG` + `requestAnimationFrame` rendering."
             }
           ]
         }
