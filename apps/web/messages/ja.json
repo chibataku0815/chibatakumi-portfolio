@@ -1583,55 +1583,55 @@
       "entries": {
         "lattice-breath": {
           "eyebrow": "増減",
-          "title": "増えて見えるドットの解剖",
+          "title": "増減の作り方",
           "summary": "ドットは 6 個から 19 個へ増え、また 6 個へ戻って見える。だが 1 個も作られていない。個数を直接アニメするキーはなく、増えて見えるのは現れるタイミングが少しずつずれているからだ。格子全体の開閉に、グループごとに時間差をつけた出現を重ねると、個数の変化はひとりでに生まれる。その仕掛けを、フレームワークに依存しない短い関数に書き起こして解剖する。",
           "metaDescription": "個数を増やすキーなしでドットが 6→19→6 と増えて見える motion study。実際には 1 個も作られておらず、出現タイミングの時間差が数の変化を生む。動きを計算する短い関数を記事に載せ、ブラウザでライブ再生する。"
         },
         "pulse-grid": {
           "eyebrow": "ランダム",
-          "title": "ランダムに見える順番の解剖",
+          "title": "ランダムの作り方",
           "summary": "9 個のドットが、予測できない順に弾む。だが乱数はどこにも使われていない。動きはキーフレームで打たれたクリップ 1 本だけ — 9 個全てが同じクリップを一定の間隔でずらして再生している。順番の正体は、9 マスに何番目かを書き込んだ固定の表 1 枚だ。ばねに見えるアンダーシュートまで含めて、その作りを短い関数に書き起こして解剖する。",
           "metaDescription": "「ランダム」の正体を解剖する motion study。9 ドットの弾む順番は固定の順番表 1 枚で決まり、乱数はゼロ — 半径キーフレームのクリップ 1 本を順番表どおりに一定間隔で時間ずらしするだけの、毎回同じ動きになる作り。動きを計算する短い関数を記事に載せ、ブラウザでライブ再生する。"
         },
         "tangency-coupled-drive": {
           "eyebrow": "連動",
-          "title": "止まって見える回転の解剖",
+          "title": "連動の作り方",
           "summary": "中央の正方形が四分の一回転するあいだ、両脇はぴったり結ばれたように滑り、ダイヤのあたりで全部が止まって見える。だがキーフレームは回転の 3 個だけ — 両脇にはゼロで、その位置は「回転する正方形に触れないギリギリ」を毎フレーム計算した結果だ。止まって見える瞬間さえ、誰も止めていない。回転 1 本と接触の法則 1 行を、短い関数に書き起こして解剖する。",
           "metaDescription": "連動の正体を解剖する motion study。キーフレームは中央の回転 3 個だけで、両脇の正方形は「回転する正方形に触れないギリギリの位置」の毎フレーム計算で決まる — ダイヤ付近の「停止」はホールドキーではなく、ダイヤの前後で横幅がほとんど変わらないために生まれる。動きを計算する短い関数を記事に載せ、ブラウザでライブ再生する。"
         },
         "complement-tangent-pair": {
           "eyebrow": "反比例",
-          "title": "反比例に見える 2 円の解剖",
+          "title": "反比例の作り方",
           "summary": "接し合う 2 つの円が、一方はふくらみ一方はしぼんで、大きさを交換し続ける。名前は「反比例」— だが測ると、掛けた答え（積）が一定になる反比例の式は成り立っていない。一定なのは足し算のほう、半径の和だ。キーフレームは左上の円の半径に 3 個だけで、右下の半径は和からの引き算、2 つの中心は固定の接点から自分の半径ぶん退いた位置に計算で決まる。接点がループのあいだ一度も動かない理由ごと、短い関数に書き起こして解剖する。",
           "metaDescription": "反比例に見える 2 円の正体を解剖する motion study。一定なのは掛けた答え（積）ではなく半径の和 — 積の式のずれは和の式より桁違いに大きい。キーは片方の半径に 3 個だけ、相方は和からの引き算、中心は固定の接点から計算で決まり、接点は一度も動かない。動きを計算する短い関数を記事に載せ、ブラウザでライブ再生する。"
         },
         "master-rotation-echo": {
           "eyebrow": "残像",
-          "title": "尾を引いて見えるドットの解剖",
+          "title": "残像の作り方",
           "summary": "2 個のドットが円を 1 周するあいだ、速い区間では尾がコマ送りのように分かれ、遅い区間ではひとつながりに溶けて、止まると消える。だが動かしているのは回転 1 本だけ — 尾の 1 枚 1 枚は、同じ回転を一定のわずかな遅れで再生した過去の自分だ。分かれるか溶けるかも、誰も切り替えていない。回転 1 本と複製 9 枚を、短い関数に書き起こして解剖する。",
           "metaDescription": "残像の正体を解剖する motion study。動かしているのは回転 1 本だけで、尾は同じ回転を一定の遅れで再生する複製 9 枚 — コマ送りに分かれるか、ひとつながりに溶けるかは、ドットが複製 1 枚ぶんの遅れの間に自分の幅より進むかどうかだけで決まる。動きを計算する短い関数を記事に載せ、ブラウザでライブ再生する。"
         },
         "shared-hold-pulse": {
           "eyebrow": "対称",
-          "title": "息が合って見える 5 つの図形の解剖",
+          "title": "対称の作り方",
           "summary": "4 本のバーが左右へ開きながら伸び、中央のスクエアがふくらみ、いちばん伸び切ったところで一瞬そろって止まって、同じ道を帰ってくる。完璧に申し合わせたように見えるが、図形ごとのキーフレームは 1 つもない — 動いているのは 0 から 1 へ上がり、少し止まって 0 へ帰る数値 1 本だけだ。各図形はその数値に自分の動き幅を掛けて読んでいるだけで、鏡写しの正体は符号が左右で逆なこと。中央のスクエアは同じ数値で半回転までする。数値 1 本と図形ごとの動き幅を、短い関数に書き起こして解剖する。",
           "metaDescription": "対称の正体を解剖する motion study。鏡写しに開く 4 本のバーと半回転する中央スクエアを、0 から 1 へ上がって少し止まり 0 へ帰る数値 1 本が同時に動かす — 図形ごとのキーフレームはなく、鏡写しは読み取りの符号が左右で逆なだけ。動きを計算する短い関数を記事に載せ、ブラウザでライブ再生する。"
         },
         "whip-crawl-path-cycle": {
           "eyebrow": "循環",
-          "title": "変速して見える周回の解剖",
+          "title": "循環の作り方",
           "summary": "∞ の道を、太い線の頭とドットが 1 周のほとんどをひと息に駆け、残りだけゆっくり這う。二段変速に見えるが、自分で決める速さのキーは鞭のひと振りぶんの 2 つだけ — 這いの速さは「決めたフレーム数でちょうど 1 周して戻る」という約束から自動で決まる。線は伸び縮みせず、固定長の窓が道の上を滑っているだけだ。",
           "metaDescription": "循環の正体を解剖する motion study。∞ の道を駆けて這うドットの二段変速に見える緩急は、cubic-bezier の鞭 1 本と「1 周して戻る」約束が残す這い — 変速の仕組みはどこにもない。線は固定長のダッシュ窓のスライド。動きを計算する短い関数を記事に載せ、ブラウザでライブ再生する。"
         },
         "coupled-shear-rotation": {
           "eyebrow": "分割",
-          "title": "2 つの動きに見える割れた円の解剖",
+          "title": "分割の作り方",
           "summary": "円が縦に割れ、2 つの半円がすれ違いながら全体が回り、また 1 つの円に閉じる。回転とスライドの二重の振り付けに見えて、動かしている数値は進み具合 1 本。締めの一致は腕ではなく図形の性質が引き受けている — その分解を、組み立ての考え方から歩く。",
           "metaDescription": "分割の正体を解剖する motion study。割れた円の回転とすれ違いは 1 本の進み具合からの計算で出て、継ぎ目のないループは単色の円が向きを隠すことで閉じる。骨格コードと突き止め方つき。"
         },
         "gather-return": {
           "eyebrow": "一体化と分離",
-          "title": "ひとつに溶けて見える円の解剖",
+          "title": "一体化と分離の作り方",
           "summary": "リング状に並んだ 8 個の円がまわりながら順番に中心へ潜り、ひとつの大きな円に呑み込まれて、また離れて輪にもどる。合体にも分離にも振り付けはない — あるのは「集まる・待つ・もどる」のクリップ 1 本の遅らせ再生と、一定の速さで回りつづける輪だけ。溶けて見えるのは同じ色の円が重なるからで、まん中の円は面積の帳尻が合うように平方根でふくらむ。骨格コードつきで組み立ての考え方から歩く。",
           "metaDescription": "一体化と分離の正体を解剖する motion study。円の合体と分離は「集まる→待つ→もどる」クリップ 1 本の遅らせ再生から生まれ、溶ける輪郭は同色の重なり、まん中の円は面積の帳尻が合うように平方根で成長。骨格コードつき。"
         },
@@ -1661,21 +1661,21 @@
         },
         "velocity-seeded-overshoot": {
           "eyebrow": "追従",
-          "title": "重さがあるように振れる i の解剖",
+          "title": "追従の作り方",
           "summary": "右から左へ振れる i のフォロースルー。遅れも跳ねもどこにも数で書かず、あるのは片道の振り 1 本と、最後のキーを振り抜く速さがそのまま決める揺れだけ。骨格コードつきで組み立ての考え方から歩く。",
           "metaDescription": "追従の正体を解剖する motion study。文字の遅れ・しなり・行き過ぎは振り付けたものではなく、片道の振り 1 本と、最後のキーを振り抜く速さがそのまま大きさを決める揺れから出る。骨格コードつき。"
         },
         "parallax-bob": {
           "eyebrow": "視差",
-          "title": "奥行きに見える上下動の解剖",
+          "title": "視差の作り方",
           "summary": "7 つの円が上下に弾み、奥行きがあるように見える。だが遠近の法則はなく、全部が同じ 1 本の波を共有して、振れ幅だけが円ごとに違う。骨格コードつきで組み立ての考え方から歩く。",
           "metaDescription": "視差の正体を解剖する motion study。7 つの円が奥行きを持つように上下するが、遠近の法則はない — 全部が同じ 1 本の波を共有し、振れ幅だけが円ごとに手で決めた値だ。骨格コードつき。"
         },
         "arrangement-turntable": {
           "eyebrow": "配置移行",
-          "title": "群舞に見える配置移行の解剖",
-          "summary": "9 つの点が集まり、リングへ放たれ、渦を巻いて別の席へ戻る — まるで振り付けられた群舞に見える。でもキーとして与えた配置は 2 つだけで、あいだは移動でつなぐ。渦も席替えも一つずつ振り付けず、配置のつなぎ方からひとりでに出てくる。骨格コードつきで組み立ての考え方から歩く。",
-          "metaDescription": "配置移行の正体を解剖する motion study。9 つの点が群舞のように集まり、リングへ放たれ、渦を巻いて別の席へ戻る。だがキーとして与えた配置は 2 つだけで、あいだは移動でつなぐ — 渦も席替えも一つずつ振り付けず、配置のつなぎ方からひとりでに現れる。骨格コードつき。"
+          "title": "配置移行の作り方",
+          "summary": "9 つの点が中央に集まり、リングの形に開き、渦を巻いて別の場所へ戻る — まるで振り付けられたダンスに見える。でも手で形を決めたのは「グリッド」と「リング」の 2 つの並びだけ。渦も席の入れ替わりも一つずつ動かさず、この 2 つの並びと点の移し方から自然に生まれる。骨格コードつきで作り方を一から追う。",
+          "metaDescription": "配置移行の正体を解剖する motion study。9 つの点が中央に集まり、リングの形に開き、渦を巻いて別の場所へ戻る。でも手で形を決めたのは「グリッド」と「リング」の 2 つの並びだけ — 渦も席の入れ替わりも一つずつ動かさず、2 つの並びと点の移し方から自然に生まれる。骨格コードつき。"
         }
       }
     },
@@ -3320,44 +3320,48 @@
             {
               "type": "motion-demo",
               "demo": "arrangement-turntable",
-              "caption": "9 つの点がグリッドとリングを行き来する — 渦も席替えも、2 つの配置のつなぎ方からひとりでに出てくる"
+              "caption": "9 つの点がグリッドとリングのあいだを行き来する — 渦も席の入れ替わりも、2 つの並びと点の移し方から自然に生まれる"
             },
             {
               "type": "heading",
               "level": 2,
-              "text": "2 つの配置と、あいだを結ぶ 3 つの相を組む"
+              "text": "2 つの配置と、あいだをつなぐ 3 つの動きを作る"
             },
             {
               "type": "list",
               "items": [
-                "キーになる配置は 2 つ — 中心を共有する、自由に置いた休みのグリッドと、1 つの半径に固定スロット角のリング",
-                "2 つの配置から各点のジオメトリを先に出す — 休み位置の半径と角度、スロットへの角度差、リング座標、回したあとの行き先",
-                "あいだを結ぶ 3 つの相 — 引きこんで放る拡張、リングで静止して待つ間、1 本の回転クロックで席を詰める収縮"
+                "手で形を決める配置は 2 つ — 中心を共有する、四角く並んだ「グリッド」と、輪に並んだ「リング」",
+                "2 つの配置から各点の位置を先に割り出す — 休み位置からの距離と向き、リング上の行き先、回したあとに座る場所",
+                "あいだをつなぐ 3 つの動き — 中央へ引きこんで外へ放る、リングの形で少し止まる、回しながら次の席へ寄せる"
               ]
             },
             {
               "type": "code",
-              "text": "const deg = Math.PI / 180;\nconst signedArc = (from, to) => ((to - from + 180) % 360 + 360) % 360 - 180;\n\n// 2 つの配置キーから、各点のジオメトリを先に出す\nconst restRadius = restPositions.map(([x, y]) => Math.hypot(x - cx, y - cy));\nconst restAngle = restPositions.map(([x, y]) => Math.atan2(y - cy, x - cx) / deg);\nconst slotAngle = restToRing.map((slot) => ringAnglesDeg[slot]);\nconst angleGap = restAngle.map((a, dot) => signedArc(a, slotAngle[dot]));\nconst slotPoint = ringAnglesDeg.map((a) => [\n  cx + ringRadius * Math.cos(a * deg),\n  cy + ringRadius * Math.sin(a * deg),\n]);\nconst back = -turntableDeg * deg;\nconst destLocal = restToRing.map((slot, dot) => {\n  if (dot === centerDestinationDot) return [0, 0]; // 行き先が中心の点はそこを狙う\n  const [x, y] = restPositions[ringToRest[slot]];\n  const lx = x - cx;\n  const ly = y - cy;\n  return [lx * Math.cos(back) - ly * Math.sin(back), lx * Math.sin(back) + ly * Math.cos(back)];\n});"
+              "text": "const deg = Math.PI / 180;\nconst signedArc = (from, to) => ((to - from + 180) % 360 + 360) % 360 - 180;\n\n// 2 つの配置から、各点の位置を先に割り出す\nconst restRadius = restPositions.map(([x, y]) => Math.hypot(x - cx, y - cy));\nconst restAngle = restPositions.map(([x, y]) => Math.atan2(y - cy, x - cx) / deg);\nconst slotAngle = restToRing.map((slot) => ringAnglesDeg[slot]);\nconst angleGap = restAngle.map((a, dot) => signedArc(a, slotAngle[dot]));\nconst slotPoint = ringAnglesDeg.map((a) => [\n  cx + ringRadius * Math.cos(a * deg),\n  cy + ringRadius * Math.sin(a * deg),\n]);\nconst back = -turntableDeg * deg;\nconst destLocal = restToRing.map((slot, dot) => {\n  if (dot === centerDestinationDot) return [0, 0]; // 行き先が中心の点はそこを狙う\n  const [x, y] = restPositions[ringToRest[slot]];\n  const lx = x - cx;\n  const ly = y - cy;\n  return [lx * Math.cos(back) - ly * Math.sin(back), lx * Math.sin(back) + ly * Math.cos(back)];\n});"
             },
             {
               "type": "paragraph",
-              "text": "はじめのコードがやるのは、2 つの配置から各点のジオメトリを先に出すことだ。`restToRing` はどの点がどのスロットへ向かうか、`ringToRest` は戻るときどの休み席へ座り直すかを表す並びで、この 2 本の並びが戻りの渦巻きと席の入れ替わりを丸ごと決める。中央のかたまりも、渦も、席替えも、一つずつ振り付けてはいない — 2 つの配置とそのつなぎ方からひとりでに出てくる。"
+              "text": "はじめのコードは、2 つの配置から各点の位置を先に割り出す。`restToRing` はどの点がリングのどこへ向かうか、`ringToRest` は戻るときどの休み席へ座り直すかの対応だ。この 2 つの対応が決めるのは、各点の行き先と戻る席。渦の巻き方そのものは、あとで出てくる回し方しだいだ。中央のかたまりも、渦も、席替えも、一つずつ動かしているわけではない — 2 つの配置と、この点の移し方から自然に出てくる。"
             },
             {
               "type": "code",
-              "text": "const wrap = (frame, span) => ((frame % span) + span) % span;\nconst [lobeIn, lobeOut] = lobeXHandles;\nconst swingEase = cubicBezier(lobeIn, 0, lobeOut, 1);\nconst lastArrival = Math.max(...arrivals);\n\n// 第 1 相: いちど中心へ引きこんでから外のスロットへ放る(共有のふくらみ)\nconst expand = (frame, dot) => {\n  const span =\n    frame <= departures[dot] ? 0 : frame >= arrivals[dot] ? 1 : (frame - departures[dot]) / (arrivals[dot] - departures[dot]);\n  if (dot === centerSeatDot) { // 休み席が中心の点はへこむ余地がない → 半径は素直に外へ\n    const radius = restRadius[dot] + swingEase(span) * (ringRadius - restRadius[dot]);\n    const angle = slotAngle[dot] * deg;\n    return [cx + radius * Math.cos(angle), cy + radius * Math.sin(angle)];\n  }\n  const dip = cubicBezier(lobeIn, -lobeDepths[dot], lobeOut, 1)(span);\n  const radius = restRadius[dot] + dip * (ringRadius - restRadius[dot]);\n  const angle = (restAngle[dot] + swingEase(span) * angleGap[dot]) * deg;\n  return [cx + radius * Math.cos(angle), cy + radius * Math.sin(angle)];\n};\n\n// 第 3 相: 1 本の回転クロックが全点を回し、各点はリング → 行き先へ弦を詰める\nconst turnEase = cubicBezier(...phiBezier);\nconst chordEase = cubicBezier(...sConBezier);\nconst turnAt = (frame, delay) => {\n  const local = frame - delay;\n  if (local <= windowStart) return 0;\n  if (local >= windowEnd) return turntableDeg;\n  return turntableDeg * turnEase((local - windowStart) / (windowEnd - windowStart));\n};\nconst chordAt = (frame, delay) => {\n  const local = frame - delay;\n  if (local <= windowStart) return 0;\n  if (local >= windowEnd) return 1;\n  return chordEase((local - windowStart) / (windowEnd - windowStart));\n};\n\nfunction dotsAt(frame) { // フレーム番号 → 9 つの点の置き場所。相を選び、点ごとに読む\n  const f = wrap(frame, periodFrames);\n  return restPositions.map((_, dot) => {\n    const slot = restToRing[dot];\n    const delay = delaysPerSlot[slot];\n    if (f <= lastArrival) { const [x, y] = expand(f, dot); return { cx: x, cy: y, r: dotRadius }; }\n    if (f - delay < windowStart) return { cx: slotPoint[slot][0], cy: slotPoint[slot][1], r: dotRadius }; // 第 2 相: リングで静止\n    const chord = chordAt(f, delay);\n    const rlx = slotPoint[slot][0] - cx;\n    const rly = slotPoint[slot][1] - cy;\n    const lx = rlx + chord * (destLocal[dot][0] - rlx);\n    const ly = rly + chord * (destLocal[dot][1] - rly);\n    const turn = turnAt(f, delay) * deg;\n    return { cx: cx + lx * Math.cos(turn) - ly * Math.sin(turn), cy: cy + lx * Math.sin(turn) + ly * Math.cos(turn), r: dotRadius };\n  });\n}"
+              "text": "const wrap = (frame, span) => ((frame % span) + span) % span;\nconst [lobeIn, lobeOut] = lobeXHandles;\nconst swingEase = cubicBezier(lobeIn, 0, lobeOut, 1);\nconst lastArrival = Math.max(...arrivals);\n\n// 最初の動き: いちど中央へ引きこんでから外のスロットへ放る(共有のふくらみ)\nconst expand = (frame, dot) => {\n  const span =\n    frame <= departures[dot] ? 0 : frame >= arrivals[dot] ? 1 : (frame - departures[dot]) / (arrivals[dot] - departures[dot]);\n  if (dot === centerSeatDot) { // 休み席が中心の点はへこむ余地がない → 半径は素直に外へ\n    const radius = restRadius[dot] + swingEase(span) * (ringRadius - restRadius[dot]);\n    const angle = slotAngle[dot] * deg;\n    return [cx + radius * Math.cos(angle), cy + radius * Math.sin(angle)];\n  }\n  const dip = cubicBezier(lobeIn, -lobeDepths[dot], lobeOut, 1)(span);\n  const radius = restRadius[dot] + dip * (ringRadius - restRadius[dot]);\n  const angle = (restAngle[dot] + swingEase(span) * angleGap[dot]) * deg;\n  return [cx + radius * Math.cos(angle), cy + radius * Math.sin(angle)];\n};\n\n// 最後の動き: 共通の回す角度で全点を回し、各点はリングから次の席へ寄せる\nconst turnEase = cubicBezier(...phiBezier);\nconst chordEase = cubicBezier(...sConBezier);\nconst turnAt = (frame, delay) => {\n  const local = frame - delay;\n  if (local <= windowStart) return 0;\n  if (local >= windowEnd) return turntableDeg;\n  return turntableDeg * turnEase((local - windowStart) / (windowEnd - windowStart));\n};\nconst chordAt = (frame, delay) => {\n  const local = frame - delay;\n  if (local <= windowStart) return 0;\n  if (local >= windowEnd) return 1;\n  return chordEase((local - windowStart) / (windowEnd - windowStart));\n};\n\nfunction dotsAt(frame) { // フレーム番号 → 各点の置き場所。動きを選び、点ごとに読む\n  const f = wrap(frame, periodFrames);\n  return restPositions.map((_, dot) => {\n    const slot = restToRing[dot];\n    const delay = delaysPerSlot[slot];\n    if (f <= lastArrival) { const [x, y] = expand(f, dot); return { cx: x, cy: y, r: dotRadius }; }\n    if (f - delay < windowStart) return { cx: slotPoint[slot][0], cy: slotPoint[slot][1], r: dotRadius }; // 中ほどの動き: リングで静止\n    const chord = chordAt(f, delay);\n    const rlx = slotPoint[slot][0] - cx;\n    const rly = slotPoint[slot][1] - cy;\n    const lx = rlx + chord * (destLocal[dot][0] - rlx);\n    const ly = rly + chord * (destLocal[dot][1] - rly);\n    const turn = turnAt(f, delay) * deg;\n    return { cx: cx + lx * Math.cos(turn) - ly * Math.sin(turn), cy: cy + lx * Math.sin(turn) + ly * Math.cos(turn), r: dotRadius };\n  });\n}"
             },
             {
               "type": "paragraph",
-              "text": "`expand` が第 1 相だ。各点は自分の `departures` で動きはじめ `arrivals` で止まり、いちど中心へ引きこまれてから外のスロットへ放られる。へこみの深さは `lobeDepths`、その曲がり方は `swingEase` が持つ。`swingEase` の中身は CSS の `cubic-bezier()` と同じ 4 つの数で、`phiBezier` や `sConBezier` に置く数も npm の `bezier-easing` にそのまま渡せる。第 3 相の `turnAt` は全点に共通の回転角を、`chordAt` はリングから行き先へ詰める進み具合を返す。"
+              "text": "`expand` が最初の動きだ。各点は自分の `departures` で動きはじめ、`arrivals` で止まる。いちど中央へ引きこまれてから、外のスロットへ放り出される。へこみの深さは `lobeDepths` で決まる。"
             },
             {
               "type": "paragraph",
-              "text": "画面に置くのは点を 9 つ、返ってきた `cx`・`cy`・`r` のとおりに描くだけだ。動かすのは `requestAnimationFrame` で、経過した時間にコマ数を掛けてフレーム番号を出し、`periodFrames` で `wrap` してから `dotsAt` に渡せば、このデモと同じループになる。`turntableDeg` のぶんだけ回るとリングのスロットがそっくり元の位置に重なり、各点は別の休み席へ座り直して 1 周が閉じるので、ループの継ぎ目は出ない。"
+              "text": "最後の動きでは、`turnAt` が全点に共通の回す角度を返し、`chordAt` がリングから次の席へどれだけ近づいたかを返す。これらの動きの速さは、どれもイージングカーブで決まる。`swingEase`・`phiBezier`・`sConBezier` に置く数は CSS の `cubic-bezier()` と同じ 4 つ。そのまま npm の `bezier-easing` に渡せる。"
             },
             {
               "type": "paragraph",
-              "text": "遊ぶなら並びを書き換える。`restToRing` と `ringToRest` を別の入れ替えにすると、戻りの渦の巻き方と席順がまるごと変わる。`turntableDeg` を増やせばリングを回る道のりが伸び、`delaysPerSlot` をいじれば点が散り散りに発つか、いっせいに発つかが変わる。配置の点を別の形に置き換えても、2 つのキーをつなぐこの骨格はそのまま働く。"
+              "text": "画面に置くのは点を 9 つ、返ってきた `cx`・`cy`・`r` のとおりに描くだけだ。動かすのは `requestAnimationFrame` で、経過した時間にコマ数を掛けてフレーム番号を出し、`periodFrames` で `wrap` してから `dotsAt` に渡せば、このデモと同じループになる。`turntableDeg` のぶんだけ回るとリングの行き先がそっくり元の位置に重なり、各点は別の休み席へ座り直して 1 周が閉じるので、ループの継ぎ目は出ない。"
+            },
+            {
+              "type": "paragraph",
+              "text": "遊ぶなら配置を書き換える。`restToRing` と `ringToRest` の対応を変えると、戻りの渦の巻き方と席順がまるごと変わる。`turntableDeg` を増やせばリングを回る道のりが伸び、`delaysPerSlot` をいじれば点が散り散りに動き出すか、いっせいに動き出すかが変わる。配置の点を別の形に置き換えても、2 つの配置をつなぐこの骨格はそのまま働く。"
             },
             {
               "type": "callout",

@@ -1581,55 +1581,55 @@
       "entries": {
         "lattice-breath": {
           "eyebrow": "Count growth",
-          "title": "Dissecting dots that seem to multiply",
+          "title": "How to build count growth",
           "summary": "The dots seem to grow from 6 to 19 and fall back to 6 — yet not a single one is created. No key animates the count; it looks like more because each appearance is slightly offset in time. Layer group-staggered entrances onto the lattice's open-and-close, and the count change happens on its own. The whole trick is written out as short framework-free functions and dissected.",
           "metaDescription": "A motion study of dots that appear to multiply 6→19→6 with no key animating the count. Nothing is actually created — staggered appearance timing produces the change. The short function that computes the motion is in the article, replayed live in the browser."
         },
         "pulse-grid": {
           "eyebrow": "Random",
-          "title": "Dissecting an order that looks random",
+          "title": "How to build random",
           "summary": "Nine dots pop in an order you can't predict — yet no random number is drawn anywhere. The motion is one keyframed clip, replayed by all nine duplicates a fixed beat apart; the order comes from a single fixed table holding each cell's place in line. The whole build — down to the spring-like undershoot that turns out to be an authored key — is written out as short functions and dissected.",
           "metaDescription": "A motion study dissecting \"random\": the firing order of nine dots comes from one fixed table, zero rng — a single radius-keyframe clip time-shifted by a fixed beat times its place in line, so every loop plays out exactly the same. The short function that computes the motion is in the article, replayed live in the browser."
         },
         "tangency-coupled-drive": {
           "eyebrow": "Linkage",
-          "title": "Dissecting a rotation that seems to stop",
+          "title": "How to build linkage",
           "summary": "While the center square makes a quarter turn, the side squares slide as if bolted to it, and near the diamond everything seems to pause. Yet only the rotation carries keyframes — three. The sides have zero; their position is computed every frame as the closest spot that stays clear of the spinning square. Even the pause is nobody stopping anything. One rotation and a one-line contact law, written out as short functions and dissected.",
           "metaDescription": "A motion study dissecting linkage: three rotation keyframes drive everything, and the side squares are computed each frame as the closest spot that stays clear of the spinning square — the apparent stop near the diamond happens because the width barely changes around the diamond, not because of a hold key. The short function that computes the motion is in the article, replayed live in the browser."
         },
         "complement-tangent-pair": {
           "eyebrow": "Inverse proportion",
-          "title": "Dissecting two circles that look inversely proportional",
+          "title": "How to build inverse proportion",
           "summary": "Two kissing circles keep trading size — one inflates exactly as the other deflates. The drawer is named \"inverse proportion\", yet measured, the equation where the product of the radii stays constant does not hold. What stays constant is the addition: the radii always sum to the same number. Keyframes sit only on the top-left circle's radius — 3 of them; the other radius is a subtraction from that sum, and both centres are computed to recede from a fixed kiss point by their own radius, so the contact never moves through the whole loop. The whole build is written out as short framework-free functions and dissected.",
           "metaDescription": "A motion study dissecting two circles that look inversely proportional: what stays constant is the radius sum, not the product — the constant-product equation misses an order of magnitude worse than the constant-sum one. 3 keyframes on one radius, a subtraction from that sum for its partner, centres computed from a fixed contact point so the kiss never drifts. The short function that computes the motion is in the article, replayed live in the browser."
         },
         "master-rotation-echo": {
           "eyebrow": "Afterimage",
-          "title": "Dissecting dots that seem to trail",
+          "title": "How to build afterimage",
           "summary": "While 2 dots make one lap around a circle, the tail splits into flip-book frames in the fast stretch, melts into one band in the slow stretch, and vanishes the moment they stop. Yet only one rotation is animated — every layer of the tail is the dot's own past, the same rotation replayed a fixed beat later per copy. And nobody switches between the split and the melt, either. One rotation and 9 copies, written out as short functions and dissected.",
           "metaDescription": "A motion study dissecting the afterimage: one animated rotation, and a tail of 9 copies replaying it one fixed delay apart — whether the tail reads as flip-book frames or melts into one band depends only on whether the dot outruns its own width within one copy's delay. The short function that computes the motion is in the article, replayed live in the browser."
         },
         "shared-hold-pulse": {
           "eyebrow": "Symmetry",
-          "title": "Dissecting 5 shapes that seem choreographed",
+          "title": "How to build symmetry",
           "summary": "4 bars stretch open to the left and right, the center square swells, all of them freeze together at full stretch for a beat, then walk the same road home. They look perfectly rehearsed, yet not one shape has its own keyframes — the only thing animated is a single number that climbs from 0 to 1, pauses, and returns to 0. Every shape just reads that number times its own motion amount; the mirror is nothing but the sign flipping between left and right. The center square even makes a half turn on the same number. One number and the per-shape motion amounts, written out as short functions and dissected.",
           "metaDescription": "A motion study dissecting the symmetry drawer: one number that climbs from 0 to 1, holds, and returns drives 4 mirrored bars and a half-turning center square at once — no per-shape keyframes; the mirror is just a sign flip between left and right. The short function that computes the motion is in the article, replayed live in the browser."
         },
         "whip-crawl-path-cycle": {
           "eyebrow": "Cycle",
-          "title": "Dissecting a lap that seems to shift gears",
+          "title": "How to build cycle",
           "summary": "A thick stroke's head and its dot sprint through most of a lap of an ∞ track in one burst, then crawl the rest. It looks like a two-gear lap, but you choose just 2 speed keys — one whip's worth; the crawl's speed follows automatically from the promise that one loop closes exactly 1 lap. The line never stretches: a fixed-length window slides along the track.",
           "metaDescription": "A motion study dissecting the drawer technique 'cycle'. The two-gear pacing of a dot lapping an ∞ track is one cubic-bezier whip plus the crawl left over by the promise of closing the lap — no gearbox anywhere. The stroke is a fixed-length dash window sliding on the path. The short function that computes the motion is in the article, replayed live in the browser."
         },
         "coupled-shear-rotation": {
           "eyebrow": "Split",
-          "title": "Dissecting a cracked circle that seems to move two ways",
+          "title": "How to build split",
           "summary": "A disc cracks down the middle, the halves slide past each other while the whole pair turns, and it all seals back into one circle. It reads as two choreographies — rotation and slide — but only one progress number is animated. The perfect landing is geometry's job, not animation skill, and this article walks through the assembly that makes it so.",
           "metaDescription": "A motion study dissecting the split drawer: the cracked circle's rotation and slide are both computed from a single progress number, and the seamless loop closes because a single-fill circle hides its own orientation. Skeleton code and the pin-down story included."
         },
         "gather-return": {
           "eyebrow": "Merge & split",
-          "title": "Dissecting circles that seem to melt into one",
+          "title": "How to build merge & split",
           "summary": "Eight circles on a slowly turning ring dive into the center one after another, get swallowed into one growing disc, then peel off and return to the ring. Neither the merge nor the split is choreographed — all that exists is one gather-wait-return clip replayed by every circle with a small delay, plus a ring that keeps turning at a steady pace. The melt is just same-color circles overlapping, and the middle disc swells with the square root of the swallow count, so its area keeps the count honest. Skeleton code included — the article builds up from the assembly idea.",
           "metaDescription": "A motion study dissecting the merge-and-split drawer: the whole spectacle is one gather-wait-return clip replayed with per-copy delays, the melting outline is same-color overlap, and the middle disc grows with the square root of the swallow count to keep its area honest. Skeleton code included."
         },
@@ -1659,21 +1659,21 @@
         },
         "velocity-seeded-overshoot": {
           "eyebrow": "Follow-through",
-          "title": "Dissecting an i that swings like it has weight",
+          "title": "How to build follow-through",
           "summary": "The follow-through of an i swinging right to left. Neither the lag nor the bounce is written as a number anywhere — all that exists is one one-way swing and a wobble whose size is set entirely by how fast the move leaves its last key. Skeleton code included — the article builds up from the assembly idea.",
           "metaDescription": "A motion study dissecting the follow-through drawer: the letter's lag, lean and overshoot are not choreographed but fall out of one one-way swing plus a wobble whose size is set by how fast the move leaves its last key. Skeleton code included."
         },
         "parallax-bob": {
           "eyebrow": "Parallax",
-          "title": "Dissecting a bob that reads as depth",
+          "title": "How to build parallax",
           "summary": "Seven circles bob up and down and look like they sit at different depths. But there is no depth law — every circle shares one and the same waveform, and only the travel amount differs. Skeleton code included — the article builds up from the assembly idea.",
           "metaDescription": "A motion study dissecting the parallax drawer: seven circles bob as if at different depths, but there is no depth law — they all share one and the same waveform, and only the travel amount, chosen by hand per circle, differs. Skeleton code included."
         },
         "arrangement-turntable": {
           "eyebrow": "Arrangement",
-          "title": "Dissecting an arrangement swap that reads as a dance",
-          "summary": "Nine dots gather, fling out to a ring, and swirl back into different seats — it reads like a choreographed group dance. But only two arrangements are given as keys, with transit bridging them; the swirl and the seat-swap aren't authored one by one — they arise on their own from how the arrangements are joined. Skeleton code included — the article builds up from the assembly idea.",
-          "metaDescription": "A motion study dissecting the arrangement drawer: nine dots gather as if in a group dance, fling out to a ring, and swirl back into different seats. But only two arrangements are given as keys, with transit bridging them — the swirl and the seat-swap aren't authored one by one; they arise on their own from how the arrangements are joined. Skeleton code included."
+          "title": "How to build arrangement",
+          "summary": "Nine dots gather at the centre, open into a ring, then swirl back to new places — it looks like a choreographed dance. But you only hand-author two layouts: a square grid and a ring. The swirl and the seat-swap aren't animated one by one — they fall out of those two layouts and how the dots are matched between them. Skeleton code included; we build it from scratch.",
+          "metaDescription": "A motion study dissecting the arrangement drawer: nine dots gather at the centre, open into a ring, then swirl back to new places. But you only hand-author two layouts — a square grid and a ring; the swirl and the seat-swap aren't animated one by one, they fall out of those two layouts and how the dots are matched between them. Skeleton code included."
         }
       }
     },
@@ -3318,44 +3318,48 @@
             {
               "type": "motion-demo",
               "demo": "arrangement-turntable",
-              "caption": "Nine dots shuttle between a grid and a ring — the swirl and the seat-swap both arise on their own from how just two arrangements are joined"
+              "caption": "Nine dots move between a grid and a ring — the swirl and the seat-swap fall out of the two layouts and how the dots are matched between them"
             },
             {
               "type": "heading",
               "level": 2,
-              "text": "Two arrangements, and the three phases that bridge them"
+              "text": "Two layouts, and the three moves that bridge them"
             },
             {
               "type": "list",
               "items": [
-                "Two keyed arrangements, sharing one centre — a freely placed rest grid, and a ring of one radius with fixed slot angles",
-                "From the two arrangements, derive each dot's geometry up front — its rest radius and angle, the angle gap to its slot, the ring points, and where it lands after the turn",
-                "Three phases bridge them — a pull-in-then-fling expansion, a still wait on the ring, and a contraction where one rotation clock packs the dots into their seats"
+                "You hand-author two layouts — sharing one centre, a square grid and a ring",
+                "Work out each dot's position from the two layouts — its distance and direction from the rest spot, its place on the ring, and the seat it takes after the turn",
+                "Three moves bridge them — pull in to the centre and fling out, hold still in the ring shape, turn while easing each dot toward its next seat"
               ]
             },
             {
               "type": "code",
-              "text": "const deg = Math.PI / 180;\nconst signedArc = (from, to) => ((to - from + 180) % 360 + 360) % 360 - 180;\n\n// derive each dot's geometry from the two arrangement keys\nconst restRadius = restPositions.map(([x, y]) => Math.hypot(x - cx, y - cy));\nconst restAngle = restPositions.map(([x, y]) => Math.atan2(y - cy, x - cx) / deg);\nconst slotAngle = restToRing.map((slot) => ringAnglesDeg[slot]);\nconst angleGap = restAngle.map((a, dot) => signedArc(a, slotAngle[dot]));\nconst slotPoint = ringAnglesDeg.map((a) => [\n  cx + ringRadius * Math.cos(a * deg),\n  cy + ringRadius * Math.sin(a * deg),\n]);\nconst back = -turntableDeg * deg;\nconst destLocal = restToRing.map((slot, dot) => {\n  if (dot === centerDestinationDot) return [0, 0]; // the dot whose destination is the centre aims there\n  const [x, y] = restPositions[ringToRest[slot]];\n  const lx = x - cx;\n  const ly = y - cy;\n  return [lx * Math.cos(back) - ly * Math.sin(back), lx * Math.sin(back) + ly * Math.cos(back)];\n});"
+              "text": "const deg = Math.PI / 180;\nconst signedArc = (from, to) => ((to - from + 180) % 360 + 360) % 360 - 180;\n\n// work out each dot's position from the two arrangements\nconst restRadius = restPositions.map(([x, y]) => Math.hypot(x - cx, y - cy));\nconst restAngle = restPositions.map(([x, y]) => Math.atan2(y - cy, x - cx) / deg);\nconst slotAngle = restToRing.map((slot) => ringAnglesDeg[slot]);\nconst angleGap = restAngle.map((a, dot) => signedArc(a, slotAngle[dot]));\nconst slotPoint = ringAnglesDeg.map((a) => [\n  cx + ringRadius * Math.cos(a * deg),\n  cy + ringRadius * Math.sin(a * deg),\n]);\nconst back = -turntableDeg * deg;\nconst destLocal = restToRing.map((slot, dot) => {\n  if (dot === centerDestinationDot) return [0, 0]; // the dot whose destination is the centre aims there\n  const [x, y] = restPositions[ringToRest[slot]];\n  const lx = x - cx;\n  const ly = y - cy;\n  return [lx * Math.cos(back) - ly * Math.sin(back), lx * Math.sin(back) + ly * Math.cos(back)];\n});"
             },
             {
               "type": "paragraph",
-              "text": "The first block just derives each dot's geometry from the two arrangements. `restToRing` says which dot heads to which slot; `ringToRest` says which rest seat each dot sits back down in on the way home — and these two orderings settle the whole return swirl and seat-swap. The central pile, the swirl, the seat-swap: none is choreographed one by one — they all arise on their own from the two arrangements and how they are joined."
+              "text": "The first block works out each dot's position from the two layouts. `restToRing` says which dot heads to which spot on the ring; `ringToRest` says which rest seat each dot sits back down in on the way home. What these two mappings decide is each dot's destination and its return seat. The shape of the swirl itself comes from how you turn things, shown later. The central pile, the swirl, the seat-swap — none is animated one by one; they fall out of the two layouts and how the dots are matched between them."
             },
             {
               "type": "code",
-              "text": "const wrap = (frame, span) => ((frame % span) + span) % span;\nconst [lobeIn, lobeOut] = lobeXHandles;\nconst swingEase = cubicBezier(lobeIn, 0, lobeOut, 1);\nconst lastArrival = Math.max(...arrivals);\n\n// phase 1: pull each dot in toward the centre, then fling it out to its slot (one shared bulge)\nconst expand = (frame, dot) => {\n  const span =\n    frame <= departures[dot] ? 0 : frame >= arrivals[dot] ? 1 : (frame - departures[dot]) / (arrivals[dot] - departures[dot]);\n  if (dot === centerSeatDot) { // the dot resting AT the centre has no room to dip → radius eases straight out\n    const radius = restRadius[dot] + swingEase(span) * (ringRadius - restRadius[dot]);\n    const angle = slotAngle[dot] * deg;\n    return [cx + radius * Math.cos(angle), cy + radius * Math.sin(angle)];\n  }\n  const dip = cubicBezier(lobeIn, -lobeDepths[dot], lobeOut, 1)(span);\n  const radius = restRadius[dot] + dip * (ringRadius - restRadius[dot]);\n  const angle = (restAngle[dot] + swingEase(span) * angleGap[dot]) * deg;\n  return [cx + radius * Math.cos(angle), cy + radius * Math.sin(angle)];\n};\n\n// phase 3: one rotation clock turns every dot while its chord closes ring → destination\nconst turnEase = cubicBezier(...phiBezier);\nconst chordEase = cubicBezier(...sConBezier);\nconst turnAt = (frame, delay) => {\n  const local = frame - delay;\n  if (local <= windowStart) return 0;\n  if (local >= windowEnd) return turntableDeg;\n  return turntableDeg * turnEase((local - windowStart) / (windowEnd - windowStart));\n};\nconst chordAt = (frame, delay) => {\n  const local = frame - delay;\n  if (local <= windowStart) return 0;\n  if (local >= windowEnd) return 1;\n  return chordEase((local - windowStart) / (windowEnd - windowStart));\n};\n\nfunction dotsAt(frame) { // frame number → where the 9 dots go; pick the phase, read each dot\n  const f = wrap(frame, periodFrames);\n  return restPositions.map((_, dot) => {\n    const slot = restToRing[dot];\n    const delay = delaysPerSlot[slot];\n    if (f <= lastArrival) { const [x, y] = expand(f, dot); return { cx: x, cy: y, r: dotRadius }; }\n    if (f - delay < windowStart) return { cx: slotPoint[slot][0], cy: slotPoint[slot][1], r: dotRadius }; // phase 2: hold still on the ring\n    const chord = chordAt(f, delay);\n    const rlx = slotPoint[slot][0] - cx;\n    const rly = slotPoint[slot][1] - cy;\n    const lx = rlx + chord * (destLocal[dot][0] - rlx);\n    const ly = rly + chord * (destLocal[dot][1] - rly);\n    const turn = turnAt(f, delay) * deg;\n    return { cx: cx + lx * Math.cos(turn) - ly * Math.sin(turn), cy: cy + lx * Math.sin(turn) + ly * Math.cos(turn), r: dotRadius };\n  });\n}"
+              "text": "const wrap = (frame, span) => ((frame % span) + span) % span;\nconst [lobeIn, lobeOut] = lobeXHandles;\nconst swingEase = cubicBezier(lobeIn, 0, lobeOut, 1);\nconst lastArrival = Math.max(...arrivals);\n\n// first move: pull each dot in toward the centre, then fling it out to its slot (one shared bulge)\nconst expand = (frame, dot) => {\n  const span =\n    frame <= departures[dot] ? 0 : frame >= arrivals[dot] ? 1 : (frame - departures[dot]) / (arrivals[dot] - departures[dot]);\n  if (dot === centerSeatDot) { // the dot resting AT the centre has no room to dip → radius eases straight out\n    const radius = restRadius[dot] + swingEase(span) * (ringRadius - restRadius[dot]);\n    const angle = slotAngle[dot] * deg;\n    return [cx + radius * Math.cos(angle), cy + radius * Math.sin(angle)];\n  }\n  const dip = cubicBezier(lobeIn, -lobeDepths[dot], lobeOut, 1)(span);\n  const radius = restRadius[dot] + dip * (ringRadius - restRadius[dot]);\n  const angle = (restAngle[dot] + swingEase(span) * angleGap[dot]) * deg;\n  return [cx + radius * Math.cos(angle), cy + radius * Math.sin(angle)];\n};\n\n// last move: one shared turn angle carries every dot from the ring toward its next seat\nconst turnEase = cubicBezier(...phiBezier);\nconst chordEase = cubicBezier(...sConBezier);\nconst turnAt = (frame, delay) => {\n  const local = frame - delay;\n  if (local <= windowStart) return 0;\n  if (local >= windowEnd) return turntableDeg;\n  return turntableDeg * turnEase((local - windowStart) / (windowEnd - windowStart));\n};\nconst chordAt = (frame, delay) => {\n  const local = frame - delay;\n  if (local <= windowStart) return 0;\n  if (local >= windowEnd) return 1;\n  return chordEase((local - windowStart) / (windowEnd - windowStart));\n};\n\nfunction dotsAt(frame) { // frame number → where each dot goes; pick the move, read each dot\n  const f = wrap(frame, periodFrames);\n  return restPositions.map((_, dot) => {\n    const slot = restToRing[dot];\n    const delay = delaysPerSlot[slot];\n    if (f <= lastArrival) { const [x, y] = expand(f, dot); return { cx: x, cy: y, r: dotRadius }; }\n    if (f - delay < windowStart) return { cx: slotPoint[slot][0], cy: slotPoint[slot][1], r: dotRadius }; // middle move: hold still on the ring\n    const chord = chordAt(f, delay);\n    const rlx = slotPoint[slot][0] - cx;\n    const rly = slotPoint[slot][1] - cy;\n    const lx = rlx + chord * (destLocal[dot][0] - rlx);\n    const ly = rly + chord * (destLocal[dot][1] - rly);\n    const turn = turnAt(f, delay) * deg;\n    return { cx: cx + lx * Math.cos(turn) - ly * Math.sin(turn), cy: cy + lx * Math.sin(turn) + ly * Math.cos(turn), r: dotRadius };\n  });\n}"
             },
             {
               "type": "paragraph",
-              "text": "`expand` is phase 1. Each dot departs at its own `departures`, stops at its `arrivals`, and is pulled in toward the centre before being flung out to its slot. The depth of the dip lives in `lobeDepths`, its curve in `swingEase`. `swingEase` is the same 4 numbers as CSS `cubic-bezier()`, and what you put in `phiBezier` and `sConBezier` goes straight into npm's `bezier-easing`. In phase 3, `turnAt` returns one rotation angle shared by every dot, and `chordAt` returns how far each has packed from the ring toward its destination."
+              "text": "`expand` is the first move. Each dot starts moving at its own `departures` and stops at its `arrivals`: it is pulled in to the centre, then flung out to its slot. How deep it dips is set by `lobeDepths`."
             },
             {
               "type": "paragraph",
-              "text": "Placement is just nine dots, drawn at the returned `cx`, `cy`, `r`. Drive it with `requestAnimationFrame`: multiply the elapsed time by your frame count, `wrap` against `periodFrames`, and hand the frame to `dotsAt` — you get the same loop as the demo. Turn by `turntableDeg` and the ring slots land exactly back on themselves while each dot sits down in a different rest seat, so one lap closes and the loop has no visible seam."
+              "text": "In the last move, `turnAt` returns one turn angle shared by every dot, and `chordAt` returns how close each one has come from the ring to its next seat. The easing is all curves: the numbers you put in `swingEase`, `phiBezier`, and `sConBezier` are the same 4 as CSS `cubic-bezier()`, and go straight into npm's `bezier-easing`."
             },
             {
               "type": "paragraph",
-              "text": "To play with it, rewrite the orderings. Swap `restToRing` and `ringToRest` for different permutations and the return swirl and the seating change wholesale. Raise `turntableDeg` and the path around the ring grows longer; tweak `delaysPerSlot` and the dots leave scattered or all at once. Replace the arrangement points with another shape, and the skeleton that joins the two keys keeps working."
+              "text": "Placement is just nine dots, drawn at the returned `cx`, `cy`, `r`. Drive it with `requestAnimationFrame`: multiply the elapsed time by your frame count, `wrap` against `periodFrames`, and hand the frame to `dotsAt` — you get the same loop as the demo. Turn by `turntableDeg` and the ring spots land exactly back on themselves while each dot sits down in a different rest seat, so one lap closes and the loop has no visible seam."
+            },
+            {
+              "type": "paragraph",
+              "text": "To play with it, rewrite the layouts. Change the `restToRing` and `ringToRest` mappings and the return swirl and seating change wholesale. Raise `turntableDeg` and the path around the ring grows longer; tweak `delaysPerSlot` and the dots leave scattered or all at once. Replace the layout points with another shape, and the skeleton that joins the two layouts keeps working."
             },
             {
               "type": "callout",
