@@ -1682,6 +1682,12 @@
           "title": "オフセットの作り方",
           "summary": "5 つの円が左へ送られ、大きさの波が右から左へ伝わって見える。でも 1 つずつ動かしているのではなく、ひとつの動きを少しずつ時間をずらして重ねているだけ。そのズレこそが「オフセット」だ。骨格コードつきで、組み立ての考え方から順に見ていく。",
           "metaDescription": "オフセットの正体を読み解く motion study。5 つの円が左へ送られ、大きさの波が右から左へ伝わって見えるが、1 つずつ動かしてはいない。ひとつの動きを少しずつ時間をずらして重ねているだけ — そのズレが「オフセット」だ。骨格コードつき。"
+        },
+        "ring-dodge": {
+          "eyebrow": "干渉",
+          "title": "干渉の作り方",
+          "summary": "内側の点がリングを回り、そばを通るたびにリングの点がよける。まるで近づくものに反応しているようだが、リングの点は止まらない時計で同じ動きをくり返しているだけ。よけて見えるのは、その上に重ねた距離の力だ。骨格コードつきで、組み立ての考え方から順に見ていく。",
+          "metaDescription": "干渉の正体を読み解く motion study。内側の点が回り、そばを通るとリングの点がよける — でも反応ではなく、止まらない時計で 1 本の動きをくり返しているだけ。よけて見えるのは距離で決まる力で、近いほど強く効く。骨格コードつき。"
         }
       }
     },
@@ -3418,6 +3424,56 @@
             {
               "type": "paragraph",
               "text": "遊ぶなら大きさの並びを書き換える。`slotKeys` の数をいじれば波の山が高く・低くなり、`spacing` を変えれば送る幅が変わる。増やしたひとつ(`overrideValue`)を消せば、波はどこも同じ大きさで流れる。`subcycleFrames` を縮めれば、送りも複製の間隔もせわしなくなる。色は決め打ちにせずページの地の色を受け取るので、円を四角に変えても、この骨格はそのまま使える。"
+            },
+            {
+              "type": "callout",
+              "text": "原典はプッティさん（@PuttiMW）の「モーションの引き出し」の 1 セル — 研究リポで分解・再構築したもの。色は参照の青ではなく固定ライトパレット。上のデモの質感 — 粒状（grain）と色収差 — は、自分たちで開発している映像仕上げ用パッケージでライブ合成していて、イージングのソルバーから粒の乱数まで自作だ。`WebGPU` が使えない環境では `SVG` + `requestAnimationFrame` 描画に切り替わる。"
+            }
+          ]
+        },
+        "ring-dodge": {
+          "sections": [
+            {
+              "type": "motion-demo",
+              "demo": "ring-dodge",
+              "caption": "内側の点がリングを回り、通り過ぎる先の点が次々によける — その「反応」の正体は、止まらない時計と距離の力だ"
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "回る点と、よけて見えるリングを組む"
+            },
+            {
+              "type": "list",
+              "items": [
+                "手で置くのは、内側を一定の速さで回る点ひとつ — これが通り過ぎる側",
+                "リングの点は、1 本のパルスを整数クロックぶんずつ遅らせてくり返す（止まらない時計）",
+                "その上に、通り過ぎる点との距離で決まる力を重ねる — 近いほど強く、離れると二乗で弱まる"
+              ]
+            },
+            {
+              "type": "code",
+              "text": "const wrap = (frame, span) => ((frame % span) + span) % span;\n\n// パルス本体: ピークから下り、出口の速さが種になって小さく揺れて収まる\nconst pulseExitSlope = () => {\n  const [, , x2, y2] = decayBez;\n  return ((1 - y2) / (1 - x2)) * ((0 - peak) / decayZeroTau);\n};\nconst pulseAt = (tau) => {\n  const t = wrap(tau, periodFrames);\n  let base = 0;\n  if (t <= decayZeroTau) base = peak + (0 - peak) * cubicBezier(...decayBez)(t / decayZeroTau);\n  else if (t >= attackStartTau) base = peak * cubicBezier(...attackBez)((t - attackStartTau) / (periodFrames - attackStartTau));\n  const v = pulseExitSlope();\n  const settle = [0, 1].reduce((sum, m) => {\n    const d = wrap(t - decayZeroTau, periodFrames) + m * periodFrames;\n    return sum + (v * Math.exp(-settleLambda * d) * Math.sin(settleOmega * d)) / settleOmega;\n  }, 0);\n  return base + settle;\n};"
+            },
+            {
+              "type": "paragraph",
+              "text": "`pulseAt` が 1 本のパルスだ。`decayZeroTau` まではピークから元の位置へ下り、`attackStartTau` から先は次のピークへ立ち上がる。下り切ったあとは出口の速さが種になって小さく揺れて収まり、揺れの大きさは別に置かない（`settleLambda`・`settleOmega`）。`decayBez`・`attackBez` は CSS の `cubic-bezier()` と同じ並びで、`bezier-easing` のような既製のライブラリにそのまま渡せる。"
+            },
+            {
+              "type": "code",
+              "text": "const DEG = Math.PI / 180;\nconst signedDelta = (a, b) => ((((a - b) + 180) % 360) + 360) % 360 - 180;\n\n// フレーム番号 → 内側の点とリングの点の位置\nfunction dotsAt(frame) {\n  const f = wrap(frame, periodFrames);\n  // 内側の周回体: easing なしの一定速で回る — これが通り過ぎる側\n  const orbitDeg = innerStartAngle + innerSpeed * f;\n  const ix = cx + orbitRadius * Math.sin(orbitDeg * DEG);\n  const iy = cy - orbitRadius * Math.cos(orbitDeg * DEG);\n\n  const ring = restAngles.map((angDeg, k) => {\n    // 止まらない時計: 各点は同じパルスを整数クロックぶん遅らせて読む\n    const tau = wrap(f - (pulseAnchor + pulseClock * k), periodFrames);\n    const rPre = restRadius + pulseAt(tau);\n    const ux = Math.sin(angDeg * DEG);\n    const uy = -Math.cos(angDeg * DEG);\n    const delta = signedDelta(orbitDeg, angDeg);\n    // 距離で決まる力(距離はパルス込み = フィードバック): 押し出しとすべり・二乗で弱まる\n    const dPre = Math.hypot(ix - (cx + rPre * ux), iy - (cy + rPre * uy));\n    const rAct = rPre + (pushStrength * Math.cos(delta * DEG)) / dPre ** 2;\n    const dAct = Math.hypot(ix - (cx + rAct * ux), iy - (cy + rAct * uy));\n    const slide = (-slideStrength * Math.sin(delta * DEG)) / dAct ** 2;\n    const effDeg = angDeg + (slide / rAct) / DEG;\n    return { cx: cx + rAct * Math.sin(effDeg * DEG), cy: cy - rAct * Math.cos(effDeg * DEG) };\n  });\n\n  return { inner: { cx: ix, cy: iy }, ring };\n}"
+            },
+            {
+              "type": "paragraph",
+              "text": "ここが干渉の正体だ。リングの点は通過に反応していない — `pulseAt` を `pulseClock` ぶんずつズラして読むだけの、止まらない時計で動いている。実際、パルスと通過のズレは一周のあいだに少しずつ変わる（反応なら、ズレは一定のはずだ）。よけて見えるのは、その上に重ねた距離の力だ。近いほど強く、距離 `dPre` の二乗で弱まる押し出しとすべりが、点を通過点から逃がす。距離にはパルス込みの実距離を使うので、すでに外へ出た点ほど押されにくい — 非対称な逃げ方はこのフィードバックから出てくる。"
+            },
+            {
+              "type": "paragraph",
+              "text": "画面に置くのは円を 9 つ。`dotsAt` が返す内側の点ひとつと、リングの点それぞれの `cx`・`cy` のとおりに描くだけだ。リングの点を先に、内側の点をあとに描けば、通り過ぎる点が上に重なる。動かすのは `requestAnimationFrame` で、経過した時間にコマ数を掛けてフレーム番号を出し、`periodFrames` で `wrap` して `dotsAt` に渡せば、このデモと同じループになる。色は決め打ちにせず、ページの地の色を受け取る。"
+            },
+            {
+              "type": "paragraph",
+              "text": "遊ぶなら `pulseClock` を変える。クロックを縮めるとパルスが速く回り、よけが追いつかなくなる。`pushStrength` と `slideStrength` を上げれば逃げ方が大きくなり、`innerSpeed` を変えれば通過の速さが変わる。リングの点を四角に変えても、回る点と距離の力でよけるこの骨格はそのまま使える。"
             },
             {
               "type": "callout",

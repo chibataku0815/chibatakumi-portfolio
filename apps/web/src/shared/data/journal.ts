@@ -283,6 +283,17 @@ export const motionStudyEntries: readonly JournalEntry[] = [
     status: "published",
     evidenceLevel: "production",
   },
+  // Article #15 of the drawer rollout — same uncommitted-until-reviewed gate.
+  {
+    slug: "ring-dodge",
+    kind: "motion-study",
+    href: "/journal/motion-studies/ring-dodge",
+    publishedAt: "2026-06-14",
+    priority: 15,
+    tags: ["Interference", "Proximity", "Easing", "SVG"],
+    status: "published",
+    evidenceLevel: "production",
+  },
   {
     slug: "signal-stroke-relay",
     kind: "motion-study",

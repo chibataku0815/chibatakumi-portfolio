@@ -18,6 +18,7 @@ import { MasterRotationEchoFinishDemo } from "./MasterRotationEchoFinishDemo";
 import { OffsetStaggerConveyorFinishDemo } from "./OffsetStaggerConveyorFinishDemo";
 import { ParallaxBobFinishDemo } from "./ParallaxBobFinishDemo";
 import { PulseGridFinishDemo } from "./PulseGridFinishDemo";
+import { RingDodgeFinishDemo } from "./RingDodgeFinishDemo";
 import { SharedHoldPulseFinishDemo } from "./SharedHoldPulseFinishDemo";
 import { TangencyCoupledDriveFinishDemo } from "./TangencyCoupledDriveFinishDemo";
 import { VelocitySeededOvershootFinishDemo } from "./VelocitySeededOvershootFinishDemo";
@@ -40,6 +41,7 @@ const DEMO_REGISTRY: Record<string, () => React.ReactElement> = {
   "parallax-bob": ParallaxBobFinishDemo,
   "arrangement-turntable": ArrangementTurntableFinishDemo,
   "offset-stagger-conveyor": OffsetStaggerConveyorFinishDemo,
+  "ring-dodge": RingDodgeFinishDemo,
 };
 
 interface JournalMotionDemoProps {

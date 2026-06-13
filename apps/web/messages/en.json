@@ -1680,6 +1680,12 @@
           "title": "How to build offset",
           "summary": "Five circles slide left, and a wave of sizes seems to travel right to left. But you don't animate them one by one — you take one move and layer it, each copy delayed by a little. That stagger is what “offset” is. Skeleton code included — the article builds up from the assembly idea.",
           "metaDescription": "A motion study that unpacks offset: five circles slide left and a wave of sizes seems to travel right to left, but they aren't animated one by one. You take one move and layer it, each copy delayed a little — that stagger is “offset”. Skeleton code included."
+        },
+        "ring-dodge": {
+          "eyebrow": "Interference",
+          "title": "How to build interference",
+          "summary": "An inner dot orbits, and a ring dot dodges each time it passes nearby. It looks like the ring dots react to what comes close, but they only replay one move on a clock that never stops. What looks like dodging is a distance force layered on top. Skeleton code included — the article builds up from the assembly idea.",
+          "metaDescription": "A motion study that unpacks interference: an inner dot orbits and the ring dots dodge as it passes — but it's not a reaction, just one move replayed on a clock that never stops. The dodge is a distance force, stronger up close. Skeleton code included."
         }
       }
     },
@@ -3416,6 +3422,56 @@
             {
               "type": "paragraph",
               "text": "To play with it, rewrite the run of sizes. Change the numbers in `slotKeys` and the wave's peak rises or falls; change `spacing` and the slide step changes. Delete the one bumped value (`overrideValue`) and the wave flows at the same size everywhere. Shrink `subcycleFrames` and both the slide and the spacing between copies get busier. Since it takes the page's own ink rather than a hard-coded colour, you can swap the circles for squares and the same skeleton keeps working."
+            },
+            {
+              "type": "callout",
+              "text": "The source is one cell from Putti's (@PuttiMW) “motion drawers” — taken apart and rebuilt in the research repo. The colour is a fixed light palette, not the reference blue. The texture on the demo above — grain and chromatic aberration — is composited live by a film-finish package we build ourselves, with everything from the easing solver to the grain's randomness written by hand. Where `WebGPU` isn't available, it falls back to `SVG` + `requestAnimationFrame` rendering."
+            }
+          ]
+        },
+        "ring-dodge": {
+          "sections": [
+            {
+              "type": "motion-demo",
+              "demo": "ring-dodge",
+              "caption": "An inner dot orbits the ring and the dots ahead of it dodge one after another — the 'reaction' is really a clock that never stops plus a distance force"
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "The orbiter, and a ring that seems to dodge"
+            },
+            {
+              "type": "list",
+              "items": [
+                "You hand-place one dot orbiting the inside at a steady speed — this is the thing that passes",
+                "The ring dots replay one pulse, each delayed by an integer clock step (a clock that never stops)",
+                "On top, you add a force set by the distance to the passing dot — stronger up close, falling off with the square of distance"
+              ]
+            },
+            {
+              "type": "code",
+              "text": "const wrap = (frame, span) => ((frame % span) + span) % span;\n\n// the pulse: from the peak it falls, then the exit speed seeds a small wobble that settles\nconst pulseExitSlope = () => {\n  const [, , x2, y2] = decayBez;\n  return ((1 - y2) / (1 - x2)) * ((0 - peak) / decayZeroTau);\n};\nconst pulseAt = (tau) => {\n  const t = wrap(tau, periodFrames);\n  let base = 0;\n  if (t <= decayZeroTau) base = peak + (0 - peak) * cubicBezier(...decayBez)(t / decayZeroTau);\n  else if (t >= attackStartTau) base = peak * cubicBezier(...attackBez)((t - attackStartTau) / (periodFrames - attackStartTau));\n  const v = pulseExitSlope();\n  const settle = [0, 1].reduce((sum, m) => {\n    const d = wrap(t - decayZeroTau, periodFrames) + m * periodFrames;\n    return sum + (v * Math.exp(-settleLambda * d) * Math.sin(settleOmega * d)) / settleOmega;\n  }, 0);\n  return base + settle;\n};"
+            },
+            {
+              "type": "paragraph",
+              "text": "`pulseAt` is the one pulse. Up to `decayZeroTau` it falls from the peak back to rest; from `attackStartTau` on it rises to the next peak. After it lands, the exit speed seeds a small wobble that settles, and its size isn't set separately (`settleLambda`, `settleOmega`). The fall and rise curves `decayBez` and `attackBez` are the same set as CSS `cubic-bezier()`, and drop straight into a ready-made library like `bezier-easing`."
+            },
+            {
+              "type": "code",
+              "text": "const DEG = Math.PI / 180;\nconst signedDelta = (a, b) => ((((a - b) + 180) % 360) + 360) % 360 - 180;\n\n// frame number → positions of the inner dot and the ring dots\nfunction dotsAt(frame) {\n  const f = wrap(frame, periodFrames);\n  // inner orbiter: constant speed, no easing — the side that passes\n  const orbitDeg = innerStartAngle + innerSpeed * f;\n  const ix = cx + orbitRadius * Math.sin(orbitDeg * DEG);\n  const iy = cy - orbitRadius * Math.cos(orbitDeg * DEG);\n\n  const ring = restAngles.map((angDeg, k) => {\n    // a clock that never stops: each dot reads the same pulse, delayed by an integer clock step\n    const tau = wrap(f - (pulseAnchor + pulseClock * k), periodFrames);\n    const rPre = restRadius + pulseAt(tau);\n    const ux = Math.sin(angDeg * DEG);\n    const uy = -Math.cos(angDeg * DEG);\n    const delta = signedDelta(orbitDeg, angDeg);\n    // a distance-set force (distance includes the pulse = feedback): a push and a slide, falling off with the square\n    const dPre = Math.hypot(ix - (cx + rPre * ux), iy - (cy + rPre * uy));\n    const rAct = rPre + (pushStrength * Math.cos(delta * DEG)) / dPre ** 2;\n    const dAct = Math.hypot(ix - (cx + rAct * ux), iy - (cy + rAct * uy));\n    const slide = (-slideStrength * Math.sin(delta * DEG)) / dAct ** 2;\n    const effDeg = angDeg + (slide / rAct) / DEG;\n    return { cx: cx + rAct * Math.sin(effDeg * DEG), cy: cy - rAct * Math.cos(effDeg * DEG) };\n  });\n\n  return { inner: { cx: ix, cy: iy }, ring };\n}"
+            },
+            {
+              "type": "paragraph",
+              "text": "This is what interference really is. The ring dots aren't reacting to the pass — they run on a clock that never stops, just reading `pulseAt` shifted by `pulseClock` per slot. In fact the gap between a pulse and the pass drifts over one lap (a reaction would hold the gap fixed). What looks like dodging is the distance force on top: a push and a slide, stronger up close and falling off with the square of the distance `dPre`, carry each dot away from the passing point. The distance uses the actual, pulsed position, so a dot already pushed out is shoved less — the lopsided escape comes out of that feedback."
+            },
+            {
+              "type": "paragraph",
+              "text": "Placing it is nine circles. Draw the one inner dot and each ring dot at the `cx`, `cy` that `dotsAt` returns. Draw the ring dots first and the inner dot last, so the passing dot paints on top. Drive it with `requestAnimationFrame`: multiply elapsed time by your frame count to get a frame number, `wrap` it against `periodFrames`, and hand it to `dotsAt` — you get the same loop as the demo. Rather than hard-coding a colour, it takes the page's own ink."
+            },
+            {
+              "type": "paragraph",
+              "text": "To play with it, change `pulseClock`. Shrink the clock and the pulse races around, and the dodge can't keep up. Raise `pushStrength` and `slideStrength` and the escape grows; change `innerSpeed` and the pass gets faster or slower. Swap the ring dots for squares and the same skeleton — an orbiter plus a distance force — keeps working."
             },
             {
               "type": "callout",
