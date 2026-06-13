@@ -1660,7 +1660,7 @@
         "velocity-seeded-overshoot": {
           "eyebrow": "Follow-through",
           "title": "Dissecting an i that swings like it has weight",
-          "summary": "A shape built like the letter i swings from right to left: the stem moves first, the dot follows a breath later and overshoots its resting spot before settling. None of it — the lag, the lean, the overshoot — is written as a number. All that exists is one one-way swing and a wobble whose size is set entirely by how fast the move leaves its last key. Skeleton code included — the article builds up from the assembly idea.",
+          "summary": "The follow-through of an i swinging right to left. Neither the lag nor the bounce is written as a number anywhere — all that exists is one one-way swing and a wobble whose size is set entirely by how fast the move leaves its last key. Skeleton code included — the article builds up from the assembly idea.",
           "metaDescription": "A motion study dissecting the follow-through drawer: the letter's lag, lean and overshoot are not choreographed but fall out of one one-way swing plus a wobble whose size is set by how fast the move leaves its last key. Skeleton code included."
         }
       }
@@ -3476,20 +3476,7 @@
             {
               "type": "motion-demo",
               "demo": "velocity-seeded-overshoot",
-              "caption": "An i swinging right to left — the dot leaves later than the stem and overshoots its resting spot before settling"
-            },
-            {
-              "type": "heading",
-              "level": 2,
-              "text": "Swing, lag, overshoot"
-            },
-            {
-              "type": "paragraph",
-              "text": "A shape built like the letter i swings from right to left. The stem moves off first; the dot follows a breath later. While it travels the stem leans like a banana, then straightens once it stops. The eye goes to the dot: it sails past where it should land, bulges outward, then settles into place. A short wait on the left, and back to the right. Over and over."
-            },
-            {
-              "type": "paragraph",
-              "text": "None of it — the lag, the lean, the overshoot — is written as a number anywhere. There is no knob for how far it overshoots; how hard the dot drove into its stop is what becomes the size of the bounce. The lag is just the three moves starting at staggered times; the lean is just the top and bottom of the stem sitting at slightly different spots. One one-way swing is authored; everything else falls out of it."
+              "caption": "An i swinging right to left — the dot leaves later than the stem, passes its resting spot, then springs back to settle"
             },
             {
               "type": "heading",
