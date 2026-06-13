@@ -1577,9 +1577,9 @@
     },
     "motionStudies": {
       "indexEyebrow": "Motion Studies",
-      "indexTitle": "Motion Studies — モーションの技法を 1 つずつ解剖する",
-      "indexSummary": "ひとつの記事でひとつの技法を、動くデモ付きで解剖していくアーカイブ。作り方だけでなく、試して捨てた案までそのまま書き残す。",
-      "metaDescription": "Motion Studies — ひとつの記事でひとつの技法を、動くデモ付きで解剖する R&D アーカイブ。",
+      "indexTitle": "Motion Studies — モーションの技法を 1 つずつ読み解く",
+      "indexSummary": "ひとつの記事でひとつの技法を、動くデモ付きで読み解いていくアーカイブ。作り方だけでなく、試して捨てた案までそのまま書き残す。",
+      "metaDescription": "Motion Studies — ひとつの記事でひとつの技法を、動くデモ付きで読み解く R&D アーカイブ。",
       "entries": {
         "lattice-breath": {
           "eyebrow": "増減",
