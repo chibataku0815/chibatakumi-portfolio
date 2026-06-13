@@ -4,7 +4,7 @@
 再構築 + packages API 化済み）を `/journal/motion-studies/` に 1 記事 1 技法で
 展開する正本。lattice-breath（2026-06-10 公開）が型。
 
-最終更新: 2026-06-11 / 状態: 7/18 公開（#1〜#7）
+最終更新: 2026-06-12 / 状態: 9/18 公開（#1〜#9）
 
 ---
 
@@ -84,7 +84,7 @@
 | 6 | shared-hold-pulse | 対称 | 正体は共有 rise-HOLD-fall 包絡 1 本 + 符号付き振幅 | **公開済 2026-06-11** |
 | 7 | whip-crawl-path-cycle | 循環 | 這いの速さはキーでなくループ閉包の残り — 鞭ベジェ 1 本 + 強制クロール | **公開済 2026-06-11** |
 | 8 | coupled-shear-rotation | 分割 | 1 位相が群回転と対向シアを同時駆動 | **公開済 2026-06-12** |
-| 9 | gather-return | 一体化と分離 | 昇格されたのは時間包絡だけ | |
+| 9 | gather-return | 一体化と分離 | 合体も分離も振り付けなし — gather/hold/back クリップ 1 本の遅らせ再生 + 同色 union + √成長 | **公開済 2026-06-12** |
 | 10 | velocity-seeded-overshoot | 追従 | 出口速度が種・自由振幅ゼロ | |
 | 11 | parallax-bob | 視差 | 共有 3 キー bob × 振幅ラダー（amp∝r 法則は棄却） | |
 | 12 | arrangement-turntable | 配置移行 | 2 配置キーだけ — 渦も席替えも創発 | |

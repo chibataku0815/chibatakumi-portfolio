@@ -1627,6 +1627,12 @@
           "summary": "A disc cracks down the middle, the halves slide past each other while the whole pair turns, and it all seals back into one circle. It reads as two choreographies — rotation and slide — but only one progress number is animated. The perfect landing is geometry's job, not animation skill, and this article walks through the assembly that makes it so.",
           "metaDescription": "A motion study dissecting the split drawer: the cracked circle's rotation and slide are both computed from a single progress number, and the seamless loop closes because a single-fill circle hides its own orientation. Skeleton code and the pin-down story included."
         },
+        "gather-return": {
+          "eyebrow": "Merge & split",
+          "title": "Dissecting circles that seem to melt into one",
+          "summary": "Eight circles on a slowly turning ring dive into the center one after another, get swallowed into one growing disc, then peel off and return to the ring. Neither the merge nor the split is choreographed — all that exists is one gather-wait-return clip replayed by every circle with a small delay, plus a ring that keeps turning at a steady pace. The melt is just same-color circles overlapping, and the middle disc swells with the square root of the swallow count, so its area keeps the count honest. Skeleton code included — the article builds up from the assembly idea.",
+          "metaDescription": "A motion study dissecting the merge-and-split drawer: the whole spectacle is one gather-wait-return clip replayed with per-copy delays, the melting outline is same-color overlap, and the middle disc grows with the square root of the swallow count to keep its area honest. Skeleton code included."
+        },
         "signal-stroke-relay": {
           "eyebrow": "Theatre / Cascade",
           "title": "The relay sensation cannot be built from separate animations — a Theatre.js timeline referenced by multiple layers with phase offsets",
@@ -3193,6 +3199,97 @@
             {
               "type": "paragraph",
               "text": "Your eye splits “turning while separating” into two intentions. But measurement says the rotation's progress and the slide's progress travel in lockstep across the whole loop — shifting one by a sliver of time multiplied the disagreement several times over. Two separate choreographies have no reason to agree that tightly. Two readings of one number cannot disagree at all."
+            },
+            {
+              "type": "callout",
+              "tone": "note",
+              "text": "The source is one cell of PuttiMW's (@PuttiMW) drawer series — decomposed and rebuilt in a motion-research repo. The palette swaps the reference red for the fixed light palette. The texture on the demo above — grain and chromatic aberration — is composited live by the video-finishing package we are building in-house: everything from the easing solver to the grain randomness is our own code. Where `WebGPU` is unavailable, the demo falls back to plain `SVG` + `requestAnimationFrame` rendering."
+            }
+          ]
+        },
+        "gather-return": {
+          "sections": [
+            {
+              "type": "motion-demo",
+              "demo": "gather-return",
+              "caption": "Eight circles dive into the center one by one as the ring turns, swelling the disc in the middle — then pop back out, one by one, to the ring"
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "Dive, swell, return"
+            },
+            {
+              "type": "paragraph",
+              "text": "Eight circles sit on a ring, slowly turning. Then, one at a time, they start diving into the center. Each swallow makes the middle disc a size bigger, until everything is gone and one large circle remains. After a beat it spits them back out, one at a time — and each circle re-emerges further around than where it went in, proof that the rotation never stopped while the ring was out of sight."
+            },
+            {
+              "type": "paragraph",
+              "text": "No merge animation, no split animation is written anywhere. The heart of the motion is one clip — gather to the center, wait, return — and the eight circles replay that same clip with a small per-copy delay while riding the turning ring. The melt is what same-color circles do when they overlap: the boundary between them disappears. And the middle disc's swelling is area bookkeeping — its radius grows as the square root of the swallowed count. The rest of the article unpacks each piece in turn."
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "Set up one clip and eight copies of a circle"
+            },
+            {
+              "type": "list",
+              "items": [
+                "The turning ring — place `copyCount` circles evenly around the center and keep the whole ring turning by `turnPerFrame` every frame, never stopping",
+                "The progress p — 0 is the home seat on the ring, 1 is dead-center; the gather-wait-return clip `progressAt` returns this p",
+                "Delayed replay — circle i reads the same clip `staggerStep` × i frames late (diving in order and returning in order both fall out of this alone)",
+                "The middle disc — average each circle's swallow level `absorbAt`, take the square root, and scale the full radius `coreFullRadius` by it"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "Three functions carry the motion, with a few small easing helpers at their side: `progressAt`, the clip itself; `absorbAt`, the swallow level; and `blobsAt`, which turns a frame number into every circle's placement."
+            },
+            {
+              "type": "code",
+              "lang": "ts",
+              "text": "// The heart is ONE clip — gather, wait, return — replayed by eight circles riding a ring that never stops.\n// Bare lowercase names (gatherSpan, ringRadius...) are numbers you pick for your own canvas —\n// what this article wants you to take home is the shape, not the values.\nconst easeIn = (t) => t * t * t; // gathering: a soft departure, accelerating into the center\nconst easeOutBack = (t) => {\n  // returning: overshoot the seat a little, then settle. backOvershoot sets how far past\n  const u = t - 1;\n  return 1 + (backOvershoot + 1) * u * u * u + backOvershoot * u * u;\n};\n\n// The clip: returns the progress. 0 = home seat on the ring, 1 = dead-center. Repeats every loopFrames\nfunction progressAt(frame) {\n  const t = ((frame % loopFrames) + loopFrames) % loopFrames; // wraps even negative frames into 0〜loopFrames (delayed replays can read before the start)\n  if (t < gatherSpan) return easeIn(t / gatherSpan); // gather\n  if (t < gatherSpan + holdSpan) return 1; // wait at the center\n  if (t < gatherSpan + holdSpan + backSpan)\n    return 1 - easeOutBack((t - gatherSpan - holdSpan) / backSpan); // return\n  return 0; // rest on the ring\n}\n\n// A gentle S-curve from 0 to 1 (the classic smoothstep)\nconst smooth = (s) => {\n  const u = Math.min(1, Math.max(0, s));\n  return u * u * (1 + 2 - 2 * u);\n};\n\n// Swallow level: eases to 1 over absorbWindow after landing, back to 0 over the same span on leaving\nfunction absorbAt(frame) {\n  const t = ((frame % loopFrames) + loopFrames) % loopFrames;\n  return smooth((t - gatherSpan) / absorbWindow) * (1 - smooth((t - gatherSpan - holdSpan) / absorbWindow));\n}\n\n// Give it a frame number, get the middle disc and every circle's placement\nfunction blobsAt(frame) {\n  // the turning ring: evenly spaced seats, plus turnPerFrame of rotation every frame\n  const ring = Array.from({ length: copyCount }, (_, i) => {\n    const a = ((ringStart + turnPerFrame * frame + (360 / copyCount) * i) * Math.PI) / 180;\n    return { x: centerX + ringRadius * Math.cos(a), y: centerY + ringRadius * Math.sin(a) };\n  });\n\n  // delayed replay: circle i reads the same clip staggerStep × i frames late\n  const localFrames = ring.map((_, i) => frame + clipShift - i * staggerStep);\n\n  // each circle: pull from its ring seat toward the center by the progress\n  const dots = ring.map((pt, i) => {\n    const p = progressAt(localFrames[i]);\n    return { x: pt.x + (centerX - pt.x) * p, y: pt.y + (centerY - pt.y) * p, r: dotRadius };\n  });\n\n  // the middle disc: full radius scaled by the square root of the mean swallow level (area tracks the swallowed count)\n  const share = localFrames.map((f) => absorbAt(f)).reduce((sum, a) => sum + a, 0) / copyCount;\n  const coreR = coreFullRadius * Math.sqrt(share);\n  const core = coreR > minVisibleRadius ? { x: centerX, y: centerY, r: coreR } : null;\n  return { core, dots };\n}"
+            },
+            {
+              "type": "paragraph",
+              "text": "Only two easings are involved. The gathering side, `easeIn`, is the one-liner `t * t * t` — a soft departure that accelerates into its landing. The returning side, `easeOutBack`, is the classic curve that overshoots the seat and settles, with `backOvershoot` setting how far past it goes. CSS `cubic-bezier()` gives you the same face if you push one of its vertical numbers above 1, so use whatever your stack offers."
+            },
+            {
+              "type": "paragraph",
+              "text": "`progressAt` owns no keyframes at all. It checks which segment of gather-wait-return the current time sits in — using the lengths `gatherSpan`, `holdSpan`, `backSpan` in order — and returns the progress from that segment's formula; past the end it returns 0, and the rest of `loopFrames` is spent resting on the ring. `clipShift` adjusts where playback starts, so the loop's first frame lands on the everyone-at-the-center state."
+            },
+            {
+              "type": "paragraph",
+              "text": "The middle disc is `absorbAt`'s job. It is a swallow level that eases to 1 over `absorbWindow` once a circle lands, and back to 0 over the same span as it leaves; average it over the eight circles, take the square root, and scale the full radius `coreFullRadius` by it. The square root is area arithmetic: a circle's area goes with the square of its radius, so this makes the area track the swallowed count exactly — each swallow adds one eighth of the full disc."
+            },
+            {
+              "type": "paragraph",
+              "text": "The drawing side is nothing but circles. Put a `circle` wherever `blobsAt` says — `SVG` or `canvas`, either works. The move that matters is painting everything one color: the paint does the melting for you, so no code ever tracks which circle is touching which. `minVisibleRadius` is the cutoff that skips drawing the middle disc on frames where it would be too small to see."
+            },
+            {
+              "type": "paragraph",
+              "text": "The overshoot on the way back decides the motion's expression. A circle spat out of the disc sails past its ring seat, drifts a little outward, then settles in. That is `easeOutBack`'s only job — and most of why this never reads as a plain rewind."
+            },
+            {
+              "type": "paragraph",
+              "text": "To run it, use `requestAnimationFrame` and multiply the elapsed seconds by your frames-per-second to get `frame`. This demo's loop seam hides behind two tricks. Over one loop the ring turns exactly half a revolution — and since the eight circles are evenly spaced, the half-turned ring lands exactly on itself. Better yet, at the seam every circle is underwater at the center, so the swap stays hidden under the big disc — each lap, every circle quietly takes the seat across from its old one, and nobody sees it."
+            },
+            {
+              "type": "paragraph",
+              "text": "Building it with your own numbers, keep two promises. Make `turnPerFrame` × `loopFrames` a whole multiple of the seat spacing (360 divided by `copyCount`) — half a revolution in this demo. And give `clipShift` a value that parks the loop's first frame where the last circle has finished diving and nobody has left yet — anywhere from `gatherSpan` + `staggerStep` × (circle count − 1) up to `gatherSpan` + `holdSpan`."
+            },
+            {
+              "type": "paragraph",
+              "text": "`progressAt` returns a plain 0-to-1 number, so you can point it at anything, not just position. In the research repo's generality demo the same clip ran five squares with a different delay and different segment lengths, the progress feeding position, size, and rotation at once — and the gather-wait-return rhythm survived intact. Trim `holdSpan` and it turns hasty; stretch `backSpan` and the return turns graceful. Just keep `holdSpan` longer than the total delay if the all-swallowed moment should survive."
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "Why you see a merge nobody choreographed"
+            },
+            {
+              "type": "paragraph",
+              "text": "Your eye reads joined outlines as “they merged” and a swelling middle as “it swallowed them”. All that actually exists is same-color overlap plus area bookkeeping, yet together they read as mass on the move. The measurements agree: the disc size the square root predicts matched the measured sizes at several swallow counts, almost indistinguishably. One thing stays out of reach — at the instant of contact the real reference smooths the neck into a gooey rounded waist, which plain overlapping circles cannot do."
             },
             {
               "type": "callout",

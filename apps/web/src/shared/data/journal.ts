@@ -228,6 +228,17 @@ export const motionStudyEntries: readonly JournalEntry[] = [
     status: "published",
     evidenceLevel: "production",
   },
+  // Article #9 of the drawer rollout — same uncommitted-until-reviewed gate.
+  {
+    slug: "gather-return",
+    kind: "motion-study",
+    href: "/journal/motion-studies/gather-return",
+    publishedAt: "2026-06-12",
+    priority: 9,
+    tags: ["Stagger", "Overshoot", "Easing", "SVG"],
+    status: "published",
+    evidenceLevel: "production",
+  },
   {
     slug: "signal-stroke-relay",
     kind: "motion-study",

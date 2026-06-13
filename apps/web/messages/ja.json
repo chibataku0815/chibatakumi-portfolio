@@ -1629,6 +1629,12 @@
           "summary": "円が縦に割れ、2 つの半円がすれ違いながら全体が回り、また 1 つの円に閉じる。回転とスライドの二重の振り付けに見えて、動かしている数値は進み具合 1 本。締めの一致は腕ではなく図形の性質が引き受けている — その分解を、組み立ての考え方から歩く。",
           "metaDescription": "分割の正体を解剖する motion study。割れた円の回転とすれ違いは 1 本の進み具合からの計算で出て、継ぎ目のないループは単色の円が向きを隠すことで閉じる。骨格コードと突き止め方つき。"
         },
+        "gather-return": {
+          "eyebrow": "一体化と分離",
+          "title": "ひとつに溶けて見える円の解剖",
+          "summary": "リング状に並んだ 8 個の円がまわりながら順番に中心へ潜り、ひとつの大きな円に呑み込まれて、また離れて輪にもどる。合体にも分離にも振り付けはない — あるのは「集まる・待つ・もどる」のクリップ 1 本の遅らせ再生と、一定の速さで回りつづける輪だけ。溶けて見えるのは同じ色の円が重なるからで、まん中の円は面積の帳尻が合うように平方根でふくらむ。骨格コードつきで組み立ての考え方から歩く。",
+          "metaDescription": "一体化と分離の正体を解剖する motion study。円の合体と分離は「集まる→待つ→もどる」クリップ 1 本の遅らせ再生から生まれ、溶ける輪郭は同色の重なり、まん中の円は面積の帳尻が合うように平方根で成長。骨格コードつき。"
+        },
         "signal-stroke-relay": {
           "eyebrow": "Theatre / Cascade",
           "title": "同じ動きが場所を変えながら伝わる感覚は、別アニメーションの集合では作れない — Theatre.js のタイムラインを複数レイヤーが位相差で参照する設計",
@@ -3195,6 +3201,97 @@
             {
               "type": "paragraph",
               "text": "人の目は「回りながら離れる」を 2 つの意思に分けて読む。だが計測すると、回転の進みとすれ違いの進みはループ全体でぴったり連れ立っていて、片方をほんのわずかに時間へずらしただけで一致が何倍も崩れた。別々に振り付けたのなら、ここまで合う理由がない。1 本の数値の 2 つの読み替えなら、合わない瞬間が作れない。"
+            },
+            {
+              "type": "callout",
+              "tone": "note",
+              "text": "原典はプッティさん（@PuttiMW）の「モーションの引き出し」の 1 セル — 研究リポで分解・再構築したもの。色は参照の赤ではなく固定ライトパレット。上のデモの質感 — 粒状（grain）と色収差 — は、自分たちで開発している映像仕上げ用パッケージでライブ合成していて、イージングのソルバーから粒の乱数まで自作だ。`WebGPU` が使えない環境では `SVG` + `requestAnimationFrame` 描画に切り替わる。"
+            }
+          ]
+        },
+        "gather-return": {
+          "sections": [
+            {
+              "type": "motion-demo",
+              "demo": "gather-return",
+              "caption": "8 個の円がまわりながら順番に中心へ潜り、まん中の円がふくらむ — やがて順番に飛び出して、もとの輪にもどる"
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "潜って、ふくらんで、もどる"
+            },
+            {
+              "type": "paragraph",
+              "text": "8 個の円が輪になって、ゆっくりまわっている。やがて 1 個ずつ、順番に中心へ潜りはじめる。潜られるたびにまん中の円はひとまわりふくらみ、最後は全部を呑み込んでひとつの大きな円になる。ひと息おいて、今度は 1 個ずつ吐き出す — 出てくる場所は潜った場所からまわった先で、輪が見えないあいだも回転が続いていたことがわかる。"
+            },
+            {
+              "type": "paragraph",
+              "text": "合体のアニメーションも、分離のアニメーションも、どこにも書かれていない。動きの正体は「中心へ集まる → 待つ → もどる」というクリップ 1 本で、8 個の円はまわりつづける輪に乗ったまま、同じクリップを少しずつ遅らせて再生している。溶けて見えるのは、同じ色の円が重なると境い目が消えるから。まん中の円のふくらみは面積の帳尻合わせで、半径は呑み込んだ個数の平方根で伸びる — 種はこのあと順番に明かす。"
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "クリップ 1 本と円の複製 8 個を用意する"
+            },
+            {
+              "type": "list",
+              "items": [
+                "まわる輪 — 円を `copyCount` 個、中心のまわりに等間隔で置き、輪ごと毎フレーム `turnPerFrame` ずつ回しつづける(最後まで止めない)",
+                "進み具合 p — 0 が輪の上の定位置(席)、1 が中心にぴったり重なった状態で、「集まる → 待つ → もどる」のクリップ `progressAt` がこの p を返す",
+                "ずらし再生 — i 番目の円は同じクリップを `staggerStep` × i フレーム遅らせて読む(順番に潜る・順番にもどるは、これだけで出る)",
+                "まん中の円 — 各円の呑み込まれ具合 `absorbAt` の平均の平方根を、満杯半径 `coreFullRadius` に掛ける"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "主役の関数は 3 つで、脇に緩急の小さなヘルパーが付く。クリップ本体の `progressAt`、呑み込まれ具合を出す `absorbAt`、フレーム番号から全部の円の置き場所を返す `blobsAt` だ。"
+            },
+            {
+              "type": "code",
+              "lang": "ts",
+              "text": "// 芯は「集まる → 待つ → もどる」のクリップ 1 本 — 8 個の円は止まらない輪に乗って、同じクリップを遅らせ再生する。\n// 小文字ではじまる裸の名前(gatherSpan や ringRadius)は、自分の画面に合わせて決める数 —\n// この記事が持ち帰ってほしいのは値ではなく、この「形」だ。\nconst easeIn = (t) => t * t * t; // 集まりの緩急 — そっと離れて、中心へ加速着地\nconst easeOutBack = (t) => {\n  // もどりの緩急 — 定位置を少し行き過ぎてから落ち着く。行き過ぎ量は backOvershoot\n  const u = t - 1;\n  return 1 + (backOvershoot + 1) * u * u * u + backOvershoot * u * u;\n};\n\n// クリップ本体: 進み具合を返す。0 が輪の上の定位置、1 が中心。loopFrames ごとに繰り返す\nfunction progressAt(frame) {\n  const t = ((frame % loopFrames) + loopFrames) % loopFrames; // マイナスのフレームでも 0〜loopFrames に巻き戻す(遅らせ再生は頭より前を読むことがある)\n  if (t < gatherSpan) return easeIn(t / gatherSpan); // 集まる\n  if (t < gatherSpan + holdSpan) return 1; // 中心で待つ\n  if (t < gatherSpan + holdSpan + backSpan)\n    return 1 - easeOutBack((t - gatherSpan - holdSpan) / backSpan); // もどる\n  return 0; // 輪の上で待機\n}\n\n// なだらかな S 字で 0→1 を渡る(いわゆる smoothstep)\nconst smooth = (s) => {\n  const u = Math.min(1, Math.max(0, s));\n  return u * u * (1 + 2 - 2 * u);\n};\n\n// 呑み込まれ具合: 中心に着いてから absorbWindow のあいだで 1 へ、離れはじめたら同じ長さで 0 へ\nfunction absorbAt(frame) {\n  const t = ((frame % loopFrames) + loopFrames) % loopFrames;\n  return smooth((t - gatherSpan) / absorbWindow) * (1 - smooth((t - gatherSpan - holdSpan) / absorbWindow));\n}\n\n// フレーム番号を渡すと、まん中の円と 8 個の円の置き場所を返す関数\nfunction blobsAt(frame) {\n  // まわる輪: 等間隔に置き、毎フレーム turnPerFrame ぶんの回転を足しつづける\n  const ring = Array.from({ length: copyCount }, (_, i) => {\n    const a = ((ringStart + turnPerFrame * frame + (360 / copyCount) * i) * Math.PI) / 180;\n    return { x: centerX + ringRadius * Math.cos(a), y: centerY + ringRadius * Math.sin(a) };\n  });\n\n  // ずらし再生: i 番目はおなじクリップを staggerStep × i フレーム遅れで読む\n  const localFrames = ring.map((_, i) => frame + clipShift - i * staggerStep);\n\n  // 各円: 輪の上の定位置から中心へ、進み具合のぶんだけ寄せる\n  const dots = ring.map((pt, i) => {\n    const p = progressAt(localFrames[i]);\n    return { x: pt.x + (centerX - pt.x) * p, y: pt.y + (centerY - pt.y) * p, r: dotRadius };\n  });\n\n  // まん中の円: 呑み込まれ具合の平均の平方根を満杯半径に掛ける(面積は呑んだ個数に比例)\n  const share = localFrames.map((f) => absorbAt(f)).reduce((sum, a) => sum + a, 0) / copyCount;\n  const coreR = coreFullRadius * Math.sqrt(share);\n  const core = coreR > minVisibleRadius ? { x: centerX, y: centerY, r: coreR } : null;\n  return { core, dots };\n}"
+            },
+            {
+              "type": "paragraph",
+              "text": "緩急は 2 つだけ。集まり側の `easeIn` は `t * t * t` の 1 行で、そっと離れて中心へ加速着地する顔になる。もどり側の `easeOutBack` は定位置を少し行き過ぎてから落ち着く定番のカーブで、行き過ぎの量は `backOvershoot` で決める。CSS の `cubic-bezier()` でも縦の数を 1 より大きく振れば同じ表情が作れるから、手元のスタックに合わせて選べばいい。"
+            },
+            {
+              "type": "paragraph",
+              "text": "`progressAt` はキーフレームを 1 個も持たない。いまの時刻がどの区間にいるかを `gatherSpan`・`holdSpan`・`backSpan` の長さで順に調べ、区間ごとの式で進み具合を返すだけ — 最後まで来たら 0 を返し、ループ `loopFrames` の残り時間は輪の上で休む。`clipShift` は再生開始位置の調整で、ループの頭を「全員が中心に集まった状態」に合わせている。"
+            },
+            {
+              "type": "paragraph",
+              "text": "まん中の円は `absorbAt` がふくらませる。円が中心に着くと `absorbWindow` のあいだになだらかに 1 へ、離れはじめると同じ長さで 0 へもどる「呑み込まれ具合」で、8 個ぶんの平均の平方根を満杯半径 `coreFullRadius` に掛ける。平方根なのは面積の勘定だ。円の面積は半径の 2 乗に比例するから、こうすると面積が呑んだ個数にまっすぐ比例して、1 個呑むごとに満杯の 8 分の 1 ずつ増える。"
+            },
+            {
+              "type": "paragraph",
+              "text": "描くほうは円だけだ。`blobsAt` が返す置き場所どおりに `circle` を置けばよく、`SVG` でも `canvas` でもいい。効かせどころは、全部を 1 色で塗ること。溶け合いは塗りが勝手にやってくれるから、どの円とどの円がくっついたかを管理するコードは 1 行も要らない。`minVisibleRadius` は、まん中の円が見えないほど小さいフレームで描くのをやめる足切りだ。"
+            },
+            {
+              "type": "paragraph",
+              "text": "もどりの行き過ぎが、この動きの表情を決めている。吐き出された円は輪の定位置を通り越して外へ少しはみ出し、それから席に落ち着く。`easeOutBack` の仕事はそこだけだが、ただの巻き戻しに見えない理由のほとんどはこの一瞬にある。"
+            },
+            {
+              "type": "paragraph",
+              "text": "動かすときは `requestAnimationFrame` で経過秒に毎秒のコマ数を掛けて `frame` を作ればいい。このデモのループの継ぎ目は 2 つの仕掛けで隠れている。輪は 1 ループでちょうど半回転して、8 個の等間隔の輪は元の自分にぴったり重なる。しかも継ぎ目の瞬間は全員が中心に潜っている時間で、入れ替わりはまん中の円の下に隠れる — 円たちは毎周、向かいの席に座り直しているのに、誰にも見えない。"
+            },
+            {
+              "type": "paragraph",
+              "text": "自分の数値で組むときの約束は 2 つ。`turnPerFrame` × `loopFrames` は席の間隔(360 を `copyCount` で割った角度)の整数倍に — このデモでは半回転。`clipShift` は「全員が潜り終えて、まだ誰も出ていない」時間へループの頭を置く — `gatherSpan` + `staggerStep` × (円の個数 − 1) から `gatherSpan` + `holdSpan` までだ。"
+            },
+            {
+              "type": "paragraph",
+              "text": "`progressAt` が返すのは 0〜1 の数値で、位置のほかに何へ掛けてもいい。研究リポの汎用デモでは正方形 5 個・別のずらし幅・別の区間長で同じクリップを再生し、進み具合を位置・大きさ・回転に同時に掛けた — それでも「集まって、待って、もどる」の呼吸は残った。`holdSpan` を削れば慌ただしく、`backSpan` を伸ばせば優雅になる。ただし全員呑み込みの絵を残すには `holdSpan` をずらしの合計より長く。"
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "振り付けていない合体が見える理由"
+            },
+            {
+              "type": "paragraph",
+              "text": "目は輪郭がつながった瞬間を「合体」と読み、まん中がふくらめば「呑み込んだ」と読む。実際にあるのは同色の重なりと面積の帳尻だけだが、この 2 つが揃うと質量が移ったようにしか見えない。計測でも、平方根が予言するまん中の円の大きさは、呑み込み数のいくつかの節目で測った実測とほぼ見分けがつかない精度で重なった。届かない領域もある。本物は合体の瞬間、くびれの境い目が水あめのように内側からなめらかに埋まるが、素の円の重なりではそこまでは出ない。"
             },
             {
               "type": "callout",
