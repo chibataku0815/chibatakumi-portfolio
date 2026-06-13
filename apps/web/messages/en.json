@@ -1589,49 +1589,49 @@
           "eyebrow": "Random",
           "title": "How to build random",
           "summary": "Nine dots pop in an order you can't predict — yet no random number is drawn anywhere. The motion is one keyframed clip, replayed by all nine duplicates a fixed beat apart; the order comes from a single fixed table holding each cell's place in line. The whole build — down to the spring-like undershoot that turns out to be an authored key — is written out as short functions and dissected.",
-          "metaDescription": "A motion study dissecting \"random\": the firing order of nine dots comes from one fixed table, zero rng — a single radius-keyframe clip time-shifted by a fixed beat times its place in line, so every loop plays out exactly the same. The short function that computes the motion is in the article, replayed live in the browser."
+          "metaDescription": "A motion study unpacking \"random\": the firing order of nine dots comes from one fixed table, zero rng — a single radius-keyframe clip time-shifted by a fixed beat times its place in line, so every loop plays out exactly the same. The short function that computes the motion is in the article, replayed live in the browser."
         },
         "tangency-coupled-drive": {
           "eyebrow": "Linkage",
           "title": "How to build linkage",
           "summary": "While the center square makes a quarter turn, the side squares slide as if bolted to it, and near the diamond everything seems to pause. Yet only the rotation carries keyframes — three. The sides have zero; their position is computed every frame as the closest spot that stays clear of the spinning square. Even the pause is nobody stopping anything. One rotation and a one-line contact law, written out as short functions and dissected.",
-          "metaDescription": "A motion study dissecting linkage: three rotation keyframes drive everything, and the side squares are computed each frame as the closest spot that stays clear of the spinning square — the apparent stop near the diamond happens because the width barely changes around the diamond, not because of a hold key. The short function that computes the motion is in the article, replayed live in the browser."
+          "metaDescription": "A motion study unpacking linkage: three rotation keyframes drive everything, and the side squares are computed each frame as the closest spot that stays clear of the spinning square — the apparent stop near the diamond happens because the width barely changes around the diamond, not because of a hold key. The short function that computes the motion is in the article, replayed live in the browser."
         },
         "complement-tangent-pair": {
           "eyebrow": "Inverse proportion",
           "title": "How to build inverse proportion",
           "summary": "Two kissing circles keep trading size — one inflates exactly as the other deflates. The drawer is named \"inverse proportion\", yet measured, the equation where the product of the radii stays constant does not hold. What stays constant is the addition: the radii always sum to the same number. Keyframes sit only on the top-left circle's radius — 3 of them; the other radius is a subtraction from that sum, and both centres are computed to recede from a fixed kiss point by their own radius, so the contact never moves through the whole loop. The whole build is written out as short framework-free functions and dissected.",
-          "metaDescription": "A motion study dissecting two circles that look inversely proportional: what stays constant is the radius sum, not the product — the constant-product equation misses an order of magnitude worse than the constant-sum one. 3 keyframes on one radius, a subtraction from that sum for its partner, centres computed from a fixed contact point so the kiss never drifts. The short function that computes the motion is in the article, replayed live in the browser."
+          "metaDescription": "A motion study unpacking two circles that look inversely proportional: what stays constant is the radius sum, not the product — the constant-product equation misses an order of magnitude worse than the constant-sum one. 3 keyframes on one radius, a subtraction from that sum for its partner, centres computed from a fixed contact point so the kiss never drifts. The short function that computes the motion is in the article, replayed live in the browser."
         },
         "master-rotation-echo": {
           "eyebrow": "Afterimage",
           "title": "How to build afterimage",
           "summary": "While 2 dots make one lap around a circle, the tail splits into flip-book frames in the fast stretch, melts into one band in the slow stretch, and vanishes the moment they stop. Yet only one rotation is animated — every layer of the tail is the dot's own past, the same rotation replayed a fixed beat later per copy. And nobody switches between the split and the melt, either. One rotation and 9 copies, written out as short functions and dissected.",
-          "metaDescription": "A motion study dissecting the afterimage: one animated rotation, and a tail of 9 copies replaying it one fixed delay apart — whether the tail reads as flip-book frames or melts into one band depends only on whether the dot outruns its own width within one copy's delay. The short function that computes the motion is in the article, replayed live in the browser."
+          "metaDescription": "A motion study unpacking the afterimage: one animated rotation, and a tail of 9 copies replaying it one fixed delay apart — whether the tail reads as flip-book frames or melts into one band depends only on whether the dot outruns its own width within one copy's delay. The short function that computes the motion is in the article, replayed live in the browser."
         },
         "shared-hold-pulse": {
           "eyebrow": "Symmetry",
           "title": "How to build symmetry",
           "summary": "4 bars stretch open to the left and right, the center square swells, all of them freeze together at full stretch for a beat, then walk the same road home. They look perfectly rehearsed, yet not one shape has its own keyframes — the only thing animated is a single number that climbs from 0 to 1, pauses, and returns to 0. Every shape just reads that number times its own motion amount; the mirror is nothing but the sign flipping between left and right. The center square even makes a half turn on the same number. One number and the per-shape motion amounts, written out as short functions and dissected.",
-          "metaDescription": "A motion study dissecting the symmetry drawer: one number that climbs from 0 to 1, holds, and returns drives 4 mirrored bars and a half-turning center square at once — no per-shape keyframes; the mirror is just a sign flip between left and right. The short function that computes the motion is in the article, replayed live in the browser."
+          "metaDescription": "A motion study unpacking the symmetry drawer: one number that climbs from 0 to 1, holds, and returns drives 4 mirrored bars and a half-turning center square at once — no per-shape keyframes; the mirror is just a sign flip between left and right. The short function that computes the motion is in the article, replayed live in the browser."
         },
         "whip-crawl-path-cycle": {
           "eyebrow": "Cycle",
           "title": "How to build cycle",
           "summary": "A thick stroke's head and its dot sprint through most of a lap of an ∞ track in one burst, then crawl the rest. It looks like a two-gear lap, but you choose just 2 speed keys — one whip's worth; the crawl's speed follows automatically from the promise that one loop closes exactly 1 lap. The line never stretches: a fixed-length window slides along the track.",
-          "metaDescription": "A motion study dissecting the drawer technique 'cycle'. The two-gear pacing of a dot lapping an ∞ track is one cubic-bezier whip plus the crawl left over by the promise of closing the lap — no gearbox anywhere. The stroke is a fixed-length dash window sliding on the path. The short function that computes the motion is in the article, replayed live in the browser."
+          "metaDescription": "A motion study unpacking the drawer technique 'cycle'. The two-gear pacing of a dot lapping an ∞ track is one cubic-bezier whip plus the crawl left over by the promise of closing the lap — no gearbox anywhere. The stroke is a fixed-length dash window sliding on the path. The short function that computes the motion is in the article, replayed live in the browser."
         },
         "coupled-shear-rotation": {
           "eyebrow": "Split",
           "title": "How to build split",
           "summary": "A disc cracks down the middle, the halves slide past each other while the whole pair turns, and it all seals back into one circle. It reads as two choreographies — rotation and slide — but only one progress number is animated. The perfect landing is geometry's job, not animation skill, and this article walks through the assembly that makes it so.",
-          "metaDescription": "A motion study dissecting the split drawer: the cracked circle's rotation and slide are both computed from a single progress number, and the seamless loop closes because a single-fill circle hides its own orientation. Skeleton code and the pin-down story included."
+          "metaDescription": "A motion study unpacking the split drawer: the cracked circle's rotation and slide are both computed from a single progress number, and the seamless loop closes because a single-fill circle hides its own orientation. Skeleton code and the pin-down story included."
         },
         "gather-return": {
           "eyebrow": "Merge & split",
           "title": "How to build merge & split",
           "summary": "Eight circles on a slowly turning ring dive into the center one after another, get swallowed into one growing disc, then peel off and return to the ring. Neither the merge nor the split is choreographed — all that exists is one gather-wait-return clip replayed by every circle with a small delay, plus a ring that keeps turning at a steady pace. The melt is just same-color circles overlapping, and the middle disc swells with the square root of the swallow count, so its area keeps the count honest. Skeleton code included — the article builds up from the assembly idea.",
-          "metaDescription": "A motion study dissecting the merge-and-split drawer: the whole spectacle is one gather-wait-return clip replayed with per-copy delays, the melting outline is same-color overlap, and the middle disc grows with the square root of the swallow count to keep its area honest. Skeleton code included."
+          "metaDescription": "A motion study unpacking the merge-and-split drawer: the whole spectacle is one gather-wait-return clip replayed with per-copy delays, the melting outline is same-color overlap, and the middle disc grows with the square root of the swallow count to keep its area honest. Skeleton code included."
         },
         "signal-stroke-relay": {
           "eyebrow": "Theatre / Cascade",
@@ -1661,19 +1661,19 @@
           "eyebrow": "Follow-through",
           "title": "How to build follow-through",
           "summary": "The follow-through of an i swinging right to left. Neither the lag nor the bounce is written as a number anywhere — all that exists is one one-way swing and a wobble whose size is set entirely by how fast the move leaves its last key. Skeleton code included — the article builds up from the assembly idea.",
-          "metaDescription": "A motion study dissecting the follow-through drawer: the letter's lag, lean and overshoot are not choreographed but fall out of one one-way swing plus a wobble whose size is set by how fast the move leaves its last key. Skeleton code included."
+          "metaDescription": "A motion study unpacking the follow-through drawer: the letter's lag, lean and overshoot are not choreographed but fall out of one one-way swing plus a wobble whose size is set by how fast the move leaves its last key. Skeleton code included."
         },
         "parallax-bob": {
           "eyebrow": "Parallax",
           "title": "How to build parallax",
           "summary": "Seven circles bob up and down and look like they sit at different depths. But there is no depth law — every circle shares one and the same waveform, and only the travel amount differs. Skeleton code included — the article builds up from the assembly idea.",
-          "metaDescription": "A motion study dissecting the parallax drawer: seven circles bob as if at different depths, but there is no depth law — they all share one and the same waveform, and only the travel amount, chosen by hand per circle, differs. Skeleton code included."
+          "metaDescription": "A motion study unpacking the parallax drawer: seven circles bob as if at different depths, but there is no depth law — they all share one and the same waveform, and only the travel amount, chosen by hand per circle, differs. Skeleton code included."
         },
         "arrangement-turntable": {
           "eyebrow": "Arrangement",
           "title": "How to build arrangement",
-          "summary": "Nine dots gather at the centre, open into a ring, then swirl back to new places — it looks like a choreographed dance. But you only hand-author two layouts: a square grid and a ring. The swirl and the seat-swap aren't animated one by one — they fall out of those two layouts and how the dots are matched between them. Skeleton code included; we build it from scratch.",
-          "metaDescription": "A motion study dissecting the arrangement drawer: nine dots gather at the centre, open into a ring, then swirl back to new places. But you only hand-author two layouts — a square grid and a ring; the swirl and the seat-swap aren't animated one by one, they fall out of those two layouts and how the dots are matched between them. Skeleton code included."
+          "summary": "Nine dots gather at the centre, open into a ring, then swirl back to new places — it looks finely choreographed. But you only hand-author two layouts: a square grid and a ring. The swirl and the seat-swap aren't animated one by one — they fall out of those two layouts and how the dots are matched between them. Skeleton code included; we build it from scratch.",
+          "metaDescription": "A motion study unpacking the arrangement drawer: nine dots gather at the centre, open into a ring, then swirl back to new places. But you only hand-author two layouts — a square grid and a ring; the swirl and the seat-swap aren't animated one by one, they fall out of those two layouts and how the dots are matched between them. Skeleton code included."
         }
       }
     },
