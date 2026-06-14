@@ -1582,55 +1582,55 @@
         "lattice-breath": {
           "eyebrow": "Count growth",
           "title": "How to build count growth",
-          "summary": "The dots seem to grow from 6 to 19 and fall back to 6 — yet not a single one is created. No key animates the count; it looks like more because each appearance is slightly offset in time. Layer group-staggered entrances onto the lattice's open-and-close, and the count change happens on its own. The whole trick is written out as short framework-free functions and unpacked.",
-          "metaDescription": "A motion study of dots that appear to multiply 6→19→6 with no key animating the count. Nothing is actually created — staggered appearance timing produces the change. The short function that computes the motion is in the article, replayed live in the browser."
+          "summary": "The dots seem to grow from 6 to 19 and fall back to 6. That count change is really one thing: group-staggered entrances layered onto the whole lattice opening and closing together. Offset when each group appears, and the swell in the count emerges on its own. The whole trick is written out as short functions and unpacked.",
+          "metaDescription": "A motion study of count growth: dots appear to multiply 6→19→6, and the real cause is group-staggered entrances layered onto the lattice opening and closing — offset timing makes the count swell. The short function that computes the motion is in the article, replayed live in the browser."
         },
         "pulse-grid": {
           "eyebrow": "Random",
           "title": "How to build random",
-          "summary": "Nine dots pop in an order you can't predict — yet no random number is drawn anywhere. The motion is one keyframed clip, replayed by all nine duplicates a fixed beat apart; the order comes from a single fixed table holding each cell's place in line. The whole build — down to the spring-like undershoot that turns out to be an authored key — is written out as short functions and unpacked.",
-          "metaDescription": "A motion study unpacking \"random\": the firing order of nine dots comes from one fixed table, zero rng — a single radius-keyframe clip time-shifted by a fixed beat times its place in line, so every loop plays out exactly the same. The short function that computes the motion is in the article, replayed live in the browser."
+          "summary": "Nine dots pop in an order you can't predict. That random-looking order is really one fixed table that writes a place-in-line into each of the nine cells. The motion itself is one keyframed clip, replayed by all nine at a steady staggered beat. The whole build — down to the spring-like undershoot that turns out to be an authored key — is written out as short functions and unpacked.",
+          "metaDescription": "A motion study unpacking 'random': the firing order of nine dots comes from one fixed table, and a single radius-keyframe clip is time-shifted by a fixed beat times each dot's place in line, so every loop plays out exactly the same. The short function that computes the motion is in the article, replayed live in the browser."
         },
         "tangency-coupled-drive": {
           "eyebrow": "Linkage",
           "title": "How to build linkage",
-          "summary": "While the center square makes a quarter turn, the side squares slide as if bolted to it, and near the diamond everything seems to pause. Yet only the rotation carries keyframes — three. The sides have zero; their position is computed every frame as the closest spot that stays clear of the spinning square. Even the pause is nobody stopping anything. One rotation and a one-line contact law, written out as short functions and unpacked.",
-          "metaDescription": "A motion study unpacking linkage: three rotation keyframes drive everything, and the side squares are computed each frame as the closest spot that stays clear of the spinning square — the apparent stop near the diamond happens because the width barely changes around the diamond, not because of a hold key. The short function that computes the motion is in the article, replayed live in the browser."
+          "summary": "While the center square makes a quarter turn, the side squares slide as if bolted to it, and near the diamond everything seems to pause. Each side's position is solved every frame as the spot that just grazes the spinning square — one rotation drives the motion, and the sides follow it by geometry. Even the pause is the contact point's progress stalling there for a moment. One rotation and a one-line contact law, written out as short functions and unpacked.",
+          "metaDescription": "A motion study unpacking linkage: three rotation keyframes drive everything, and the side squares are computed each frame as the closest spot that just grazes the spinning square — the apparent stop near the diamond happens because the width barely changes around the diamond. The short function that computes the motion is in the article, replayed live in the browser."
         },
         "complement-tangent-pair": {
           "eyebrow": "Inverse proportion",
           "title": "How to build inverse proportion",
-          "summary": "Two kissing circles keep trading size — one inflates exactly as the other deflates. The drawer is named \"inverse proportion\", yet measured, the equation where the product of the radii stays constant does not hold. What stays constant is the addition: the radii always sum to the same number. Keyframes sit only on the top-left circle's radius — 3 of them; the other radius is a subtraction from that sum, and both centres are computed to recede from a fixed kiss point by their own radius, so the contact never moves through the whole loop. The whole build is written out as short framework-free functions and unpacked.",
-          "metaDescription": "A motion study unpacking two circles that look inversely proportional: what stays constant is the radius sum, not the product — the constant-product equation misses an order of magnitude worse than the constant-sum one. 3 keyframes on one radius, a subtraction from that sum for its partner, centres computed from a fixed contact point so the kiss never drifts. The short function that computes the motion is in the article, replayed live in the browser."
+          "summary": "Two kissing circles keep trading size — one inflates exactly as the other deflates. The drawer is named 'inverse proportion', yet throughout the loop what stays constant is the sum of the radii. Keyframes sit on the top-left circle's radius — 3 of them; the other radius is that sum minus the first, and both centres are computed to recede from a fixed kiss point by their own radius, so the contact stays put. The whole build — including why the kiss point holds fixed — is written out as short functions and unpacked.",
+          "metaDescription": "A motion study unpacking two circles that look inversely proportional: what stays constant is the radius sum — the constant-sum fit beats the constant-product model by an order of magnitude. 3 keyframes on one radius, a subtraction from that sum for its partner, centres computed from a fixed contact point so the kiss stays put. The short function that computes the motion is in the article, replayed live in the browser."
         },
         "master-rotation-echo": {
           "eyebrow": "Afterimage",
           "title": "How to build afterimage",
-          "summary": "While 2 dots make one lap around a circle, the tail splits into flip-book frames in the fast stretch, melts into one band in the slow stretch, and vanishes the moment they stop. Yet only one rotation is animated — every layer of the tail is the dot's own past, the same rotation replayed a fixed beat later per copy. And nobody switches between the split and the melt, either. One rotation and 9 copies, written out as short functions and unpacked.",
-          "metaDescription": "A motion study unpacking the afterimage: one animated rotation, and a tail of 9 copies replaying it one fixed delay apart — whether the tail reads as flip-book frames or melts into one band depends only on whether the dot outruns its own width within one copy's delay. The short function that computes the motion is in the article, replayed live in the browser."
+          "summary": "While 2 dots make one lap around a circle, the tail splits into flip-book frames in the fast stretch, melts into one band in the slow stretch, and vanishes the moment they stop. Each layer of the tail is the dot's own past — the same rotation replayed a fixed beat later per copy. One rotation drives it all, and whether the tail splits or melts follows the rotation's speed — fast and the echoes pull apart, slow and they fuse. One rotation and 9 copies, written out as short functions and unpacked.",
+          "metaDescription": "A motion study unpacking the afterimage: one animated rotation, and a tail of 9 copies replaying it a fixed delay apart — whether the tail reads as flip-book frames or melts into one band turns on whether the dot outruns its own width within one copy's delay. The short function that computes the motion is in the article, replayed live in the browser."
         },
         "shared-hold-pulse": {
           "eyebrow": "Symmetry",
           "title": "How to build symmetry",
-          "summary": "4 bars stretch open to the left and right, the center square swells, all of them freeze together at full stretch for a beat, then walk the same road home. They look perfectly rehearsed, yet not one shape has its own keyframes — the only thing animated is a single number that climbs from 0 to 1, pauses, and returns to 0. Every shape just reads that number times its own motion amount; the mirror is nothing but the sign flipping between left and right. The center square even makes a half turn on the same number. One number and the per-shape motion amounts, written out as short functions and unpacked.",
-          "metaDescription": "A motion study unpacking the symmetry drawer: one number that climbs from 0 to 1, holds, and returns drives 4 mirrored bars and a half-turning center square at once — no per-shape keyframes; the mirror is just a sign flip between left and right. The short function that computes the motion is in the article, replayed live in the browser."
+          "summary": "4 bars stretch open to the left and right, the center square swells, all of them freeze together at full stretch for a beat, then walk the same road home. This perfectly rehearsed-looking move is driven by a single number that climbs from 0 to 1, pauses, and returns to 0. Every shape reads that number times its own motion amount, and the mirror is the sign of that amount flipping between left and right. The center square even makes a half turn on the same number. One number and the per-shape motion amounts, written out as short functions and unpacked.",
+          "metaDescription": "A motion study unpacking the symmetry drawer: one number that climbs from 0 to 1, holds, and returns drives 4 mirrored bars and a half-turning center square at once — the mirror comes from a sign flip between left and right. The short function that computes the motion is in the article, replayed live in the browser."
         },
         "whip-crawl-path-cycle": {
           "eyebrow": "Cycle",
           "title": "How to build cycle",
-          "summary": "A thick stroke's head and its dot sprint through most of a lap of an ∞ track in one burst, then crawl the rest. It looks like a two-gear lap, but you choose just 2 speed keys — one whip's worth; the crawl's speed follows automatically from the promise that one loop closes exactly 1 lap. The line never stretches: a fixed-length window slides along the track.",
-          "metaDescription": "A motion study unpacking the drawer technique 'cycle'. The two-gear pacing of a dot lapping an ∞ track is one cubic-bezier whip plus the crawl left over by the promise of closing the lap — no gearbox anywhere. The stroke is a fixed-length dash window sliding on the path. The short function that computes the motion is in the article, replayed live in the browser."
+          "summary": "On an ∞ track, a thick stroke's head and its dot sprint through most of a lap in one burst, then crawl the rest. In this two-gear-looking move, you set 2 speed keys — one whip's worth — and the crawl's speed follows from the promise that one loop closes exactly 1 lap. The stroke itself is a fixed-length window: as it slides along the track, the head and tail appear to move.",
+          "metaDescription": "A motion study unpacking the drawer technique 'cycle': the two-gear pacing of a dot lapping an ∞ track comes from one cubic-bezier whip plus the crawl left over by the promise of closing the lap. The stroke is a fixed-length dash window sliding on the path. The short function that computes the motion is in the article, replayed live in the browser."
         },
         "coupled-shear-rotation": {
           "eyebrow": "Split",
           "title": "How to build split",
-          "summary": "A disc cracks down the middle, the halves slide past each other while the whole pair turns, and it all seals back into one circle. It reads as two choreographies — rotation and slide — but only one progress number is animated. The perfect landing is geometry's job, not animation skill, and this article walks through the assembly that makes it so.",
+          "summary": "A disc cracks down the middle, the halves slide past each other while the whole pair turns, and it all seals back into one circle. It reads as two choreographies — rotation and slide — but a single progress number drives them both. The perfect landing is geometry's job, and this article walks through the assembly that makes it so.",
           "metaDescription": "A motion study unpacking the split drawer: the cracked circle's rotation and slide are both computed from a single progress number, and the seamless loop closes because a single-fill circle hides its own orientation. Skeleton code and the pin-down story included."
         },
         "gather-return": {
           "eyebrow": "Merge & split",
           "title": "How to build merge & split",
-          "summary": "Eight circles on a slowly turning ring dive into the center one after another, get swallowed into one growing disc, then peel off and return to the ring. Neither the merge nor the split is choreographed — all that exists is one gather-wait-return clip replayed by every circle with a small delay, plus a ring that keeps turning at a steady pace. The melt is just same-color circles overlapping, and the middle disc swells with the square root of the swallow count, so its area keeps the count honest. Skeleton code included — the article builds up from the assembly idea.",
+          "summary": "Eight circles on a slowly turning ring dive into the center one after another, get swallowed into one growing disc, then peel off and return to the ring. Both the merge and the split are one thing: a single gather-wait-return clip replayed by every circle with a small delay, over a ring that keeps turning at a steady pace. The melt is same-color circles overlapping, and the middle disc swells with the square root of the swallow count, so its area keeps the count honest. Skeleton code included — the article builds up from the assembly idea.",
           "metaDescription": "A motion study unpacking the merge-and-split drawer: the whole spectacle is one gather-wait-return clip replayed with per-copy delays, the melting outline is same-color overlap, and the middle disc grows with the square root of the swallow count to keep its area honest. Skeleton code included."
         },
         "signal-stroke-relay": {
@@ -1660,50 +1660,50 @@
         "velocity-seeded-overshoot": {
           "eyebrow": "Follow-through",
           "title": "How to build follow-through",
-          "summary": "The follow-through of an i swinging right to left. Neither the lag nor the bounce is written as a number anywhere — all that exists is one one-way swing and a wobble whose size is set entirely by how fast the move leaves its last key. Skeleton code included — the article builds up from the assembly idea.",
-          "metaDescription": "A motion study unpacking the follow-through drawer: the letter's lag, lean and overshoot are not choreographed but fall out of one one-way swing plus a wobble whose size is set by how fast the move leaves its last key. Skeleton code included."
+          "summary": "The follow-through of an i swinging right to left. The lag and the bounce are really two things: one one-way swing, and a wobble whose size is set by how fast the move leaves its last key. The faster it whips off the key, the bigger the wobble — and the lag and overshoot fall out of that. Skeleton code included — the article builds up from the assembly idea.",
+          "metaDescription": "A motion study unpacking the follow-through drawer: the letter's lag, lean and overshoot fall out of one one-way swing plus a wobble whose size is set by how fast the move leaves its last key. Skeleton code included."
         },
         "parallax-bob": {
           "eyebrow": "Parallax",
           "title": "How to build parallax",
-          "summary": "Seven circles bob up and down and look like they sit at different depths. But there is no depth law — every circle shares one and the same waveform, and only the travel amount differs. Skeleton code included — the article builds up from the assembly idea.",
-          "metaDescription": "A motion study unpacking the parallax drawer: seven circles bob as if at different depths, but there is no depth law — they all share one and the same waveform, and only the travel amount, chosen by hand per circle, differs. Skeleton code included."
+          "summary": "Seven circles bob up and down and look like they sit at different depths. That depth read comes from one thing: every circle shares the same waveform, and the travel amount changes from circle to circle. The wider a circle bobs, the nearer it reads; the smaller, the farther. Skeleton code included — the article builds up from the assembly idea.",
+          "metaDescription": "A motion study unpacking the parallax drawer: seven circles bob as if at different depths, and the depth read comes from one shared waveform with a travel amount chosen by hand per circle. Skeleton code included."
         },
         "arrangement-turntable": {
           "eyebrow": "Arrangement",
           "title": "How to build arrangement",
-          "summary": "Nine dots gather at the centre, open into a ring, then swirl back to new places — it looks finely choreographed. But you only hand-author two layouts: a square grid and a ring. The swirl and the seat-swap aren't animated one by one — they fall out of those two layouts and how the dots are matched between them. Skeleton code included; we build it from scratch.",
-          "metaDescription": "A motion study unpacking the arrangement drawer: nine dots gather at the centre, open into a ring, then swirl back to new places. But you only hand-author two layouts — a square grid and a ring; the swirl and the seat-swap aren't animated one by one, they fall out of those two layouts and how the dots are matched between them. Skeleton code included."
+          "summary": "Nine dots gather at the centre, open into a ring, then swirl back to new places — it looks finely choreographed. You hand-author two layouts — a square grid and a ring — and the swirl and the seat-swap both fall out of those two layouts and how the dots are matched between them. Skeleton code included; we build it from scratch.",
+          "metaDescription": "A motion study unpacking the arrangement drawer: nine dots gather at the centre, open into a ring, then swirl back to new places. You hand-author two layouts — a square grid and a ring — and the swirl and the seat-swap both fall out of those two layouts and how the dots are matched between them. Skeleton code included."
         },
         "offset-stagger-conveyor": {
           "eyebrow": "Offset",
           "title": "How to build offset",
-          "summary": "Five circles slide left, and a wave of sizes seems to travel right to left. But you don't animate them one by one — you take one move and layer it, each copy delayed by a little. That stagger is what “offset” is. Skeleton code included — the article builds up from the assembly idea.",
-          "metaDescription": "A motion study that unpacks offset: five circles slide left and a wave of sizes seems to travel right to left, but they aren't animated one by one. You take one move and layer it, each copy delayed a little — that stagger is “offset”. Skeleton code included."
+          "summary": "Five circles slide left, and a wave of sizes seems to travel right to left. That wave is one move, layered with each copy delayed by a little. That stagger is what 'offset' is. Skeleton code included — the article builds up from the assembly idea.",
+          "metaDescription": "A motion study that unpacks offset: five circles slide left and a wave of sizes seems to travel right to left. The wave is one move layered with each copy delayed a little — that stagger is 'offset'. Skeleton code included."
         },
         "ring-dodge": {
           "eyebrow": "Interference",
           "title": "How to build interference",
-          "summary": "An inner dot orbits, and a ring dot dodges each time it passes nearby. It looks like the ring dots react to what comes close, but they only replay one move on a clock that never stops. What looks like dodging is a distance force layered on top. Skeleton code included — the article builds up from the assembly idea.",
-          "metaDescription": "A motion study that unpacks interference: an inner dot orbits and the ring dots dodge as it passes — but it's not a reaction, just one move replayed on a clock that never stops. The dodge is a distance force, stronger up close. Skeleton code included."
+          "summary": "An inner dot orbits, and a ring dot dodges each time it passes nearby. It looks like the ring dots react to what comes close, but their motion is really one pulse repeated on a clock that keeps ticking. What looks like dodging is a distance force layered on top. Skeleton code included — the article builds up from the assembly idea.",
+          "metaDescription": "A motion study that unpacks interference: an inner dot orbits and the ring dots dodge as it passes. Their motion is one move replayed on a clock that keeps ticking, and the dodge is a distance force, stronger up close. Skeleton code included."
         },
         "quadrant-sign-excursion": {
           "eyebrow": "Difference",
           "title": "How to build difference",
-          "summary": "Overlapping circles open and close, and where they overlap drops out so it looks subtracted — but nothing is subtracted. There's a rule that skips anything covered an even number of times, and one clock that folds back at the mirror. Skeleton code included — the article builds up from the assembly idea.",
-          "metaDescription": "A motion study that unpacks difference: overlapping circles open and close and the overlap drops out so it looks subtracted, but nothing is subtracted. A rule that skips anything covered an even number of times, and one clock that folds back, make it. Skeleton code included."
+          "summary": "Overlapping circles open and close, and where they overlap drops out so it looks subtracted. That drop-out is really an even-odd fill rule — paint the regions covered an odd number of times — plus one clock that folds back at the mirror. Skeleton code included — the article builds up from the assembly idea.",
+          "metaDescription": "A motion study that unpacks difference: overlapping circles open and close and the overlap drops out so it looks subtracted. The drop-out is an even-odd fill rule — paint the regions covered an odd number of times — plus one clock that folds back. Skeleton code included."
         },
         "ring-orbit-3d": {
           "eyebrow": "Auto-orient",
           "title": "How to build auto-orient",
-          "summary": "Spin a tilted 3D ring with a parent and child dial, and scale one perspective factor into position and size alike — that alone makes the front circles swell and slow, the back ones shrink and speed up, the slow-fast and the depth arising on their own from the projection. No 3D library, no keyframes. With code, built up step by step.",
-          "metaDescription": "A motion study that unpacks auto-orient: spin a tilted 3D ring with a parent and child dial and scale one perspective factor into position and size alike, and the front circles swell and slow while the back ones shrink and speed up — the slow-fast and the depth arising on their own from the projection. No 3D library, no keyframes. With code."
+          "summary": "Flat circles travel around a tilted ring — the near ones swell and slow, the far ones shrink and speed up. Scale one perspective factor into both position and size, and the pacing and the depth both fall out of that single projection, kept in step by the geometry. When you want depth while keeping a flat, graphic look, this is how to build it — with code.",
+          "metaDescription": "A motion study that unpacks auto-orient: spin a tilted 3D ring with a parent and child dial and scale one perspective factor into position and size alike, and the front circles swell and slow while the back ones shrink and speed up. The pacing and the depth both fall out of that single projection. With code."
         },
         "disc-tumble-projection": {
           "eyebrow": "2D→3D",
           "title": "How to build 2D→3D",
-          "summary": "Tilt a thick disc's axis, tumble it a half-turn and back, and swell it once on the same wave. You don't draw the width or the bore — spin the rim, drop it on screen, and take the convex hull of the cloud, and a flat ring becomes a solid donut and back. No 3D engine. With code, built up step by step.",
-          "metaDescription": "A motion study that unpacks 2D→3D: tilt a thick disc's axis, tumble it a half-turn and back, and swell it on the same wave. Don't draw the width or bore — spin the rim, drop it on screen, take the convex hull, and a flat ring becomes a solid donut and back. No 3D engine. With code."
+          "summary": "A flat donut tumbles as if solid — swelling once on the same wave — then lies flat again. When you want that solid-looking move while keeping a flat, graphic look — the kind that composites as 2D art — this is the motion-graphics way to get it: tilt the rim's shape, drop it onto the screen, and take the convex hull of the points as the outline, and a flat ring reads as solid. We follow the build with code.",
+          "metaDescription": "A motion study that unpacks 2D→3D: tilt a thick disc's axis, tumble it a half-turn and back, and swell it on the same wave. Spin the rim, drop it on screen, take the convex hull, and a flat ring reads as a solid donut — width, bore and all — and back. With code."
         }
       }
     },
@@ -2688,7 +2688,7 @@
             {
               "type": "motion-demo",
               "demo": "complement-tangent-pair",
-              "caption": "they trade sizes, the kiss point never moves"
+              "caption": "they trade sizes, the kiss point stays fixed"
             },
             {
               "type": "heading",
@@ -3402,7 +3402,7 @@
             {
               "type": "motion-demo",
               "demo": "offset-stagger-conveyor",
-              "caption": "Five circles slide left, swelling and shrinking in turn — the wave is just the same move layered at staggered time offsets"
+              "caption": "Five circles slide left, swelling and shrinking in turn — the wave is the same move layered at staggered time offsets"
             },
             {
               "type": "heading",
@@ -3452,7 +3452,7 @@
             {
               "type": "motion-demo",
               "demo": "ring-dodge",
-              "caption": "An inner dot orbits the ring and the dots ahead of it dodge one after another — the 'reaction' is really a clock that never stops plus a distance force"
+              "caption": "An inner dot orbits the ring and the dots ahead of it dodge one after another — the 'reaction' is really a clock that keeps ticking plus a distance force"
             },
             {
               "type": "heading",
@@ -3502,7 +3502,7 @@
             {
               "type": "motion-demo",
               "demo": "quadrant-sign-excursion",
-              "caption": "Overlapping circles open and close, and where they overlap drops out so it looks subtracted — but nothing is subtracted. There's a fill rule and one clock that folds back"
+              "caption": "Overlapping circles open and close, and where they overlap drops out so it looks subtracted — the drop-out is really an even-odd fill rule plus one clock that folds back"
             },
             {
               "type": "heading",
