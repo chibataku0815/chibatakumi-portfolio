@@ -1686,6 +1686,12 @@
           "title": "How to build interference",
           "summary": "An inner dot orbits, and a ring dot dodges each time it passes nearby. It looks like the ring dots react to what comes close, but they only replay one move on a clock that never stops. What looks like dodging is a distance force layered on top. Skeleton code included — the article builds up from the assembly idea.",
           "metaDescription": "A motion study that unpacks interference: an inner dot orbits and the ring dots dodge as it passes — but it's not a reaction, just one move replayed on a clock that never stops. The dodge is a distance force, stronger up close. Skeleton code included."
+        },
+        "quadrant-sign-excursion": {
+          "eyebrow": "Difference",
+          "title": "How to build difference",
+          "summary": "Overlapping circles open and close, and where they overlap drops out so it looks subtracted — but nothing is subtracted. There's a rule that skips anything covered an even number of times, and one clock that folds back at the mirror. Skeleton code included — the article builds up from the assembly idea.",
+          "metaDescription": "A motion study that unpacks difference: overlapping circles open and close and the overlap drops out so it looks subtracted, but nothing is subtracted. A rule that skips anything covered an even number of times, and one clock that folds back, make it. Skeleton code included."
         }
       }
     },
@@ -3472,6 +3478,56 @@
             {
               "type": "paragraph",
               "text": "To play with it, change `pulseClock`. Shrink the clock and the pulse races around, and the dodge can't keep up. Raise `pushStrength` and `slideStrength` and the escape grows; change `innerSpeed` and the pass gets faster or slower. Swap the ring dots for squares and the same skeleton — an orbiter plus a distance force — keeps working."
+            },
+            {
+              "type": "callout",
+              "text": "The source is one cell from Putti's (@PuttiMW) “motion drawers” — taken apart and rebuilt in the research repo. The colour is a fixed light palette, not the reference blue. The texture on the demo above — grain and chromatic aberration — is composited live by a film-finish package we build ourselves, with everything from the easing solver to the grain's randomness written by hand. Where `WebGPU` isn't available, it falls back to `SVG` + `requestAnimationFrame` rendering."
+            }
+          ]
+        },
+        "quadrant-sign-excursion": {
+          "sections": [
+            {
+              "type": "motion-demo",
+              "demo": "quadrant-sign-excursion",
+              "caption": "Overlapping circles open and close, and where they overlap drops out so it looks subtracted — but nothing is subtracted. There's a fill rule and one clock that folds back"
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "The shape that drops where it overlaps, and a clock that folds back"
+            },
+            {
+              "type": "list",
+              "items": [
+                "You hand-place six equal circles — four filled, two as outlines",
+                "The four filled ones are drawn with a rule that leaves out anywhere covered an even number of times — that's what makes the 'difference' look, with nothing subtracted",
+                "All six share one clock: they open in the first half, then it folds back so the second half retraces the first in reverse"
+              ]
+            },
+            {
+              "type": "code",
+              "text": "const wrap = (frame, span) => ((frame % span) + span) % span;\n\n// the clock that folds back: it folds at the mirror, second half retraces the first in reverse\nconst clockAt = (frame) => {\n  const t = wrap(frame, periodFrames);\n  if (t <= mirrorFrame) return t;\n  return Math.max(2 * mirrorFrame - t, 0);\n};\n\n// channel shapes: a forward ramp, and a bump that rises and returns\nconst rampAt = (ch, t) => ch.end * cubicBezier(...ch.ease)((t - ch.t0) / (ch.endF - ch.t0));\nconst bumpAt = (ch, t) => {\n  if (t <= ch.apexF) return ch.base + (ch.apex - ch.base) * cubicBezier(...ch.e1)((t - ch.t0) / (ch.apexF - ch.t0));\n  return ch.base + (ch.apex - ch.base) * (1 - cubicBezier(...ch.e2)((t - ch.apexF) / (ch.endF - ch.apexF)));\n};"
+            },
+            {
+              "type": "paragraph",
+              "text": "`clockAt` is the clock that folds back. Up to `mirrorFrame` time runs straight; past it the clock folds and retraces the same path in reverse — so the second half mirrors the first, and the end of the loop lands exactly back on the start. Two kinds of channel set how far things move: `rampAt` runs one way to a target, and `bumpAt` rises by one hump and returns. The curves `ease`, `e1`, `e2` are the same set as CSS `cubic-bezier()`, and drop straight into a ready-made library like `bezier-easing`."
+            },
+            {
+              "type": "code",
+              "text": "// frame number → circle positions\nfunction circlesAt(frame) {\n  const t = clockAt(frame);\n  const u = rampAt(uChan, t); // the filled circles' spread along the axis\n  const v = bumpAt(vChan, t); // the filled circles' sideways bulge\n  const s = rampAt(sChan, t); // the outline circles' spread (lagging u slightly)\n  const w = bumpAt(wChan, t); // the outline circles' line width\n\n  // along a single axis, just flip the signs to place them\n  const rad = axisDeg * Math.PI / 180;\n  const ax = Math.cos(rad), ay = Math.sin(rad);\n  const bx = -Math.sin(rad), by = Math.cos(rad);\n  const place = (du, dv, r) => ({ cx: cx + ax * du + bx * dv, cy: cy + ay * du + by * dv, r });\n\n  return {\n    // filled circles: sign placements of the shared (u, v)\n    quad: [place(u, v, quadRadius), place(-u, -v, quadRadius), place(u, -v, quadRadius), place(-u, v, quadRadius)],\n    // outline circles: on the axis at (±s, 0)\n    axial: [place(s, 0, axialRadius), place(-s, 0, axialRadius)],\n    bandWidth: w,\n  };\n}"
+            },
+            {
+              "type": "paragraph",
+              "text": "This is what 'difference' really is. The circles aren't subtracted from each other. The four filled ones are just equal circles, placed by flipping the signs of the shared `u` and `v`. Where they overlap, the fill lands an even number of times and drops out, and that reads as a cut-out shape. Nowhere in `circlesAt` is anything computing a relationship between one circle and another — the six only share `clockAt`'s clock and four channels, never looking at each other. The first and second halves mirror because the clock folds back."
+            },
+            {
+              "type": "paragraph",
+              "text": "Placing it is six circles. The four filled ones go into one path and are drawn with the rule that skips anywhere covered an even number of times — that's what drops the overlap. The two outlines trace the merged outer edge as one line at the width `bandWidth`. Drive it with `requestAnimationFrame`: multiply elapsed time by your frame count to get a frame number, `wrap` it against `periodFrames`, and hand it to `circlesAt` — you get the same loop as the demo. Rather than hard-coding a colour, it takes the page's own ink."
+            },
+            {
+              "type": "paragraph",
+              "text": "To play with it, change the axis direction (`axisDeg`). Turn it from diagonal to vertical or horizontal and the whole opening direction changes. Make a channel's target bigger and the figure opens deeper; move the fold frame earlier and the round trip speeds up. Swap the filled circles for squares and the same idea — six circles placed by sign and merged into one — keeps working."
             },
             {
               "type": "callout",

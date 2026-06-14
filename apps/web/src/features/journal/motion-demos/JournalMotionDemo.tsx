@@ -12,6 +12,7 @@ import { renderInlineCode } from "../inline-code";
 import { ArrangementTurntableFinishDemo } from "./ArrangementTurntableFinishDemo";
 import { ComplementTangentPairFinishDemo } from "./ComplementTangentPairFinishDemo";
 import { CoupledShearRotationFinishDemo } from "./CoupledShearRotationFinishDemo";
+import { DifferenceFinishDemo } from "./DifferenceFinishDemo";
 import { GatherReturnFinishDemo } from "./GatherReturnFinishDemo";
 import { LatticeBreathFinishDemo } from "./LatticeBreathFinishDemo";
 import { MasterRotationEchoFinishDemo } from "./MasterRotationEchoFinishDemo";
@@ -42,6 +43,7 @@ const DEMO_REGISTRY: Record<string, () => React.ReactElement> = {
   "arrangement-turntable": ArrangementTurntableFinishDemo,
   "offset-stagger-conveyor": OffsetStaggerConveyorFinishDemo,
   "ring-dodge": RingDodgeFinishDemo,
+  "quadrant-sign-excursion": DifferenceFinishDemo,
 };
 
 interface JournalMotionDemoProps {

@@ -1688,6 +1688,12 @@
           "title": "干渉の作り方",
           "summary": "内側の点がリングを回り、そばを通るたびにリングの点がよける。まるで近づくものに反応しているようだが、リングの点は止まらない時計で同じ動きをくり返しているだけ。よけて見えるのは、その上に重ねた距離の力だ。コードつきで、組み立ての考え方から順に見ていく。",
           "metaDescription": "干渉の正体を読み解く motion study。内側の点が回り、そばを通るとリングの点がよける — でも反応ではなく、止まらない時計で 1 本の動きをくり返しているだけ。よけて見えるのは距離で決まる力で、近いほど強く効く。コードつき。"
+        },
+        "quadrant-sign-excursion": {
+          "eyebrow": "差",
+          "title": "差の作り方",
+          "summary": "重なった円が開いては閉じ、重なったところが抜けて、形を引き算したように見える。でも引き算はしていない。あるのは「偶数回重なったら塗らない」規則と、折り返す 1 本の時計だけだ。コードつきで、組み立ての考え方から順に見ていく。",
+          "metaDescription": "差の正体を読み解く motion study。重なった円が開いて閉じ、重なったところが抜けて形を引き算したように見えるが、引き算はしていない。「偶数回重なったら塗らない」規則と、折り返す 1 本の時計が作る。コードつき。"
         }
       }
     },
@@ -3474,6 +3480,56 @@
             {
               "type": "paragraph",
               "text": "遊ぶなら `pulseClock` を変える。クロックを縮めるとパルスが速く回り、よけが追いつかなくなる。`pushStrength` と `slideStrength` を上げれば逃げ方が大きくなり、`innerSpeed` を変えれば通過の速さが変わる。リングの点を四角に変えても、回る点と距離の力でよけるこの仕組みはそのまま使える。"
+            },
+            {
+              "type": "callout",
+              "text": "原典はプッティさん（@PuttiMW）の「モーションの引き出し」の 1 セル — 研究リポで分解・再構築したもの。色は参照の青ではなく固定ライトパレット。上のデモの質感 — 粒状（grain）と色収差 — は、自分たちで開発している映像仕上げ用パッケージでライブ合成していて、イージングのソルバーから粒の乱数まで自作だ。`WebGPU` が使えない環境では `SVG` + `requestAnimationFrame` 描画に切り替わる。"
+            }
+          ]
+        },
+        "quadrant-sign-excursion": {
+          "sections": [
+            {
+              "type": "motion-demo",
+              "demo": "quadrant-sign-excursion",
+              "caption": "重なった円が開いては閉じ、重なったところが抜けて、形を引き算したように見える — でも引き算はしていない。あるのは重ね塗りの規則と、折り返す 1 本の時計だけだ"
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "重なって抜ける形と、折り返す時計を組む"
+            },
+            {
+              "type": "list",
+              "items": [
+                "手で置くのは、同じ大きさの円が 6 つだけ — 4 つは塗り、2 つは輪郭の線",
+                "塗りの 4 つは「重なった回数が偶数のところは塗らない」規則で描く — これが「差」に見える正体で、引き算はどこにもしていない",
+                "6 つは 1 本の時計を共有し、前半で開き、折り返してからは後半が前半をそのまま逆にたどる"
+              ]
+            },
+            {
+              "type": "code",
+              "text": "const wrap = (frame, span) => ((frame % span) + span) % span;\n\n// 折り返す時計: ミラーで折り返し、後半は前半を逆にたどる\nconst clockAt = (frame) => {\n  const t = wrap(frame, periodFrames);\n  if (t <= mirrorFrame) return t;\n  return Math.max(2 * mirrorFrame - t, 0);\n};\n\n// チャネルの形: 片道で動く ramp と、山なりに動いて戻る bump\nconst rampAt = (ch, t) => ch.end * cubicBezier(...ch.ease)((t - ch.t0) / (ch.endF - ch.t0));\nconst bumpAt = (ch, t) => {\n  if (t <= ch.apexF) return ch.base + (ch.apex - ch.base) * cubicBezier(...ch.e1)((t - ch.t0) / (ch.apexF - ch.t0));\n  return ch.base + (ch.apex - ch.base) * (1 - cubicBezier(...ch.e2)((t - ch.apexF) / (ch.endF - ch.apexF)));\n};"
+            },
+            {
+              "type": "paragraph",
+              "text": "`clockAt` が折り返す時計だ。`mirrorFrame` までは時間がそのまま進み、そこから先は折り返して同じ道を逆にたどる — だから後半は前半の鏡うつしになり、ループの終わりは始まりに戻る。動く量は 2 種類のチャネルで決める。`rampAt` は片道で目標まで動き、`bumpAt` は山ひとつぶん動いて戻る。`ease`・`e1`・`e2` は CSS の `cubic-bezier()` と同じ並びで、`bezier-easing` のような既製のライブラリにそのまま渡せる。"
+            },
+            {
+              "type": "code",
+              "text": "// フレーム番号 → 円の位置\nfunction circlesAt(frame) {\n  const t = clockAt(frame);\n  const u = rampAt(uChan, t); // 塗りの円の、軸に沿った開き\n  const v = bumpAt(vChan, t); // 塗りの円の、横へのふくらみ\n  const s = rampAt(sChan, t); // 輪郭の円の開き(u を少し遅れて追う)\n  const w = bumpAt(wChan, t); // 輪郭の円の線の太さ\n\n  // ひとつの軸に沿って、符号を変えて置くだけ\n  const rad = axisDeg * Math.PI / 180;\n  const ax = Math.cos(rad), ay = Math.sin(rad);\n  const bx = -Math.sin(rad), by = Math.cos(rad);\n  const place = (du, dv, r) => ({ cx: cx + ax * du + bx * dv, cy: cy + ay * du + by * dv, r });\n\n  return {\n    // 塗りの円: 共有する (u, v) の符号配置\n    quad: [place(u, v, quadRadius), place(-u, -v, quadRadius), place(u, -v, quadRadius), place(-u, v, quadRadius)],\n    // 輪郭の円: 軸上の (±s, 0)\n    axial: [place(s, 0, axialRadius), place(-s, 0, axialRadius)],\n    bandWidth: w,\n  };\n}"
+            },
+            {
+              "type": "paragraph",
+              "text": "ここが「差」の正体だ。円どうしを引き算してはいない。塗りの 4 つは、共有する `u`・`v` の符号を入れ替えて置いただけの、同じ大きさのただの円だ。重なったところは塗りが偶数回かさなって抜け、それが形を切り抜いたように見える。`circlesAt` のどこにも、円と円のあいだの関係を計算するところはない — 6 つは `clockAt` の時計と 4 本のチャネルを共有するだけで、たがいを見ていない。前半と後半が鏡うつしになるのも、時計が折り返すからだ。"
+            },
+            {
+              "type": "paragraph",
+              "text": "画面に置くのは円を 6 つ。塗りの 4 つはひとつのパスにまとめ、「偶数回かさなったところは塗らない」規則で描く — これで重なりが抜ける。輪郭の 2 つは、重ねた外周をひとつの線にして `bandWidth` の太さでなぞる。動かすのは `requestAnimationFrame` で、経過した時間にコマ数を掛けてフレーム番号を出し、`periodFrames` で `wrap` して `circlesAt` に渡せば、このデモと同じループになる。色は決め打ちにせず、ページの地の色を受け取る。"
+            },
+            {
+              "type": "paragraph",
+              "text": "遊ぶなら軸の向き(`axisDeg`)を変える。斜めから縦や横にすると、開いていく方向ごと変わる。チャネルの目標を大きくすれば開きが深くなり、折り返すフレームを早めれば往復が速くなる。塗りの円を四角に変えても、6 つを符号で置いてひとつにまとめるこの仕組みはそのまま使える。"
             },
             {
               "type": "callout",
