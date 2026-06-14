@@ -22,6 +22,7 @@ import { ParallaxBobFinishDemo } from "./ParallaxBobFinishDemo";
 import { PlanarToSolidFinishDemo } from "./PlanarToSolidFinishDemo";
 import { PulseGridFinishDemo } from "./PulseGridFinishDemo";
 import { RingDodgeFinishDemo } from "./RingDodgeFinishDemo";
+import { SeededSettleJumpFinishDemo } from "./SeededSettleJumpFinishDemo";
 import { SharedHoldPulseFinishDemo } from "./SharedHoldPulseFinishDemo";
 import { TangencyCoupledDriveFinishDemo } from "./TangencyCoupledDriveFinishDemo";
 import { VelocitySeededOvershootFinishDemo } from "./VelocitySeededOvershootFinishDemo";
@@ -43,6 +44,7 @@ const DEMO_REGISTRY: Record<string, () => React.ReactElement> = {
   "velocity-seeded-overshoot": VelocitySeededOvershootFinishDemo,
   "parallax-bob": ParallaxBobFinishDemo,
   "arrangement-turntable": ArrangementTurntableFinishDemo,
+  "seeded-settle-jump": SeededSettleJumpFinishDemo,
   "offset-stagger-conveyor": OffsetStaggerConveyorFinishDemo,
   "ring-dodge": RingDodgeFinishDemo,
   "quadrant-sign-excursion": DifferenceFinishDemo,

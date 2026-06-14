@@ -1675,6 +1675,12 @@
           "summary": "Nine dots gather at the centre, open into a ring, then swirl back to new places — it looks finely choreographed. You hand-author two layouts — a square grid and a ring — and the swirl and the seat-swap both fall out of those two layouts and how the dots are matched between them. Skeleton code included; we build it from scratch.",
           "metaDescription": "A motion study unpacking the arrangement drawer: nine dots gather at the centre, open into a ring, then swirl back to new places. You hand-author two layouts — a square grid and a ring — and the swirl and the seat-swap both fall out of those two layouts and how the dots are matched between them. Skeleton code included."
         },
+        "seeded-settle-jump": {
+          "eyebrow": "Time delay",
+          "title": "How to build time delay",
+          "summary": "Five capsules bounce in turn and look like a wave. That wave is one jump-and-landing profile, replayed by each capsule at its own time offset. That offset is what the time-delay drawer is. Skeleton code included — the article builds up from the assembly idea.",
+          "metaDescription": "A motion study unpacking the time-delay drawer: five capsules bounce in turn and look like a wave. That wave is one jump-and-landing profile, replayed by each capsule at its own time offset — that offset is the time delay. Skeleton code included."
+        },
         "offset-stagger-conveyor": {
           "eyebrow": "Offset",
           "title": "How to build offset",
@@ -3390,6 +3396,56 @@
             {
               "type": "paragraph",
               "text": "To play with it, rewrite the layouts. Change the `restToRing` and `ringToRest` mappings and the return swirl and seating change wholesale. Raise `turntableDeg` and the path around the ring grows longer; tweak `delaysPerSlot` and the dots leave scattered or all at once. Replace the layout points with another shape, and the skeleton that joins the two layouts keeps working."
+            },
+            {
+              "type": "callout",
+              "text": "The source is one cell of PuttiMW's (@PuttiMW) drawer series — decomposed and rebuilt in a motion-research repo. The palette swaps the reference blue for the fixed light palette. The texture on the demo above — grain and chromatic aberration — is composited live by the video-finishing package we are building in-house: everything from the easing solver to the grain randomness is our own code. Where `WebGPU` is unavailable, the demo falls back to plain `SVG` + `requestAnimationFrame` rendering."
+            }
+          ]
+        },
+        "seeded-settle-jump": {
+          "sections": [
+            {
+              "type": "motion-demo",
+              "demo": "seeded-settle-jump",
+              "caption": "Five capsules replay the same motion at staggered time offsets — the wave you see is that stagger"
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "Set up one profile and a per-body time offset"
+            },
+            {
+              "type": "list",
+              "items": [
+                "One jump-and-landing profile — rest → rise → apex → fall, then it wobbles and settles after landing",
+                "Two co-channels riding the profile — a body that grows taller the faster it moves, and a droplet flicked off at landing",
+                "A per-body time offset — replay the same profile delayed by `staggerFrames` (this is the time delay)"
+              ]
+            },
+            {
+              "type": "code",
+              "text": "const wrap = (value, span) => ((value % span) + span) % span;\n\n// landing entry speed — from the fall curve's exit slope (it seeds the settle that follows)\nconst landVelocity = () => {\n  const [, , c2x, c2y] = fallBezier;\n  const slope = 1 - c2x > 0 ? (1 - c2y) / (1 - c2x) : 0;\n  return slope * (restCy - cyApex) / fallDur;\n};\n\n// height cy(tau): rest → rise → apex → fall, then it wobbles and settles after landing\nconst cyAt = (tau) => {\n  const amp = restCy - cyApex;\n  if (tau < riseDur) return restCy - amp * cubicBezier(...riseBezier)(tau / riseDur);\n  const landTau = riseDur + fallDur;\n  if (tau < landTau) return cyApex + amp * cubicBezier(...fallBezier)((tau - riseDur) / fallDur);\n  const t = tau - landTau;\n  const v = landVelocity();\n  return restCy + (v / settleOmega) * Math.exp(-settleLambda * t) * Math.sin(settleOmega * t);\n};\n\n// velocity vy(tau): the slope of the same curve. the stretch reads this\nconst vyAt = (tau) => {\n  const amp = restCy - cyApex;\n  if (tau < riseDur) return (-amp / riseDur) * cubicBezierSlope(...riseBezier)(tau / riseDur);\n  const landTau = riseDur + fallDur;\n  if (tau < landTau) return (amp / fallDur) * cubicBezierSlope(...fallBezier)((tau - riseDur) / fallDur);\n  const t = tau - landTau;\n  const v = landVelocity();\n  const e = Math.exp(-settleLambda * t);\n  return (v / settleOmega) * e * (settleOmega * Math.cos(settleOmega * t) - settleLambda * Math.sin(settleOmega * t));\n};"
+            },
+            {
+              "type": "paragraph",
+              "text": "`cyAt` is the height profile. `riseBezier` carries the rise, an apex sits between, `fallBezier` carries the fall, and past the landing key it switches to a sine that wobbles and settles — the speed at the start of that sine is set directly by the landing entry speed (no wobble of its own is added). `riseBezier` and `fallBezier` are the same 4 numbers as CSS `cubic-bezier()`. The velocity `vyAt` is the slope of that same curve — how fast the height is changing — which you can get analytically or by finite-differencing the position."
+            },
+            {
+              "type": "code",
+              "text": "// droplet: anchored at the separation frame, radius shrinks geometrically, cy drifts to its target\nconst satelliteAt = (sourceFrame, cx) => {\n  const half = periodFrames / 2;\n  const age = wrap(sourceFrame - separationFrame + half, periodFrames) - half;\n  if (age < -preSeparationFrames || age >= lifeFrames) return null;\n  return {\n    cx,\n    cy: cyAsymptote + (cyAnchor - cyAsymptote) * cyRatio ** age,\n    r: rAnchor * rDecay ** age,\n  };\n};\n\nfunction dotsAt(frame) { // frame number → each capsule's state; replay the same motion at a time offset\n  return Array.from({ length: dotCount }, (_, i) => {\n    const sourceFrame = wrap(frame - i * staggerFrames, periodFrames); // ← the time delay itself\n    const tau = wrap(sourceFrame - tLift, periodFrames);\n    const scaleY = 1 + stretchK * Math.abs(vyAt(tau));\n    const cx = dotCx0 + i * dotSpacing;\n    return {\n      cx,\n      cy: cyAt(tau),\n      width: sizeBasePx,\n      height: sizeBasePx * scaleY,\n      satellite: satelliteAt(sourceFrame, cx),\n    };\n  });\n}"
+            },
+            {
+              "type": "paragraph",
+              "text": "This is the time delay itself. `dotsAt` just reads the same one profile, rewound per body by `staggerFrames` — no code gives any body its own motion. The wave of bounces is one motion laid out at slightly later starts. The vertical stretch reads the speed straight off (times `stretchK`), and `satelliteAt` flicks off one droplet at the landing."
+            },
+            {
+              "type": "paragraph",
+              "text": "Placement is five capsules, drawn as rounded rectangles at the returned `cx`, `cy`, `width`, `height`, plus a circle wherever there is a `satellite`. Drive it with `requestAnimationFrame`: multiply the elapsed time by your frame count, `wrap` against `periodFrames`, and hand the frame to `dotsAt` — you get the same loop as the demo."
+            },
+            {
+              "type": "paragraph",
+              "text": "To play with it, rewrite `staggerFrames`. Smaller packs the wave so the bodies move almost together; larger spreads the cascade one body at a time. Shift `tLift` and the bounce moves; swap the profile itself for a different rise and fall, and the skeleton that replays on a time offset keeps working."
             },
             {
               "type": "callout",

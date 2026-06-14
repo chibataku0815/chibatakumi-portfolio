@@ -272,6 +272,17 @@ export const motionStudyEntries: readonly JournalEntry[] = [
     status: "published",
     evidenceLevel: "production",
   },
+  // Article #13 of the drawer rollout — same uncommitted-until-reviewed gate.
+  {
+    slug: "seeded-settle-jump",
+    kind: "motion-study",
+    href: "/journal/motion-studies/seeded-settle-jump",
+    publishedAt: "2026-06-14",
+    priority: 13,
+    tags: ["Stagger", "Time Delay", "Easing", "SVG"],
+    status: "published",
+    evidenceLevel: "production",
+  },
   // Article #14 of the drawer rollout — same uncommitted-until-reviewed gate.
   {
     slug: "offset-stagger-conveyor",

@@ -1677,6 +1677,12 @@
           "summary": "9 つの点が中央に集まり、リングの形に開き、渦を巻いて別の場所へ戻る — まるで細かく振り付けたように見える。手で形を決めるのは「グリッド」と「リング」の 2 つの並びで、渦も席の入れ替わりも、この 2 つの並びと点の移し方から自然に生まれる。コードつきで作り方を一から追う。",
           "metaDescription": "配置移行の正体を読み解く motion study。9 つの点が中央に集まり、リングの形に開き、渦を巻いて別の場所へ戻る。手で決めるのは「グリッド」と「リング」の 2 つの並びで、渦も席の入れ替わりも、この 2 つの並びと点の移し方から自然に生まれる。コードつき。"
         },
+        "seeded-settle-jump": {
+          "eyebrow": "時間遅延",
+          "title": "時間遅延の作り方",
+          "summary": "5 つのカプセルが次々と跳ね、波のように見える。この波の正体は、1 本のジャンプと着地のプロファイルを、体ごとに時間をずらして再生したものだ。そのズレこそが「時間遅延」だ。コードつきで、組み立ての考え方から順に見ていく。",
+          "metaDescription": "時間遅延の正体を読み解く motion study。5 つのカプセルが次々跳ねて波のように見える。その波の正体は、1 本のジャンプと着地のプロファイルを体ごとに時間をずらして再生したもの — そのズレが「時間遅延」だ。コードつき。"
+        },
         "offset-stagger-conveyor": {
           "eyebrow": "オフセット",
           "title": "オフセットの作り方",
@@ -3392,6 +3398,56 @@
             {
               "type": "paragraph",
               "text": "遊ぶなら配置を書き換える。`restToRing` と `ringToRest` の対応を変えると、戻りの渦の巻き方と席順がまるごと変わる。`turntableDeg` を増やせばリングを回る道のりが伸び、`delaysPerSlot` をいじれば点が散り散りに動き出すか、いっせいに動き出すかが変わる。配置の点を別の形に置き換えても、2 つの配置をつなぐこの仕組みはそのまま使える。"
+            },
+            {
+              "type": "callout",
+              "text": "原典はプッティさん（@PuttiMW）の「モーションの引き出し」の 1 セル — 研究リポで分解・再構築したもの。色は参照の青ではなく固定ライトパレット。上のデモの質感 — 粒状（grain）と色収差 — は、自分たちで開発している映像仕上げ用パッケージでライブ合成していて、イージングのソルバーから粒の乱数まで自作だ。`WebGPU` が使えない環境では `SVG` + `requestAnimationFrame` 描画に切り替わる。"
+            }
+          ]
+        },
+        "seeded-settle-jump": {
+          "sections": [
+            {
+              "type": "motion-demo",
+              "demo": "seeded-settle-jump",
+              "caption": "5 つのカプセルが時間をずらして同じ動きを再生する — 波打って見える正体はそのズレだ"
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "1 本のプロファイルと、体ごとの時間ずらしを用意する"
+            },
+            {
+              "type": "list",
+              "items": [
+                "1 本のジャンプと着地のプロファイル — 休み → 上り → 頂点 → 下り、着地後はゆれておさまる",
+                "プロファイルに乗る 2 つの派生 — 速いほど縦に伸びる体と、着地で飛ぶしずく",
+                "体ごとの時間ずらし — 同じプロファイルを `staggerFrames` だけ遅らせて再生する(これが時間遅延)"
+              ]
+            },
+            {
+              "type": "code",
+              "text": "const wrap = (value, span) => ((value % span) + span) % span;\n\n// 着地の入り口速度 — 落ちカーブの出口の傾きから出す(あとのゆれの出だしになる)\nconst landVelocity = () => {\n  const [, , c2x, c2y] = fallBezier;\n  const slope = 1 - c2x > 0 ? (1 - c2y) / (1 - c2x) : 0;\n  return slope * (restCy - cyApex) / fallDur;\n};\n\n// 高さ cy(tau): 休み → 上り → 頂点 → 下り、着地後はゆれておさまる\nconst cyAt = (tau) => {\n  const amp = restCy - cyApex;\n  if (tau < riseDur) return restCy - amp * cubicBezier(...riseBezier)(tau / riseDur);\n  const landTau = riseDur + fallDur;\n  if (tau < landTau) return cyApex + amp * cubicBezier(...fallBezier)((tau - riseDur) / fallDur);\n  const t = tau - landTau;\n  const v = landVelocity();\n  return restCy + (v / settleOmega) * Math.exp(-settleLambda * t) * Math.sin(settleOmega * t);\n};\n\n// 速度 vy(tau): 同じカーブの傾き。伸び縮みはこれを読む\nconst vyAt = (tau) => {\n  const amp = restCy - cyApex;\n  if (tau < riseDur) return (-amp / riseDur) * cubicBezierSlope(...riseBezier)(tau / riseDur);\n  const landTau = riseDur + fallDur;\n  if (tau < landTau) return (amp / fallDur) * cubicBezierSlope(...fallBezier)((tau - riseDur) / fallDur);\n  const t = tau - landTau;\n  const v = landVelocity();\n  const e = Math.exp(-settleLambda * t);\n  return (v / settleOmega) * e * (settleOmega * Math.cos(settleOmega * t) - settleLambda * Math.sin(settleOmega * t));\n};"
+            },
+            {
+              "type": "paragraph",
+              "text": "`cyAt` が高さのプロファイルだ。`riseBezier` で上り、頂点をはさんで `fallBezier` で下り、着地のキーを過ぎるとゆれておさまる正弦に切り替わる — その正弦の出だしの速さは、着地の入り口速度がそのまま決める(勝手なゆれは足さない)。`riseBezier`・`fallBezier` の中身は CSS の `cubic-bezier()` と同じ 4 つの数だ。速度 `vyAt` は同じカーブの傾き、つまり高さがどれだけ速く変わるかで、解析的に出しても、位置を差分しても得られる。"
+            },
+            {
+              "type": "code",
+              "text": "// しずく: 分離フレームを起点に、半径は等比でしぼみ、cy は行き先へ寄っていく\nconst satelliteAt = (sourceFrame, cx) => {\n  const half = periodFrames / 2;\n  const age = wrap(sourceFrame - separationFrame + half, periodFrames) - half;\n  if (age < -preSeparationFrames || age >= lifeFrames) return null;\n  return {\n    cx,\n    cy: cyAsymptote + (cyAnchor - cyAsymptote) * cyRatio ** age,\n    r: rAnchor * rDecay ** age,\n  };\n};\n\nfunction dotsAt(frame) { // フレーム番号 → 各カプセルの状態。同じ動きを時間ずらしで再生する\n  return Array.from({ length: dotCount }, (_, i) => {\n    const sourceFrame = wrap(frame - i * staggerFrames, periodFrames); // ← 時間遅延の正体\n    const tau = wrap(sourceFrame - tLift, periodFrames);\n    const scaleY = 1 + stretchK * Math.abs(vyAt(tau));\n    const cx = dotCx0 + i * dotSpacing;\n    return {\n      cx,\n      cy: cyAt(tau),\n      width: sizeBasePx,\n      height: sizeBasePx * scaleY,\n      satellite: satelliteAt(sourceFrame, cx),\n    };\n  });\n}"
+            },
+            {
+              "type": "paragraph",
+              "text": "ここが時間遅延の正体だ。`dotsAt` は同じ 1 本のプロファイルを、体ごとに `staggerFrames` だけ巻き戻して読むだけ — 体ごとに別の動きを持たせるコードはどこにもない。次々と跳ねる波は、1 本の動きを少しずつ遅らせて並べた結果だ。縦の伸びは速さをそのまま読み(`stretchK` 倍)、しずくは着地のタイミングで `satelliteAt` がひとつ飛ばす。"
+            },
+            {
+              "type": "paragraph",
+              "text": "画面に置くのはカプセルを 5 つ、返ってきた `cx`・`cy`・`width`・`height` の角丸長方形として描き、`satellite` があれば円を足すだけだ。動かすのは `requestAnimationFrame` で、経過時間にコマ数を掛けてフレーム番号を出し、`periodFrames` で `wrap` して `dotsAt` に渡せば、このデモと同じループになる。"
+            },
+            {
+              "type": "paragraph",
+              "text": "遊ぶなら `staggerFrames` を書き換える。小さくすると波が詰まっていっせいに近づき、大きくすると一体ずつ遅れてカスケードが伸びる。`tLift` をずらせば跳ねる位置が動き、プロファイルそのものを別の上り下りに差し替えても、時間ずらしで再生する仕組みはそのまま使える。"
             },
             {
               "type": "callout",
