@@ -1700,6 +1700,12 @@
           "title": "自動方向の作り方",
           "summary": "傾いた 3D リングを親子で二重に回し、遠近の倍率を位置と大きさへ同じだけかける。それだけで手前の円はふくらんでゆっくり、奥は縮んで速く、緩急も奥行きもこの投影からひとりでに生まれる。3D ライブラリもキーフレームもいらない。コードつきで組み立てを追う。",
           "metaDescription": "自動方向の正体を読み解く motion study。傾いた 3D リングを親子で二重に回し、遠近の倍率を位置と大きさへ同じだけかけると、手前はふくらんでゆっくり、奥は縮んで速くなる。緩急も奥行きもこの投影から生まれ、3D ライブラリもキーフレームもいらない。コードつき。"
+        },
+        "disc-tumble-projection": {
+          "eyebrow": "2D→3D",
+          "title": "2D→3D の作り方",
+          "summary": "厚い円盤を傾いた軸で半回転ぶん倒して戻し、同じ波で一度ふくらませる。幅も穴も手で描かず、縁を回して画面に落とし、その点群の凸包をとるだけ — 平らな輪が立体のドーナツになって戻る。3D エンジンはいらない。コードつきで組み立てを追う。",
+          "metaDescription": "2D→3D の正体を読み解く motion study。厚い円盤を傾いた軸で半回転倒して戻し、同じ波でふくらませる。幅も穴も手で描かず、縁を回して画面に落とし点群の凸包をとると、平らな輪が立体のドーナツになって戻る。3D エンジンはいらない。コードつき。"
         }
       }
     },
@@ -3590,6 +3596,56 @@
             {
               "type": "callout",
               "text": "原典はプッティさん（@PuttiMW）の「モーションの引き出し」の 1 セル — 研究リポで分解・再構築したもの。色は参照の赤ではなく固定ライトパレット。上のデモの質感 — 粒状（grain）と色収差 — は、自分たちで開発している映像仕上げ用パッケージでライブ合成していて、イージングのソルバーから粒の乱数まで自作だ。`WebGPU` が使えない環境では `SVG` + `requestAnimationFrame` 描画に切り替わる。"
+            }
+          ]
+        },
+        "disc-tumble-projection": {
+          "sections": [
+            {
+              "type": "motion-demo",
+              "demo": "disc-tumble-projection",
+              "caption": "厚い円盤が軸を中心に立ち上がっては寝て、平らな輪から立体のドーナツへと姿を変える。立体に見えるのは、縁を回して画面に落とした形をなぞっているからだ"
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "円盤を回し、投影で輪郭をつくる"
+            },
+            {
+              "type": "list",
+              "items": [
+                "置くのは厚い円盤 1 枚 — 傾いた軸を中心に半回転だけ倒して、また戻す",
+                "倒しながら、同じ波で円盤を一度ふくらませて、また縮める",
+                "幅も穴も手で描かない — 縁を回して画面に落とし、その外周をなぞれば輪郭になる"
+              ]
+            },
+            {
+              "type": "code",
+              "text": "// フレーム番号をループの中の位置へ折り返す\nconst wrap = (frame, span) => ((frame % span) + span) % span;\n\n// 往復の波: ピークまで上がって戻り、そのあと長い休み\nconst riseSpan = peakFrame - riseStart;\nconst fallSpan = fallEnd - peakFrame;\nconst restLo = fallEnd;\nconst restHi = riseStart + periodFrames;\n\nconst phaseAt = (local) => {\n  if (local >= restLo && local <= restHi) return null;\n  if (local <= peakFrame) {\n    const unwrapped = local >= restHi ? local - periodFrames : local;\n    return { p: (unwrapped - riseStart) / riseSpan, rising: true };\n  }\n  return { p: (local - peakFrame) / fallSpan, rising: false };\n};\n\nconst scaleAt = (local) => {\n  const ph = phaseAt(local);\n  if (!ph) return restScale;\n  const amp = 1 - restScale;\n  if (ph.rising) return restScale + amp * cubicBezier(...scaleRise)(ph.p);\n  return restScale + amp * (1 - cubicBezier(...scaleFall)(ph.p));\n};\n\nconst thetaAt = (local) => {\n  const ph = phaseAt(local);\n  if (!ph) return restTheta;\n  if (ph.rising) return 180 * cubicBezier(...thetaRise)(ph.p);\n  return 180 * (1 - cubicBezier(...thetaFall)(ph.p));\n};"
+            },
+            {
+              "type": "paragraph",
+              "text": "`scaleAt` と `thetaAt` は、ひとつの山なりの波を分け合う。`phaseAt` が往路か復路かと、どこまで進んだか(0 から 1 の値)を返し、`scaleAt` は大きさを `restScale` から 1 へ往復させ、`thetaAt` は角度を半回転ぶん往復させる。波が終わると長い休みに入り、円盤は寝たまま待つ。`scaleRise` などは CSS の `cubic-bezier()` と同じ並びで、`bezier-easing` のような既製のライブラリにそのまま渡せる。"
+            },
+            {
+              "type": "code",
+              "text": "// 縁の点を傾いた軸で回し、奥行きを捨てて画面へ落とす\nconst projectAboutTiltedAxis = (x, y, z, axisCos, axisSin, th) => {\n  const c = Math.cos(th);\n  const s = Math.sin(th);\n  const t = 1 - c;\n  const px = (t * axisCos * axisCos + c) * x + t * axisCos * axisSin * y + s * axisSin * z;\n  const py = t * axisCos * axisSin * x + (t * axisSin * axisSin + c) * y + -s * axisCos * z;\n  return [px, py];\n};\n\nconst axisTilt = axisTiltDeg * Math.PI / 180;\n\n// フレーム番号 → 円盤の輪郭\nconst discAt = (frame) => {\n  const local = wrap(frame, periodFrames);\n  const scale = scaleAt(local);\n  const thetaDeg = thetaAt(local);\n  const th = thetaDeg * Math.PI / 180;\n  const r = peakOuterR * scale;\n  const onFall = local >= fallStart && local <= fallAxisEnd;\n  const axisCos = Math.cos(axisTilt);\n  const axisSin = Math.sin(axisTilt) * (onFall ? -1 : 1);\n\n  // 両側のリムを点群に投影する\n  const rim = [thicknessRatio * r, -thicknessRatio * r].flatMap((fz) =>\n    Array.from({ length: rimCount }, (_, i) => {\n      const a = 2 * Math.PI * i / rimCount;\n      const [x, y] = projectAboutTiltedAxis(r * Math.cos(a), r * Math.sin(a), fz, axisCos, axisSin, th);\n      return [x + pivot[0], y + pivot[1]];\n    }),\n  );\n  // 輪郭はその点群の凸包\n  const outline = convexHull(rim);\n\n  const edgeOnness = Math.abs(Math.sin(th));\n  return { outline, scale, thetaDeg, edgeOnness };\n};"
+            },
+            {
+              "type": "paragraph",
+              "text": "ここが 2D→3D の正体だ。`projectAboutTiltedAxis` は、縁の点を傾いた軸で回し、奥行きを捨てて画面へ落とす — ロドリゲスの回転と正射影(奥行きを落とす投影)を 1 つにまとめた式で、サインとコサインでできている。縁を `rimCount` 個に分けて両側のリムを投影し、その点群の凸包(`convexHull`)をとれば、それが輪郭になる。立体らしい幅もこれで出てくる。`convexHull` は定番のアルゴリズムで、自分のスタックの実装を使えばいい。"
+            },
+            {
+              "type": "paragraph",
+              "text": "穴も同じやり方だ。内側のリムを投影して、その囲みを楕円にする — 円盤が真横を向くと穴はふさがって消える。立体感の陰影は、輪郭の内側だけに切り抜いた 2 枚の楕円で出す。法線(円盤の面に垂直な向き)の反対側へ暗い側面を、法線の側へ明るい面を置き、どちらも円盤が横を向くほど濃く、平らになるほど薄くなる。輪郭そのものはこの陰影に左右されない。"
+            },
+            {
+              "type": "paragraph",
+              "text": "画面に出すのは、輪郭のパスを 1 本描いて、穴がある間は穴の楕円を足し、偶数回かさなった所を抜く規則(even-odd)でくり抜く。色は決め打ちにせず、ページの地の色を受け取る。動かすのは `requestAnimationFrame` — 経過時間にコマ数をかけてフレーム番号にし、`periodFrames` で折り返して `discAt` にわたせばデモのループになる。遊ぶなら軸の傾き・厚み・穴の比・イージングを変える。`rimCount` は縁の刻み数で、上げるほど輪郭が滑らかになる。"
+            },
+            {
+              "type": "callout",
+              "text": "原典はプッティさん（@PuttiMW）の「モーションの引き出し」の 1 セル — 研究リポで分解・再構築したもの。色は参照の青ではなく固定ライトパレット。上のデモの質感 — 粒状（grain）と色収差 — は、自分たちで開発している映像仕上げ用パッケージでライブ合成していて、イージングのソルバーから粒の乱数まで自作だ。`WebGPU` が使えない環境では `SVG` + `requestAnimationFrame` 描画（陰影なしの輪郭）に切り替わる。"
             }
           ]
         }

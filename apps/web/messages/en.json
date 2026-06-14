@@ -1698,6 +1698,12 @@
           "title": "How to build auto-orient",
           "summary": "Spin a tilted 3D ring with a parent and child dial, and scale one perspective factor into position and size alike — that alone makes the front circles swell and slow, the back ones shrink and speed up, the slow-fast and the depth arising on their own from the projection. No 3D library, no keyframes. With code, built up step by step.",
           "metaDescription": "A motion study that unpacks auto-orient: spin a tilted 3D ring with a parent and child dial and scale one perspective factor into position and size alike, and the front circles swell and slow while the back ones shrink and speed up — the slow-fast and the depth arising on their own from the projection. No 3D library, no keyframes. With code."
+        },
+        "disc-tumble-projection": {
+          "eyebrow": "2D→3D",
+          "title": "How to build 2D→3D",
+          "summary": "Tilt a thick disc's axis, tumble it a half-turn and back, and swell it once on the same wave. You don't draw the width or the bore — spin the rim, drop it on screen, and take the convex hull of the cloud, and a flat ring becomes a solid donut and back. No 3D engine. With code, built up step by step.",
+          "metaDescription": "A motion study that unpacks 2D→3D: tilt a thick disc's axis, tumble it a half-turn and back, and swell it on the same wave. Don't draw the width or bore — spin the rim, drop it on screen, take the convex hull, and a flat ring becomes a solid donut and back. No 3D engine. With code."
         }
       }
     },
@@ -3588,6 +3594,56 @@
             {
               "type": "callout",
               "text": "The source is one cell from Putti's (@PuttiMW) “motion drawers” — taken apart and rebuilt in the research repo. The colour is a fixed light palette, not the reference red. The texture on the demo above — grain and chromatic aberration — is composited live by a film-finish package we build ourselves, with everything from the easing solver to the grain's randomness written by hand. Where `WebGPU` isn't available, it falls back to `SVG` + `requestAnimationFrame` rendering."
+            }
+          ]
+        },
+        "disc-tumble-projection": {
+          "sections": [
+            {
+              "type": "motion-demo",
+              "demo": "disc-tumble-projection",
+              "caption": "A thick disc rises about an axis and lies back down, turning from a flat ring into a solid donut and back. It reads as solid because we trace the shape its rim casts onto the screen as it spins"
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "Spin a disc and make its outline by projection"
+            },
+            {
+              "type": "list",
+              "items": [
+                "You place one thick disc — tilt its axis and tumble it a half-turn over, then back",
+                "As it tumbles, the same wave swells the disc once and shrinks it back",
+                "You don't draw the width or the bore by hand — spin the rim, drop it on screen, and trace its outer edge"
+              ]
+            },
+            {
+              "type": "code",
+              "text": "// fold the frame number into a position inside the loop\nconst wrap = (frame, span) => ((frame % span) + span) % span;\n\n// the there-and-back wave: rise to the peak, fall back, then a long rest\nconst riseSpan = peakFrame - riseStart;\nconst fallSpan = fallEnd - peakFrame;\nconst restLo = fallEnd;\nconst restHi = riseStart + periodFrames;\n\nconst phaseAt = (local) => {\n  if (local >= restLo && local <= restHi) return null;\n  if (local <= peakFrame) {\n    const unwrapped = local >= restHi ? local - periodFrames : local;\n    return { p: (unwrapped - riseStart) / riseSpan, rising: true };\n  }\n  return { p: (local - peakFrame) / fallSpan, rising: false };\n};\n\nconst scaleAt = (local) => {\n  const ph = phaseAt(local);\n  if (!ph) return restScale;\n  const amp = 1 - restScale;\n  if (ph.rising) return restScale + amp * cubicBezier(...scaleRise)(ph.p);\n  return restScale + amp * (1 - cubicBezier(...scaleFall)(ph.p));\n};\n\nconst thetaAt = (local) => {\n  const ph = phaseAt(local);\n  if (!ph) return restTheta;\n  if (ph.rising) return 180 * cubicBezier(...thetaRise)(ph.p);\n  return 180 * (1 - cubicBezier(...thetaFall)(ph.p));\n};"
+            },
+            {
+              "type": "paragraph",
+              "text": "`scaleAt` and `thetaAt` share one humped wave. `phaseAt` returns whether you're on the way out or back, and how far along (a value from 0 to 1); `scaleAt` runs the size from `restScale` up to 1 and back, and `thetaAt` swings the angle a half-turn and back. When the wave ends a long rest begins and the disc lies still. The curves like `scaleRise` are the same set as CSS `cubic-bezier()`, and drop straight into a ready-made library like `bezier-easing`."
+            },
+            {
+              "type": "code",
+              "text": "// spin a point about the tilted axis and drop the depth onto the screen\nconst projectAboutTiltedAxis = (x, y, z, axisCos, axisSin, th) => {\n  const c = Math.cos(th);\n  const s = Math.sin(th);\n  const t = 1 - c;\n  const px = (t * axisCos * axisCos + c) * x + t * axisCos * axisSin * y + s * axisSin * z;\n  const py = t * axisCos * axisSin * x + (t * axisSin * axisSin + c) * y + -s * axisCos * z;\n  return [px, py];\n};\n\nconst axisTilt = axisTiltDeg * Math.PI / 180;\n\n// frame number → the disc's outline\nconst discAt = (frame) => {\n  const local = wrap(frame, periodFrames);\n  const scale = scaleAt(local);\n  const thetaDeg = thetaAt(local);\n  const th = thetaDeg * Math.PI / 180;\n  const r = peakOuterR * scale;\n  const onFall = local >= fallStart && local <= fallAxisEnd;\n  const axisCos = Math.cos(axisTilt);\n  const axisSin = Math.sin(axisTilt) * (onFall ? -1 : 1);\n\n  // project both rims into a point cloud\n  const rim = [thicknessRatio * r, -thicknessRatio * r].flatMap((fz) =>\n    Array.from({ length: rimCount }, (_, i) => {\n      const a = 2 * Math.PI * i / rimCount;\n      const [x, y] = projectAboutTiltedAxis(r * Math.cos(a), r * Math.sin(a), fz, axisCos, axisSin, th);\n      return [x + pivot[0], y + pivot[1]];\n    }),\n  );\n  // the outline is the convex hull of that cloud\n  const outline = convexHull(rim);\n\n  const edgeOnness = Math.abs(Math.sin(th));\n  return { outline, scale, thetaDeg, edgeOnness };\n};"
+            },
+            {
+              "type": "paragraph",
+              "text": "This is what 2D→3D really is. `projectAboutTiltedAxis` spins a rim point about the tilted axis and drops the depth to land it on screen — Rodrigues' rotation and an orthographic projection (depth dropped straight down) fused into one formula, built from just sine and cosine. Split the rim into `rimCount` points, project both rims, and take the convex hull (`convexHull`) of that cloud — that hull is the outline, and the solid-looking width falls right out of it. `convexHull` is a standard convex-hull algorithm; use your own stack's."
+            },
+            {
+              "type": "paragraph",
+              "text": "The bore works the same way: project the inner rim and take its bounding box as an ellipse — when the disc turns edge-on the bore closes and vanishes. The solid shading is two ellipses clipped to the outline: a dark side-wall opposite the face normal (the direction square to the disc's face), a lit face on the normal side, both deepening as the disc turns edge-on and fading as it lies flat. The outline itself never depends on this shading."
+            },
+            {
+              "type": "paragraph",
+              "text": "To put it on screen, draw one outline path, append the bore ellipse while it's open, and punch it out with the even-odd rule. Rather than hard-coding a colour, it takes the page's own ink. Drive it with `requestAnimationFrame`: multiply elapsed time by your frame count to get a frame number, fold it with `periodFrames`, and hand it to `discAt` — you get the demo's loop. To play, change the axis tilt, the thickness, the bore ratio, or the easing; `rimCount` sets how finely the rim is sampled, so raising it smooths the outline."
+            },
+            {
+              "type": "callout",
+              "text": "The source is one cell from Putti's (@PuttiMW) “motion drawers” — taken apart and rebuilt in the research repo. The colour is a fixed light palette, not the reference blue. The texture on the demo above — grain and chromatic aberration — is composited live by a film-finish package we build ourselves, with everything from the easing solver to the grain's randomness written by hand. Where `WebGPU` isn't available, it falls back to `SVG` + `requestAnimationFrame` rendering (the outline without shading)."
             }
           ]
         }

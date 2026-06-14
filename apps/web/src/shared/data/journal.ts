@@ -316,6 +316,17 @@ export const motionStudyEntries: readonly JournalEntry[] = [
     status: "published",
     evidenceLevel: "production",
   },
+  // Article #18 of the drawer rollout — the final drawer cell; same gate.
+  {
+    slug: "disc-tumble-projection",
+    kind: "motion-study",
+    href: "/journal/motion-studies/disc-tumble-projection",
+    publishedAt: "2026-06-14",
+    priority: 18,
+    tags: ["2D→3D", "Projection", "Convex Hull", "SVG"],
+    status: "published",
+    evidenceLevel: "production",
+  },
   {
     slug: "signal-stroke-relay",
     kind: "motion-study",

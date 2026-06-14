@@ -19,6 +19,7 @@ import { LatticeBreathFinishDemo } from "./LatticeBreathFinishDemo";
 import { MasterRotationEchoFinishDemo } from "./MasterRotationEchoFinishDemo";
 import { OffsetStaggerConveyorFinishDemo } from "./OffsetStaggerConveyorFinishDemo";
 import { ParallaxBobFinishDemo } from "./ParallaxBobFinishDemo";
+import { PlanarToSolidFinishDemo } from "./PlanarToSolidFinishDemo";
 import { PulseGridFinishDemo } from "./PulseGridFinishDemo";
 import { RingDodgeFinishDemo } from "./RingDodgeFinishDemo";
 import { SharedHoldPulseFinishDemo } from "./SharedHoldPulseFinishDemo";
@@ -46,6 +47,7 @@ const DEMO_REGISTRY: Record<string, () => React.ReactElement> = {
   "ring-dodge": RingDodgeFinishDemo,
   "quadrant-sign-excursion": DifferenceFinishDemo,
   "ring-orbit-3d": AutoOrientFinishDemo,
+  "disc-tumble-projection": PlanarToSolidFinishDemo,
 };
 
 interface JournalMotionDemoProps {
