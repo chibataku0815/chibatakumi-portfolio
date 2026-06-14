@@ -305,6 +305,17 @@ export const motionStudyEntries: readonly JournalEntry[] = [
     status: "published",
     evidenceLevel: "production",
   },
+  // Article #17 of the drawer rollout — same uncommitted-until-reviewed gate.
+  {
+    slug: "ring-orbit-3d",
+    kind: "motion-study",
+    href: "/journal/motion-studies/ring-orbit-3d",
+    publishedAt: "2026-06-14",
+    priority: 17,
+    tags: ["Auto-orient", "3D", "Perspective", "SVG"],
+    status: "published",
+    evidenceLevel: "production",
+  },
   {
     slug: "signal-stroke-relay",
     kind: "motion-study",

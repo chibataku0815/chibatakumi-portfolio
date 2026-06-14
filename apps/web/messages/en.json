@@ -1692,6 +1692,12 @@
           "title": "How to build difference",
           "summary": "Overlapping circles open and close, and where they overlap drops out so it looks subtracted — but nothing is subtracted. There's a rule that skips anything covered an even number of times, and one clock that folds back at the mirror. Skeleton code included — the article builds up from the assembly idea.",
           "metaDescription": "A motion study that unpacks difference: overlapping circles open and close and the overlap drops out so it looks subtracted, but nothing is subtracted. A rule that skips anything covered an even number of times, and one clock that folds back, make it. Skeleton code included."
+        },
+        "ring-orbit-3d": {
+          "eyebrow": "Auto-orient",
+          "title": "How to build auto-orient",
+          "summary": "Eight circles ride around a tilted ring; the ones at the front swell and seem to slow, the ones at the back shrink and seem to speed up — but there's not one keyframe of easing, and no 3D library. There's a ring tilted a little, a double turn (parent about the screen axis, child about the ring's own facing), and a perspective factor applied to position and size alike. Skeleton code included — the article builds up from the assembly idea.",
+          "metaDescription": "A motion study that unpacks auto-orient: eight circles ride a tilted ring, the front ones swelling and slowing, the back ones shrinking and speeding up, yet with no keyframe easing. A ring tilted a little, turned by a parent and child dial, with one perspective factor scaling position and size alike, makes it. No 3D library. Skeleton code included."
         }
       }
     },
@@ -3532,6 +3538,56 @@
             {
               "type": "callout",
               "text": "The source is one cell from Putti's (@PuttiMW) “motion drawers” — taken apart and rebuilt in the research repo. The colour is a fixed light palette, not the reference blue. The texture on the demo above — grain and chromatic aberration — is composited live by a film-finish package we build ourselves, with everything from the easing solver to the grain's randomness written by hand. Where `WebGPU` isn't available, it falls back to `SVG` + `requestAnimationFrame` rendering."
+            }
+          ]
+        },
+        "ring-orbit-3d": {
+          "sections": [
+            {
+              "type": "motion-demo",
+              "demo": "ring-orbit-3d",
+              "caption": "Eight circles ride around a tilted ring; the ones swung to the front swell and seem to slow, the ones gone to the back shrink and seem to speed up — yet there's not one keyframe of easing, and no 3D library"
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "Building a tilted ring and a two-axis spin"
+            },
+            {
+              "type": "list",
+              "items": [
+                "You hand-place eight equal circles — a light tone and a dark tone, every other one",
+                "The circles don't sit on a flat disc; they ride a 3D ring tilted a little off the screen",
+                "The ring turns about the screen's axis, and the circles also turn about the ring's own facing — that double turn is the whole motion"
+              ]
+            },
+            {
+              "type": "code",
+              "text": "// fold the frame number into a position inside the loop\nconst wrap = (frame, span) => ((frame % span) + span) % span;\n\n// once up front: the tilted ring normal, and how fast the parent and child turn\nconst n0 = tiltedUnit(axis, tiltDeg, tiltAzimuthDeg);\nconst parentPerFrame = 360 * parentTurns / periodFrames;\nconst spinPerFrame = 360 * spinTurns / periodFrames;"
+            },
+            {
+              "type": "paragraph",
+              "text": "`tiltedUnit` tilts the ring's face off a straight axis and returns the direction square to that face (its normal). `ringPoints3d` places `count` points evenly around a circle centred on that normal. `rotationAboutAxis` and `applyMat3` turn a point about any axis you like — the axis rotation is the standard Rodrigues formula, written with just sine and cosine. None of them is a 3D library — they're small parts built from vector adds and multiplies, and once you make `n0` you reuse it every frame."
+            },
+            {
+              "type": "code",
+              "text": "// frame number → each dot's position and size on screen\nconst dotsAt = (frame) => {\n  const t = wrap(frame, periodFrames);\n  // child: dots circle around the ring's own facing\n  const ring = ringPoints3d(n0, spinPhase0 + spinPerFrame * t, ringRadius, count);\n  // parent: the whole ring turns about the screen axis\n  const rot = rotationAboutAxis(axis, parentPerFrame * t);\n  return ring.map((p, i) => {\n    const spun = applyMat3(rot, p);\n    const z = spun[2] / ringRadius;\n    const m = 1 + depthK * z; // one perspective factor, the same for position and size\n    const dark = i % 2 === 0;\n    return {\n      cx: center[0] + spun[0] * m,\n      cy: center[1] + spun[1] * m,\n      r: (dark ? darkRadius : lightRadius) * m,\n      z,\n      dark,\n    };\n  });\n};"
+            },
+            {
+              "type": "paragraph",
+              "text": "Here's what it really is. What separates front from back is `z`, each point's depth, and `depthK` turns that into a factor `m`. The same `m` scales both the position out from the centre and the circle's size — so a front circle reads large and outward, a back one small and inward. The apparent slow-and-fast, the vertical bob, the front/back swap all arise on their own from this perspective. Nowhere is there a keyframe of easing."
+            },
+            {
+              "type": "paragraph",
+              "text": "To put it on screen, draw the back circles first — the front ones then overlap on top, so nearer reads as in front. After that it's one circle each. Rather than hard-coding a colour, it takes the page's own ink and just dims the lighter circles so the two tones read. Drive it with `requestAnimationFrame`: multiply elapsed time by your frame count to get a frame number, `wrap` it against `periodFrames`, and hand it to `dotsAt` — you get the same loop as the demo."
+            },
+            {
+              "type": "paragraph",
+              "text": "To play with it, change the tilt `tiltDeg` and its direction `tiltAzimuthDeg`; the ring lies back differently and the front/back gap grows or shrinks. Swap `spinTurns` and `parentTurns` to change which way and how fast it turns, and raise `depthK` to make the perspective harsher so front circles jump forward. Swap the circles for squares and the same idea — place `count` of them in 3D and spin — keeps working."
+            },
+            {
+              "type": "callout",
+              "text": "The source is one cell from Putti's (@PuttiMW) “motion drawers” — taken apart and rebuilt in the research repo. The colour is a fixed light palette, not the reference red. The texture on the demo above — grain and chromatic aberration — is composited live by a film-finish package we build ourselves, with everything from the easing solver to the grain's randomness written by hand. Where `WebGPU` isn't available, it falls back to `SVG` + `requestAnimationFrame` rendering."
             }
           ]
         }

@@ -1694,6 +1694,12 @@
           "title": "差の作り方",
           "summary": "重なった円が開いては閉じ、重なったところが抜けて、形を引き算したように見える。でも引き算はしていない。あるのは「偶数回重なったら塗らない」規則と、折り返す 1 本の時計だけだ。コードつきで、組み立ての考え方から順に見ていく。",
           "metaDescription": "差の正体を読み解く motion study。重なった円が開いて閉じ、重なったところが抜けて形を引き算したように見えるが、引き算はしていない。「偶数回重なったら塗らない」規則と、折り返す 1 本の時計が作る。コードつき。"
+        },
+        "ring-orbit-3d": {
+          "eyebrow": "自動方向",
+          "title": "自動方向の作り方",
+          "summary": "8 つの円が傾いたリングをめぐり、手前へ来た円はふくらんでゆっくり、奥の円は縮んで速く見える。でもイージングは 1 本もなく、3D ライブラリも使っていない。あるのは少し傾けたリングと、それを親子で回す二重の回転、そして遠近の倍率を位置と大きさに同じだけかける置き方だけだ。コードつきで、組み立ての考え方から順に見ていく。",
+          "metaDescription": "自動方向の正体を読み解く motion study。8 つの円が傾いたリングをめぐり、手前はふくらんでゆっくり、奥は縮んで速く見えるが、イージングは 1 本もない。少し傾けたリングを親子で回し、遠近の倍率を位置と大きさに同じだけかけて作る。3D ライブラリは使わない。コードつき。"
         }
       }
     },
@@ -3534,6 +3540,56 @@
             {
               "type": "callout",
               "text": "原典はプッティさん（@PuttiMW）の「モーションの引き出し」の 1 セル — 研究リポで分解・再構築したもの。色は参照の青ではなく固定ライトパレット。上のデモの質感 — 粒状（grain）と色収差 — は、自分たちで開発している映像仕上げ用パッケージでライブ合成していて、イージングのソルバーから粒の乱数まで自作だ。`WebGPU` が使えない環境では `SVG` + `requestAnimationFrame` 描画に切り替わる。"
+            }
+          ]
+        },
+        "ring-orbit-3d": {
+          "sections": [
+            {
+              "type": "motion-demo",
+              "demo": "ring-orbit-3d",
+              "caption": "8 つの円が傾いたリングの上をめぐり、手前へ来た円はふくらんでゆっくり、奥へ回った円は縮んで速く見える — でもイージングは 1 本もなく、3D ライブラリも使っていない"
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "傾いたリングと二軸の回転を組む"
+            },
+            {
+              "type": "list",
+              "items": [
+                "手で置くのは同じ大きさの円が 8 つ — 明るい色と暗い色をひとつおきに並べる",
+                "円は平らな円盤ではなく、画面から少し傾けた 3D のリングにのせる",
+                "リングは画面の軸のまわりに回り、円はリング自身の向きのまわりにも回る — この二重の回転で動く"
+              ]
+            },
+            {
+              "type": "code",
+              "text": "// フレーム番号をループの中の位置へ折り返す\nconst wrap = (frame, span) => ((frame % span) + span) % span;\n\n// 最初に一度だけ: 傾けたリングの向きと、親まわり・子まわりの回る速さ\nconst n0 = tiltedUnit(axis, tiltDeg, tiltAzimuthDeg);\nconst parentPerFrame = 360 * parentTurns / periodFrames;\nconst spinPerFrame = 360 * spinTurns / periodFrames;"
+            },
+            {
+              "type": "paragraph",
+              "text": "`tiltedUnit` は、まっすぐな軸からリングの面を傾けて、その面に垂直な向き(法線)を返す。`ringPoints3d` は、その法線を中心にした円のまわりへ `count` 個の点を等間隔に置く。`rotationAboutAxis` と `applyMat3` は、点を好きな軸のまわりに回す道具で、軸まわりの回転はロドリゲスの公式、サインとコサインだけで書ける。どれも 3D ライブラリではなく、ベクトルの足し算とかけ算でできた小さな部品で、`n0` を一度作ればあとは毎フレーム使い回す。"
+            },
+            {
+              "type": "code",
+              "text": "// フレーム番号 → 各円の画面での位置と大きさ\nconst dotsAt = (frame) => {\n  const t = wrap(frame, periodFrames);\n  // 子: 円がリングの向きのまわりをめぐる\n  const ring = ringPoints3d(n0, spinPhase0 + spinPerFrame * t, ringRadius, count);\n  // 親: リングごと画面の軸のまわりに回る\n  const rot = rotationAboutAxis(axis, parentPerFrame * t);\n  return ring.map((p, i) => {\n    const spun = applyMat3(rot, p);\n    const z = spun[2] / ringRadius;\n    const m = 1 + depthK * z; // ひとつの遠近の倍率を位置にも大きさにも同じだけ\n    const dark = i % 2 === 0;\n    return {\n      cx: center[0] + spun[0] * m,\n      cy: center[1] + spun[1] * m,\n      r: (dark ? darkRadius : lightRadius) * m,\n      z,\n      dark,\n    };\n  });\n};"
+            },
+            {
+              "type": "paragraph",
+              "text": "ここが正体だ。手前と奥を分けているのは `z`、つまり点の奥行きで、それを `depthK` で倍率 `m` に変える。その同じ `m` を、中心からの位置にも円の大きさにもかける — だから手前の円は外へ大きく、奥の円は内へ小さく見える。見かけのゆっくり・速い、縦の弾み、手前と奥の入れ替わりは、どれもこの遠近(透視)からひとりでに生まれる。キーフレームのイージングはどこにも書いていない。"
+            },
+            {
+              "type": "paragraph",
+              "text": "画面に出すときは、奥の円から先に描く — 手前の円があとから重なって、近いものが上に来る。あとは円をひとつずつ描くだけだ。色は決め打ちにせず、ページの地の色を受け取り、明るいほうの円だけ少し薄くして明暗を出す。動かすのは `requestAnimationFrame` で、経過した時間にコマ数をかけてフレーム番号にし、`periodFrames` で `wrap` して `dotsAt` にわたせば、このデモと同じループになる。"
+            },
+            {
+              "type": "paragraph",
+              "text": "遊ぶなら傾きの `tiltDeg` とその向き `tiltAzimuthDeg` を変えてみる。リングの寝かせ方が変わって、手前と奥の差が強くも弱くもなる。`spinTurns` と `parentTurns` を入れ替えれば回る向きと速さが変わり、`depthK` を大きくすると遠近がきつくなって、手前の円がぐっと前に出る。円を四角に変えても、`count` 個を 3D に置いて回すこの仕組みはそのまま使える。"
+            },
+            {
+              "type": "callout",
+              "text": "原典はプッティさん（@PuttiMW）の「モーションの引き出し」の 1 セル — 研究リポで分解・再構築したもの。色は参照の赤ではなく固定ライトパレット。上のデモの質感 — 粒状（grain）と色収差 — は、自分たちで開発している映像仕上げ用パッケージでライブ合成していて、イージングのソルバーから粒の乱数まで自作だ。`WebGPU` が使えない環境では `SVG` + `requestAnimationFrame` 描画に切り替わる。"
             }
           ]
         }

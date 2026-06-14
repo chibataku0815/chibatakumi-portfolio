@@ -10,6 +10,7 @@
 
 import { renderInlineCode } from "../inline-code";
 import { ArrangementTurntableFinishDemo } from "./ArrangementTurntableFinishDemo";
+import { AutoOrientFinishDemo } from "./AutoOrientFinishDemo";
 import { ComplementTangentPairFinishDemo } from "./ComplementTangentPairFinishDemo";
 import { CoupledShearRotationFinishDemo } from "./CoupledShearRotationFinishDemo";
 import { DifferenceFinishDemo } from "./DifferenceFinishDemo";
@@ -44,6 +45,7 @@ const DEMO_REGISTRY: Record<string, () => React.ReactElement> = {
   "offset-stagger-conveyor": OffsetStaggerConveyorFinishDemo,
   "ring-dodge": RingDodgeFinishDemo,
   "quadrant-sign-excursion": DifferenceFinishDemo,
+  "ring-orbit-3d": AutoOrientFinishDemo,
 };
 
 interface JournalMotionDemoProps {
