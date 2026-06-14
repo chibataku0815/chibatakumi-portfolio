@@ -4,7 +4,7 @@
 再構築 + packages API 化済み）を `/journal/motion-studies/` に 1 記事 1 技法で
 展開する正本。lattice-breath（2026-06-10 公開）が型。
 
-最終更新: 2026-06-14 / 状態: 14/18 公開（#1〜#12, #14, #15・#13 はビルド済み・公開待ち）
+最終更新: 2026-06-14 / 状態: 15/18 公開（#1〜#12, #14〜#16・#13 はビルド済み・公開待ち）
 
 ---
 
@@ -97,7 +97,7 @@
 | 13 | seeded-settle-jump | 時間遅延 | | |
 | 14 | offset-stagger-conveyor | オフセット | サイズの波は同じ動きの 30f 時間ずらし複製 — 途中の戻りは右端キー 1 個 → 共有キーの補間（戻し処理なし） | **公開済 2026-06-14** |
 | 15 | ring-dodge | 干渉 | 「反応」に見えるが盲目の 11f クロックで複製した 1 本のパルス + 通過点からの逆二乗近接場 2 本（押し出し/すべり・距離はパルス込み = フィードバック） | **公開済 2026-06-14** |
-| 16 | quadrant-sign-excursion | 差 | evenodd 対称差 + union 輪郭 stroke | |
+| 16 | quadrant-sign-excursion | 差 | evenodd 対称差 + union 輪郭 stroke | **公開済 2026-06-14** |
 | 17 | ring-orbit-3d | 自動方向 | 3D ライブラリなしの傾いたリング二軸スピン | |
 | 18 | disc-tumble-projection | 2D→3D | Three.js なしの立体化（canSkipThreeJs=YES） | |
 
