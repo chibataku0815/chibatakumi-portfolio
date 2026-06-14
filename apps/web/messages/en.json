@@ -3573,7 +3573,7 @@
             },
             {
               "type": "paragraph",
-              "text": "`tiltedUnit` tilts the ring's face off a straight axis and returns the direction square to that face (its normal). `ringPoints3d` places `count` points evenly around a circle centred on that normal. `rotationAboutAxis` and `applyMat3` turn a point about any axis you like — the axis rotation is the standard Rodrigues formula, written with just sine and cosine. None of them is a 3D library — they're small parts built from vector adds and multiplies, and once you make `n0` you reuse it every frame."
+              "text": "`tiltedUnit` tilts the ring's face off a straight axis and returns the direction square to that face (its normal). `ringPoints3d` places `count` points evenly around a circle centred on that normal. `rotationAboutAxis` and `applyMat3` turn a point about any axis you like — the axis rotation is the standard Rodrigues formula, written with just sine and cosine. They're all small parts built from vector adds and multiplies, and once you make `n0` you reuse it every frame."
             },
             {
               "type": "code",
