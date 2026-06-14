@@ -1696,8 +1696,8 @@
         "ring-orbit-3d": {
           "eyebrow": "Auto-orient",
           "title": "How to build auto-orient",
-          "summary": "Eight circles ride around a tilted ring; the ones at the front swell and seem to slow, the ones at the back shrink and seem to speed up — but there's not one keyframe of easing, and no 3D library. There's a ring tilted a little, a double turn (parent about the screen axis, child about the ring's own facing), and a perspective factor applied to position and size alike. Skeleton code included — the article builds up from the assembly idea.",
-          "metaDescription": "A motion study that unpacks auto-orient: eight circles ride a tilted ring, the front ones swelling and slowing, the back ones shrinking and speeding up, yet with no keyframe easing. A ring tilted a little, turned by a parent and child dial, with one perspective factor scaling position and size alike, makes it. No 3D library. Skeleton code included."
+          "summary": "Spin a tilted 3D ring with a parent and child dial, and scale one perspective factor into position and size alike — that alone makes the front circles swell and slow, the back ones shrink and speed up, the slow-fast and the depth arising on their own from the projection. No 3D library, no keyframes. With code, built up step by step.",
+          "metaDescription": "A motion study that unpacks auto-orient: spin a tilted 3D ring with a parent and child dial and scale one perspective factor into position and size alike, and the front circles swell and slow while the back ones shrink and speed up — the slow-fast and the depth arising on their own from the projection. No 3D library, no keyframes. With code."
         }
       }
     },
@@ -3546,7 +3546,7 @@
             {
               "type": "motion-demo",
               "demo": "ring-orbit-3d",
-              "caption": "Eight circles ride around a tilted ring; the ones swung to the front swell and seem to slow, the ones gone to the back shrink and seem to speed up — yet there's not one keyframe of easing, and no 3D library"
+              "caption": "Eight circles ride a tilted 3D ring — the front ones swell and slow, the back ones shrink and speed up, the slow-fast and the depth arising on their own from one perspective factor"
             },
             {
               "type": "heading",
