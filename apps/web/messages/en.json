@@ -1713,9 +1713,9 @@
         },
         "corona-loop": {
           "eyebrow": "Eclipse corona",
-          "title": "How to build the corona orbit",
-          "summary": "The lit side of a gold stipple corona moves around the rim of a dark eclipse. The dots don't move; as the direction changes, only the brightness moves. The speed rises a little partway through and comes back, and it matches across the loop seam, so the motion stays smooth at the join. You animate one thing: the direction of the lit side.",
-          "metaDescription": "A motion study that draws a corona with gold stipple and moves the brightness along the rim by turning the lit side once. The dots stay fixed; each dot's brightness is computed from the direction. The easing uses a sine wave so the speed matches at the loop seam and the motion stays smooth. The short functions that compute the motion are included and run live in the browser."
+          "title": "Turning the corona's bright side once around",
+          "summary": "The bright side of a corona drawn with gold dots travels along the rim of the dark center. The dots never move; when the direction changes, only the brightness shifts. The speed rises a little partway through, then settles. At the loop's seam the speed before and after lines up, so the motion connects smoothly. The only thing that moves is the direction of the bright side, nothing else.",
+          "metaDescription": "A motion study where you draw a corona with gold dots and turn the bright side's direction once around, so the brightness flows along the rim. The dots stay fixed, and each dot's brightness is computed from the direction. The easing uses sin to match the speed on both sides of the loop's seam. A few short functions handle the motion, and it runs live in the browser."
         }
       }
     },
@@ -3714,25 +3714,25 @@
             {
               "type": "motion-demo",
               "demo": "corona-loop",
-              "caption": "A gold stipple corona — the lit side travels around the rim"
+              "caption": "A corona drawn with gold dots, with the bright side flowing along the rim in a loop"
             },
             {
               "type": "heading",
               "level": 2,
-              "text": "Set up the eclipse, the stipple, and the lit side"
+              "text": "Set up the dark center, the gold dots, and the bright side"
             },
             {
               "type": "list",
               "items": [
-                "The dark eclipse at the center — a round blank that draws nothing; the stipple is scattered only outside it",
-                "The ring of gold stipple — fewer dots the farther out, densest near the rim",
-                "The lit side — dots closer to where `direction` points are brighter, and the far side is darker",
-                "The motion of `direction` — over `periodFrames` it advances by `TURN` for one full turn, and runs slowest at the `baseAngle` heading"
+                "The dark center, placed as a round empty space with nothing drawn, and the gold dots scattered only outside it",
+                "The ring of gold dots, with fewer dots the farther out you go and the densest part toward the inside",
+                "The bright side, where dots closer to the way `direction` points are brighter and the far side is darker",
+                "The motion of `direction`, which turns by `TURN` over `periodFrames` and is slowest at the `baseAngle` heading"
               ]
             },
             {
               "type": "paragraph",
-              "text": "There are two functions to build: one that returns the direction of the lit side from a frame number, and one that sets a single dot's brightness from that direction. The dots are scattered once at the start and never move. Only the brightness changes."
+              "text": "There are two functions to write. One returns the direction of the bright side from the frame number, and one decides the brightness of a single dot from that direction. The dots are scattered once at the start and never moved after that. The only thing that changes is the brightness."
             },
             {
               "type": "code",
@@ -3741,28 +3741,28 @@
             },
             {
               "type": "paragraph",
-              "text": "`breath` is a sine wave, so it returns to the same value at the start and end of the loop, and its slope matches at both ends. So the direction not only turns back to the same place — the speed across the seam matches too, and the motion stays smooth at the join. A larger `rateDepth` makes the speed change stronger, but too large and the sudden speed-up partway through looks unnatural."
+              "text": "`breath` is a sin wave, so it returns to the same value at the start and end of the loop, and the way the speed changes lines up at both ends too. That way the direction not only comes back to the same place after one turn, but the speed across the seam matches as well, so the motion connects smoothly. Raising `rateDepth` makes the speed difference larger, but raising it too far makes a sharp burst of acceleration partway through stand out and look unnatural."
             },
             {
               "type": "paragraph",
-              "text": "What matters is that not one dot ever disappears or appears. A dot's position is set independently of the direction, and even on the darkest side the brightness only drops to a set floor. So as the lit side moves, the set of dots stays the same for the whole loop. The whole picture doesn't rotate; the brightness alone moves in place. That is why it looks like a living plasma rim."
+              "text": "The key point is that not a single dot disappears or appears. A dot's position is decided independently of the direction, and even on the darkest side the brightness only drops to the floor you set. So even as the bright side moves, the cluster of dots stays the same throughout the loop. The whole picture doesn't rotate; only the brightness moves in place. That is why it looks like the rim of living plasma."
             },
             {
               "type": "paragraph",
-              "text": "The dots — many of them — are scattered once at the start. They avoid the eclipse at the center, thin out toward the edge, and pack densely near the rim. After that you just scale the coordinates you set at the start to the screen size, so the scatter never has to run again per frame."
+              "text": "Prepare plenty of dots and scatter them once at the start. Avoid the dark circle at the center and make the inside denser. After that you just scale the coordinates you fixed at the start to the screen size. There's no need to run the placement math every frame."
             },
             {
               "type": "paragraph",
-              "text": "The animation runs on `requestAnimationFrame`. Multiply the elapsed seconds by the frames per second, take the remainder by `periodFrames`, and you get `local`, the frame within the loop. The finish — grain and chromatic aberration — is layered over the frame after the brightness is recomputed."
+              "text": "The animation runs with `requestAnimationFrame`. Multiply the elapsed time by the frame rate and take the remainder after dividing by `periodFrames`, which gives `local`, the current position within the loop. The finishing grain and chromatic aberration are layered over the picture after the brightness is recomputed."
             },
             {
               "type": "paragraph",
-              "text": "The direction only decides which side is bright. So you can change how the dots are scattered — a nebula, fireworks — and still move the lit side with the same `directionAt` and `brightnessAt`."
+              "text": "All the direction decides is which side is bright. So even if you change how the dots are placed, fireworks or snow, the same `directionAt` and `brightnessAt` can move the bright side."
             },
             {
               "type": "callout",
               "tone": "note",
-              "text": "The celestial, eclipse motif is a motion study that takes its cue from プッティさん（@PuttiMW）. The corona stipple and the orbit mechanism are built with an in-house generator and this study's own motion. The color is an in-house gold-on-dark palette, separate from the fixed light palette of the drawer series. The texture in the demo above — grain and chromatic aberration — is composited live by a video-finish package we develop ourselves, from the easing math down to the grain's random numbers. Where `WebGPU` is unavailable, it falls back to drawing with `canvas` and `requestAnimationFrame`."
+              "text": "The corona's dots and the one-turn mechanism are a motion study built with my own generator and the motion shown here. The colors are a custom gold-and-dark palette, separate from the fixed light palette of the drawer series. The texture in the demo above, namely the grain and chromatic aberration, is composited live by a video-finishing package we develop ourselves. Everything from the easing math to the grain's randomness is our own. On environments where `WebGPU` isn't available, it falls back to drawing with `canvas` and `requestAnimationFrame`."
             }
           ]
         }
