@@ -338,6 +338,18 @@ export const motionStudyEntries: readonly JournalEntry[] = [
     status: "published",
     evidenceLevel: "production",
   },
+  // Wave-2 non-drawer study: a gold-on-dark eclipse corona whose bright lobe
+  // orbits the void. Reproduction reference = PuttiMW; same motion-study gate.
+  {
+    slug: "corona-loop",
+    kind: "motion-study",
+    href: "/journal/motion-studies/corona-loop",
+    publishedAt: "2026-06-15",
+    priority: 19,
+    tags: ["Loop", "Corona", "Eclipse", "Canvas"],
+    status: "published",
+    evidenceLevel: "production",
+  },
   {
     slug: "signal-stroke-relay",
     kind: "motion-study",

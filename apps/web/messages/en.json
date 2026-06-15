@@ -1710,6 +1710,12 @@
           "title": "How to build 2D→3D",
           "summary": "A flat donut tumbles as if solid — swelling once on the same wave — then lies flat again. When you want that solid-looking move while keeping a flat, graphic look — the kind that composites as 2D art — this is the motion-graphics way to get it: tilt the rim's shape, drop it onto the screen, and take the convex hull of the points as the outline, and a flat ring reads as solid. We follow the build with code.",
           "metaDescription": "A motion study that unpacks 2D→3D: tilt a thick disc's axis, tumble it a half-turn and back, and swell it on the same wave. Spin the rim, drop it on screen, take the convex hull, and a flat ring reads as a solid donut — width, bore and all — and back. With code."
+        },
+        "corona-loop": {
+          "eyebrow": "Eclipse corona",
+          "title": "How to build the corona orbit",
+          "summary": "The lit side of a gold stipple corona travels around the rim of a dark eclipse. Not one dot moves — only brightness flows as the direction turns. The speed swells for one breath and eases, matching at the loop seam so nothing jumps. You animate one thing: the direction of the lit side.",
+          "metaDescription": "A motion study of the corona orbit. The gold stipple stays fixed; turning the lit side once around the void makes light rise and fall as it sweeps the rim. A sine-wave easing matches the speed at the seam for a loop that never jumps. The short function that computes the motion is in the article, running live in the browser."
         }
       }
     },
@@ -3700,6 +3706,63 @@
             {
               "type": "callout",
               "text": "The source is one cell from Putti's (@PuttiMW) “motion drawers” — taken apart and rebuilt in the research repo. The colour is a fixed light palette, not the reference blue. The texture on the demo above — grain and chromatic aberration — is composited live by a film-finish package we build ourselves, with everything from the easing solver to the grain's randomness written by hand. Where `WebGPU` isn't available, it falls back to `SVG` + `requestAnimationFrame` rendering (the outline without shading)."
+            }
+          ]
+        },
+        "corona-loop": {
+          "sections": [
+            {
+              "type": "motion-demo",
+              "demo": "corona-loop",
+              "caption": "A gold stipple corona around an eclipse — the lit side travels"
+            },
+            {
+              "type": "heading",
+              "level": 2,
+              "text": "Set up the eclipse, the stipple, and the lit side"
+            },
+            {
+              "type": "list",
+              "items": [
+                "The dark eclipse at the center — a round blank that draws nothing, with the stipple scattered only outside it",
+                "The ring of gold stipple — sparser the farther out it goes, densest near the rim",
+                "The lit side — dots near where `direction` points glow hardest, the far side sinks",
+                "The progress of `direction` — over `periodFrames` it advances by `TURN` for one full turn, and runs slowest at the `baseAngle` heading"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "There are two things to build: a function that returns the direction of the lit side from a frame number, and one that sets a single dot's brightness from that direction. The dots are scattered once at the start and never move — only the brightness does."
+            },
+            {
+              "type": "code",
+              "lang": "ts",
+              "text": "// You animate ONE thing: direction, the lit side. It travels TURN over a loop, exactly one turn back to the start.\n// The bare lowercase names (baseAngle, lobeStrength) are numbers you pick for your screen —\n// what to take from this article is the SHAPE, not the values.\nconst TURN = 360;\n\n// The direction is one turn plus one breath of easing. The breath is a sine wave, so the speed matches at both ends.\nfunction directionAt(local, periodFrames) {\n  const phase = local / periodFrames;                       // how far through the loop\n  const turn = TURN * phase;                                // a straight single turn\n  const breath = rateDepth * Math.sin(2 * Math.PI * phase); // one swell of speed\n  return baseAngle + turn + breath;                         // the slowest heading is baseAngle\n}\n\n// Dots never move. Each frame, only the brightness is re-measured from the gap to the direction.\nfunction brightnessAt(dotAngle, direction, radial) {\n  const gap = ((dotAngle - direction) * Math.PI) / 180;     // how far this dot sits off the direction\n  const lit = 1 + lobeStrength * Math.cos(gap);             // the closer to the direction, the brighter\n  return Math.max(0, Math.min(1, radial * lit));            // radial is the base brightness set by distance from center\n}"
+            },
+            {
+              "type": "paragraph",
+              "text": "`breath` is a sine wave, so it returns to the same height at the start and end of the loop, and its slope matches at both ends too. So the direction not only turns back to the same place — the speed across the seam matches as well, and the motion never jumps at the join. Raising `rateDepth` deepens the dwell, but too much makes the swell read as a stutter."
+            },
+            {
+              "type": "paragraph",
+              "text": "What matters is that not one dot ever disappears or appears. Position has nothing to do with the direction, and even on the darkest side the brightness only drops to a set floor. So as the lit side travels, the set of dots never changes over the loop. Nothing spins the whole picture like a turntable — the brightness alone flows in place, which is why it reads as a living plasma rim."
+            },
+            {
+              "type": "paragraph",
+              "text": "The dots — many of them — are scattered once at the start. They avoid the eclipse at the center, thin out toward the edge, and crowd the rim. After that you just scale the draft coordinates to the screen size, so the scatter never has to run again per frame."
+            },
+            {
+              "type": "paragraph",
+              "text": "The loop runs on `requestAnimationFrame`: multiply elapsed seconds by the frames per second, and take the remainder by `periodFrames` to get `local`, the frame within the loop. The finish — grain and chromatic aberration — is laid straight over the re-measured frame."
+            },
+            {
+              "type": "paragraph",
+              "text": "The direction only ever says which side is bright. So you can change how the dots scatter — a nebula, fireworks — and still travel the lit side with the same `directionAt` and `brightnessAt`."
+            },
+            {
+              "type": "callout",
+              "tone": "note",
+              "text": "The celestial, eclipse motif takes its cue from プッティさん（@PuttiMW） — but the corona stipple itself and the orbit are an in-house generator and this study's own motion. The color is an in-house gold-on-dark palette, not the fixed light palette of the drawer series. The texture in the demo above — grain and chromatic aberration — is composited live by the video-finish package we build ourselves, from the easing solver down to the grain noise. Where `WebGPU` is unavailable it falls back to `canvas` + `requestAnimationFrame`."
             }
           ]
         }

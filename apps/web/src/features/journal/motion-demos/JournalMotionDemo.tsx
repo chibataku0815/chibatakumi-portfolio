@@ -12,6 +12,7 @@ import { renderInlineCode } from "../inline-code";
 import { ArrangementTurntableFinishDemo } from "./ArrangementTurntableFinishDemo";
 import { AutoOrientFinishDemo } from "./AutoOrientFinishDemo";
 import { ComplementTangentPairFinishDemo } from "./ComplementTangentPairFinishDemo";
+import { CoronaLoopFinishDemo } from "./CoronaLoopFinishDemo";
 import { CoupledShearRotationFinishDemo } from "./CoupledShearRotationFinishDemo";
 import { DifferenceFinishDemo } from "./DifferenceFinishDemo";
 import { GatherReturnFinishDemo } from "./GatherReturnFinishDemo";
@@ -50,6 +51,9 @@ const DEMO_REGISTRY: Record<string, () => React.ReactElement> = {
   "quadrant-sign-excursion": DifferenceFinishDemo,
   "ring-orbit-3d": AutoOrientFinishDemo,
   "disc-tumble-projection": PlanarToSolidFinishDemo,
+  // Wave-2 non-drawer study: gold-on-dark corona, the bright lobe orbits the
+  // eclipse void (its own palette, not the shared light finish palette).
+  "corona-loop": CoronaLoopFinishDemo,
 };
 
 interface JournalMotionDemoProps {
