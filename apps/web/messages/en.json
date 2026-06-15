@@ -1712,10 +1712,10 @@
           "metaDescription": "A motion study that unpacks 2D→3D: tilt a thick disc's axis, tumble it a half-turn and back, and swell it on the same wave. Spin the rim, drop it on screen, take the convex hull, and a flat ring reads as a solid donut — width, bore and all — and back. With code."
         },
         "corona-loop": {
-          "eyebrow": "Eclipse corona",
-          "title": "Turning the corona's bright side once around",
-          "summary": "The bright side of a corona drawn with gold dots travels along the rim of the dark center. The dots never move; when the direction changes, only the brightness shifts. The speed rises a little partway through, then settles. At the loop's seam the speed before and after lines up, so the motion connects smoothly. The only thing that moves is the direction of the bright side, nothing else.",
-          "metaDescription": "A motion study where you draw a corona with gold dots and turn the bright side's direction once around, so the brightness flows along the rim. The dots stay fixed, and each dot's brightness is computed from the direction. The easing uses sin to match the speed on both sides of the loop's seam. A few short functions handle the motion, and it runs live in the browser."
+          "eyebrow": "Ring of light",
+          "title": "Turning the bright side of the ring of light once around",
+          "summary": "The bright side of a ring of light drawn with gold dots travels along the rim of the dark circle. The dots never move; when the direction changes, only the brightness shifts. The speed rises a little partway through, then settles. At the loop's seam the speed before and after lines up, so the motion connects smoothly. The only thing that moves is the direction of the bright side, nothing else.",
+          "metaDescription": "A motion study where you draw a ring of light with gold dots and turn the bright side's direction once around, so the brightness flows along the rim. The dots stay fixed, and each dot's brightness is computed from the direction. The easing uses sin to match the speed on both sides of the loop's seam. A few short functions handle the motion, and it runs live in the browser."
         }
       }
     },
@@ -3714,17 +3714,17 @@
             {
               "type": "motion-demo",
               "demo": "corona-loop",
-              "caption": "A corona drawn with gold dots, with the bright side flowing along the rim in a loop"
+              "caption": "A ring of light drawn with gold dots, with the bright side flowing along the rim in a loop"
             },
             {
               "type": "heading",
               "level": 2,
-              "text": "Set up the dark center, the gold dots, and the bright side"
+              "text": "Set up the dark circle, the gold dots, and the bright side"
             },
             {
               "type": "list",
               "items": [
-                "The dark center, placed as a round empty space with nothing drawn, and the gold dots scattered only outside it",
+                "The dark circle, placed as a round empty space with nothing drawn, and the gold dots scattered only outside it",
                 "The ring of gold dots, with fewer dots the farther out you go and the densest part toward the inside",
                 "The bright side, where dots closer to the way `direction` points are brighter and the far side is darker",
                 "The motion of `direction`, which turns by `TURN` over `periodFrames` and is slowest at the `baseAngle` heading"
@@ -3762,7 +3762,7 @@
             {
               "type": "callout",
               "tone": "note",
-              "text": "The corona's dots and the one-turn mechanism are a motion study built with my own generator and the motion shown here. The colors are a custom gold-and-dark palette, separate from the fixed light palette of the drawer series. The texture in the demo above, namely the grain and chromatic aberration, is composited live by a video-finishing package we develop ourselves. Everything from the easing math to the grain's randomness is our own. On environments where `WebGPU` isn't available, it falls back to drawing with `canvas` and `requestAnimationFrame`."
+              "text": "The dots of this ring of light and the one-turn mechanism are a motion study built with my own generator and the motion shown here. The colors are a custom gold-and-dark palette, separate from the fixed light palette of the drawer series. The texture in the demo above, namely the grain and chromatic aberration, is composited live by a video-finishing package we develop ourselves. Everything from the easing math to the grain's randomness is our own. On environments where `WebGPU` isn't available, it falls back to drawing with `canvas` and `requestAnimationFrame`."
             }
           ]
         }
