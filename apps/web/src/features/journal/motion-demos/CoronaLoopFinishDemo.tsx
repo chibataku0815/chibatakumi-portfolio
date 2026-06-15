@@ -12,7 +12,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import {
-  API_FINISH_LIGHT_STANDARD,
   createFinishPipeline,
   deriveGrainSeedU32,
   grainTemporalSeed,
@@ -24,6 +23,7 @@ import {
   FINISH_STREAM_NAMESPACE,
 } from "./finish/corona-loop-source";
 import {
+  CORONA_FINISH_PARAMS,
   CORONA_FPS,
   CORONA_POSTER_FRAME,
   CORONA_PERIOD_FRAMES,
@@ -79,6 +79,7 @@ export function CoronaLoopFinishDemo() {
           width: size,
           height: size,
           outputFormat: format,
+          params: CORONA_FINISH_PARAMS,
         });
 
         const renderFrame = (frame: number) => {
@@ -91,7 +92,7 @@ export function CoronaLoopFinishDemo() {
           const seedU32 = deriveGrainSeedU32(
             grainTemporalSeed(
               FINISH_STREAM_NAMESPACE,
-              API_FINISH_LIGHT_STANDARD.grainSeed,
+              CORONA_FINISH_PARAMS.grainSeed,
               frame,
             ),
           );
