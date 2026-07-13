@@ -4,8 +4,9 @@
 
 ## このリポ（chibatakumi-portfolio）
 
-- **正**: アプリコード、`apps/web`、`apps/desktop-film-lab-batch`、`packages/*`、本番デプロイ・DMG・環境変数。
-- **ドキュメント**: リリース・公証・Filmtone 固有の手順は **`docs/guides/`**（このリポ内）。
+- **正**: portfolio のアプリコード、`apps/web`、`packages/*`、公開サイトの本番デプロイ・導線・環境変数。
+- **ドキュメント**: 公開サイト・ブランド・このリポ固有の短いガイドは `docs/`。入口と運用ルールは [docs/README.md](../README.md) と [DOCUMENTATION-GOVERNANCE.md](../DOCUMENTATION-GOVERNANCE.md)。
+- **Filmtone**: 製品実装・リリース・公証の正本は standalone Filmtone リポジトリであり、ここでは `vendor/filmtone` submodule として参照する。内容の変更は standalone 側で行い、このリポジトリでは submodule を更新する。
 
 ## Life リポジトリ（別ディレクトリ）
 

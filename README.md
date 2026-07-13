@@ -22,9 +22,9 @@ Issue やセッション横断の handoff は **別リポ（life）** に集約�
 
 作業手順は **短縮ドキュメントのみ**参照（長文は置かない）。
 
-- [リリース版数の正本・確認順](docs/filmtone-release-version-sources.md)
-- [リリース・Blob・コマンド列](docs/guides/film-lab-desktop-release-min-decisions.md)
-- [公証・1Password・`.notary.env`](docs/guides/film-lab-desktop-notarization-and-secrets.md)
+- [リリース版数の正本・確認順](vendor/filmtone/docs/filmtone/filmtone-release-version-sources.md)
+- [リリース・Blob・コマンド列](vendor/filmtone/docs/guides/film-lab-desktop-release-min-decisions.md)
+- [公証・1Password・`.notary.env`](vendor/filmtone/docs/guides/film-lab-desktop-notarization-and-secrets.md)
 
 ## Development (`apps/web`)
 
