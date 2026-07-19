@@ -1,4 +1,268 @@
 {
+  "filmtone-resolve": {
+    "metadata": {
+      "title": "Filmtone for DaVinci Resolve — フィルムダメージ OFX プラグイン",
+      "description": "DaVinci Resolve 用の買い切り OFX カラーグレーディングプラグイン。フィルム由来のダスト・スクラッチ・ゲート摩耗を決定論的に付与します。永久ウォーターマーク版と 14 日クリーン trial。",
+      "ogTitle": "Filmtone for DaVinci Resolve",
+      "ogDescription": "フィルムダメージを、買い切りで。DaVinci Resolve 用 OFX プラグイン。",
+      "ogImageAlt": "Filmtone for DaVinci Resolve プレビュー"
+    },
+    "landing": {
+      "hero": {
+        "eyebrow": "DaVinci Resolve OFX プラグイン",
+        "title": "Filmtone for DaVinci Resolve",
+        "tagline": "フィルムダメージを、素材に。買い切りで。",
+        "body": "Filmtone は DaVinci Resolve 用の OFX カラーグレーディングプラグインです。デジタル映像に、フィルム由来のダスト・繊維・スクラッチ・染み・ゲート摩耗を、決定論的かつ解像度非依存で重ねます。サブスクリプションではありません。",
+        "buyCta": "${launchPrice} で購入",
+        "buyComingSoon": "購入は近日公開",
+        "trialCta": "{trialDays} 日 trial を請求",
+        "watermarkFloor": "試すだけならサインアップ不要。未ライセンスのままでもすべての機能が動作し、各レンダーに「FILMTONE — TRIAL」ウォーターマークが入ります（期限なし）。"
+      },
+      "facts": {
+        "priceLabel": "価格",
+        "priceValue": "${launchPrice} ローンチ / 通常 ${normalPrice}",
+        "purchaseLabel": "購入形態",
+        "purchaseValue": "買い切り（サブスクリプションなし）",
+        "seatsLabel": "ライセンス",
+        "seatsValue": "{users} ユーザー・最大 {machines} 台の Mac",
+        "verifiedLabel": "動作確認済み",
+        "verifiedValue": "{macos} / {resolve}"
+      },
+      "filmDamage": {
+        "eyebrow": "Film Damage",
+        "title": "フィルムの傷みを、狙って足す",
+        "body": "Filmtone の Film Damage は、暗いデブリ（ゴミ）を主体に、白い煌めきは控えめ、というフィルム由来の質感を軸にしています。安っぽい白フレックのオーバーレイではなく、素材に馴染むダメージを付与します。",
+        "items": {
+          "character": {
+            "title": "暗いデブリ主体の質感",
+            "body": "ダスト・繊維・染み・折れたスクラッチ・ゲート際の汚れ。白い煌めきは稀で控えめに保ち、フィルムらしい沈んだ表情をつくります。"
+          },
+          "families": {
+            "title": "系統ごとに独立制御",
+            "body": "ダスト / 繊維・毛 / スクラッチ / 染み / ゲート摩耗を個別に調整。すべてを 0 にすると完全な素通し（identity）に戻ります。"
+          },
+          "deterministic": {
+            "title": "決定論的・解像度非依存",
+            "body": "同じ時間・fps・シード・パラメータなら同じ結果。アーティファクトには一貫した寿命とフェードがあり、毎フレームのランダムなポップは起きません。プロキシと最終解像度でスケールが揃います。"
+          }
+        }
+      },
+      "positioning": {
+        "eyebrow": "買い切り",
+        "title": "サブスクではなく、買い切りで",
+        "body": "同等の仕上げに最も近い競合ツールはサブスクリプションのみで提供されています。Filmtone は、その領域を一度の購入で使い続けられる買い切りの選択肢として用意しました。特定の競合との品質の同等性を主張するものではありません。"
+      },
+      "trial": {
+        "eyebrow": "2 段階の試用",
+        "title": "まず試す。無料で。",
+        "body": "Filmtone には 2 通りの試し方があります。永久ウォーターマーク版と、14 日間のクリーン trial です。",
+        "permanent": {
+          "title": "永久ウォーターマーク版（サインアップ不要）",
+          "body": "未ライセンスのまま、すべての機能をいつまでも使えます。各レンダーに「{watermark}」ウォーターマークが入ります。期限も登録もありません。常時使える評価版です。"
+        },
+        "clean": {
+          "title": "14 日クリーン trial（メールで請求）",
+          "body": "メールアドレスで請求すると（クレジットカード不要）、署名済みライセンスがメールで届きます。{trialDays} 日間はウォーターマークなしのクリーン出力。期間終了後は自動で永久ウォーターマーク版に戻ります。"
+        }
+      },
+      "pricing": {
+        "eyebrow": "価格",
+        "title": "一度の購入で、使い続ける",
+        "launchAmount": "${launchPrice}",
+        "normalAmount": "${normalPrice}",
+        "launchNote": "ローンチから {days} 日間はローンチ価格 ${launchPrice}（通常 ${normalPrice} から ${discount} 引き）。",
+        "included": {
+          "seats": "{users} ユーザー・最大 {machines} 台の Mac",
+          "commercial": "商用利用可（予算区分による制限なし）",
+          "updates": "v1.x アップデートは無料",
+          "major": "将来のメジャー v2 は既存ライセンス所有者に 50% off"
+        },
+        "buyCta": "${launchPrice} で購入",
+        "buyComingSoon": "購入は近日公開",
+        "refundLink": "返金ポリシー",
+        "deliveryNote": "フルライセンスは購入確認後 24 時間以内（通常は数時間以内）にメールでお届けします。待たずに使い始めるなら、下の trial 請求フォームをご利用ください — 待ち時間はありません。"
+      },
+      "trialRequest": {
+        "eyebrow": "14 日クリーン trial",
+        "title": "ウォーターマークなしで {trialDays} 日試す",
+        "body": "メールアドレスを入力すると、署名済みの {trialDays} 日 trial ライセンスをお送りします。クレジットカードは不要です。",
+        "emailNote": "届いた「Filmtone.license」を ~/Library/Application Support/Filmtone/ に置くだけで有効になります。"
+      },
+      "compat": {
+        "eyebrow": "動作環境",
+        "title": "動作確認済みの構成",
+        "verifiedLine": "{macos} / {resolve} で動作確認済み。",
+        "note": "これは動作確認済みの構成です。他のバージョンでの動作を保証する互換性の下限ではありません。"
+      },
+      "install": {
+        "eyebrow": "インストール",
+        "title": "導入手順",
+        "downloadCta": "インストーラをダウンロード (.pkg)",
+        "steps": {
+          "pkg": "署名・notarize 済みの「{pkg}」を実行してインストールします。",
+          "restart": "DaVinci Resolve を再起動します。",
+          "locate": "Effects Library の OpenFX、または Fusion のツールから Filmtone を探し、クリップまたはノードに適用します。",
+          "license": "購入または trial のメールに添付された「Filmtone.license」を {licensePath} に置きます（Finder からドラッグ 1 回）。",
+          "confirm": "フレームを再レンダーし、プラグインのステータス行でライセンス状態を確認します。"
+        },
+        "identifierLabel": "識別子 / bundle",
+        "statusLabel": "ステータス表示",
+        "fullGuideNote": "詳しいインストールガイドは公開準備中です。うまくいかない場合は下記のサポート窓口までご連絡ください。"
+      },
+      "footer": {
+        "eula": "使用許諾契約",
+        "refund": "返金ポリシー",
+        "trialPrivacy": "Trial プライバシー",
+        "support": "サポート窓口",
+        "backToFilmtone": "Filmtone に戻る"
+      }
+    },
+    "trialForm": {
+      "emailLabel": "メールアドレス",
+      "emailPlaceholder": "your@email.com",
+      "cta": "trial ライセンスを請求",
+      "submitting": "送信中…",
+      "successTitle": "メールを確認してください",
+      "successBody": "trial ライセンスを送信しました。数分で届かない場合は迷惑メールフォルダもご確認ください。同じアドレスで再請求しても同じ結果を返します（エラーではありません）。",
+      "errorRateLimited": "リクエストが集中しています。少し時間をおいて再度お試しください。",
+      "errorGeneric": "送信に失敗しました。少し時間をおいて再度お試しください。",
+      "errorMissingToken": "確認（Turnstile）が未完了です。チェックを完了してから送信してください。",
+      "turnstileUnavailable": "trial 請求フォームは現在一時的に利用できません。少し時間をおいて再度お試しください。",
+      "privacyPrefix": "メールアドレスの取り扱い:",
+      "privacyLink": "Trial プライバシー通知"
+    },
+    "eula": {
+      "metadata": {
+        "title": "使用許諾契約 — Filmtone for DaVinci Resolve",
+        "description": "Filmtone for DaVinci Resolve の使用許諾契約（EULA）。1 ユーザー・2 台、商用利用可、返金時の扱い、準拠法。"
+      },
+      "eyebrow": "使用許諾契約",
+      "title": "エンドユーザー使用許諾契約",
+      "effectiveNote": "ライセンサー: Takumi Chiba / forestone ・ 連絡先: chiba@fores-tone.co.jp ・ 発効日はリリース時に確定します。",
+      "intro": "本契約は、Filmtone for DaVinci Resolve（以下「本ソフトウェア」）の利用条件を定めます。購入またはインストールの前にご確認ください。",
+      "grant": {
+        "heading": "1. 使用許諾",
+        "body": "正規に購入した 1 名のユーザーは、本人が管理する最大 2 台の Mac に本ソフトウェアをインストールし、個人・商用の映像制作に利用できます。この許諾は非独占的で、第三者へ譲渡・再許諾できません。"
+      },
+      "restrictions": {
+        "heading": "2. 禁止事項",
+        "intro": "次の行為はできません。",
+        "items": [
+          "本ソフトウェア、インストーラー、ライセンスファイル、または秘密鍵の再配布・販売・貸与・共有。",
+          "1 名・2 台の範囲を超える共同利用。",
+          "本ソフトウェアまたはライセンス機構の回避・改変・リバースエンジニアリング（適用法令が明示的に認める範囲を除く）。",
+          "本ソフトウェアの一部を、独立した製品またはサービスとして提供する行為。"
+        ]
+      },
+      "ownership": {
+        "heading": "3. 権利帰属",
+        "body": "本ソフトウェアと関連資料の著作権その他の権利は、ライセンサーまたは正当な権利者に帰属します。本契約はソフトウェア自体の所有権を譲渡するものではありません。"
+      },
+      "trial": {
+        "heading": "4. Trial とライセンス",
+        "body": "未ライセンス状態では出力にウォーターマークが入ります。有効な trial または full ライセンスを配置すると、対応する期間・許諾範囲で clean 出力を利用できます。trial の有効期限が切れると、ウォーターマーク付きの状態へ戻ります。"
+      },
+      "refund": {
+        "heading": "5. 返金時の扱い",
+        "body": "返金が完了した場合、本ソフトウェアの使用許諾は終了します。購入者は full ライセンスファイルと配布物を削除し、その後の利用を停止してください。"
+      },
+      "warranty": {
+        "heading": "6. 保証と責任",
+        "body": "本ソフトウェアは現状有姿で提供されます。適用法令で許される範囲で、特定目的への適合性、無停止動作、すべての環境・素材との互換性を保証しません。ライセンサーの責任は、適用法令で除外できない責任を除き、当該購入について実際に支払われた金額を上限とします。消費者として法令上認められる権利を制限するものではありません。"
+      },
+      "termination": {
+        "heading": "7. 契約終了",
+        "body": "本契約に重大な違反があり、是正されない場合、使用許諾は終了します。終了後は本ソフトウェアとライセンスファイルを削除してください。"
+      },
+      "governing": {
+        "heading": "8. 準拠法",
+        "body": "本契約は日本法に準拠します。法令上別の裁判管轄が強制される場合を除き、本契約に関する紛争は東京地方裁判所を第一審の専属的合意管轄裁判所とします。"
+      },
+      "backCta": "プロダクトページに戻る"
+    },
+    "refund": {
+      "metadata": {
+        "title": "返金ポリシー — Filmtone for DaVinci Resolve",
+        "description": "Filmtone for DaVinci Resolve の返金ポリシー。購入から 14 暦日以内の返金受付、Merchant of Record は Polar。"
+      },
+      "eyebrow": "返金ポリシー",
+      "title": "返金ポリシー",
+      "effectiveNote": "連絡先: chiba@fores-tone.co.jp ・ 発効日はリリース時に確定します。Merchant of Record は Polar です。",
+      "window": {
+        "heading": "14 日間の返金受付",
+        "body": "Filmtone for DaVinci Resolve が制作環境や用途に合わなかった場合、購入日から 14 暦日以内に返金を申請できます。",
+        "request": "申請は、購入に使用したメールアドレスから chiba@fores-tone.co.jp へ、Polar の注文番号を添えてお送りください。確認に必要な場合を除き、返金理由の記載は任意です。"
+      },
+      "method": {
+        "heading": "返金方法",
+        "body": "返金は Merchant of Record である Polar を通じて処理され、原則として購入時の支払方法へ返金されます。税額の調整や反映時期は、Polar と決済事業者の処理に従います。",
+        "afterRefund": "返金完了後は使用許諾が終了します。full ライセンスファイルと本ソフトウェアを削除し、利用を停止してください。"
+      },
+      "after": {
+        "heading": "14 日経過後",
+        "body": "14 日経過後は、法令上必要な場合、重複決済、または提供内容に重大な不備がある場合を除き、購入者都合の返金は受け付けません。Polar は不正利用・chargeback 防止その他の理由により、独自の判断で返金を行う場合があります。"
+      },
+      "consumerRights": {
+        "heading": "消費者の権利",
+        "body": "このポリシーは、適用法令により認められる消費者の権利を制限しません。"
+      },
+      "backCta": "プロダクトページに戻る"
+    },
+    "trialPrivacy": {
+      "metadata": {
+        "title": "Trial プライバシー通知 — Filmtone for DaVinci Resolve",
+        "description": "14 日 trial 請求時のデータ処理について。Cloudflare Workers/KV・Turnstile・Resend を利用します。メールは広告に使用しません。"
+      },
+      "eyebrow": "Trial プライバシー",
+      "title": "Trial プライバシー通知",
+      "controllerNote": "運営者: Takumi Chiba / forestone ・ 連絡先: chiba@fores-tone.co.jp ・ 発効日はリリース時に確定します。",
+      "intro": "この通知は、Filmtone for DaVinci Resolve の trial ライセンスを請求するときのデータ処理を説明します。",
+      "info": {
+        "heading": "取得・処理する情報",
+        "items": [
+          "入力されたメールアドレス。",
+          "bot 対策と短時間の rate limit に必要な Turnstile token・IP アドレスなどの技術情報。",
+          "trial の発行日時・有効期限・送信結果に必要な最小限の運用情報。"
+        ]
+      },
+      "purposes": {
+        "heading": "利用目的",
+        "body": "メールアドレスは、trial ライセンスの発行・送付、同一アドレスへの重複発行防止、不正利用防止、問い合わせ対応のために利用します。広告配信やメーリングリスト登録には利用しません。"
+      },
+      "retention": {
+        "heading": "保存方法と期間",
+        "items": [
+          "Cloudflare KV には、メールアドレスそのものではなく HMAC-SHA256 による識別子と、発行日時・有効期限を約 400 日保存します。",
+          "IP アドレスそのものは KV へ保存せず、rate limit のため HMAC 識別子を約 1 時間保存します。",
+          "Worker のアプリケーションログには、メールアドレス・Resend のエラー本文・ライセンス内容を出力しません。",
+          "Resend は、宛先メールアドレス・件名・本文・添付ライセンスなど、メール配信に必要な情報を処理します。Resend 側の保持は同社の契約・プライバシー条件に従います。"
+        ]
+      },
+      "providers": {
+        "heading": "委託先",
+        "items": [
+          "Cloudflare Workers / KV: trial 発行処理、重複防止、rate limit。",
+          "Cloudflare Turnstile: bot 判定。ブラウザ・端末に関する技術的 signal を処理します。",
+          "Resend: trial メールと添付ライセンスの送信。"
+        ],
+        "note": "これらの事業者は日本国外でデータを処理する場合があります。各社の条件は下記の公式リンクからご確認いただけます。"
+      },
+      "requests": {
+        "heading": "開示・削除などの依頼",
+        "body": "trial データに関する質問、開示・訂正・削除の依頼は、請求に使用したメールアドレスから chiba@fores-tone.co.jp へご連絡ください。法令・セキュリティ・不正利用防止のため保持が必要な情報を除き、確認可能な範囲で対応します。"
+      },
+      "references": {
+        "label": "参考リンク",
+        "items": [
+          "https://developers.cloudflare.com/turnstile/",
+          "https://www.cloudflare.com/policies/privacy/",
+          "https://resend.com/legal/privacy-policy",
+          "https://resend.com/legal/dpa"
+        ]
+      },
+      "backCta": "プロダクトページに戻る"
+    }
+  },
   "photography": {
     "hero": {
       "label": "エディトリアル・イベントフォトグラファー",

@@ -1,4 +1,268 @@
 {
+  "filmtone-resolve": {
+    "metadata": {
+      "title": "Filmtone for DaVinci Resolve — Film Damage OFX plugin",
+      "description": "A one-time-purchase OFX color-grading plugin for DaVinci Resolve. Add deterministic, film-native dust, scratches, and gate wear. Permanent watermarked mode plus a 14-day clean trial.",
+      "ogTitle": "Filmtone for DaVinci Resolve",
+      "ogDescription": "Film damage as a one-time purchase. An OFX plugin for DaVinci Resolve.",
+      "ogImageAlt": "Filmtone for DaVinci Resolve preview"
+    },
+    "landing": {
+      "hero": {
+        "eyebrow": "DaVinci Resolve OFX plugin",
+        "title": "Filmtone for DaVinci Resolve",
+        "tagline": "Film damage on your footage. As a one-time purchase.",
+        "body": "Filmtone is an OFX color-grading plugin for DaVinci Resolve. It layers film-native dust, fibers, scratches, stains, and gate wear onto digital footage — deterministically and independent of resolution. Not a subscription.",
+        "buyCta": "Buy for ${launchPrice}",
+        "buyComingSoon": "Purchase opening soon",
+        "trialCta": "Request a {trialDays}-day trial",
+        "watermarkFloor": "No signup to try it. Run fully unlicensed and every feature works, with a “FILMTONE — TRIAL” watermark on each render — no time limit."
+      },
+      "facts": {
+        "priceLabel": "Price",
+        "priceValue": "${launchPrice} launch / ${normalPrice} normal",
+        "purchaseLabel": "Purchase",
+        "purchaseValue": "One-time purchase (no subscription)",
+        "seatsLabel": "License",
+        "seatsValue": "{users} user, up to {machines} Macs",
+        "verifiedLabel": "Verified on",
+        "verifiedValue": "{macos} / {resolve}"
+      },
+      "filmDamage": {
+        "eyebrow": "Film Damage",
+        "title": "Deliberate film wear, on purpose",
+        "body": "Filmtone's Film Damage is built around a film-native character: dark debris dominates, and white sparkle stays restrained. It integrates with your footage instead of dropping cheap white-fleck overlays on top.",
+        "items": {
+          "character": {
+            "title": "Dark-debris character",
+            "body": "Dust, fibers, stains, broken scratches, and gate-edge dirt. White sparkle stays rare and subordinate, for a sunken, film-like feel."
+          },
+          "families": {
+            "title": "Independent artifact families",
+            "body": "Dust, fibers/hairs, scratches, stains, and gate wear each dial in separately. Set every family to zero and it is an exact passthrough (identity)."
+          },
+          "deterministic": {
+            "title": "Deterministic, resolution-independent",
+            "body": "Same time, fps, seed, and params give the same result. Artifacts have coherent lifetimes and fades — no random per-frame popping — and scale matches between proxy and full resolution."
+          }
+        }
+      },
+      "positioning": {
+        "eyebrow": "One-time purchase",
+        "title": "A one-time purchase, not a subscription",
+        "body": "The closest comparable tool for this kind of finish is sold by subscription only. Filmtone offers that ground as a one-time purchase you keep. This does not claim quality parity with any specific competitor."
+      },
+      "trial": {
+        "eyebrow": "Two ways to try",
+        "title": "Try it first. For free.",
+        "body": "Filmtone has two ways to try it: a permanent watermarked mode and a 14-day clean trial.",
+        "permanent": {
+          "title": "Permanent watermarked mode (no signup)",
+          "body": "Run every feature, unlicensed, for as long as you like. Each render carries a “{watermark}” watermark. No time limit and no signup — this is the always-available evaluation floor."
+        },
+        "clean": {
+          "title": "14-day clean trial (request by email)",
+          "body": "Request it with an email address (no credit card) and a signed license arrives by email. {trialDays} days fully watermark-free, then it automatically reverts to the permanent watermarked mode."
+        }
+      },
+      "pricing": {
+        "eyebrow": "Pricing",
+        "title": "Buy once, keep using it",
+        "launchAmount": "${launchPrice}",
+        "normalAmount": "${normalPrice}",
+        "launchNote": "For the first {days} days after launch, the launch price is ${launchPrice} (${discount} off the normal ${normalPrice}).",
+        "included": {
+          "seats": "{users} user, up to {machines} Macs",
+          "commercial": "Commercial use allowed (no budget-tier restriction)",
+          "updates": "Free v1.x updates",
+          "major": "A future major v2 would be 50% off for existing owners"
+        },
+        "buyCta": "Buy for ${launchPrice}",
+        "buyComingSoon": "Purchase opening soon",
+        "refundLink": "Refund policy",
+        "deliveryNote": "Full licenses are emailed within 24 hours of purchase confirmation (usually much sooner). Want to start immediately? Request the 14-day trial below — no wait."
+      },
+      "trialRequest": {
+        "eyebrow": "14-day clean trial",
+        "title": "Try {trialDays} days watermark-free",
+        "body": "Enter an email address and we will send a signed {trialDays}-day trial license. No credit card required.",
+        "emailNote": "Drop the attached “Filmtone.license” into ~/Library/Application Support/Filmtone/ and it takes effect."
+      },
+      "compat": {
+        "eyebrow": "Requirements",
+        "title": "Verified configuration",
+        "verifiedLine": "Verified on {macos} with {resolve}.",
+        "note": "This is a verified configuration. It is not a compatibility floor or a guarantee of operation on other versions."
+      },
+      "install": {
+        "eyebrow": "Install",
+        "title": "How to install",
+        "downloadCta": "Download the installer (.pkg)",
+        "steps": {
+          "pkg": "Run the signed and notarized “{pkg}” to install.",
+          "restart": "Restart DaVinci Resolve.",
+          "locate": "Find Filmtone in the Effects Library under OpenFX, or in the Fusion tools, and apply it to a clip or node.",
+          "license": "Place the “Filmtone.license” attached to your purchase or trial email at {licensePath} (a single Finder drag).",
+          "confirm": "Re-render a frame and confirm the license state on the plugin's status line."
+        },
+        "identifierLabel": "Identifier / bundle",
+        "statusLabel": "Status line",
+        "fullGuideNote": "A fuller installation guide is being prepared. If anything does not work, contact the support address below."
+      },
+      "footer": {
+        "eula": "License agreement",
+        "refund": "Refund policy",
+        "trialPrivacy": "Trial privacy",
+        "support": "Support",
+        "backToFilmtone": "Back to Filmtone"
+      }
+    },
+    "trialForm": {
+      "emailLabel": "Email address",
+      "emailPlaceholder": "your@email.com",
+      "cta": "Request trial license",
+      "submitting": "Sending…",
+      "successTitle": "Check your email",
+      "successBody": "We have sent your trial license. If it does not arrive within a few minutes, check your spam folder. Requesting again with the same address returns the same result (it is not an error).",
+      "errorRateLimited": "Too many requests right now. Please wait a moment and try again.",
+      "errorGeneric": "Something went wrong. Please wait a moment and try again.",
+      "errorMissingToken": "The verification (Turnstile) is not complete. Finish the check, then submit.",
+      "turnstileUnavailable": "The trial request form is temporarily unavailable. Please try again in a little while.",
+      "privacyPrefix": "How we use your email:",
+      "privacyLink": "Trial Privacy Notice"
+    },
+    "eula": {
+      "metadata": {
+        "title": "End User License Agreement — Filmtone for DaVinci Resolve",
+        "description": "End User License Agreement for Filmtone for DaVinci Resolve: one user, two machines, commercial use, refunds, and governing law."
+      },
+      "eyebrow": "License",
+      "title": "End User License Agreement",
+      "effectiveNote": "Licensor: Takumi Chiba / forestone · Contact: chiba@fores-tone.co.jp · Effective date set at launch.",
+      "intro": "This agreement governs use of Filmtone for DaVinci Resolve (the “Software”). Review it before purchasing or installing the Software.",
+      "grant": {
+        "heading": "1. License grant",
+        "body": "One licensed user may install the Software on up to two Macs under that user's control and use it for personal or commercial video production. The license is non-exclusive and may not be transferred or sublicensed."
+      },
+      "restrictions": {
+        "heading": "2. Restrictions",
+        "intro": "You may not:",
+        "items": [
+          "redistribute, sell, lend, or share the Software, installer, license file, or private signing material;",
+          "share the license beyond one user and two machines;",
+          "bypass, modify, or reverse engineer the Software or licensing mechanism, except where applicable law expressly permits it; or",
+          "offer any part of the Software as a separate product or service."
+        ]
+      },
+      "ownership": {
+        "heading": "3. Ownership",
+        "body": "The Software and related materials remain the property of the licensor or the applicable rights holder. This agreement grants a license and does not transfer ownership of the Software."
+      },
+      "trial": {
+        "heading": "4. Trial and license behavior",
+        "body": "Unlicensed output contains a watermark. A valid trial or full license enables clean output for the applicable term or license scope. When a trial expires, the Software returns to watermarked trial mode."
+      },
+      "refund": {
+        "heading": "5. Refunds",
+        "body": "If a refund is completed, the license terminates. Delete the full license file and distributed Software, and stop using the Software."
+      },
+      "warranty": {
+        "heading": "6. Warranty and liability",
+        "body": "The Software is provided as is. To the extent permitted by law, the licensor does not warrant fitness for a particular purpose, uninterrupted operation, or compatibility with every environment or media file. Except for liability that cannot be excluded by law, aggregate liability is limited to the amount actually paid for the relevant purchase. Nothing here limits mandatory consumer rights."
+      },
+      "termination": {
+        "heading": "7. Termination",
+        "body": "The license may terminate for a material uncured breach of this agreement. After termination, delete the Software and license file."
+      },
+      "governing": {
+        "heading": "8. Governing law",
+        "body": "This agreement is governed by the laws of Japan. Unless mandatory law requires otherwise, the Tokyo District Court has exclusive jurisdiction as the court of first instance."
+      },
+      "backCta": "Back to product page"
+    },
+    "refund": {
+      "metadata": {
+        "title": "Refund Policy — Filmtone for DaVinci Resolve",
+        "description": "Refund policy for Filmtone for DaVinci Resolve: a 14-day refund window, processed through Polar as Merchant of Record."
+      },
+      "eyebrow": "Refunds",
+      "title": "Refund Policy",
+      "effectiveNote": "Contact: chiba@fores-tone.co.jp · Effective date set at launch. Polar is the Merchant of Record.",
+      "window": {
+        "heading": "14-day refund window",
+        "body": "If Filmtone for DaVinci Resolve does not fit your production setup or intended use, you may request a refund within 14 calendar days of purchase.",
+        "request": "Email chiba@fores-tone.co.jp from the address used for purchase and include your Polar order number. A reason is optional unless more information is needed to review the request."
+      },
+      "method": {
+        "heading": "Refund method",
+        "body": "Refunds are processed through Polar, the Merchant of Record, and normally return to the original payment method. Tax adjustments and posting time depend on Polar and the payment provider.",
+        "afterRefund": "After a refund is completed, the license terminates. Delete the full license file and Software and stop using them."
+      },
+      "after": {
+        "heading": "After 14 days",
+        "body": "After 14 days, change-of-mind refunds are not offered except where required by law, for duplicate charges, or where the delivered product has a material defect. Polar may also issue a refund at its discretion for fraud prevention, chargeback prevention, or other reasons."
+      },
+      "consumerRights": {
+        "heading": "Consumer rights",
+        "body": "This policy does not limit mandatory consumer rights under applicable law."
+      },
+      "backCta": "Back to product page"
+    },
+    "trialPrivacy": {
+      "metadata": {
+        "title": "Trial Privacy Notice — Filmtone for DaVinci Resolve",
+        "description": "How data is processed when you request a 14-day trial. Uses Cloudflare Workers/KV, Turnstile, and Resend. Your email is not used for advertising."
+      },
+      "eyebrow": "Trial privacy",
+      "title": "Trial Privacy Notice",
+      "controllerNote": "Controller: Takumi Chiba / forestone · Contact: chiba@fores-tone.co.jp · Effective date set at launch.",
+      "intro": "This notice explains data processing when you request a trial license for Filmtone for DaVinci Resolve.",
+      "info": {
+        "heading": "Information processed",
+        "items": [
+          "The email address you submit.",
+          "Technical information needed for bot protection and short-term rate limiting, including a Turnstile token and IP address.",
+          "Minimal operational data needed to issue the trial, record its issue and expiry times, and determine delivery status."
+        ]
+      },
+      "purposes": {
+        "heading": "Purposes",
+        "body": "The email address is used to issue and deliver the trial license, prevent duplicate trials for the same address, prevent abuse, and respond to support requests. It is not used for advertising or mailing-list enrollment."
+      },
+      "retention": {
+        "heading": "Storage and retention",
+        "items": [
+          "Cloudflare KV stores an HMAC-SHA256 identifier instead of the plaintext email, together with issue and expiry times, for approximately 400 days.",
+          "The plaintext IP address is not stored in KV. An HMAC identifier is retained for approximately one hour for rate limiting.",
+          "Application logs do not contain email addresses, Resend error bodies, or license contents.",
+          "Resend processes the recipient address, subject, message, and attached license as required to deliver the email. Resend retention follows its contractual and privacy terms."
+        ]
+      },
+      "providers": {
+        "heading": "Service providers",
+        "items": [
+          "Cloudflare Workers / KV: trial processing, duplicate prevention, and rate limiting.",
+          "Cloudflare Turnstile: bot detection using technical browser and device signals.",
+          "Resend: delivery of the trial email and attached license."
+        ],
+        "note": "These providers may process data outside Japan. You can review each provider's terms via the official links below."
+      },
+      "requests": {
+        "heading": "Requests",
+        "body": "For questions or requests for access, correction, or deletion, email chiba@fores-tone.co.jp from the address used for the trial request. We will respond where the record can be identified, except where retention is required by law, security needs, or abuse prevention."
+      },
+      "references": {
+        "label": "References",
+        "items": [
+          "https://developers.cloudflare.com/turnstile/",
+          "https://www.cloudflare.com/policies/privacy/",
+          "https://resend.com/legal/privacy-policy",
+          "https://resend.com/legal/dpa"
+        ]
+      },
+      "backCta": "Back to product page"
+    }
+  },
   "photography": {
     "hero": {
       "label": "Editorial Event Photographer",
