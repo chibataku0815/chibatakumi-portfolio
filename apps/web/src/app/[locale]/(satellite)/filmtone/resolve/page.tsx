@@ -314,7 +314,7 @@ export default async function FilmtoneResolvePage({
               {t("trialRequest.eyebrow")}
             </p>
             <h2 className="mt-3 text-xl font-semibold text-white sm:text-2xl">
-              {t("trialRequest.title")}
+              {t("trialRequest.title", { trialDays: filmtoneResolveTrialDays })}
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-white/70">
               {t("trialRequest.body", { trialDays: filmtoneResolveTrialDays })}
