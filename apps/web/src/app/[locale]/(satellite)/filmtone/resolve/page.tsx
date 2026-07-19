@@ -223,8 +223,12 @@ export default async function FilmtoneResolvePage({
         <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-white/45">
           {t("trial.eyebrow")}
         </p>
-        <h2 className="mt-3 text-xl font-semibold text-white sm:text-2xl">{t("trial.title")}</h2>
-        <p className="mt-3 max-w-3xl text-sm leading-relaxed text-white/70">{t("trial.body")}</p>
+        <h2 className="mt-3 text-xl font-semibold text-white sm:text-2xl">
+          {t("trial.title", { trialDays: filmtoneResolveTrialDays })}
+        </h2>
+        <p className="mt-3 max-w-3xl text-sm leading-relaxed text-white/70">
+          {t("trial.body", { trialDays: filmtoneResolveTrialDays })}
+        </p>
 
         <div className="mt-6 grid gap-3 lg:grid-cols-2">
           <div className="rounded-2xl border border-white/8 bg-black/20 p-5">
