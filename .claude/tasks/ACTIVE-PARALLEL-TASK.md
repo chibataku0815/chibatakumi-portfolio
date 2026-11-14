@@ -2,6 +2,19 @@
 
 ## 現在アクティブなタスク
 
+## Documentation Information Architecture and Governance (2026-07-14)
+- **Agent:** Codex
+- **Started:** 2026-07-14 JST
+- **Completed:** 2026-07-14 JST
+- **Status:** 完了
+- **Files:**
+  - `docs/README.md` (新規)
+  - `docs/DOCUMENTATION-GOVERNANCE.md` (新規)
+  - `docs/guides/life-repository-connection.md` (編集)
+  - `README.md` (編集: Filmtone 文書リンク修正)
+  - `.claude/tasks/ACTIVE-PARALLEL-TASK.md` (編集)
+- **Notes:** 既存文書は移動せず、全体索引と保守ルールを追加。Filmtone の欠落していた 3 本の導線は standalone 正本を参照する `vendor/filmtone` へ修正。
+
 ## Filmtone Public Surface Sync (2026-05-12)
 - **Agent:** Codex CLI
 - **Started:** 2026-05-12T02:20:00+0900 (JST)
