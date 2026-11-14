@@ -61,6 +61,7 @@ const staticPages: readonly StaticPage[] = [
   { path: "/journal", changeFrequency: "monthly", priority: 0.7 },
   { path: "/journal/motion-studies", changeFrequency: "monthly", priority: 0.6 },
   { path: "/contact", changeFrequency: "yearly", priority: 0.6 },
+  { path: "/privacy", changeFrequency: "yearly", priority: 0.3 },
 ];
 
 const journalArticlePages: readonly StaticPage[] = publishedJournalEntries.map(
